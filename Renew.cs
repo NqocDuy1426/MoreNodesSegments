@@ -16100,11 +16100,11 @@ namespace MoreNetworkCapacityRenew
         }
 
         [HarmonyPriority(Priority.First)]
-        public static bool TLM_TransportLineOverrides_RemoveVehicle_Prefix(ushort lineID, ref Vehicle vehicleData)
+        public static bool TLM_TransportLineOverrides_RemoveVehicle_Prefix(ushort vehicleID, ref Vehicle data)
         {
             try
             {
-                if (vehicleData.Info == null)
+                if (data.Info == null)
                 {
                     return false;
                 }

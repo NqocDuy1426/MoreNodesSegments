@@ -1386,7 +1386,7 @@ class TestSuite
 
             // 28.5 TransportLinesManager.Overrides.TransportLineOverrides.RemoveVehicle null vehicle guard
             bool tlmRemoveVehPatched = renewCode.Contains("TLM_TransportLineOverrides_RemoveVehicle_Prefix") &&
-                                       renewCode.Contains("vehicleData.Info == null") &&
+                                       (renewCode.Contains("data.Info == null") || renewCode.Contains("vehicleData.Info == null")) &&
                                        renewCode.Contains("TransportLinesManager.Overrides.TransportLineOverrides");
             Assert(tlmRemoveVehPatched, "TransportLinesManager RemoveVehicle hooked to safely skip broken vehicles with missing prefabs");
 
