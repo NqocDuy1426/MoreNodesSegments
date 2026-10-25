@@ -116,6 +116,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.10 - Pedestrian Traffic Light Armor & TLM Compatibility: Repaired pedestrian light state calculations and demand arbitration in RoadBaseAI.TrafficLightSimulationStep (preventing pedestrians from freezing at crosswalks); fixed TransportLinesManager RemoveVehicle patch signature to prevent loading NullReferenceException."
+	"changenote"		"v5.0.11 - Savegame Deserialization, Dynamic Buffer & Third-Party Mod Armor: Added multi-source savegame expansion detection (IsSaveGameExpanded) to reliably identify 64K expanded saves across save/load cycles; added fail-safe Dynamic Buffer Armor in NetManager.InitializeSegment & InitializeNode to auto-expand buffers on the fly and prevent IndexOutOfRangeException during loading; hooked TM:PE TrafficPriorityManager auto-expansion and bounds guards for segment IDs >= 36864; added dynamic grid bounds armor for DistrictManager.GetDistrict and GetPark eliminating 81 Tiles 2 IndexOutOfRangeException."
 }
 

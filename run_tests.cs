@@ -1481,6 +1481,59 @@ class TestSuite
 
 
         // ====================================================================
+        // TEST GROUP 31: Issue #2 Savegame Deserialization, Dynamic Buffer & Third-Party Mod Armor (v5.0.11)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 31: Issue #2 Savegame Deserialization, Dynamic Buffer & Third-Party Mod Armor (v5.0.11) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 31.1 IsSaveGameExpanded checks multi-source metadata
+            bool hasIsSaveGameExpanded = renewCode.Contains("IsSaveGameExpanded(SimulationMetaData meta = null") &&
+                                         renewCode.Contains("s_CurrentSaveIsExpanded") &&
+                                         renewCode.Contains("SaveGameMetaData") &&
+                                         renewCode.Contains("3818403598UL");
+            Assert(hasIsSaveGameExpanded, "IsSaveGameExpanded detects expanded saves via metadata, assets, workshop IDs, and in-memory flags");
+
+            // 31.2 Merge and LoadSimulationData enforce EnsureExpandedSave
+            bool hasMergeAndLoadHooks = renewCode.Contains("SimulationMetaData_Merge_Prefix") &&
+                                        renewCode.Contains("SimulationMetaData_Merge_Postfix") &&
+                                        renewCode.Contains("LoadingManager_LoadSimulationData_Prefix") &&
+                                        renewCode.Contains("SimulationManager_Data_Deserialize_Prefix");
+            Assert(hasMergeAndLoadHooks, "SimulationMetaData Merge, LoadSimulationData, and SimulationManager.Data.Deserialize hook EnsureExpandedSave");
+
+            // 31.3 NetManager InitializeSegment and InitializeNode dynamic buffer armor
+            bool hasNetManagerArmor = renewCode.Contains("NetManager_InitializeSegment_Prefix") &&
+                                      renewCode.Contains("NetManager_InitializeNode_Prefix") &&
+                                      renewCode.Contains("Dynamically expanded m_nodes buffer") &&
+                                      renewCode.Contains("InitializeSegment") &&
+                                      renewCode.Contains("InitializeNode");
+            Assert(hasNetManagerArmor, "NetManager InitializeSegment & InitializeNode dynamically expand buffers, preventing IndexOutOfRangeException on loading");
+
+            // 31.4 DistrictManager safe bounds armor (81 Tiles 2 compatibility)
+            bool hasDistrictArmor = renewCode.Contains("DistrictManager_GetDistrictInt_Prefix") &&
+                                    renewCode.Contains("DistrictManager_GetDistrict_Prefix") &&
+                                    renewCode.Contains("DistrictManager_GetPark_Prefix") &&
+                                    renewCode.Contains("Mathf.Clamp(x, 0, gridSize - 1)");
+            Assert(hasDistrictArmor, "DistrictManager GetDistrict & GetPark provide dynamic bounds clamping, eliminating 81 Tiles 2 IndexOutOfRangeException");
+
+            // 31.5 TM:PE TrafficPriorityManager bounds and array auto-expansion
+            bool hasTMPEPriorityArmor = renewCode.Contains("TrafficPriorityManager_Ctor_Postfix") &&
+                                        renewCode.Contains("TrafficPriorityManager_GetPrioritySign_Prefix") &&
+                                        renewCode.Contains("TrafficPriorityManager_SetPrioritySign_Prefix") &&
+                                        renewCode.Contains("TrafficPriorityManager_HasNodePrioritySign_Prefix");
+            Assert(hasTMPEPriorityArmor, "TM:PE TrafficPriorityManager arrays auto-expand to 65024 and signs are guarded against out-of-bounds segment IDs");
+
+            // 31.6 Level unload sanitizes s_CurrentSaveIsExpanded
+            bool hasLevelUnloadReset = renewCode.Contains("ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;");
+            Assert(hasLevelUnloadReset, "Level unload resets s_CurrentSaveIsExpanded to guarantee clean state across multi-save sessions");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 31 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");

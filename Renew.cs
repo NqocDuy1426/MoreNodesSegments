@@ -1683,10 +1683,95 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetSegment.GetLeftAndRightLanes: " + ex);
                 }
 
+                // Armored PrioritySigns & TrafficPriorityManager bounds protection
+                try
+                {
+                    Type tpmType = tmpe.GetType("TrafficManager.Manager.Impl.TrafficPriorityManager");
+                    if (tpmType != null)
+                    {
+                        // 1. .ctor postfix to auto-expand PrioritySegments and invalidPrioritySegments on creation
+                        ConstructorInfo ctor = tpmType.GetConstructor(Type.EmptyTypes);
+                        if (ctor != null)
+                        {
+                            MethodInfo post = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_Ctor_Postfix), BindingFlags.Public | BindingFlags.Static);
+                            if (post != null) harmony.Patch(ctor, postfix: new HarmonyMethod(post));
+                        }
+
+                        // 2. HasSegmentPrioritySign(ushort)
+                        MethodInfo mHas1 = tpmType.GetMethod("HasSegmentPrioritySign", new Type[] { typeof(ushort) });
+                        if (mHas1 != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_HasSegmentPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mHas1, prefix: new HarmonyMethod(pre));
+                        }
+
+                        // 3. HasSegmentPrioritySign(ushort, bool)
+                        MethodInfo mHas2 = tpmType.GetMethod("HasSegmentPrioritySign", new Type[] { typeof(ushort), typeof(bool) });
+                        if (mHas2 != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_HasSegmentPrioritySign2_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mHas2, prefix: new HarmonyMethod(pre));
+                        }
+
+                        // 4. HasNodePrioritySign(ushort)
+                        MethodInfo mHasNode = tpmType.GetMethod("HasNodePrioritySign", new Type[] { typeof(ushort) });
+                        if (mHasNode != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_HasNodePrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mHasNode, prefix: new HarmonyMethod(pre));
+                        }
+
+                        // 5. GetPrioritySign(ushort, bool)
+                        MethodInfo mGetSign = tpmType.GetMethod("GetPrioritySign", new Type[] { typeof(ushort), typeof(bool) });
+                        if (mGetSign != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_GetPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mGetSign, prefix: new HarmonyMethod(pre));
+                        }
+
+                        // 6. RemovePrioritySignFromSegmentEnd(ushort, bool)
+                        MethodInfo mRemSign = tpmType.GetMethod("RemovePrioritySignFromSegmentEnd", new Type[] { typeof(ushort), typeof(bool) });
+                        if (mRemSign != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_RemovePrioritySignFromSegmentEnd_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mRemSign, prefix: new HarmonyMethod(pre));
+                        }
+
+                        // 7. SetPrioritySign overloads
+                        foreach (var m in tpmType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+                        {
+                            if (m.Name == "SetPrioritySign")
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_SetPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (pre != null) harmony.Patch(m, prefix: new HarmonyMethod(pre));
+                            }
+                        }
+
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficPriorityManager with bounds-checking Harmony prefixes and dynamic auto-expansion.");
+                    }
+
+                    // Patch PrioritySignsTool.RefreshCurrentPriorityNodeIds
+                    Type pstType = tmpe.GetType("TrafficManager.UI.SubTools.PrioritySigns.PrioritySignsTool");
+                    if (pstType != null)
+                    {
+                        MethodInfo mRefresh = pstType.GetMethod("RefreshCurrentPriorityNodeIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mRefresh != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.PrioritySignsTool_RefreshCurrentPriorityNodeIds_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mRefresh, prefix: new HarmonyMethod(pre));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored PrioritySignsTool.RefreshCurrentPriorityNodeIds with bounds-safe prefix.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error patching TrafficPriorityManager: " + ex);
+                }
+
                 // ========================================================================
-                // ZERO HARMONY HOOKS INTO TM:PE METHODS ARCHITECTURE (v4.3.40)
+                // ZERO HARMONY HOOKS INTO TM:PE SIMULATION METHODS ARCHITECTURE (v4.3.40)
                 // ========================================================================
-                // TM:PE is left 100% native (zero Harmony hooks into TM:PE methods).
+                // TM:PE traffic simulation is left 100% native (zero Harmony hooks into simulation/pathfinding).
                 // All integration is achieved via direct memory buffer synchronization and official ThreadingExtensionBase.
                 // - VehicleAICommons: Left 100% native to TM:PE for natural physics & coordinates
                 // - VehicleBehaviorManager: Left 100% native to TM:PE for native despawn and segment transitions
@@ -3909,6 +3994,7 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
                 var sm = Singleton<SimulationManager>.instance;
                 if (sm != null && sm.m_metaData != null)
                 {
@@ -5544,6 +5630,31 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
+        public static void TrafficPriorityManager_Ctor_Postfix(object __instance)
+        {
+            try
+            {
+                if (__instance == null) return;
+                Type tpmType = __instance.GetType();
+                string[] fieldNames = new string[] { "PrioritySegments", "invalidPrioritySegments" };
+                foreach (string fname in fieldNames)
+                {
+                    FieldInfo f = tpmType.GetField(fname, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (f != null && f.GetValue(__instance) is Array arr && arr.Length < MNCConstants.CORE_NET_CAPACITY)
+                    {
+                        Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), MNCConstants.CORE_NET_CAPACITY);
+                        Array.Copy(arr, newArr, arr.Length);
+                        f.SetValue(__instance, newArr);
+                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] TrafficPriorityManager.ctor: Resized {0} {1} -> {2}", fname, arr.Length, MNCConstants.CORE_NET_CAPACITY));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TrafficPriorityManager_Ctor_Postfix error: " + ex);
+            }
+        }
+
         public static bool TrafficPriorityManager_RemovePrioritySignFromSegmentEnd_Prefix(object __instance, ushort segmentId, bool startNode)
         {
             if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
@@ -5599,6 +5710,96 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
+        public static bool TrafficPriorityManager_GetPrioritySign_Prefix(object __instance, ushort segmentId, bool startNode, ref object __result)
+        {
+            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            {
+                __result = 0; // PriorityType.None
+                return false;
+            }
+            if (__instance != null)
+            {
+                FieldInfo f = __instance.GetType().GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (f != null && f.GetValue(__instance) is Array arr && segmentId >= arr.Length)
+                {
+                    __result = 0; // PriorityType.None
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool TrafficPriorityManager_SetPrioritySign_Prefix(object __instance, ushort segmentId, ref bool __result)
+        {
+            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            {
+                __result = false;
+                return false;
+            }
+            if (__instance != null)
+            {
+                FieldInfo f = __instance.GetType().GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (f != null && f.GetValue(__instance) is Array arr && segmentId >= arr.Length)
+                {
+                    __result = false;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool TrafficPriorityManager_HasNodePrioritySign_Prefix(object __instance, ushort nodeId, ref bool __result)
+        {
+            try
+            {
+                if (NetManager.instance == null || NetManager.instance.m_nodes == null || NetManager.instance.m_nodes.m_buffer == null)
+                {
+                    __result = false;
+                    return false;
+                }
+                if (nodeId >= NetManager.instance.m_nodes.m_buffer.Length)
+                {
+                    __result = false;
+                    return false;
+                }
+                if (__instance != null)
+                {
+                    FieldInfo f = __instance.GetType().GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    Array arr = f != null ? f.GetValue(__instance) as Array : null;
+                    int arrLen = arr != null ? arr.Length : 0;
+
+                    MethodInfo hasSegSign = __instance.GetType().GetMethod("HasSegmentPrioritySign", new Type[] { typeof(ushort), typeof(bool) });
+                    NetNode node = NetManager.instance.m_nodes.m_buffer[nodeId];
+                    for (int i = 0; i < 8; i++)
+                    {
+                        ushort segId = node.GetSegment(i);
+                        if (segId != 0)
+                        {
+                            if (arrLen > 0 && segId >= arrLen) continue; // Out of bounds of priority array
+                            if (NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segId < NetManager.instance.m_segments.m_buffer.Length)
+                            {
+                                bool isStartNode = NetManager.instance.m_segments.m_buffer[segId].m_startNode == nodeId;
+                                if (hasSegSign != null && (bool)hasSegSign.Invoke(__instance, new object[] { segId, isStartNode }))
+                                {
+                                    __result = true;
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    __result = false;
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TrafficPriorityManager_HasNodePrioritySign_Prefix error: " + ex);
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+
         public static bool RoadUI_OnLevelUnloading_Prefix(object __instance)
         {
             try
@@ -5642,32 +5843,36 @@ namespace MoreNetworkCapacityRenew
                 ushort selectedNodeId = pSelNode != null ? (ushort)pSelNode.GetValue(__instance, null) : (ushort)0;
 
                 if (NetManager.instance == null || NetManager.instance.m_nodes == null || NetManager.instance.m_nodes.m_buffer == null)
-                    return true;
+                    return false;
 
                 int maxNode = Math.Min((int)MNCConstants.CORE_NET_CAPACITY, NetManager.instance.m_nodes.m_buffer.Length);
                 NetNode[] nodeBuffer = NetManager.instance.m_nodes.m_buffer;
 
                 for (int nodeId = 0; nodeId < maxNode; nodeId++)
                 {
-                    if ((nodeBuffer[nodeId].m_flags & NetNode.Flags.Created) != 0)
+                    try
                     {
-                        bool may = mayHaveSigns != null && (bool)mayHaveSigns.Invoke(tpmInst, new object[] { (ushort)nodeId });
-                        if (may)
+                        if ((nodeBuffer[nodeId].m_flags & NetNode.Flags.Created) != 0)
                         {
-                            bool has = hasSigns != null && (bool)hasSigns.Invoke(tpmInst, new object[] { (ushort)nodeId });
-                            if (has || (ushort)nodeId == selectedNodeId)
+                            bool may = mayHaveSigns != null && (bool)mayHaveSigns.Invoke(tpmInst, new object[] { (ushort)nodeId });
+                            if (may)
                             {
-                                set.Add((ushort)nodeId);
+                                bool has = hasSigns != null && (bool)hasSigns.Invoke(tpmInst, new object[] { (ushort)nodeId });
+                                if (has || (ushort)nodeId == selectedNodeId)
+                                {
+                                    set.Add((ushort)nodeId);
+                                }
                             }
                         }
                     }
+                    catch { }
                 }
                 return false;
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PrioritySignsTool_RefreshCurrentPriorityNodeIds_Prefix error: " + ex);
-                return true;
+                return false;
             }
         }
 
@@ -7794,6 +7999,7 @@ namespace MoreNetworkCapacityRenew
                 // Clear pending TM:PE serialized buffers, save diagnostics, and force garbage collection to prevent blue screen on reload
                 try
                 {
+                    ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
                     TMPECompatibility.ClearPendingTMPEData();
                     DiagnosticLogger.Reset();
 
@@ -9532,6 +9738,96 @@ namespace MoreNetworkCapacityRenew
         private static bool _morePathUnitsPatched = false;
         private static bool _transferManagerPatched = false;
         private static HarmonyInstance _harmonyInstance = null;
+        public static bool s_CurrentSaveIsExpanded = false;
+
+        public static bool IsSaveGameExpanded(SimulationMetaData meta = null, ColossalFramework.Packaging.Package.Asset asset = null)
+        {
+            try
+            {
+                if (s_CurrentSaveIsExpanded) return true;
+
+                if (meta == null)
+                {
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null) meta = sm.m_metaData;
+                }
+
+                if (meta != null)
+                {
+                    if (meta.m_updateMode == SimulationManager.UpdateMode.NewGameFromMap ||
+                        meta.m_updateMode == SimulationManager.UpdateMode.NewGameFromScenario ||
+                        meta.m_updateMode == SimulationManager.UpdateMode.NewMap ||
+                        meta.m_updateMode == SimulationManager.UpdateMode.NewScenarioFromMap)
+                    {
+                        return true;
+                    }
+
+                    if (meta.m_modOverride != null)
+                    {
+                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K-v1") && meta.m_modOverride["User/MoreNetworkCapacity/64K-v1"])
+                            return true;
+                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K") && meta.m_modOverride["User/MoreNetworkCapacity/64K"])
+                            return true;
+                    }
+                }
+
+                if (asset != null)
+                {
+                    try
+                    {
+                        var saveMeta = asset.Instantiate<SaveGameMetaData>();
+                        if (saveMeta != null && saveMeta.mods != null)
+                        {
+                            foreach (var mod in saveMeta.mods)
+                            {
+                                if (mod.modWorkshopID == 3818403598UL || mod.modWorkshopID == 3814019901UL ||
+                                    (!string.IsNullOrEmpty(mod.modName) && (mod.modName.Contains("MoreNodes") || mod.modName.Contains("MoreNetworkCapacity") || mod.modName.Contains("64K"))))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (asset.package != null)
+                        {
+                            foreach (ColossalFramework.Packaging.Package.Asset entry in asset.package)
+                            {
+                                if (entry != null && !string.IsNullOrEmpty(entry.name))
+                                {
+                                    if (entry.name.Contains("MoreNetworkCapacity") || entry.name.Contains("MoreNodes") || entry.name.Contains("HighIdTMPEData"))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
+                    {
+                        Type metaType = asm.GetType("MoreNetworkCapacity.Metadata");
+                        if (metaType != null)
+                        {
+                            MethodInfo mIs = metaType.GetMethod("IsExpandedSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mIs != null && (bool)mIs.Invoke(null, null)) return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] IsSaveGameExpanded check error: " + ex);
+            }
+            return false;
+        }
 
         public static void Apply(HarmonyInstance harmony)
         {
@@ -11589,6 +11885,9 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                if (s_CurrentSaveIsExpanded) return true;
+                if (IsSaveGameExpanded()) return true;
+
                 var sm = Singleton<SimulationManager>.instance;
                 if (sm != null && sm.m_metaData != null && sm.m_metaData.m_modOverride != null)
                 {
@@ -12645,6 +12944,56 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching VehicleManager.Data.AfterDeserialize: " + ex);
                 }
 
+                // 3l. Patch DistrictManager.GetDistrict & GetPark (81 Tiles 2 IndexOutOfRangeException Armor)
+                try
+                {
+                    MethodInfo getDistInt = typeof(DistrictManager).GetMethod("GetDistrict", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int), typeof(int) }, null);
+                    if (getDistInt != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DistrictManager_GetDistrictInt_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(getDistInt, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    MethodInfo getDistVec = typeof(DistrictManager).GetMethod("GetDistrict", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Vector3) }, null);
+                    if (getDistVec != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DistrictManager_GetDistrict_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(getDistVec, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    MethodInfo getParkVec = typeof(DistrictManager).GetMethod("GetPark", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Vector3) }, null);
+                    if (getParkVec != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DistrictManager_GetPark_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(getParkVec, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DistrictManager GetDistrict & GetPark with Safe Bounds Armor (Priority.First).");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching DistrictManager: " + ex);
+                }
+
+                // 3m. Patch NetManager.InitializeSegment & InitializeNode (Dynamic Buffer Armor against stream desync crashes)
+                try
+                {
+                    MethodInfo initSeg = typeof(NetManager).GetMethod("InitializeSegment", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, null);
+                    if (initSeg != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeSegment_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(initSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    MethodInfo initNode = typeof(NetManager).GetMethod("InitializeNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null);
+                    if (initNode != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeNode_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(initNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager InitializeSegment & InitializeNode with Dynamic Buffer Armor (Priority.First).");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetManager InitializeSegment/Node: " + ex);
+                }
+
                 // Do NOT patch external manager Data.Serialize methods (TreeManager, VehicleManager, BuildingManager,
                 // CitizenManager, DistrictManager, PathManager) with Harmony! Mods like TreeUnlimiter (Unlimited Trees),
                 // More Vehicles, and More Buildings detour these methods using RedirectionHelper native jumps.
@@ -13212,6 +13561,7 @@ namespace MoreNetworkCapacityRenew
 
         public static void PreSaveSanitization()
         {
+            try { TMPECompatibility.EnsureExpandedSave(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureExpandedSave error: " + ex); }
             try { ThirdPartyCompatibility.EnsureEightyOne2Patched(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureEightyOne2 error: " + ex); }
             try { ThirdPartyCompatibility.EnsureMorePathUnitsPatched(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureMorePathUnits error: " + ex); }
             try { ThirdPartyCompatibility.SynchronizeMorePathUnits("PreSaveSanitization"); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave MorePathUnits sync error: " + ex); }
@@ -13869,6 +14219,10 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                if (ThirdPartyCompatibility.IsSaveGameExpanded())
+                {
+                    TMPECompatibility.EnsureExpandedSave();
+                }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationManager.Data.Deserialize.Prefix");
             }
@@ -14691,6 +15045,12 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 if (__instance == null || source == null) return;
+
+                if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
+                {
+                    TMPECompatibility.EnsureExpandedSave();
+                }
+
                 // Bidirectional merge to guarantee no key from savegame is EVER lost!
                 if (__instance.m_modOverride != null && source.m_modOverride != null)
                 {
@@ -14724,6 +15084,18 @@ namespace MoreNetworkCapacityRenew
                 {
                     __instance.m_modOverride = new Dictionary<string, bool>();
                 }
+                if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
+                {
+                    TMPECompatibility.EnsureExpandedSave();
+                    if (__instance != null && __instance.m_modOverride != null)
+                    {
+                        __instance.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                    }
+                    if (source != null && source.m_modOverride != null)
+                    {
+                        source.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                    }
+                }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationMetaData.Merge.Postfix");
             }
@@ -14740,6 +15112,16 @@ namespace MoreNetworkCapacityRenew
                 RenewLoading.EnsureAllPatchesApplied();
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("LoadingManager.LoadSimulationData.Prefix");
+
+                if (ThirdPartyCompatibility.IsSaveGameExpanded(ngs, asset))
+                {
+                    TMPECompatibility.EnsureExpandedSave();
+                    if (ngs != null && ngs.m_modOverride != null)
+                    {
+                        ngs.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                    }
+                }
+
                 // ONLY append if ngs already had an initialized modOverride dictionary!
                 // If ngs.m_modOverride is null, LEAVE IT NULL so vanilla Merge does not wipe save metadata!
                 if (ngs != null && ngs.m_modOverride != null)
@@ -14754,6 +15136,196 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadingManager_LoadSimulationData_Prefix error: " + ex);
             }
+        }
+
+        public static bool DistrictManager_GetDistrictInt_Prefix(DistrictManager __instance, int x, int z, ref byte __result)
+        {
+            try
+            {
+                if (__instance == null || __instance.m_districtGrid == null)
+                {
+                    __result = 0;
+                    return false;
+                }
+                var grid = __instance.m_districtGrid;
+                int len = grid.Length;
+                if (len == 0)
+                {
+                    __result = 0;
+                    return false;
+                }
+                int gridSize = (int)Math.Sqrt(len);
+                if (gridSize <= 0) gridSize = 512;
+
+                x = Mathf.Clamp(x, 0, gridSize - 1);
+                z = Mathf.Clamp(z, 0, gridSize - 1);
+
+                int index = z * gridSize + x;
+                if (index >= 0 && index < len)
+                {
+                    __result = grid[index].m_district1;
+                }
+                else
+                {
+                    __result = 0;
+                }
+                return false;
+            }
+            catch
+            {
+                __result = 0;
+                return false;
+            }
+        }
+
+        public static bool DistrictManager_GetDistrict_Prefix(DistrictManager __instance, Vector3 worldPos, ref byte __result)
+        {
+            try
+            {
+                if (__instance == null || __instance.m_districtGrid == null)
+                {
+                    __result = 0;
+                    return false;
+                }
+                var grid = __instance.m_districtGrid;
+                int len = grid.Length;
+                if (len == 0)
+                {
+                    __result = 0;
+                    return false;
+                }
+                int gridSize = (int)Math.Sqrt(len);
+                if (gridSize <= 0) gridSize = 512;
+                float halfGrid = gridSize * 0.5f;
+
+                int num = Mathf.Clamp((int)(worldPos.x / 19.2f + halfGrid), 0, gridSize - 1);
+                int num2 = Mathf.Clamp((int)(worldPos.z / 19.2f + halfGrid), 0, gridSize - 1);
+                int index = num2 * gridSize + num;
+                if (index >= 0 && index < len)
+                {
+                    __result = grid[index].m_district1;
+                }
+                else
+                {
+                    __result = 0;
+                }
+                return false;
+            }
+            catch
+            {
+                __result = 0;
+                return false;
+            }
+        }
+
+        public static bool DistrictManager_GetPark_Prefix(DistrictManager __instance, Vector3 worldPos, ref byte __result)
+        {
+            try
+            {
+                if (__instance == null || __instance.m_parkGrid == null)
+                {
+                    __result = 0;
+                    return false;
+                }
+                var grid = __instance.m_parkGrid;
+                int len = grid.Length;
+                if (len == 0)
+                {
+                    __result = 0;
+                    return false;
+                }
+                int gridSize = (int)Math.Sqrt(len);
+                if (gridSize <= 0) gridSize = 512;
+                float halfGrid = gridSize * 0.5f;
+
+                int num = Mathf.Clamp((int)(worldPos.x / 19.2f + halfGrid), 0, gridSize - 1);
+                int num2 = Mathf.Clamp((int)(worldPos.z / 19.2f + halfGrid), 0, gridSize - 1);
+                int index = num2 * gridSize + num;
+                if (index >= 0 && index < len)
+                {
+                    __result = grid[index].m_district1;
+                }
+                else
+                {
+                    __result = 0;
+                }
+                return false;
+            }
+            catch
+            {
+                __result = 0;
+                return false;
+            }
+        }
+
+        public static bool NetManager_InitializeSegment_Prefix(NetManager __instance, ushort segment, ref NetSegment data)
+        {
+            try
+            {
+                if (__instance != null)
+                {
+                    int maxReq = Math.Max((int)data.m_startNode, (int)data.m_endNode);
+                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    {
+                        if (maxReq >= __instance.m_nodes.m_buffer.Length)
+                        {
+                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                            TMPECompatibility.EnsureExpandedSave();
+                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, maxReq + 1024);
+                            if (__instance.m_nodes.m_buffer.Length < targetSize)
+                            {
+                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
+                            }
+                        }
+                    }
+                    if (__instance.m_segments != null && __instance.m_segments.m_buffer != null)
+                    {
+                        if (segment >= __instance.m_segments.m_buffer.Length)
+                        {
+                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                            TMPECompatibility.EnsureExpandedSave();
+                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)segment + 1024);
+                            if (__instance.m_segments.m_buffer.Length < targetSize)
+                            {
+                                Array.Resize(ref __instance.m_segments.m_buffer, targetSize);
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeSegment_Prefix armor error: " + ex);
+            }
+            return true;
+        }
+
+        public static bool NetManager_InitializeNode_Prefix(NetManager __instance, ushort node, ref NetNode data)
+        {
+            try
+            {
+                if (__instance != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                {
+                    if (node >= __instance.m_nodes.m_buffer.Length)
+                    {
+                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                        TMPECompatibility.EnsureExpandedSave();
+                        int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)node + 1024);
+                        if (__instance.m_nodes.m_buffer.Length < targetSize)
+                        {
+                            Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeNode_Prefix armor error: " + ex);
+            }
+            return true;
         }
 
          public static bool TransportLine_GetNextStop_Prefix(ushort stop, ref ushort __result)
