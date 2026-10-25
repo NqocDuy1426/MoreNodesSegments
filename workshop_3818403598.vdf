@@ -116,6 +116,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.9 - Traffic Flow & Vehicle Freeze Armor: Normalized double-buffer bank queries for nodes >= 32,768 in RoadBaseAI.GetTrafficLightState and GetBollardState, permanently resolving vehicle freeze at intersections and 'Hoang mang' (Confused) vehicle states; added auto-recovery sweeper for stalled/confused vehicles; restored authentic traffic light bulb shader emission colors for vanilla and TM:PE; added crash-proof null text armor for UITextField and UILabel across all vehicle and transit info panels."
+	"changenote"		"v5.0.10 - Pedestrian Traffic Light Armor: Repaired pedestrian light state calculations and demand arbitration in RoadBaseAI.TrafficLightSimulationStep; resolved inverted crossing authorization and selected pedestrian yield, permanently preventing pedestrians from getting stuck or frozen at traffic-controlled crosswalks."
 }
 

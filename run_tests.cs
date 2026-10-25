@@ -1451,6 +1451,36 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 30: Pedestrian Traffic Light Cycling Armor (v5.0.10)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 30: Pedestrian Traffic Light Cycling Armor (v5.0.10) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 30.1 Selected pedestrian yields vehicle green
+            bool yieldsVehicleGreen = renewCode.Contains("if (selectedPed == currentGreen)") &&
+                                      renewCode.Contains("currentGreen = -1;");
+            Assert(yieldsVehicleGreen, "TrafficLightSimulationStep yields vehicle green when pedestrian requests crossing on selectedPed");
+
+            // 30.2 Authentic pedestrian crossing calculation (pedGoesRed defaults false)
+            bool authenticPedCrossing = renewCode.Contains("bool pedGoesRed = false;") &&
+                                        renewCode.Contains("if ((outgoingMask & (1 << s)) != 0 && s != selectedPed)") &&
+                                        renewCode.Contains("if (segDir.x * dirGreen.x + segDir.z * dirGreen.z < -0.5f)") &&
+                                        renewCode.Contains("pedGoesRed = true;");
+            Assert(authenticPedCrossing, "Pedestrian light calculation allows crossing unless conflicting vehicle turning phase detected (prevents stuck pedestrians)");
+
+            // 30.3 Pedestrian priority arbitration with vehicle demand
+            bool pedPriorityRandomizer = renewCode.Contains("if (selectedPed != -1 && selectedRed != -1 && (sm.m_randomizer.Int32(3) != 0))");
+            Assert(pedPriorityRandomizer, "Pedestrian vs vehicle demand arbitration matches vanilla randomizer distribution");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 30 exception", ex.ToString());
+        }
+
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");

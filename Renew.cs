@@ -8714,7 +8714,7 @@ namespace MoreNetworkCapacityRenew
                     selectedPed = -1;
                 }
 
-                if (selectedPed != -1 && selectedRed != -1 && (sm.m_randomizer.Int32(3) == 0))
+                if (selectedPed != -1 && selectedRed != -1 && (sm.m_randomizer.Int32(3) != 0))
                 {
                     selectedPed = -1;
                 }
@@ -8726,7 +8726,7 @@ namespace MoreNetworkCapacityRenew
 
                 if (selectedPed == currentGreen)
                 {
-                    selectedPed = -1;
+                    currentGreen = -1;
                 }
 
                 Vector3 currentGreenDir = Vector3.zero;
@@ -8854,20 +8854,38 @@ namespace MoreNetworkCapacityRenew
                         }
 
                         Vector3 segDir = nm.m_segments.m_buffer[segId].GetDirection(nodeID);
-                        bool pedCrossingAllowed = false;
+                        bool pedGoesRed = false;
 
                         if ((outgoingMask & (1 << s)) != 0 && s != selectedPed)
                         {
-                            if (currentGreen == -1 || (segDir.x * dirGreen.x + segDir.z * dirGreen.z >= -0.5f))
+                            if (currentGreen != -1)
                             {
-                                if (oppositeGreen == -1 || (segDir.x * dirOpposite.x + segDir.z * dirOpposite.z >= -0.5f))
+                                if (segDir.x * dirGreen.x + segDir.z * dirGreen.z < -0.5f)
                                 {
-                                    pedCrossingAllowed = true;
+                                    pedGoesRed = true;
+                                }
+                            }
+                            if (!pedGoesRed && oppositeGreen != -1)
+                            {
+                                if (segDir.x * dirOpposite.x + segDir.z * dirOpposite.z < -0.5f)
+                                {
+                                    pedGoesRed = true;
                                 }
                             }
                         }
 
-                        if (pedCrossingAllowed)
+                        if (pedGoesRed)
+                        {
+                            if ((pedState & RoadBaseAI.TrafficLightState.Red) == 0)
+                            {
+                                pedState = RoadBaseAI.TrafficLightState.GreenToRed;
+                            }
+                            else
+                            {
+                                pedState = RoadBaseAI.TrafficLightState.Red;
+                            }
+                        }
+                        else
                         {
                             if ((pedState & RoadBaseAI.TrafficLightState.Red) != 0)
                             {
@@ -8878,17 +8896,6 @@ namespace MoreNetworkCapacityRenew
                             else
                             {
                                 pedState = RoadBaseAI.TrafficLightState.Green;
-                            }
-                        }
-                        else
-                        {
-                            if ((pedState & RoadBaseAI.TrafficLightState.Red) == 0)
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.GreenToRed;
-                            }
-                            else
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.Red;
                             }
                         }
                     }
