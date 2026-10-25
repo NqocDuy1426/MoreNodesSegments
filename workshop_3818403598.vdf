@@ -116,6 +116,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.10 - Pedestrian Traffic Light Armor: Repaired pedestrian light state calculations and demand arbitration in RoadBaseAI.TrafficLightSimulationStep; resolved inverted crossing authorization and selected pedestrian yield, permanently preventing pedestrians from getting stuck or frozen at traffic-controlled crosswalks."
+	"changenote"		"v5.0.10 - Pedestrian Traffic Light Armor & TLM Compatibility: Repaired pedestrian light state calculations and demand arbitration in RoadBaseAI.TrafficLightSimulationStep (preventing pedestrians from freezing at crosswalks); fixed TransportLinesManager RemoveVehicle patch signature to prevent loading NullReferenceException."
 }
 
