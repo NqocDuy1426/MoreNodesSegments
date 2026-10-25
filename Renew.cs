@@ -1725,7 +1725,8 @@ namespace MoreNetworkCapacityRenew
                         MethodInfo mGetSign = tpmType.GetMethod("GetPrioritySign", new Type[] { typeof(ushort), typeof(bool) });
                         if (mGetSign != null)
                         {
-                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_GetPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_GetPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(ushort), typeof(bool), typeof(object).MakeByRefType() }, null)
+                                          ?? typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_GetPrioritySign_Prefix), BindingFlags.Public | BindingFlags.Static);
                             if (pre != null) harmony.Patch(mGetSign, prefix: new HarmonyMethod(pre));
                         }
 
@@ -1750,17 +1751,149 @@ namespace MoreNetworkCapacityRenew
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficPriorityManager with bounds-checking Harmony prefixes and dynamic auto-expansion.");
                     }
 
-                    // Patch PrioritySignsTool.RefreshCurrentPriorityNodeIds
-                    Type pstType = tmpe.GetType("TrafficManager.UI.SubTools.PrioritySigns.PrioritySignsTool");
-                    if (pstType != null)
+                    // Synchronize & Arm All TM:PE UI SubTools (Speed Limits, Priority Signs, Junction Restrictions, Lane Connectors, Vehicle Restrictions, Toggle Traffic Lights, Timed Traffic Lights, Parking Restrictions)
+                    try
                     {
-                        MethodInfo mRefresh = pstType.GetMethod("RefreshCurrentPriorityNodeIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mRefresh != null)
+                        MethodInfo mDynamicLimits = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TranspileDynamicLimits), BindingFlags.Public | BindingFlags.Static);
+                        HarmonyMethod hTranspiler = mDynamicLimits != null ? new HarmonyMethod(mDynamicLimits) : null;
+
+                        // 8a. PrioritySignsTool.RefreshCurrentPriorityNodeIds
+                        Type pstType = tmpe.GetType("TrafficManager.UI.SubTools.PrioritySigns.PrioritySignsTool");
+                        if (pstType != null)
                         {
-                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.PrioritySignsTool_RefreshCurrentPriorityNodeIds_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            if (pre != null) harmony.Patch(mRefresh, prefix: new HarmonyMethod(pre));
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored PrioritySignsTool.RefreshCurrentPriorityNodeIds with bounds-safe prefix.");
+                            MethodInfo mRefresh = pstType.GetMethod("RefreshCurrentPriorityNodeIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefresh != null)
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.PrioritySignsTool_RefreshCurrentPriorityNodeIds_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                harmony.Patch(mRefresh, prefix: pre != null ? new HarmonyMethod(pre) : null, transpiler: hTranspiler);
+                                TMPEPatches.s_PrioritySignsTranspiled = (hTranspiler != null);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized PrioritySignsTool.RefreshCurrentPriorityNodeIds across all expanded nodes.");
+                            }
                         }
+
+                        // 8b. SpeedLimitsOverlay.ShowSigns_RefreshVisibleSegmentsCache
+                        Type sloType = tmpe.GetType("TrafficManager.UI.SubTools.SpeedLimits.Overlay.SpeedLimitsOverlay");
+                        if (sloType != null)
+                        {
+                            MethodInfo mRefreshCache = sloType.GetMethod("ShowSigns_RefreshVisibleSegmentsCache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefreshCache != null)
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.SpeedLimitsOverlay_ShowSigns_RefreshVisibleSegmentsCache_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                harmony.Patch(mRefreshCache, prefix: pre != null ? new HarmonyMethod(pre) : null, transpiler: hTranspiler);
+                                TMPEPatches.s_SpeedOverlayTranspiled = (hTranspiler != null);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized SpeedLimitsOverlay.ShowSigns_RefreshVisibleSegmentsCache in real-time across all expanded segments.");
+                            }
+                        }
+
+                        // 8c. ParkingRestrictionsTool.ShowSigns
+                        Type prtType = tmpe.GetType("TrafficManager.UI.SubTools.ParkingRestrictionsTool");
+                        if (prtType != null)
+                        {
+                            MethodInfo mShowSigns = prtType.GetMethod("ShowSigns", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mShowSigns != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mShowSigns, transpiler: hTranspiler);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized ParkingRestrictionsTool.ShowSigns across all segments.");
+                            }
+                        }
+
+                        // 8d. JunctionRestrictionsTool.RefreshCurrentRestrictedNodeIds
+                        Type jrtType = tmpe.GetType("TrafficManager.UI.SubTools.JunctionRestrictionsTool");
+                        if (jrtType != null)
+                        {
+                            MethodInfo mRefreshJR = jrtType.GetMethod("RefreshCurrentRestrictedNodeIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefreshJR != null)
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.JunctionRestrictionsTool_RefreshCurrentRestrictedNodeIds_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                harmony.Patch(mRefreshJR, prefix: pre != null ? new HarmonyMethod(pre) : null, transpiler: hTranspiler);
+                                TMPEPatches.s_JrtTranspiled = (hTranspiler != null);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized JunctionRestrictionsTool.RefreshCurrentRestrictedNodeIds across all nodes.");
+                            }
+                        }
+
+                        // 8e. LaneConnectorTool (ShowOverlay & RefreshCurrentNodeMarkers)
+                        Type lctType = tmpe.GetType("TrafficManager.UI.SubTools.LaneConnectorTool");
+                        if (lctType != null)
+                        {
+                            MethodInfo mShowOverlay = lctType.GetMethod("ShowOverlay", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mShowOverlay != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mShowOverlay, transpiler: hTranspiler);
+                            }
+                            MethodInfo mRefreshMarkers = lctType.GetMethod("RefreshCurrentNodeMarkers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefreshMarkers != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mRefreshMarkers, transpiler: hTranspiler);
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized LaneConnectorTool across all nodes.");
+                        }
+
+                        // 8f. VehicleRestrictionsTool.RefreshCurrentRestrictedSegmentIds
+                        Type vrtType = tmpe.GetType("TrafficManager.UI.SubTools.VehicleRestrictionsTool");
+                        if (vrtType != null)
+                        {
+                            MethodInfo mRefreshVRT = vrtType.GetMethod("RefreshCurrentRestrictedSegmentIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefreshVRT != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mRefreshVRT, transpiler: hTranspiler);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized VehicleRestrictionsTool.RefreshCurrentRestrictedSegmentIds across all segments.");
+                            }
+                        }
+
+                        // 8g. ToggleTrafficLightsTool.FilterVisibleNodes
+                        Type ttltType = tmpe.GetType("TrafficManager.UI.SubTools.ToggleTrafficLightsTool");
+                        if (ttltType != null)
+                        {
+                            MethodInfo mFilterNodes = ttltType.GetMethod("FilterVisibleNodes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mFilterNodes != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mFilterNodes, transpiler: hTranspiler);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized ToggleTrafficLightsTool.FilterVisibleNodes across all nodes.");
+                            }
+                        }
+
+                        // 8h. TimedTrafficLightsTool.RefreshCurrentTimedNodeIds
+                        Type ttlsType = tmpe.GetType("TrafficManager.UI.SubTools.TTL.TimedTrafficLightsTool");
+                        if (ttlsType != null)
+                        {
+                            MethodInfo mRefreshTTL = ttlsType.GetMethod("RefreshCurrentTimedNodeIds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (mRefreshTTL != null && hTranspiler != null)
+                            {
+                                harmony.Patch(mRefreshTTL, transpiler: hTranspiler);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Synchronized TimedTrafficLightsTool.RefreshCurrentTimedNodeIds across all nodes.");
+                            }
+                        }
+
+                        // 8i. GenericArrayCache constructors (auto-expand new caches to CORE_NET_CAPACITY)
+                        Type genCacheType = tmpe.GetType("TrafficManager.Util.Caching.GenericArrayCache`1");
+                        if (genCacheType != null)
+                        {
+                            MethodInfo preCtor = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.GenericArrayCache_Ctor_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (preCtor != null)
+                            {
+                                Type sloTypeNested = sloType != null ? sloType.GetNestedType("CachedSegment", BindingFlags.Public | BindingFlags.NonPublic) : null;
+                                Type[] targetGenericTypes = new Type[]
+                                {
+                                    typeof(ushort),
+                                    sloTypeNested
+                                };
+                                foreach (var gType in targetGenericTypes)
+                                {
+                                    if (gType == null) continue;
+                                    Type closedType = genCacheType.MakeGenericType(gType);
+                                    ConstructorInfo ctorCache = closedType.GetConstructor(new Type[] { typeof(int) });
+                                    if (ctorCache != null)
+                                    {
+                                        harmony.Patch(ctorCache, prefix: new HarmonyMethod(preCtor));
+                                    }
+                                }
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Auto-expanded GenericArrayCache constructors to 64K capacity.");
+                            }
+                        }
+                    }
+                    catch (Exception exSubTools)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error synchronizing TM:PE SubTools: " + exSubTools);
                     }
                 }
                 catch (Exception ex)
@@ -3327,13 +3460,14 @@ namespace MoreNetworkCapacityRenew
                         {
                             Array targetArr = arr;
                             Type elemType = arr.GetType().GetElementType();
-                            if (arr.Length < MNCConstants.CORE_SPLIT_CAPACITY)
+                            int targetSplitCap = Math.Max(131072, MNCConstants.CORE_SPLIT_CAPACITY);
+                            if (arr.Length < targetSplitCap)
                             {
-                                Array newArr = Array.CreateInstance(elemType, MNCConstants.CORE_SPLIT_CAPACITY);
+                                Array newArr = Array.CreateInstance(elemType, targetSplitCap);
                                 Array.Copy(arr, newArr, arr.Length);
                                 f.SetValue(inst, newArr);
                                 targetArr = newArr;
-                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Expanded ExtSegmentEndManager.ExtSegmentEnds: {0} -> 130048", arr.Length));
+                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Expanded ExtSegmentEndManager.ExtSegmentEnds: {0} -> {1}", arr.Length, targetSplitCap));
                             }
 
                             // Ensure all 65,024 segment ends are properly constructed
@@ -3416,13 +3550,14 @@ namespace MoreNetworkCapacityRenew
                     if (inst != null)
                     {
                         var f = semType.GetField("SegmentEnds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (f != null && f.GetValue(inst) is Array arr && arr.Length < MNCConstants.CORE_SPLIT_CAPACITY)
+                        int targetSplitCap = Math.Max(131072, MNCConstants.CORE_SPLIT_CAPACITY);
+                        if (f != null && f.GetValue(inst) is Array arr && arr.Length < targetSplitCap)
                         {
                             Type elemType = arr.GetType().GetElementType();
-                            Array newArr = Array.CreateInstance(elemType, MNCConstants.CORE_SPLIT_CAPACITY);
+                            Array newArr = Array.CreateInstance(elemType, targetSplitCap);
                             Array.Copy(arr, newArr, arr.Length);
                             f.SetValue(inst, newArr);
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Expanded SegmentEndManager.SegmentEnds: {0} -> 130048", arr.Length));
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Expanded SegmentEndManager.SegmentEnds: {0} -> {1}", arr.Length, targetSplitCap));
                         }
                     }
                 }
@@ -3564,7 +3699,7 @@ namespace MoreNetworkCapacityRenew
             catch { }
         }
 
-        private static void EnsureGenericArrayCache64k(object cacheObj)
+        public static void EnsureGenericArrayCache64k(object cacheObj)
         {
             try
             {
@@ -5262,18 +5397,32 @@ namespace MoreNetworkCapacityRenew
                             object cacheObj = f.IsStatic ? f.GetValue(null) : (inst != null ? f.GetValue(inst) : null);
                             if (cacheObj != null)
                             {
-                                Type cacheType = cacheObj.GetType();
-                                FieldInfo maxField = cacheType.GetField("maxSize_", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                FieldInfo valuesField = cacheType.GetField("Values", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (maxField != null) maxField.SetValue(cacheObj, MNCConstants.CORE_NET_CAPACITY);
-                                if (valuesField != null && valuesField.GetValue(cacheObj) is Array valArr && valArr.Length < MNCConstants.CORE_NET_CAPACITY)
-                                {
-                                    Array newValArr = Array.CreateInstance(valArr.GetType().GetElementType(), MNCConstants.CORE_NET_CAPACITY);
-                                    Array.Copy(valArr, newValArr, valArr.Length);
-                                    valuesField.SetValue(cacheObj, newValArr);
-                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Expanded GenericArrayCache in {0}.{1}: {2} -> {3}", t.Name, f.Name, valArr.Length, MNCConstants.CORE_NET_CAPACITY));
-                                }
+                                EnsureGenericArrayCache64k(cacheObj);
                             }
+                        }
+                    }
+                }
+
+                // Also expand subtool caches if TrafficManagerTool is currently active or instantiated
+                ToolController tc = ToolsModifierControl.toolController;
+                if (tc != null && tc.CurrentTool != null && tc.CurrentTool.GetType().Name == "TrafficManagerTool")
+                {
+                    object tmTool = tc.CurrentTool;
+                    Type tmType = tmTool.GetType();
+                    FieldInfo fSubTools = tmType.GetField("subTools_", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fSubTools != null && fSubTools.GetValue(tmTool) is IDictionary dictSub)
+                    {
+                        foreach (DictionaryEntry de in dictSub)
+                        {
+                            if (de.Value != null) ExpandSubToolCaches(de.Value, de.Value.GetType());
+                        }
+                    }
+                    FieldInfo fLegacySubTools = tmType.GetField("legacySubTools_", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fLegacySubTools != null && fLegacySubTools.GetValue(tmTool) is IDictionary dictLegacy)
+                    {
+                        foreach (DictionaryEntry de in dictLegacy)
+                        {
+                            if (de.Value != null) ExpandSubToolCaches(de.Value, de.Value.GetType());
                         }
                     }
                 }
@@ -5657,7 +5806,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool TrafficPriorityManager_RemovePrioritySignFromSegmentEnd_Prefix(object __instance, ushort segmentId, bool startNode)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segmentId >= NetManager.instance.m_segments.m_buffer.Length)
             {
                 return false;
             }
@@ -5674,7 +5823,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool TrafficPriorityManager_HasSegmentPrioritySign_Prefix(object __instance, ushort segmentId, ref bool __result)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segmentId >= NetManager.instance.m_segments.m_buffer.Length)
             {
                 __result = false;
                 return false;
@@ -5693,7 +5842,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool TrafficPriorityManager_HasSegmentPrioritySign2_Prefix(object __instance, ushort segmentId, bool startNode, ref bool __result)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segmentId >= NetManager.instance.m_segments.m_buffer.Length)
             {
                 __result = false;
                 return false;
@@ -5712,7 +5861,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool TrafficPriorityManager_GetPrioritySign_Prefix(object __instance, ushort segmentId, bool startNode, ref object __result)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segmentId >= NetManager.instance.m_segments.m_buffer.Length)
             {
                 __result = 0; // PriorityType.None
                 return false;
@@ -5731,7 +5880,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool TrafficPriorityManager_SetPrioritySign_Prefix(object __instance, ushort segmentId, ref bool __result)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null && segmentId >= NetManager.instance.m_segments.m_buffer.Length)
             {
                 __result = false;
                 return false;
@@ -5818,8 +5967,106 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
+        public static bool s_PrioritySignsTranspiled = false;
+        public static bool s_JrtTranspiled = false;
+        public static bool s_SpeedOverlayTranspiled = false;
+
+        public static int GetSegmentLoopLimit()
+        {
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null)
+            {
+                return NetManager.instance.m_segments.m_buffer.Length;
+            }
+            return MNCConstants.CORE_NET_CAPACITY;
+        }
+
+        public static int GetSegmentLoopLimitMinusOne()
+        {
+            return GetSegmentLoopLimit() - 1;
+        }
+
+        public static int GetNodeLoopLimit()
+        {
+            if (NetManager.instance != null && NetManager.instance.m_nodes != null && NetManager.instance.m_nodes.m_buffer != null)
+            {
+                return NetManager.instance.m_nodes.m_buffer.Length;
+            }
+            return MNCConstants.CORE_NET_CAPACITY;
+        }
+
+        public static int GetNodeLoopLimitMinusOne()
+        {
+            return GetNodeLoopLimit() - 1;
+        }
+
+        public static IEnumerable<CodeInstruction> TranspileDynamicLimits(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo mSeg = typeof(TMPEPatches).GetMethod(nameof(GetSegmentLoopLimit), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSegM1 = typeof(TMPEPatches).GetMethod(nameof(GetSegmentLoopLimitMinusOne), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mNode = typeof(TMPEPatches).GetMethod(nameof(GetNodeLoopLimit), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mNodeM1 = typeof(TMPEPatches).GetMethod(nameof(GetNodeLoopLimitMinusOne), BindingFlags.Public | BindingFlags.Static);
+
+            foreach (var inst in instructions)
+            {
+                if (inst.opcode == OpCodes.Ldc_I4)
+                {
+                    int val = Convert.ToInt32(inst.operand);
+                    if (val == 36864 && mSeg != null)
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = mSeg;
+                    }
+                    else if (val == 36863 && mSegM1 != null)
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = mSegM1;
+                    }
+                    else if (val == 32768 && mNode != null)
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = mNode;
+                    }
+                    else if (val == 32767 && mNodeM1 != null)
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = mNodeM1;
+                    }
+                }
+                yield return inst;
+            }
+        }
+
+        public static void GenericArrayCache_Ctor_Prefix(ref int size)
+        {
+            if (size < MNCConstants.CORE_NET_CAPACITY)
+            {
+                size = MNCConstants.CORE_NET_CAPACITY;
+            }
+        }
+
+        public static bool SpeedLimitsOverlay_ShowSigns_RefreshVisibleSegmentsCache_Prefix(object __instance)
+        {
+            try
+            {
+                if (__instance == null) return true;
+                Type sloType = __instance.GetType();
+                FieldInfo fCache = sloType.GetField("cachedVisibleSegmentIds_", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fCache != null)
+                {
+                    object cacheObj = fCache.GetValue(__instance);
+                    if (cacheObj != null)
+                    {
+                        TMPECompatibility.EnsureGenericArrayCache64k(cacheObj);
+                    }
+                }
+            }
+            catch { }
+            return true;
+        }
+
         public static bool PrioritySignsTool_RefreshCurrentPriorityNodeIds_Prefix(object __instance)
         {
+            if (s_PrioritySignsTranspiled) return true;
             try
             {
                 if (__instance == null) return false;
@@ -5845,10 +6092,10 @@ namespace MoreNetworkCapacityRenew
                 if (NetManager.instance == null || NetManager.instance.m_nodes == null || NetManager.instance.m_nodes.m_buffer == null)
                     return false;
 
-                int maxNode = Math.Min((int)MNCConstants.CORE_NET_CAPACITY, NetManager.instance.m_nodes.m_buffer.Length);
+                int maxNode = NetManager.instance.m_nodes.m_buffer.Length;
                 NetNode[] nodeBuffer = NetManager.instance.m_nodes.m_buffer;
 
-                for (int nodeId = 0; nodeId < maxNode; nodeId++)
+                for (int nodeId = 1; nodeId < maxNode; nodeId++)
                 {
                     try
                     {
@@ -5867,6 +6114,10 @@ namespace MoreNetworkCapacityRenew
                     }
                     catch { }
                 }
+                if (selectedNodeId != 0 && selectedNodeId < nodeBuffer.Length)
+                {
+                    set.Add(selectedNodeId);
+                }
                 return false;
             }
             catch (Exception ex)
@@ -5878,6 +6129,7 @@ namespace MoreNetworkCapacityRenew
 
         public static bool JunctionRestrictionsTool_RefreshCurrentRestrictedNodeIds_Prefix(object __instance, ushort forceNodeId)
         {
+            if (s_JrtTranspiled) return true;
             try
             {
                 if (__instance == null) return false;
@@ -5909,7 +6161,7 @@ namespace MoreNetworkCapacityRenew
                     return true;
 
                 int minNode = (forceNodeId == 0 ? 1 : (int)forceNodeId);
-                int maxNode = (forceNodeId == 0 ? (int)MNCConstants.CORE_NET_CAPACITY : (int)forceNodeId + 1);
+                int maxNode = (forceNodeId == 0 ? NetManager.instance.m_nodes.m_buffer.Length : (int)forceNodeId + 1);
                 maxNode = Math.Min(maxNode, NetManager.instance.m_nodes.m_buffer.Length);
                 NetNode[] nodeBuffer = NetManager.instance.m_nodes.m_buffer;
 
@@ -7006,22 +7258,6 @@ namespace MoreNetworkCapacityRenew
             return segmentId < (ushort)TMPECompatibility.s_laneTrafficDataLength;
         }
 
-        public static bool TrafficPriorityManager_GetPrioritySign_Prefix(object __instance, ushort segmentId, bool startNode)
-        {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
-            {
-                return false;
-            }
-            if (__instance != null)
-            {
-                FieldInfo f = __instance.GetType().GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (f != null && f.GetValue(__instance) is Array arr && segmentId >= arr.Length)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
 
         public static bool JunctionRestrictionsManager_HasJunctionRestrictions_Prefix(object __instance, ushort nodeId, ref bool __result)
         {
