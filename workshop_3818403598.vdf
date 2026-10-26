@@ -116,6 +116,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.11 - Savegame Deserialization, Dynamic Buffer & Third-Party Mod Armor: Added multi-source savegame expansion detection (IsSaveGameExpanded) to reliably identify 64K expanded saves across save/load cycles; added fail-safe Dynamic Buffer Armor in NetManager.InitializeSegment & InitializeNode to auto-expand buffers on the fly and prevent IndexOutOfRangeException during loading; hooked TM:PE TrafficPriorityManager auto-expansion and bounds guards for segment IDs >= 36864; added dynamic grid bounds armor for DistrictManager.GetDistrict and GetPark eliminating 81 Tiles 2 IndexOutOfRangeException."
+	"changenote"		"v5.0.12 - Ghost Vehicle & Invisible Obstacle Elimination Armor: Fixed vanilla bug where deleted/unspawned vehicles with missing prefabs remain trapped in spatial grids (m_vehicleGrid/m_vehicleGrid2) causing permanent invisible collision roadblocks for oncoming traffic; added Harmony postfix on ReleaseVehicleImplementation to teleport collision segments 100,000m away; implemented deep spatial grid sanitizer unlinking corrupt vehicles; added TM:PE ExtSegmentEnd priority queue ghost vehicle purge; enhanced Confused (Hoang mang) sweeper to auto-clear lead vehicles and periodic grid scrubbing."
 }
 
