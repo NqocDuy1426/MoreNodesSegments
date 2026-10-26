@@ -3386,6 +3386,154 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static void NotifyVehicleReleased(ushort vehicleId)
+        {
+            try
+            {
+                if (s_extVehiclesArray == null)
+                {
+                    CacheExtVehicleFields(GetTMPEAssembly());
+                }
+                if (s_extVehiclesArray != null && vehicleId < s_extVehiclesArray.Length)
+                {
+                    object extVeh = s_extVehiclesArray.GetValue(vehicleId);
+                    if (extVeh != null)
+                    {
+                        if (s_extVehicleJunctionTransitStateField != null) s_extVehicleJunctionTransitStateField.SetValue(extVeh, 0);
+                        if (s_extVehicleWaitTimeField != null) s_extVehicleWaitTimeField.SetValue(extVeh, 0);
+                        if (s_extVehicleLastTransitStateUpdateField != null) s_extVehicleLastTransitStateUpdateField.SetValue(extVeh, 0u);
+
+                        Type extVehicleType = extVeh.GetType();
+                        FieldInfo fFlags = extVehicleType.GetField("flags", BindingFlags.Public | BindingFlags.Instance);
+                        if (fFlags != null) fFlags.SetValue(extVeh, 0);
+
+                        FieldInfo fNextVeh = extVehicleType.GetField("nextVehicleIdOnSegment", BindingFlags.Public | BindingFlags.Instance);
+                        if (fNextVeh != null) fNextVeh.SetValue(extVeh, (ushort)0);
+
+                        FieldInfo fPrevVeh = extVehicleType.GetField("previousVehicleIdOnSegment", BindingFlags.Public | BindingFlags.Instance);
+                        if (fPrevVeh != null) fPrevVeh.SetValue(extVeh, (ushort)0);
+
+                        FieldInfo fSegId = extVehicleType.GetField("currentSegmentId", BindingFlags.Public | BindingFlags.Instance);
+                        if (fSegId != null) fSegId.SetValue(extVeh, (ushort)0);
+
+                        s_extVehiclesArray.SetValue(extVeh, vehicleId);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static void SanitizeTMPEVehicleState()
+        {
+            try
+            {
+                Assembly tmpe = GetTMPEAssembly();
+                if (tmpe == null) return;
+                VehicleManager vm = Singleton<VehicleManager>.instance;
+                if (vm == null || vm.m_vehicles == null || vm.m_vehicles.m_buffer == null) return;
+
+                // 1. Scrub ghost firstVehicleId from ExtSegmentEnds
+                Type esmType = tmpe.GetType("TrafficManager.Manager.Impl.ExtSegmentEndManager");
+                if (esmType != null)
+                {
+                    object inst = GetManagerInstance(esmType);
+                    if (inst != null)
+                    {
+                        var f = esmType.GetField("<ExtSegmentEnds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)
+                             ?? esmType.GetField("ExtSegmentEnds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (f != null && f.GetValue(inst) is Array arr)
+                        {
+                            Type elemType = arr.GetType().GetElementType();
+                            FieldInfo fFirstVeh = elemType != null ? elemType.GetField("firstVehicleId") : null;
+                            if (fFirstVeh != null)
+                            {
+                                int clearedEnds = 0;
+                                int maxEnds = Math.Min(arr.Length, (int)MNCConstants.CORE_SPLIT_CAPACITY);
+                                for (int i = 0; i < maxEnds; i++)
+                                {
+                                    object endObj = arr.GetValue(i);
+                                    if (endObj != null)
+                                    {
+                                        ushort fv = (ushort)fFirstVeh.GetValue(endObj);
+                                        if (fv != 0)
+                                        {
+                                            bool isGhost = (fv >= vm.m_vehicles.m_buffer.Length ||
+                                                (vm.m_vehicles.m_buffer[fv].m_flags & (Vehicle.Flags.Created | Vehicle.Flags.Spawned)) != (Vehicle.Flags.Created | Vehicle.Flags.Spawned) ||
+                                                vm.m_vehicles.m_buffer[fv].m_infoIndex == 0);
+                                            if (isGhost)
+                                            {
+                                                fFirstVeh.SetValue(endObj, (ushort)0);
+                                                arr.SetValue(endObj, i);
+                                                clearedEnds++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (clearedEnds > 0)
+                                {
+                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Purged {0} ghost firstVehicleId references from TM:PE ExtSegmentEnds.", clearedEnds));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 2. Scrub dead ExtVehicles
+                if (s_extVehiclesArray == null)
+                {
+                    CacheExtVehicleFields(tmpe);
+                }
+                if (s_extVehiclesArray != null)
+                {
+                    int clearedExtVeh = 0;
+                    Assembly apiAsm = GetTMPEApiAssembly() ?? tmpe;
+                    Type extVehicleType = apiAsm.GetType("TrafficManager.API.Traffic.Data.ExtVehicle") ?? tmpe.GetType("TrafficManager.API.Traffic.Data.ExtVehicle");
+                    if (extVehicleType != null)
+                    {
+                        FieldInfo fFlags = extVehicleType.GetField("flags");
+                        FieldInfo fWaitTime = extVehicleType.GetField("waitTime");
+                        FieldInfo fTransitState = extVehicleType.GetField("junctionTransitState");
+                        FieldInfo fNextVeh = extVehicleType.GetField("nextVehicleIdOnSegment");
+                        FieldInfo fPrevVeh = extVehicleType.GetField("previousVehicleIdOnSegment");
+                        FieldInfo fSegId = extVehicleType.GetField("currentSegmentId");
+
+                        int max = Math.Min(s_extVehiclesArray.Length, vm.m_vehicles.m_buffer.Length);
+                        for (int v = 1; v < max; v++)
+                        {
+                            bool isCreated = (vm.m_vehicles.m_buffer[v].m_flags & Vehicle.Flags.Created) != 0;
+                            if (!isCreated)
+                            {
+                                object ev = s_extVehiclesArray.GetValue(v);
+                                if (ev != null && fFlags != null)
+                                {
+                                    int flagsVal = Convert.ToInt32(fFlags.GetValue(ev));
+                                    if (flagsVal != 0)
+                                    {
+                                        fFlags.SetValue(ev, 0);
+                                        if (fWaitTime != null) fWaitTime.SetValue(ev, 0);
+                                        if (fTransitState != null) fTransitState.SetValue(ev, 0);
+                                        if (fNextVeh != null) fNextVeh.SetValue(ev, (ushort)0);
+                                        if (fPrevVeh != null) fPrevVeh.SetValue(ev, (ushort)0);
+                                        if (fSegId != null) fSegId.SetValue(ev, (ushort)0);
+                                        s_extVehiclesArray.SetValue(ev, v);
+                                        clearedExtVeh++;
+                                    }
+                                }
+                            }
+                        }
+                        if (clearedExtVeh > 0)
+                        {
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Purged {0} dead vehicle states from TM:PE ExtVehicles.", clearedExtVeh));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SanitizeTMPEVehicleState error: " + ex);
+            }
+        }
+
         public static void EnsureExtLaneManagerCapacity(Assembly tmpe)
         {
             try
@@ -8318,7 +8466,7 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private void SanitizeVehicleGrid()
+        public static void SanitizeVehicleGrid()
         {
             try
             {
@@ -8328,8 +8476,9 @@ namespace MoreNetworkCapacityRenew
                 int fixedGrid = 0;
                 int fixedGrid2 = 0;
                 int fixedParked = 0;
+                int fixedGhosts = 0;
 
-                // 1. Active vehicles grid
+                // 1. Active vehicles grid (540x540 cells)
                 if (vm.m_vehicleGrid != null)
                 {
                     var visited = new HashSet<ushort>();
@@ -8348,13 +8497,29 @@ namespace MoreNetworkCapacityRenew
                                 break;
                             }
                             visited.Add(vId);
+
+                            // Validate that the vehicle in the grid is ACTUALLY Created and Spawned
+                            bool isGhost = (vm.m_vehicles.m_buffer[vId].m_flags & (Vehicle.Flags.Created | Vehicle.Flags.Spawned)) != (Vehicle.Flags.Created | Vehicle.Flags.Spawned)
+                                           || vm.m_vehicles.m_buffer[vId].m_infoIndex == 0;
+                            if (isGhost)
+                            {
+                                ushort next = vm.m_vehicles.m_buffer[vId].m_nextGridVehicle;
+                                if (prev != 0) vm.m_vehicles.m_buffer[prev].m_nextGridVehicle = next;
+                                else vm.m_vehicleGrid[i] = next;
+                                vm.m_vehicles.m_buffer[vId].m_nextGridVehicle = 0;
+                                vm.m_vehicles.m_buffer[vId].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                                fixedGhosts++;
+                                vId = next;
+                                continue;
+                            }
+
                             prev = vId;
                             vId = vm.m_vehicles.m_buffer[vId].m_nextGridVehicle;
                         }
                     }
                 }
 
-                // 2. Secondary grid
+                // 2. Secondary grid for large vehicles (54x54 cells)
                 if (vm.m_vehicleGrid2 != null)
                 {
                     var visited = new HashSet<ushort>();
@@ -8373,6 +8538,21 @@ namespace MoreNetworkCapacityRenew
                                 break;
                             }
                             visited.Add(vId);
+
+                            bool isGhost = (vm.m_vehicles.m_buffer[vId].m_flags & (Vehicle.Flags.Created | Vehicle.Flags.Spawned)) != (Vehicle.Flags.Created | Vehicle.Flags.Spawned)
+                                           || vm.m_vehicles.m_buffer[vId].m_infoIndex == 0;
+                            if (isGhost)
+                            {
+                                ushort next = vm.m_vehicles.m_buffer[vId].m_nextGridVehicle;
+                                if (prev != 0) vm.m_vehicles.m_buffer[prev].m_nextGridVehicle = next;
+                                else vm.m_vehicleGrid2[i] = next;
+                                vm.m_vehicles.m_buffer[vId].m_nextGridVehicle = 0;
+                                vm.m_vehicles.m_buffer[vId].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                                fixedGhosts++;
+                                vId = next;
+                                continue;
+                            }
+
                             prev = vId;
                             vId = vm.m_vehicles.m_buffer[vId].m_nextGridVehicle;
                         }
@@ -8398,13 +8578,49 @@ namespace MoreNetworkCapacityRenew
                                 break;
                             }
                             visited.Add(pId);
+
+                            bool isGhost = ((VehicleParked.Flags)vm.m_parkedVehicles.m_buffer[pId].m_flags & VehicleParked.Flags.Created) == 0
+                                           || vm.m_parkedVehicles.m_buffer[pId].m_infoIndex == 0;
+                            if (isGhost)
+                            {
+                                ushort next = vm.m_parkedVehicles.m_buffer[pId].m_nextGridParked;
+                                if (prev != 0) vm.m_parkedVehicles.m_buffer[prev].m_nextGridParked = next;
+                                else vm.m_parkedGrid[i] = next;
+                                vm.m_parkedVehicles.m_buffer[pId].m_nextGridParked = 0;
+                                fixedGhosts++;
+                                pId = next;
+                                continue;
+                            }
+
                             prev = pId;
                             pId = vm.m_parkedVehicles.m_buffer[pId].m_nextGridParked;
                         }
                     }
                 }
 
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Vehicle grid sanitization complete: broke {0} active loops, {1} grid2 loops, {2} parked loops", fixedGrid, fixedGrid2, fixedParked));
+                // 4. Scrub any dead vehicles in buffer so their collision segments are zeroed out of the world
+                int zeroedFootprints = 0;
+                for (int v = 1; v < vm.m_vehicles.m_buffer.Length; v++)
+                {
+                    if ((vm.m_vehicles.m_buffer[v].m_flags & Vehicle.Flags.Created) == 0)
+                    {
+                        if (vm.m_vehicles.m_buffer[v].m_segment.a != UnityEngine.Vector3.zero ||
+                            vm.m_vehicles.m_buffer[v].m_segment.b != UnityEngine.Vector3.zero ||
+                            vm.m_vehicles.m_buffer[v].m_nextGridVehicle != 0)
+                        {
+                            vm.m_vehicles.m_buffer[v].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                            vm.m_vehicles.m_buffer[v].m_nextGridVehicle = 0;
+                            vm.m_vehicles.m_buffer[v].m_leadingVehicle = 0;
+                            vm.m_vehicles.m_buffer[v].m_trailingVehicle = 0;
+                            zeroedFootprints++;
+                        }
+                    }
+                }
+
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Vehicle grid sanitization complete: broke {0} active loops, {1} grid2 loops, {2} parked loops, purged {3} ghost grid links, zeroed {4} dead footprints.", fixedGrid, fixedGrid2, fixedParked, fixedGhosts, zeroedFootprints));
+
+                // 5. Sanitize TM:PE vehicle states & priority queue
+                TMPECompatibility.SanitizeTMPEVehicleState();
             }
             catch (Exception ex)
             {
@@ -8757,9 +8973,22 @@ namespace MoreNetworkCapacityRenew
                             if (vm.m_vehicles.m_buffer[v].m_blockCounter >= 180 ||
                                 (vm.m_vehicles.m_buffer[v].m_targetBuilding == 0 && vm.m_vehicles.m_buffer[v].m_blockCounter >= 100))
                             {
-                                vm.ReleaseVehicle((ushort)v);
+                                ushort lead = (ushort)v;
+                                int loopGuard = 0;
+                                while (vm.m_vehicles.m_buffer[lead].m_leadingVehicle != 0 && loopGuard++ < 32)
+                                {
+                                    lead = vm.m_vehicles.m_buffer[lead].m_leadingVehicle;
+                                }
+                                if (lead != (ushort)v) vm.ReleaseVehicle(lead);
+                                else vm.ReleaseVehicle((ushort)v);
                             }
                         }
+                    }
+
+                    // Periodic live vehicle grid & TM:PE ghost scrub every 256 frames (~4-8s)
+                    if (frame256 == 0)
+                    {
+                        RenewLoading.SanitizeVehicleGrid();
                     }
                 }
             }
@@ -13180,6 +13409,22 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching VehicleManager.Data.AfterDeserialize: " + ex);
                 }
 
+                // 3k2. Patch VehicleManager.ReleaseVehicleImplementation (Zero Ghost Footprint Armor)
+                try
+                {
+                    MethodInfo vmRel = typeof(VehicleManager).GetMethod("ReleaseVehicleImplementation", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+                    MethodInfo post = typeof(TransportLineCompatibility).GetMethod(nameof(VehicleManager_ReleaseVehicleImplementation_Postfix), BindingFlags.Public | BindingFlags.Static);
+                    if (vmRel != null && post != null)
+                    {
+                        harmony.Patch(vmRel, postfix: new HarmonyMethod(post));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched VehicleManager.ReleaseVehicleImplementation with Zero Ghost Footprint Armor.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching VehicleManager.ReleaseVehicleImplementation: " + ex);
+                }
+
                 // 3l. Patch DistrictManager.GetDistrict & GetPark (81 Tiles 2 IndexOutOfRangeException Armor)
                 try
                 {
@@ -15193,6 +15438,24 @@ namespace MoreNetworkCapacityRenew
             catch {}
         }
 
+        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicleID)
+        {
+            try
+            {
+                VehicleManager vm = Singleton<VehicleManager>.instance;
+                if (vm == null || vm.m_vehicles == null || vm.m_vehicles.m_buffer == null) return;
+                if (vehicleID == 0 || vehicleID >= vm.m_vehicles.m_buffer.Length) return;
+
+                // Move physical collision segment 100,000m away so collision raycasts / distance checks never register an invisible block
+                vm.m_vehicles.m_buffer[vehicleID].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                vm.m_vehicles.m_buffer[vehicleID].m_nextGridVehicle = 0;
+
+                // Clear any TM:PE junction reservation or segment end locks held by this vehicle
+                TMPECompatibility.NotifyVehicleReleased(vehicleID);
+            }
+            catch { }
+        }
+
         public static void VehicleManager_Data_AfterDeserialize_Postfix()
         {
             try
@@ -15226,6 +15489,18 @@ namespace MoreNetworkCapacityRenew
                         if (infoIndex == 0 || infoIndex >= prefabCount || !validPrefabs[infoIndex])
                         {
                             // Safely neutralize orphan vehicle in-place WITHOUT cross-thread dispatch, locks, or overflow
+                            uint path = vm.m_vehicles.m_buffer[i].m_path;
+                            if (path != 0 && Singleton<PathManager>.exists)
+                            {
+                                try { Singleton<PathManager>.instance.ReleasePath(path); } catch { }
+                            }
+                            uint units = vm.m_vehicles.m_buffer[i].m_citizenUnits;
+                            if (units != 0 && Singleton<CitizenManager>.exists)
+                            {
+                                try { Singleton<CitizenManager>.instance.ReleaseUnits(units); } catch { }
+                            }
+
+                            vm.m_vehicles.m_buffer[i].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
                             vm.m_vehicles.m_buffer[i].m_flags = 0;
                             vm.m_vehicles.m_buffer[i].m_flags2 = 0;
                             vm.m_vehicles.m_buffer[i].m_infoIndex = 0;
@@ -15240,6 +15515,7 @@ namespace MoreNetworkCapacityRenew
                             vm.m_vehicles.m_buffer[i].m_targetBuilding = 0;
                             vm.m_vehicles.m_buffer[i].m_sourceBuilding = 0;
                             vm.m_vehicles.m_buffer[i].m_transportLine = 0;
+                            try { vm.m_vehicles.ReleaseItem((ushort)i); } catch { }
                             neutralizedVehicles++;
                         }
                     }
@@ -15259,6 +15535,7 @@ namespace MoreNetworkCapacityRenew
                                 vm.m_parkedVehicles.m_buffer[i].m_infoIndex = 0;
                                 vm.m_parkedVehicles.m_buffer[i].m_nextGridParked = 0;
                                 vm.m_parkedVehicles.m_buffer[i].m_ownerCitizen = 0;
+                                try { vm.m_parkedVehicles.ReleaseItem((ushort)i); } catch { }
                                 neutralizedParked++;
                             }
                         }
@@ -15269,6 +15546,10 @@ namespace MoreNetworkCapacityRenew
                 {
                     UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Orphan Vehicle Neutralizer: Safely cleared {0} vehicles and {1} parked vehicles with missing/corrupt prefabs (deadlock-free).", neutralizedVehicles, neutralizedParked));
                 }
+
+                // Immediately purge all ghost vehicles from active spatial grids and TM:PE segment ends
+                RenewLoading.SanitizeVehicleGrid();
+                TMPECompatibility.SanitizeTMPEVehicleState();
             }
             catch (Exception ex)
             {
