@@ -8598,8 +8598,9 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
 
-                // 4. Scrub any dead vehicles in buffer so their collision segments are zeroed out of the world
+                // 4. Scrub dead vehicles and release orphaned trailers (lost cab / front end)
                 int zeroedFootprints = 0;
+                int purgedOrphans = 0;
                 for (int v = 1; v < vm.m_vehicles.m_buffer.Length; v++)
                 {
                     if ((vm.m_vehicles.m_buffer[v].m_flags & Vehicle.Flags.Created) == 0)
@@ -8615,9 +8616,38 @@ namespace MoreNetworkCapacityRenew
                             zeroedFootprints++;
                         }
                     }
+                    else
+                    {
+                        ushort lead = vm.m_vehicles.m_buffer[v].m_leadingVehicle;
+                        var info = vm.m_vehicles.m_buffer[v].Info;
+                        bool isTrailerAI = (info != null && (info.m_vehicleAI is CarTrailerAI || info.m_vehicleAI is TrolleybusTrailerAI));
+                        bool isOrphan = false;
+
+                        if (isTrailerAI)
+                        {
+                            if (lead == 0 || (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
+                            {
+                                isOrphan = true;
+                            }
+                        }
+                        else if (lead != 0 && (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
+                        {
+                            isOrphan = true;
+                        }
+
+                        if (isOrphan)
+                        {
+                            try
+                            {
+                                vm.ReleaseVehicle((ushort)v);
+                                purgedOrphans++;
+                            }
+                            catch { }
+                        }
+                    }
                 }
 
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Vehicle grid sanitization complete: broke {0} active loops, {1} grid2 loops, {2} parked loops, purged {3} ghost grid links, zeroed {4} dead footprints.", fixedGrid, fixedGrid2, fixedParked, fixedGhosts, zeroedFootprints));
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Vehicle grid sanitization complete: broke {0} active loops, {1} grid2 loops, {2} parked loops, purged {3} ghost grid links, zeroed {4} dead footprints, released {5} orphan trailers.", fixedGrid, fixedGrid2, fixedParked, fixedGhosts, zeroedFootprints, purgedOrphans));
 
                 // 5. Sanitize TM:PE vehicle states & priority queue
                 TMPECompatibility.SanitizeTMPEVehicleState();
@@ -8970,17 +9000,44 @@ namespace MoreNetworkCapacityRenew
                         if ((flags & (Vehicle.Flags.Created | Vehicle.Flags.Spawned)) == (Vehicle.Flags.Created | Vehicle.Flags.Spawned) &&
                             (flags & (Vehicle.Flags.WaitingPath | Vehicle.Flags.Parking | Vehicle.Flags.WaitingLoading)) == 0)
                         {
+                            ushort lead = vm.m_vehicles.m_buffer[v].m_leadingVehicle;
+                            var info = vm.m_vehicles.m_buffer[v].Info;
+                            bool isTrailerAI = (info != null && (info.m_vehicleAI is CarTrailerAI || info.m_vehicleAI is TrolleybusTrailerAI));
+
+                            // 1. Release orphaned trailer immediately (lost its tractor/cab)
+                            if (isTrailerAI && (lead == 0 || (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0))
+                            {
+                                vm.ReleaseVehicle((ushort)v);
+                                continue;
+                            }
+
+                            // 2. Release vehicle whose leader is dead
+                            if (lead != 0 && (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
+                            {
+                                vm.ReleaseVehicle((ushort)v);
+                                continue;
+                            }
+
+                            // 3. Normal stuck / confused vehicle detection (with full chain release!)
                             if (vm.m_vehicles.m_buffer[v].m_blockCounter >= 180 ||
                                 (vm.m_vehicles.m_buffer[v].m_targetBuilding == 0 && vm.m_vehicles.m_buffer[v].m_blockCounter >= 100))
                             {
-                                ushort lead = (ushort)v;
+                                ushort head = (ushort)v;
                                 int loopGuard = 0;
-                                while (vm.m_vehicles.m_buffer[lead].m_leadingVehicle != 0 && loopGuard++ < 32)
+                                while (vm.m_vehicles.m_buffer[head].m_leadingVehicle != 0 && loopGuard++ < 32)
                                 {
-                                    lead = vm.m_vehicles.m_buffer[lead].m_leadingVehicle;
+                                    head = vm.m_vehicles.m_buffer[head].m_leadingVehicle;
                                 }
-                                if (lead != (ushort)v) vm.ReleaseVehicle(lead);
-                                else vm.ReleaseVehicle((ushort)v);
+
+                                ushort cur = head;
+                                int chainGuard = 0;
+                                while (cur != 0 && chainGuard++ < 32)
+                                {
+                                    ushort next = vm.m_vehicles.m_buffer[cur].m_trailingVehicle;
+                                    vm.ReleaseVehicle(cur);
+                                    cur = next;
+                                }
+                                vm.ReleaseVehicle((ushort)v);
                             }
                         }
                     }
@@ -15488,6 +15545,24 @@ namespace MoreNetworkCapacityRenew
                         ushort infoIndex = vm.m_vehicles.m_buffer[i].m_infoIndex;
                         if (infoIndex == 0 || infoIndex >= prefabCount || !validPrefabs[infoIndex])
                         {
+                            // Neutralize all trailers in trailing chain attached to this invalid vehicle
+                            ushort trail = vm.m_vehicles.m_buffer[i].m_trailingVehicle;
+                            int chainGuard = 0;
+                            while (trail != 0 && chainGuard++ < 32)
+                            {
+                                ushort nextTrailer = vm.m_vehicles.m_buffer[trail].m_trailingVehicle;
+                                vm.m_vehicles.m_buffer[trail].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                                vm.m_vehicles.m_buffer[trail].m_flags = 0;
+                                vm.m_vehicles.m_buffer[trail].m_flags2 = 0;
+                                vm.m_vehicles.m_buffer[trail].m_infoIndex = 0;
+                                vm.m_vehicles.m_buffer[trail].m_leadingVehicle = 0;
+                                vm.m_vehicles.m_buffer[trail].m_trailingVehicle = 0;
+                                vm.m_vehicles.m_buffer[trail].m_nextGridVehicle = 0;
+                                try { vm.m_vehicles.ReleaseItem(trail); } catch { }
+                                neutralizedVehicles++;
+                                trail = nextTrailer;
+                            }
+
                             // Safely neutralize orphan vehicle in-place WITHOUT cross-thread dispatch, locks, or overflow
                             uint path = vm.m_vehicles.m_buffer[i].m_path;
                             if (path != 0 && Singleton<PathManager>.exists)
@@ -15515,6 +15590,41 @@ namespace MoreNetworkCapacityRenew
                             vm.m_vehicles.m_buffer[i].m_targetBuilding = 0;
                             vm.m_vehicles.m_buffer[i].m_sourceBuilding = 0;
                             vm.m_vehicles.m_buffer[i].m_transportLine = 0;
+                            try { vm.m_vehicles.ReleaseItem((ushort)i); } catch { }
+                            neutralizedVehicles++;
+                        }
+                    }
+                }
+
+                // Sweep for existing orphaned trailers in save (trailers whose tractor/cab was already lost)
+                for (int i = 1; i < vLen; i++)
+                {
+                    if ((vm.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != 0)
+                    {
+                        ushort lead = vm.m_vehicles.m_buffer[i].m_leadingVehicle;
+                        var vInfo = vm.m_vehicles.m_buffer[i].Info;
+                        bool isTrailerAI = (vInfo != null && (vInfo.m_vehicleAI is CarTrailerAI || vInfo.m_vehicleAI is TrolleybusTrailerAI));
+                        bool isOrphan = false;
+
+                        if (isTrailerAI)
+                        {
+                            if (lead == 0 || (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
+                            {
+                                isOrphan = true;
+                            }
+                        }
+                        else if (lead != 0 && (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
+                        {
+                            isOrphan = true;
+                        }
+
+                        if (isOrphan)
+                        {
+                            vm.m_vehicles.m_buffer[i].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                            vm.m_vehicles.m_buffer[i].m_flags = 0;
+                            vm.m_vehicles.m_buffer[i].m_leadingVehicle = 0;
+                            vm.m_vehicles.m_buffer[i].m_trailingVehicle = 0;
+                            vm.m_vehicles.m_buffer[i].m_nextGridVehicle = 0;
                             try { vm.m_vehicles.ReleaseItem((ushort)i); } catch { }
                             neutralizedVehicles++;
                         }
