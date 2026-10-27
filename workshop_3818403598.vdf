@@ -116,6 +116,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.12 - Ghost Vehicle & Invisible Obstacle Elimination Armor: Fixed vanilla bug where deleted/unspawned vehicles with missing prefabs remain trapped in spatial grids (m_vehicleGrid/m_vehicleGrid2) causing permanent invisible collision roadblocks for oncoming traffic; added Harmony postfix on ReleaseVehicleImplementation to teleport collision segments 100,000m away; implemented deep spatial grid sanitizer unlinking corrupt vehicles; added TM:PE ExtSegmentEnd priority queue ghost vehicle purge; enhanced Confused (Hoang mang) sweeper to auto-clear lead vehicles and periodic grid scrubbing."
+	"changenote"		"v5.0.13 - Orphan Trailer & Headless Vehicle Purge (Zero Hooks): Fixed issue where trailers that lost their front tractor/cab remain stranded on the road in Confused (Hoang mang) state without an engine or driver, blocking traffic; added automatic cascading release for vehicle chains so trailers are never left behind when cabs unspawn; added live orphan trailer detector to purge stranded trailers without cabs; zero simulation hooks and zero traffic rule modifications."
 }
 
