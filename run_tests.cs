@@ -1064,7 +1064,7 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 23.1 WaterTransportCompatibility class exists
-            bool hasWaterClass = renewCode.Contains("public static class WaterTransportCompatibility");
+            bool hasWaterClass = renewCode.Contains("class WaterTransportCompatibility");
             Assert(hasWaterClass, "WaterTransportCompatibility class defined for water transit and Ship Path support");
 
             // 23.2 Water network segregation: Ship Paths get dual types, Ferry Paths strictly Ferry only
@@ -1200,7 +1200,7 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 26.1 UniversalModHarmonizer class exists with dynamic scanning methods
-            bool harmonizerDefined = renewCode.Contains("public static class UniversalModHarmonizer") &&
+            bool harmonizerDefined = renewCode.Contains("class UniversalModHarmonizer") &&
                                      renewCode.Contains("HarmonizeActiveMods(string context)") &&
                                      renewCode.Contains("HarmonizeAssembly(Assembly asm, string context)") &&
                                      renewCode.Contains("ScanAndHarmonizeType(Type type, object instance, string context)");
@@ -1274,7 +1274,7 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 27.1 Utf16Sanitizer class exists and handles surrogate pairs
-            bool sanitizerExists = renewCode.Contains("public static class Utf16Sanitizer") &&
+            bool sanitizerExists = renewCode.Contains("class Utf16Sanitizer") &&
                                    renewCode.Contains("public static string Sanitize(string str)") &&
                                    renewCode.Contains("0xD800") &&
                                    renewCode.Contains("0xDC00") &&
@@ -1531,6 +1531,39 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 31 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 32: Assembly Export Type Hardening & TypeLoadException Immunity (#3)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 32: Assembly Export Type Hardening & TypeLoadException Immunity (#3) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 32.1 Only 4 official Cities: Skylines extension classes are public
+            var publicMatches = Regex.Matches(renewCode, @"^\s*public\s+(static\s+)?(class|struct|enum|delegate|interface)\s+(\w+)", RegexOptions.Multiline);
+            int publicCount = publicMatches.Count;
+            bool onlyFourPublic = publicCount == 4;
+            Assert(onlyFourPublic, "Assembly exports strictly 4 public classes (RenewMod, RenewLoading, MNCTrafficLightStepper, MNCSerializableData)", "Found " + publicCount + " public types");
+
+            // 32.2 ThirdPartyCompatibility and helper classes are internal
+            bool tpcInternal = renewCode.Contains("internal static class ThirdPartyCompatibility");
+            bool fastInitInternal = renewCode.Contains("internal delegate void FastInitArrayDelegate");
+            bool dynPatcherInternal = renewCode.Contains("internal static class DynamicPatcher");
+            bool guardianInternal = renewCode.Contains("internal static class ArrayGuardian");
+            Assert(tpcInternal, "ThirdPartyCompatibility is declared internal to hide from Assembly.GetExportedTypes()");
+            Assert(fastInitInternal, "FastInitArrayDelegate is declared internal to prevent TypeLoadException");
+            Assert(dynPatcherInternal && guardianInternal, "DynamicPatcher and ArrayGuardian are internal");
+
+            // 32.3 0Harmony assembly resolution fallback hook active
+            bool hasHarmonyResolve = renewCode.Contains("args.Name.StartsWith(\"0Harmony\") || args.Name.StartsWith(\"Harmony\")") &&
+                                     renewCode.Contains("a.GetName().Name == \"0Harmony\" || a.GetName().Name == \"CitiesHarmony.Harmony\"");
+            Assert(hasHarmonyResolve, "RenewMod.AssemblyResolve provides fallback redirection for 0Harmony across mod environments");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 32 exception", ex.ToString());
         }
 
         // ====================================================================

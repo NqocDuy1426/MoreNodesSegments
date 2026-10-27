@@ -18,7 +18,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // DIAGNOSTIC LOGGER
     // ============================================================================
-    public static class DiagnosticLogger
+    internal static class DiagnosticLogger
     {
         private static DateTime lastCheckpoint = DateTime.Now;
         
@@ -39,7 +39,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // UTF-16 SANITIZER & SURROGATE GUARDIAN
     // ============================================================================
-    public static class Utf16Sanitizer
+    internal static class Utf16Sanitizer
     {
         public static string Sanitize(string str)
         {
@@ -75,7 +75,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // MEMORY OPTIMIZER & GC SECTION GUARDIAN
     // ============================================================================
-    public static class MemoryOptimizer
+    internal static class MemoryOptimizer
     {
         public static bool EnableStrategicGC = true;
         public static bool EnableEarlyPreallocation = true;
@@ -159,7 +159,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // CANONICAL MNC CORE CAPACITY CONSTANTS
     // ============================================================================
-    public static class MNCConstants
+    internal static class MNCConstants
     {
         public const int CORE_NET_CAPACITY = 65024; // 0xFE00 (MNC Core network capacity: Nodes and Segments)
         public const int CORE_SPLIT_CAPACITY = 130048; // 65024 * 2 (MNC Core split array capacity: SegmentEnds)
@@ -170,7 +170,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // ARRAY GUARDIAN - Centralized Array Management & Validation (v4.0.0)
     // ============================================================================
-    public static class ArrayGuardian
+    internal static class ArrayGuardian
     {
         // Array tracking registry
         private static Dictionary<string, ArrayInfo> arrayRegistry = new Dictionary<string, ArrayInfo>();
@@ -571,7 +571,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // SAFE FLAGS ACCESSOR - Bounds-Checked Array Access Wrapper (v4.0.0)
     // ============================================================================
-    public static class SafeFlagsAccessor
+    internal static class SafeFlagsAccessor
     {
         private static long totalAccesses = 0;
         private static long boundsViolations = 0;
@@ -732,7 +732,7 @@ namespace MoreNetworkCapacityRenew
     /// Auto-repairs shrinkage and prevents IndexOutOfRangeException.
     /// NEW in v4.1: Monitors SpeedLimitManager.speedLimitArray
     /// </summary>
-    public static class ArrayGuardianV2
+    internal static class ArrayGuardianV2
     {
         // ========================================================================
         // FIELDS
@@ -1144,6 +1144,16 @@ namespace MoreNetworkCapacityRenew
                                 if (a.GetName().Name == "EManagersLib.API" || a.GetName().Name == "EManagersLib") return a;
                             }
                         }
+                        if (args.Name.StartsWith("0Harmony") || args.Name.StartsWith("Harmony"))
+                        {
+                            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                            {
+                                if (a.GetName().Name == "0Harmony" || a.GetName().Name == "CitiesHarmony.Harmony")
+                                {
+                                    return a;
+                                }
+                            }
+                        }
                     }
                     catch {}
                     return null;
@@ -1427,7 +1437,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // INSTANCE MANAGER COMPATIBILITY
     // ============================================================================
-    public static class InstanceManagerCompatibility
+    internal static class InstanceManagerCompatibility
     {
         private const int EXPANDED_SIZE = 65536;
         
@@ -1493,7 +1503,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // MISSING ASSET PROTECTION
     // ============================================================================
-    public static class MissingAssetProtection
+    internal static class MissingAssetProtection
     {
         private static int nullPrefabCount = 0;
         private static HashSet<uint> reportedIndices = new HashSet<uint>();
@@ -1548,7 +1558,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // TM:PE COMPATIBILITY & LIFECYCLE SYNCHRONIZATION
     // ============================================================================
-    public static class TMPECompatibility
+    internal static class TMPECompatibility
     {
         private static Assembly cachedTMPEAssembly = null;
 
@@ -5762,7 +5772,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // TM:PE HARMONY PATCH CALLBACKS
     // ============================================================================
-    public static class TMPEPatches
+    internal static class TMPEPatches
     {
         public static bool ForwardException_Prefix(Exception e)
         {
@@ -5782,7 +5792,7 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public delegate void FastRecalcExtSegDelegate(object instance, ushort segmentId);
+        internal delegate void FastRecalcExtSegDelegate(object instance, ushort segmentId);
         private static FastRecalcExtSegDelegate _extSegRecalcDelegate = null;
         public static bool ExtSegmentManager_OnBeforeLoadData_Prefix(object __instance)
         {
@@ -7803,7 +7813,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // NETMANAGER SIMULATION STEP (HANDLED NATIVELY BY 64K TRANSPILERS)
     // ============================================================================
-    public static class NetManagerSimulationPatches
+    internal static class NetManagerSimulationPatches
     {
         public static void Postfix(NetManager __instance, int subStep)
         {
@@ -7811,28 +7821,28 @@ namespace MoreNetworkCapacityRenew
     }
     // Static color and render patches removed: Core already handles all color transpilation natively.
     // RenderManager.m_indices is pre-warmed to 262,144 slots at load time by EnsureRenderManagerCapacity.
-    public static class NetManagerUpdateSegmentColorsZeroPatch
+    internal static class NetManagerUpdateSegmentColorsZeroPatch
     {
         public static void Postfix(NetManager __instance)
         {
         }
     }
 
-    public static class NetManagerUpdateNodeColorsZeroPatch
+    internal static class NetManagerUpdateNodeColorsZeroPatch
     {
         public static void Postfix(NetManager __instance)
         {
         }
     }
 
-    public static class InfoManagerSetActualModePatch
+    internal static class InfoManagerSetActualModePatch
     {
         public static void Postfix()
         {
         }
     }
 
-    public static class RenderManagerUpdateInstancePatch
+    internal static class RenderManagerUpdateInstancePatch
     {
         public static bool Prefix(RenderManager __instance, uint holder)
         {
@@ -7843,7 +7853,7 @@ namespace MoreNetworkCapacityRenew
     // RenderManager.GetInstanceIndex patch removed for maximum rendering FPS and JIT inlining.
     // RenderManager.m_indices is pre-warmed to 262,144 slots at load time by EnsureRenderManagerCapacity.
 
-    public static class SaveSimulationDataSafetyPatch
+    internal static class SaveSimulationDataSafetyPatch
     {
         public static Exception LastSaveSimulationException = null;
         public static string CurrentSavingFilename = null;
@@ -7951,7 +7961,7 @@ namespace MoreNetworkCapacityRenew
         }
     }
 
-    public static class SavePanelOnSavingCompletePatch
+    internal static class SavePanelOnSavingCompletePatch
     {
         private static bool s_isApplied = false;
 
@@ -9058,7 +9068,7 @@ namespace MoreNetworkCapacityRenew
     // Synchronizes dual banks (eliminating bank inversion desync on high nodes)
     // Ensures robust, deadlock-free cycling for vanilla and TM:PE default traffic lights
     // ============================================================================
-    public static class TrafficLightPatches
+    internal static class TrafficLightPatches
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -9812,7 +9822,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // UI EXCEPTION ARMOR (PREVENTS NRE IN VehicleWorldInfoPanel ON NULL STRINGS)
     // ============================================================================
-    public static class UIExceptionPatches
+    internal static class UIExceptionPatches
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -9943,7 +9953,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // DYNAMIC IL CONSTANT PATCHER
     // ============================================================================
-    public static class DynamicPatcher
+    internal static class DynamicPatcher
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -10249,7 +10259,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // THIRD-PARTY MOD COMPATIBILITY ENGINE
     // ============================================================================
-    public static class ThirdPartyCompatibility
+    internal static class ThirdPartyCompatibility
     {
         private static bool _domainHooked = false;
         private static bool _adaptiveRoadsPatched = false;
@@ -10523,7 +10533,7 @@ namespace MoreNetworkCapacityRenew
             catch { }
         }
 
-        public delegate void FastInitArrayDelegate(Array array, int startIndex, int endIndex);
+        internal delegate void FastInitArrayDelegate(Array array, int startIndex, int endIndex);
 
         private static FastInitArrayDelegate CreateFastInit16(Type structType, MethodInfo initMethod)
         {
@@ -12953,7 +12963,7 @@ namespace MoreNetworkCapacityRenew
     // UNIVERSAL MOD HARMONIZER (v5.0)
     // Dynamic Runtime Array Expansion & Auto-Harmonization for Future/Untested Mods
     // ============================================================================
-    public static class UniversalModHarmonizer
+    internal static class UniversalModHarmonizer
     {
         private static readonly HashSet<string> s_inspectedAssemblies = new HashSet<string>();
         private static readonly object s_lock = new object();
@@ -13202,7 +13212,7 @@ namespace MoreNetworkCapacityRenew
         }
     }
 
-    public static class TransportLineCompatibility
+    internal static class TransportLineCompatibility
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -16222,7 +16232,7 @@ namespace MoreNetworkCapacityRenew
     /// 3. Track/Road Maintenance shield: Protects PlayerNetAI.GetMaintenanceCost against NaN/Infinity/overflow from invalid nodes/segments.
     /// 4. Save Repair: Restores and sanitizes any existing negative entries in EconomyManager arrays (expenses, totalExpenses, income, totalIncome).
     /// </summary>
-    public static class EconomyProtection
+    internal static class EconomyProtection
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -16585,7 +16595,7 @@ namespace MoreNetworkCapacityRenew
     // Armor against ArgumentNullException: Argument cannot be null.
     // when deserializing null message queue or empty Chirper data in MessageManager.Data.Deserialize
     // ========================================================================
-    public static class MessageProtection
+    internal static class MessageProtection
     {
         private static FieldInfo s_fMessageQueue;
         private static FieldInfo s_fRecentMessages;
@@ -16828,7 +16838,7 @@ namespace MoreNetworkCapacityRenew
     // WATER TRANSPORT COMPATIBILITY (v4.3.47)
     // Fixes boat / ferry transit lines on Ship Paths & Harbor/Dock connectivity
     // ====================================================================
-    public static class WaterTransportCompatibility
+    internal static class WaterTransportCompatibility
     {
         private static bool s_applied = false;
         private static TransportInfo s_cachedFerryInfo = null;
@@ -17211,7 +17221,7 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     // GAME LOADING ARMOR (Corrupted Save & Mod Loading Protection)
     // ============================================================================
-    public static class GameLoadingArmor
+    internal static class GameLoadingArmor
     {
         public static void Apply(HarmonyInstance harmony)
         {
@@ -17316,7 +17326,7 @@ namespace MoreNetworkCapacityRenew
         }
     }
 
-    public static class DataSerializerReadUniqueStringPatch
+    internal static class DataSerializerReadUniqueStringPatch
     {
         public static void Postfix(ref string __result)
         {
@@ -17324,7 +17334,7 @@ namespace MoreNetworkCapacityRenew
         }
     }
 
-    public static class VehicleManagerDataAfterDeserializePatch
+    internal static class VehicleManagerDataAfterDeserializePatch
     {
         public static void Postfix()
         {
