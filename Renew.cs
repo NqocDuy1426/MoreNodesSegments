@@ -1337,6 +1337,7 @@ namespace MoreNetworkCapacityRenew
                         var mEnable = hbType.GetMethod("Enable", BindingFlags.NonPublic | BindingFlags.Static);
                         if (mEnable != null)
                         {
+                            NeutralizeCoreKianCommonsPatching(mnc);
                             mEnable.Invoke(null, null);
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] MoreNetworkCapacity HarmonyBootstrap.Enable() triggered successfully!");
                         }
@@ -1349,6 +1350,39 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EnsureCoreActive error: " + ex);
             }
+        }
+
+        private static bool _coreKianCommonsNeutralized = false;
+        private static void NeutralizeCoreKianCommonsPatching(Assembly mncCore)
+        {
+            if (_coreKianCommonsNeutralized || mncCore == null) return;
+            try
+            {
+                Type sbcType = mncCore.GetType("MoreNetworkCapacity.Compatibility.StaticBufferCompatibility");
+                if (sbcType != null)
+                {
+                    var harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.CoreArmor");
+                    var preMethod = typeof(RenewMod).GetMethod(nameof(SkipCoreKianCommonsPrefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (preMethod != null)
+                    {
+                        var m1 = sbcType.GetMethod("PatchKianCommonsLimits", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (m1 != null) harmony.Patch(m1, prefix: new HarmonyMethod(preMethod));
+                        var m2 = sbcType.GetMethod("PatchKianCommonsMethod", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (m2 != null) harmony.Patch(m2, prefix: new HarmonyMethod(preMethod));
+                        _coreKianCommonsNeutralized = true;
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully neutralized Core unsafe KianCommons reflection loop to prevent mono.dll crash.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] NeutralizeCoreKianCommonsPatching error: " + ex);
+            }
+        }
+
+        private static bool SkipCoreKianCommonsPrefix()
+        {
+            return false;
         }
 
         public static void EnsureRenderManagerCapacity()
@@ -3618,7 +3652,7 @@ namespace MoreNetworkCapacityRenew
                         {
                             Array targetArr = arr;
                             Type elemType = arr.GetType().GetElementType();
-                            int targetSplitCap = Math.Max(131072, MNCConstants.CORE_SPLIT_CAPACITY);
+                            int targetSplitCap = MNCConstants.CORE_SPLIT_CAPACITY;
                             if (arr.Length < targetSplitCap)
                             {
                                 Array newArr = Array.CreateInstance(elemType, targetSplitCap);
@@ -3708,7 +3742,7 @@ namespace MoreNetworkCapacityRenew
                     if (inst != null)
                     {
                         var f = semType.GetField("SegmentEnds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        int targetSplitCap = Math.Max(131072, MNCConstants.CORE_SPLIT_CAPACITY);
+                        int targetSplitCap = MNCConstants.CORE_SPLIT_CAPACITY;
                         if (f != null && f.GetValue(inst) is Array arr && arr.Length < targetSplitCap)
                         {
                             Type elemType = arr.GetType().GetElementType();
@@ -9844,11 +9878,67 @@ namespace MoreNetworkCapacityRenew
                     harmony.Patch(setLbl, prefix: new HarmonyMethod(pre));
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UILabel.set_text (null string armor)");
                 }
+
+                TryPatchModsCommonTextField(harmony);
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] UIExceptionPatches.Apply error: " + ex);
             }
+        }
+
+        private static void TryPatchModsCommonTextField(HarmonyInstance harmony)
+        {
+            try
+            {
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    Type tfType = asm.GetType("ModsCommon.UI.CustomUITextField");
+                    if (tfType != null)
+                    {
+                        MethodInfo copyMethod = tfType.GetMethod("CopySelectionToClipboard", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (copyMethod != null)
+                        {
+                            MethodInfo pre = typeof(UIExceptionPatches).GetMethod(nameof(CustomUITextField_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            harmony.Patch(copyMethod, prefix: new HarmonyMethod(pre));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ModsCommon.UI.CustomUITextField.CopySelectionToClipboard (selection range armor)");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TryPatchModsCommonTextField error: " + ex);
+            }
+        }
+
+        public static bool CustomUITextField_Prefix(object __instance)
+        {
+            if (__instance == null) return true;
+            try
+            {
+                var t = __instance.GetType();
+                var pText = t.GetProperty("text", BindingFlags.Public | BindingFlags.Instance);
+                string text = pText?.GetValue(__instance, null) as string ?? string.Empty;
+                var pStart = t.GetProperty("selectionStart", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var pEnd = t.GetProperty("selectionEnd", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (pStart != null && pEnd != null)
+                {
+                    int start = (int)pStart.GetValue(__instance, null);
+                    int end = (int)pEnd.GetValue(__instance, null);
+                    int min = Math.Min(start, end);
+                    int max = Math.Max(start, end);
+                    if (min < 0 || max > text.Length)
+                    {
+                        min = Math.Max(0, Math.Min(min, text.Length));
+                        max = Math.Max(0, Math.Min(max, text.Length));
+                        pStart.SetValue(__instance, min, null);
+                        pEnd.SetValue(__instance, max, null);
+                    }
+                }
+            }
+            catch { }
+            return true;
         }
 
         public static void SetText_Prefix(ref string value)
@@ -11300,6 +11390,69 @@ namespace MoreNetworkCapacityRenew
 
             // 6. Transfer Manager Extended (TransferManagerCE) path distance & 65K node safety hooks
             PatchTransferManager(harmony);
+
+            // 7. Stops & Stations (Impatient Commuters) 65K bounds armor
+            PatchStopsAndStations(harmony);
+        }
+
+        private static bool _stopsAndStationsPatched = false;
+        private static void PatchStopsAndStations(HarmonyInstance harmony)
+        {
+            if (_stopsAndStationsPatched || harmony == null) return;
+            try
+            {
+                Type limiterType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    string name = asm.GetName().Name;
+                    if (name == "StopsAndStations")
+                    {
+                        limiterType = asm.GetType("StopsAndStations.PassengerCountLimiter");
+                        if (limiterType != null) break;
+                    }
+                    else if (name == "ImpatientCommuters")
+                    {
+                        limiterType = asm.GetType("ImpatientCommuters.CommuterImpatienceLimiter");
+                        if (limiterType != null) break;
+                    }
+                }
+
+                if (limiterType != null)
+                {
+                    MethodInfo tickMethod = limiterType.GetMethod("OnBeforeSimulationTick", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo frameMethod = limiterType.GetMethod("OnBeforeSimulationFrame", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(PassengerCountLimiter_Prefix), BindingFlags.Public | BindingFlags.Static);
+
+                    if (tickMethod != null)
+                    {
+                        harmony.Patch(tickMethod, prefix: new HarmonyMethod(pre));
+                    }
+                    if (frameMethod != null)
+                    {
+                        harmony.Patch(frameMethod, prefix: new HarmonyMethod(pre));
+                    }
+
+                    _stopsAndStationsPatched = true;
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked " + limiterType.FullName + " (65K bounds armor & index safety)");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PatchStopsAndStations error: " + ex);
+            }
+        }
+
+        public static bool PassengerCountLimiter_Prefix(object __instance)
+        {
+            if (__instance != null)
+            {
+                try
+                {
+                    ExpandImpatientCommutersInstance(__instance, "SimulationTick");
+                }
+                catch { }
+            }
+            return true;
         }
 
         public static void EnsureEightyOne2Patched()
@@ -12033,17 +12186,26 @@ namespace MoreNetworkCapacityRenew
             {
                 Type expElem = expUnits.GetType().GetElementType();
                 Type targetElem = targetUnits.GetType().GetElementType();
-                var fExpX = expElem.GetField("m_x", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var fExpZ = expElem.GetField("m_z", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (expElem == null || targetElem == null) return;
+                var fExpX = expElem.GetField("m_x", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                         ?? expElem.GetField("x", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var fExpZ = expElem.GetField("m_z", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                         ?? expElem.GetField("z", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 var fTargetX = targetElem.GetField("m_x", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 var fTargetZ = targetElem.GetField("m_z", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (fExpX == null || fExpZ == null || fTargetX == null || fTargetZ == null) return;
 
                 for (int i = 0; i < count; i++)
                 {
                     object src = expUnits.GetValue(i);
                     object dst = targetUnits.GetValue(i);
-                    ushort x = (ushort)fExpX.GetValue(src);
-                    ushort z = (ushort)fExpZ.GetValue(src);
+                    if (src == null || dst == null) continue;
+                    object vx = fExpX.GetValue(src);
+                    object vz = fExpZ.GetValue(src);
+                    if (vx == null || vz == null) continue;
+                    ushort x = Convert.ToUInt16(vx);
+                    ushort z = Convert.ToUInt16(vz);
                     fTargetX.SetValue(dst, (byte)UnityEngine.Mathf.Clamp((int)x, 0, 255));
                     fTargetZ.SetValue(dst, (byte)UnityEngine.Mathf.Clamp((int)z, 0, 255));
                     targetUnits.SetValue(dst, i);
@@ -12148,8 +12310,7 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] EightyOne2_Electricity_CustomSerialize_Prefix error: " + ex);
-                __result = new ElectricityManager.Cell[65536];
-                return false;
+                return true;
             }
         }
 
@@ -12235,8 +12396,7 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] EightyOne2_Water_CustomSerialize_Prefix error: " + ex);
-                __result = new WaterManager.Cell[65536];
-                return false;
+                return true;
             }
         }
 
@@ -12803,16 +12963,22 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                Type limiterType = null;
+                List<Type> limiterTypes = new List<Type>();
                 foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    if (asm.GetName().Name == "ImpatientCommuters")
+                    string name = asm.GetName().Name;
+                    if (name == "ImpatientCommuters")
                     {
-                        limiterType = asm.GetType("ImpatientCommuters.CommuterImpatienceLimiter");
-                        break;
+                        Type t = asm.GetType("ImpatientCommuters.CommuterImpatienceLimiter");
+                        if (t != null && !limiterTypes.Contains(t)) limiterTypes.Add(t);
+                    }
+                    else if (name == "StopsAndStations")
+                    {
+                        Type t = asm.GetType("StopsAndStations.PassengerCountLimiter");
+                        if (t != null && !limiterTypes.Contains(t)) limiterTypes.Add(t);
                     }
                 }
-                if (limiterType == null) return;
+                if (limiterTypes.Count == 0) return;
 
                 if (Singleton<SimulationManager>.instance != null)
                 {
@@ -12829,7 +12995,7 @@ namespace MoreNetworkCapacityRenew
                                 for (int i = 0; i < list.Count; i++)
                                 {
                                     object ext = list[i];
-                                    if (ext != null && ext.GetType() == limiterType)
+                                    if (ext != null && limiterTypes.Contains(ext.GetType()))
                                     {
                                         ExpandImpatientCommutersInstance(ext, context);
                                     }
@@ -12855,7 +13021,12 @@ namespace MoreNetworkCapacityRenew
                 bool resizedAny = false;
 
                 // 1. Expand node index arrays to 65536 (eliminates IndexOutOfRangeException for all ushort values 0..65535)
-                string[] ushortArrayFields = new string[] { "_passengerCount", "_capacityThreshold", "_vehicleCount", "_stopCount" };
+                string[] ushortArrayFields = new string[] { 
+                    "passengerCount", "_passengerCount", 
+                    "capacityThreshold", "_capacityThreshold", 
+                    "vehicleCount", "_vehicleCount", 
+                    "stopCount", "_stopCount" 
+                };
                 for (int i = 0; i < ushortArrayFields.Length; i++)
                 {
                     FieldInfo f = limiterType.GetField(ushortArrayFields[i], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -12868,13 +13039,34 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
 
-                FieldInfo fBool = limiterType.GetField("_hasAlternativeLine", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fBool != null && fBool.GetValue(instance) is bool[] bArr && bArr.Length < targetCapacity)
+                string[] boolArrayFields = new string[] { "_hasAlternativeLine", "hasAlternativeLine" };
+                for (int i = 0; i < boolArrayFields.Length; i++)
                 {
-                    bool[] newBArr = new bool[targetCapacity];
-                    Array.Copy(bArr, newBArr, bArr.Length);
-                    fBool.SetValue(instance, newBArr);
-                    resizedAny = true;
+                    FieldInfo fBool = limiterType.GetField(boolArrayFields[i], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fBool != null && fBool.GetValue(instance) is bool[] bArr && bArr.Length < targetCapacity)
+                    {
+                        bool[] newBArr = new bool[targetCapacity];
+                        Array.Copy(bArr, newBArr, bArr.Length);
+                        fBool.SetValue(instance, newBArr);
+                        resizedAny = true;
+                    }
+                }
+
+                // Also scan all ushort[] fields to guarantee any custom count array is 65K
+                FieldInfo[] allFields = limiterType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                for (int i = 0; i < allFields.Length; i++)
+                {
+                    FieldInfo f = allFields[i];
+                    if (f.FieldType == typeof(ushort[]))
+                    {
+                        if (f.GetValue(instance) is ushort[] uArr && uArr.Length < targetCapacity)
+                        {
+                            ushort[] newArr = new ushort[targetCapacity];
+                            Array.Copy(uArr, newArr, uArr.Length);
+                            f.SetValue(instance, newArr);
+                            resizedAny = true;
+                        }
+                    }
                 }
 
                 // 2. Synchronize game buffer references to active expanded buffers
@@ -12883,7 +13075,8 @@ namespace MoreNetworkCapacityRenew
                     NetManager nm = Singleton<NetManager>.instance;
                     if (nm.m_nodes != null && nm.m_nodes.m_buffer != null)
                     {
-                        FieldInfo fNodes = limiterType.GetField("_nodes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        FieldInfo fNodes = limiterType.GetField("nodes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                        ?? limiterType.GetField("_nodes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                         if (fNodes != null && !object.ReferenceEquals(fNodes.GetValue(instance), nm.m_nodes.m_buffer))
                         {
                             fNodes.SetValue(instance, nm.m_nodes.m_buffer);
@@ -12891,7 +13084,8 @@ namespace MoreNetworkCapacityRenew
                     }
                     if (nm.m_segments != null && nm.m_segments.m_buffer != null)
                     {
-                        FieldInfo fSegs = limiterType.GetField("_segments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        FieldInfo fSegs = limiterType.GetField("segments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                       ?? limiterType.GetField("_segments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                         if (fSegs != null && !object.ReferenceEquals(fSegs.GetValue(instance), nm.m_segments.m_buffer))
                         {
                             fSegs.SetValue(instance, nm.m_segments.m_buffer);
@@ -12901,7 +13095,8 @@ namespace MoreNetworkCapacityRenew
 
                 if (Singleton<PathManager>.instance != null && Singleton<PathManager>.instance.m_pathUnits != null && Singleton<PathManager>.instance.m_pathUnits.m_buffer != null)
                 {
-                    FieldInfo fPaths = limiterType.GetField("_pathUnits", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fPaths = limiterType.GetField("pathUnits", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?? limiterType.GetField("_pathUnits", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fPaths != null && !object.ReferenceEquals(fPaths.GetValue(instance), Singleton<PathManager>.instance.m_pathUnits.m_buffer))
                     {
                         fPaths.SetValue(instance, Singleton<PathManager>.instance.m_pathUnits.m_buffer);
@@ -12913,7 +13108,8 @@ namespace MoreNetworkCapacityRenew
                     CitizenManager cm = Singleton<CitizenManager>.instance;
                     if (cm.m_instances != null && cm.m_instances.m_buffer != null)
                     {
-                        FieldInfo fInst = limiterType.GetField("_instances", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        FieldInfo fInst = limiterType.GetField("instances", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                       ?? limiterType.GetField("_instances", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                         if (fInst != null && !object.ReferenceEquals(fInst.GetValue(instance), cm.m_instances.m_buffer))
                         {
                             fInst.SetValue(instance, cm.m_instances.m_buffer);
@@ -12921,7 +13117,8 @@ namespace MoreNetworkCapacityRenew
                     }
                     if (cm.m_citizens != null && cm.m_citizens.m_buffer != null)
                     {
-                        FieldInfo fCit = limiterType.GetField("_citizens", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        FieldInfo fCit = limiterType.GetField("citizens", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                      ?? limiterType.GetField("_citizens", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                         if (fCit != null && !object.ReferenceEquals(fCit.GetValue(instance), cm.m_citizens.m_buffer))
                         {
                             fCit.SetValue(instance, cm.m_citizens.m_buffer);
@@ -12931,7 +13128,10 @@ namespace MoreNetworkCapacityRenew
 
                 if (Singleton<TransportManager>.instance != null && Singleton<TransportManager>.instance.m_lines != null && Singleton<TransportManager>.instance.m_lines.m_buffer != null)
                 {
-                    FieldInfo fLines = limiterType.GetField("_lines", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fLines = limiterType.GetField("transportLines", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?? limiterType.GetField("_transportLines", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?? limiterType.GetField("_lines", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?? limiterType.GetField("lines", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fLines != null && !object.ReferenceEquals(fLines.GetValue(instance), Singleton<TransportManager>.instance.m_lines.m_buffer))
                     {
                         fLines.SetValue(instance, Singleton<TransportManager>.instance.m_lines.m_buffer);
@@ -12940,7 +13140,8 @@ namespace MoreNetworkCapacityRenew
 
                 if (Singleton<VehicleManager>.instance != null && Singleton<VehicleManager>.instance.m_vehicles != null && Singleton<VehicleManager>.instance.m_vehicles.m_buffer != null)
                 {
-                    FieldInfo fVeh = limiterType.GetField("_vehicles", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fVeh = limiterType.GetField("vehicles", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                  ?? limiterType.GetField("_vehicles", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fVeh != null && !object.ReferenceEquals(fVeh.GetValue(instance), Singleton<VehicleManager>.instance.m_vehicles.m_buffer))
                     {
                         fVeh.SetValue(instance, Singleton<VehicleManager>.instance.m_vehicles.m_buffer);
@@ -12949,7 +13150,7 @@ namespace MoreNetworkCapacityRenew
 
                 if (resizedAny)
                 {
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully expanded Impatient Commuters node arrays to {0} without any hooks ({1})", targetCapacity, context));
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully expanded {0} node arrays to {1} without any hooks ({2})", limiterType.Name, targetCapacity, context));
                 }
             }
             catch (Exception ex)

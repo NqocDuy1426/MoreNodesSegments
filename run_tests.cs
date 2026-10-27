@@ -1567,6 +1567,50 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST SUITE 33: CUSTOMER ISSUE RESOLUTION & CORE INTEGRITY (OCT 27)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 33: Customer Issue Resolution & Core Integrity ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 33.1 Core KianCommons reflection neutralization (prevents mono.dll 0xc0000005 native crash)
+            bool hasCoreNeutralization = renewCode.Contains("NeutralizeCoreKianCommonsPatching(mnc)") &&
+                                         renewCode.Contains("sbcType.GetMethod(\"PatchKianCommonsLimits\"") &&
+                                         renewCode.Contains("sbcType.GetMethod(\"PatchKianCommonsMethod\"") &&
+                                         renewCode.Contains("SkipCoreKianCommonsPrefix");
+            Assert(hasCoreNeutralization, "Core unsafe KianCommons reflection loop is neutralized before HarmonyBootstrap.Enable()");
+
+            // 33.2 Split buffer allocation normalized to 130048 (eliminates MNC Core array length mismatch error)
+            bool no131072Split = !renewCode.Contains("Math.Max(131072, MNCConstants.CORE_SPLIT_CAPACITY)");
+            bool has130048Split = renewCode.Contains("int targetSplitCap = MNCConstants.CORE_SPLIT_CAPACITY;");
+            Assert(no131072Split && has130048Split, "TM:PE ExtSegmentEnds and SegmentEnds arrays resized strictly to 130048 (CORE_SPLIT_CAPACITY)");
+
+            // 33.3 Stops & Stations (Workshop 1776052533) 65K expansion & simulation hook
+            bool hasStopsAndStations = renewCode.Contains("StopsAndStations.PassengerCountLimiter") &&
+                                       renewCode.Contains("PatchStopsAndStations(harmony)") &&
+                                       renewCode.Contains("PassengerCountLimiter_Prefix") &&
+                                       renewCode.Contains("passengerCount");
+            Assert(hasStopsAndStations, "Stops & Stations (1776052533) PassengerCountLimiter has 65K node expansion and tick bounds armor");
+
+            // 33.4 EightyOne 2 Water CustomSerialize error fallback
+            bool has81WaterFallback = renewCode.Contains("EightyOne2_Water_CustomSerialize_Prefix error") &&
+                                      renewCode.Contains("return true;") &&
+                                      renewCode.Contains("SafeCopyPulseUnits");
+            Assert(has81WaterFallback, "EightyOne2 Water CustomSerialize falls back safely to native serializer on error");
+
+            // 33.5 ModsCommon CustomUITextField exception armor
+            bool hasUiArmor = renewCode.Contains("ModsCommon.UI.CustomUITextField") &&
+                              renewCode.Contains("CopySelectionToClipboard") &&
+                              renewCode.Contains("CustomUITextField_Prefix");
+            Assert(hasUiArmor, "ModsCommon CustomUITextField CopySelectionToClipboard is armored against ArgumentOutOfRangeException");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 33 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
