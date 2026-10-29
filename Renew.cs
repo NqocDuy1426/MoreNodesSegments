@@ -8060,19 +8060,24 @@ namespace MoreNetworkCapacityRenew
                     {
                         var p = snapshot[i];
                         if (p == null) continue;
-                        foreach (ColossalFramework.Packaging.Package.Asset a in p)
+                        try
                         {
-                            if (a != null && a.type == UserAssetType.CustomAssetMetaData && a.isEnabled)
+                            foreach (ColossalFramework.Packaging.Package.Asset a in p)
                             {
-                                ModInfo info = default(ModInfo);
-                                info.modName = a.fullName;
-                                try { info.modWorkshopID = p.GetPublishedFileID().AsUInt64; } catch { }
-                                list.Add(info);
+                                if (a != null && a.type == UserAssetType.CustomAssetMetaData && a.isEnabled)
+                                {
+                                    ModInfo info = default(ModInfo);
+                                    info.modName = a.fullName;
+                                    try { info.modWorkshopID = p.GetPublishedFileID().AsUInt64; } catch { }
+                                    list.Add(info);
+                                }
                             }
                         }
+                        catch { }
                     }
                 }
                 __result = list.ToArray();
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] EmbedAssetInfo: Fast snapshot safely gathered {0} custom assets without Mono iterator stall ✓", list.Count));
                 return false; // Safely return snapshot without running into Mono iterator deadlocks
             }
             catch (Exception ex)
@@ -8111,7 +8116,7 @@ namespace MoreNetworkCapacityRenew
             float elapsed = 0f;
             FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
 
-            while (elapsed < 12f)
+            while (elapsed < 15f)
             {
                 yield return new UnityEngine.WaitForSeconds(0.5f);
                 elapsed += 0.5f;
@@ -8124,7 +8129,7 @@ namespace MoreNetworkCapacityRenew
                 }
             }
 
-            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (12s timeout). Safely releasing UI and completing save...");
+            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (15s timeout). Safely releasing UI and completing save...");
 
             SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
             if (sp != null)
@@ -8138,6 +8143,21 @@ namespace MoreNetworkCapacityRenew
                     {
                         mComplete.Invoke(sp, new object[] { false, false });
                     }
+
+                    // Also make sure UIView modal and progress spinners are dismissed safely on Main Thread
+                    ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
+                    {
+                        try
+                        {
+                            var modal = ColossalFramework.UI.UIView.GetModalComponent();
+                            if (modal != null)
+                            {
+                                ColossalFramework.UI.UIView.PopModal();
+                            }
+                            ColossalFramework.UI.UIView.library.Hide("SavePanel");
+                        }
+                        catch { }
+                    });
 
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
                 }
