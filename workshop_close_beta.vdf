@@ -9,16 +9,21 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.16:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.17:[/h2]
 [list]
-[*] [b]Loại bỏ triệt để lỗi treo khi Save game (Native Save Freeze Fix):[/b]
+[*] [b]Khắc phục triệt để lỗi DivideByZeroException trên các thành phố > 40.000 nodes (81 Tiles 2 & Vanilla):[/b]
     [list]
-    [*] Tối ưu hóa quét tập hợp asset EmbedAssetInfo an toàn luồng (thread-safe snapshot), ngăn ngừa hoàn toàn tình trạng kẹt vòng lặp Mono trên các thành phố lớn sử dụng trên 25.000 custom assets.
-    [*] Tích hợp SaveWatchdog tự động giám sát và bảo đảm quy trình đóng gói .crp của game gốc luôn kết thúc sạch sẽ, tự động tắt màn hình xoay 'Saving...' và giải phóng UI an toàn.
+    [*] Miễn nhiễm 100% lỗi chia cho 0 trong EightyOne2 ExpandedElectricityManager & ExpandedWaterManager khi hoàn nhập xung điện/nước (pulse group unmerging) trên các mạng lưới khổng lồ có Electric Roads.
+    [*] Tích hợp bộ chuyển dịch IL Transpiler SafeDivU64 bảo vệ an toàn luồng mô phỏng, chấm dứt hoàn toàn hiện tượng văng lỗi ngắt quãng trong log.
+    [/list]
+[*] [b]Bảo vệ toàn diện quy trình Save game gốc (Native Save Freeze Fix):[/b]
+    [list]
+    [*] Tối ưu hóa quét tập hợp asset EmbedAssetInfo an toàn luồng, không kẹt vòng lặp Mono trên các thành phố lớn > 25.000 custom assets.
+    [*] Tích hợp SaveWatchdog tự động giải phóng giao diện và bảo đảm OnSavingComplete luôn kết thúc sạch sẽ.
     [/list]
 [*] [b]Đảm bảo 100% dữ liệu nguyên vẹn:[/b] Lưu và tải hoàn hảo mạng lưới 65K nodes/segments, 64K MoreProps, 54K Procedural Objects và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.16 Close Beta Initial Deployment (Friends Only)"
+	"changenote"		"v5.0.17 Close Beta: Fix EightyOne2 40K+ Nodes SimulationStepImpl DivideByZeroException & Native Save Guard"
 }

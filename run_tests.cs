@@ -1641,6 +1641,40 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 35: EightyOne2 & Vanilla Electricity/Water Zero-Division Immunity (v5.0.17 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 35: EightyOne2 & Vanilla Simulation Zero-Division Immunity (v5.0.17) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 35.1 SafeDivU64 method present and handles zero division
+            bool hasSafeDiv = renewCode.Contains("SafeDivU64(ulong num, ulong den)") &&
+                              renewCode.Contains("den == 0UL") &&
+                              renewCode.Contains("return 0UL;");
+            Assert(hasSafeDiv, "SafeDivU64 eliminates divide-by-zero on zero denominator (returns 0UL)");
+
+            // 35.2 EightyOne2 ExpandedElectricityManager & ExpandedWaterManager hooked
+            bool hasEemHook = renewCode.Contains("EightyOne2.Patches.ExpandedElectricityManager") &&
+                              renewCode.Contains("SafeElectricityDivision_Transpiler");
+            Assert(hasEemHook, "EightyOne2 ExpandedElectricityManager.SimulationStepImpl is armored against DivideByZeroException");
+
+            bool hasEwmHook = renewCode.Contains("EightyOne2.Patches.ExpandedWaterManager") &&
+                              renewCode.Contains("SafeElectricityDivision_Transpiler");
+            Assert(hasEwmHook, "EightyOne2 ExpandedWaterManager.SimulationStepImpl is armored against DivideByZeroException");
+
+            // 35.3 Vanilla ElectricityManager & WaterManager hooked
+            bool hasVanillaSimHook = renewCode.Contains("PatchVanillaSimulationZeroDivision") &&
+                                     renewCode.Contains("typeof(ElectricityManager).GetMethod(\"SimulationStepImpl\"") &&
+                                     renewCode.Contains("typeof(WaterManager).GetMethod(\"SimulationStepImpl\"");
+            Assert(hasVanillaSimHook, "Vanilla ElectricityManager and WaterManager are universally armored against DivideByZeroException");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 35 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");

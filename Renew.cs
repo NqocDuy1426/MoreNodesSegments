@@ -11541,6 +11541,39 @@ namespace MoreNetworkCapacityRenew
 
             // 7. Stops & Stations (Impatient Commuters) 65K bounds armor
             PatchStopsAndStations(harmony);
+
+            // 8. Universal Vanilla ElectricityManager & WaterManager Zero-Division Armor
+            PatchVanillaSimulationZeroDivision(harmony);
+        }
+
+        private static bool _vanillaSimZeroDivPatched = false;
+        private static void PatchVanillaSimulationZeroDivision(HarmonyInstance harmony)
+        {
+            if (_vanillaSimZeroDivPatched || harmony == null) return;
+            try
+            {
+                MethodInfo mVanillaElec = typeof(ElectricityManager).GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (mVanillaElec != null)
+                {
+                    MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(mVanillaElec, transpiler: new HarmonyMethod(tr));
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla ElectricityManager.SimulationStepImpl against DivideByZeroException ✓");
+                }
+
+                MethodInfo mVanillaWater = typeof(WaterManager).GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (mVanillaWater != null)
+                {
+                    MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(mVanillaWater, transpiler: new HarmonyMethod(tr));
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla WaterManager.SimulationStepImpl against DivideByZeroException ✓");
+                }
+
+                _vanillaSimZeroDivPatched = true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PatchVanillaSimulationZeroDivision error: " + ex);
+            }
         }
 
         private static bool _stopsAndStationsPatched = false;
@@ -11757,10 +11790,52 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hook NetManager.Awake error: " + ex);
                 }
 
+                // 7. Hook EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl against DivideByZeroException on 40K+ nodes
+                try
+                {
+                    Type expElec = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
+                    if (expElec != null)
+                    {
+                        MethodInfo mSimStep = expElec.GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (mSimStep != null)
+                        {
+                            MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mSimStep, transpiler: new HarmonyMethod(tr));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ExpandedElectricityManager.SimulationStepImpl with zero-division safety transpiler!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 ExpandedElectricityManager error: " + ex);
+                }
+
+                // 8. Hook EightyOne2.Patches.ExpandedWaterManager.SimulationStepImpl against pulse unmerge division by zero
+                try
+                {
+                    Type expWater = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedWaterManager");
+                    if (expWater != null)
+                    {
+                        MethodInfo mSimStep = expWater.GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (mSimStep != null)
+                        {
+                            MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mSimStep, transpiler: new HarmonyMethod(tr));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ExpandedWaterManager.SimulationStepImpl with zero-division safety transpiler!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 ExpandedWaterManager error: " + ex);
+                }
+
                 if (patchedCount > 0)
                 {
                     _eightyOne2Patched = true;
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization safety patches!", patchedCount));
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization & simulation safety patches!", patchedCount));
                 }
             }
             catch (Exception ex)
@@ -11773,6 +11848,7 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                EnsureEightyOne2Patched();
                 if (!Singleton<NetManager>.exists) return;
                 NetManager nm = Singleton<NetManager>.instance;
                 if (nm == null) return;
@@ -12718,6 +12794,28 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] EightyOne2_Immaterial_CustomSerialize_Prefix error: " + ex);
                 return false;
+            }
+        }
+
+        public static ulong SafeDivU64(ulong num, ulong den)
+        {
+            if (den == 0UL) return 0UL;
+            return num / den;
+        }
+
+        public static IEnumerable<CodeInstruction> SafeElectricityDivision_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo mSafeDiv = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeDivU64), BindingFlags.Public | BindingFlags.Static);
+            foreach (var instr in instructions)
+            {
+                if (instr.opcode == OpCodes.Div_Un || instr.opcode == OpCodes.Div)
+                {
+                    yield return new CodeInstruction(OpCodes.Call, mSafeDiv);
+                }
+                else
+                {
+                    yield return instr;
+                }
             }
         }
 
