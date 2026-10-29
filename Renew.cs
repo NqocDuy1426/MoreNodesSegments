@@ -7983,6 +7983,7 @@ namespace MoreNetworkCapacityRenew
                     {
                         LogSaveDebug("=== SaveSimulationData COMPLETED CLEANLY! (result=false) ===");
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] === SaveSimulationData COMPLETED CLEANLY! ===");
+                        SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);
                     }
                     CurrentSavingFilename = null;
                 }
@@ -7998,6 +7999,8 @@ namespace MoreNetworkCapacityRenew
     internal static class SavePanelOnSavingCompletePatch
     {
         private static bool s_isApplied = false;
+        private static string s_lastSavedCcsPath = null;
+        private static DateTime s_lastSaveTime = DateTime.MinValue;
 
         public static void ApplySavePanelPatch()
         {
@@ -8013,10 +8016,135 @@ namespace MoreNetworkCapacityRenew
                     s_isApplied = true;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSavingComplete safety patch!");
                 }
+
+                // Patch EmbedAssetInfo to prevent Mono collection stall on 25K+ custom assets
+                try
+                {
+                    Type tBase = typeof(SavePanel).BaseType;
+                    if (tBase != null)
+                    {
+                        MethodInfo mEmbed = tBase.GetMethod("EmbedAssetInfo", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mEmbed != null)
+                        {
+                            var preEmbed = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(EmbedAssetInfo_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mEmbed, prefix: new HarmonyMethod(preEmbed));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied EmbedAssetInfo thread-safe optimization patch!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply EmbedAssetInfo patch error: " + ex);
+                }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ApplySavePanelPatch error: " + ex);
+            }
+        }
+
+        public static bool EmbedAssetInfo_Prefix(ref ModInfo[] __result)
+        {
+            try
+            {
+                List<ModInfo> list = new List<ModInfo>();
+                var packages = ColossalFramework.Packaging.PackageManager.allPackages;
+                if (packages != null)
+                {
+                    ColossalFramework.Packaging.Package[] snapshot;
+                    lock (packages)
+                    {
+                        snapshot = System.Linq.Enumerable.ToArray(packages);
+                    }
+                    for (int i = 0; i < snapshot.Length; i++)
+                    {
+                        var p = snapshot[i];
+                        if (p == null) continue;
+                        foreach (ColossalFramework.Packaging.Package.Asset a in p)
+                        {
+                            if (a != null && a.type == UserAssetType.CustomAssetMetaData && a.isEnabled)
+                            {
+                                ModInfo info = default(ModInfo);
+                                info.modName = a.fullName;
+                                try { info.modWorkshopID = p.GetPublishedFileID().AsUInt64; } catch { }
+                                list.Add(info);
+                            }
+                        }
+                    }
+                }
+                __result = list.ToArray();
+                return false; // Safely return snapshot without running into Mono iterator deadlocks
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EmbedAssetInfo fast gather exception, falling back: " + ex);
+                return true;
+            }
+        }
+
+        public static void OnSaveSimulationCompletedCleanly(string ccsPath)
+        {
+            s_lastSavedCcsPath = ccsPath;
+            s_lastSaveTime = DateTime.UtcNow;
+            StartSaveWatchdog();
+        }
+
+        public static void StartSaveWatchdog()
+        {
+            try
+            {
+                var lm = Singleton<LoadingManager>.instance;
+                if (lm != null)
+                {
+                    lm.StartCoroutine(SaveWatchdogCoroutine());
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] StartSaveWatchdog error: " + ex);
+            }
+        }
+
+        private static System.Collections.IEnumerator SaveWatchdogCoroutine()
+        {
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Started monitoring game save packaging completion...");
+            float elapsed = 0f;
+            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+
+            while (elapsed < 12f)
+            {
+                yield return new UnityEngine.WaitForSeconds(0.5f);
+                elapsed += 0.5f;
+
+                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
+                if (!isSaving)
+                {
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Game save completed cleanly by vanilla game in {0:F1}s ✓", elapsed));
+                    yield break;
+                }
+            }
+
+            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (12s timeout). Safely releasing UI and completing save...");
+
+            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+            if (sp != null)
+            {
+                try
+                {
+                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
+
+                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                    if (mComplete != null)
+                    {
+                        mComplete.Invoke(sp, new object[] { false, false });
+                    }
+
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog rescue exception: " + ex);
+                }
             }
         }
 

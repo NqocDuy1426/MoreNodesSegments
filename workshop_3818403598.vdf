@@ -8,6 +8,12 @@
 	"title"		"More Nodes/Segments v5.0"
 	"description"		"[h1]✨ WHAT'S NEW IN v5.0 (Rebranded to More Nodes/Segments) ✨[/h1]
 [list]
+[*] [b]Native Save Freeze Elimination & 25K+ Asset Harmony (v5.0.12 Close Beta):[/b]
+[list]
+    [*] [b]EmbedAssetInfo Thread-Safe Optimization:[/b] Replaced unshielded Mono collection iterations with thread-safe snapshot scanning for custom assets. Eliminates infinite loop freezes during save packaging on cities with over 25,000 custom assets.
+    [*] [b]SaveWatchdog & Unfreeze Armor:[/b] Active non-intrusive monitoring of the game's native save packaging lifecycle. Safely releases UI spinners and guarantees complete .crp savegame finalization if engine task workers deadlock.
+    [*] [b]100% Native Game Flow:[/b] Full fidelity preservation of the vanilla save routine with zero missing data across 65K networks, 64K MoreProps, and 54K POs.
+[/list]
 [*] [b]Major Release & Official Rebranding:[/b]
 [list]
     [*] Rebranded to [b]More Nodes/Segments v5.0[/b]!

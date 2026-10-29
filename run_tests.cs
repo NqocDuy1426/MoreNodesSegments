@@ -1611,6 +1611,36 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 34: Native Save Game Packaging Guard & Deadlock Immunity (v5.0.12 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 34: Native Save Game Packaging Guard & Deadlock Immunity (v5.0.12 Close Beta) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 34.1 EmbedAssetInfo optimization patch
+            bool hasEmbedPatch = renewCode.Contains("EmbedAssetInfo_Prefix") &&
+                                 renewCode.Contains("PackageManager.allPackages") &&
+                                 renewCode.Contains("UserAssetType.CustomAssetMetaData");
+            Assert(hasEmbedPatch, "EmbedAssetInfo thread-safe optimization safely snapshots packages without Mono collection stall");
+
+            // 34.2 SaveWatchdog monitoring and timeout rescue
+            bool hasWatchdog = renewCode.Contains("SaveWatchdogCoroutine") &&
+                               renewCode.Contains("OnSaveSimulationCompletedCleanly") &&
+                               renewCode.Contains("SaveWatchdog: Detected frozen vanilla save packaging");
+            Assert(hasWatchdog, "SaveWatchdog monitors save completion and safely rescues game from frozen packaging tasks");
+
+            // 34.3 Pure vanilla save lifecycle integrity
+            bool hasCleanIntegration = renewCode.Contains("SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);") &&
+                                       renewCode.Contains("SavePanel.OnSavingComplete");
+            Assert(hasCleanIntegration, "SaveWatchdog is seamlessly integrated into SaveSimulationData and SavePanelOnSavingComplete");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 34 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
