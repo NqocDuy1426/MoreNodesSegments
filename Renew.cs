@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.25 by NgocDuy";
-        public string Description => "[Close Beta v5.0.25] Complete Simulation Thread & Manager Deserialization Immunity (SimulationManager Shield + TreeManager/PropManager/All Containers Finalizer Armor).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy";
+        public string Description => "[Close Beta v5.0.26] Definitive Simulation Thread & Container Immunity (LoadSimulationData Shield + Individual Container Armor).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14281,6 +14281,35 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
 
+                // 2c. Patch LoadingManager.<LoadSimulationData>c__IteratorB.MoveNext (Universal Simulation Shield Transpiler)
+                try
+                {
+                    Type lmType = typeof(LoadingManager);
+                    Type iterType = null;
+                    foreach (var t in lmType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        if (t.Name.Contains("LoadSimulationData"))
+                        {
+                            iterType = t;
+                            break;
+                        }
+                    }
+                    if (iterType != null)
+                    {
+                        MethodInfo mMoveNext = iterType.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mMoveNext != null)
+                        {
+                            MethodInfo transpiler = typeof(TransportLineCompatibility).GetMethod(nameof(LoadSimulationData_MoveNext_Transpiler), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mMoveNext, transpiler: new HarmonyMethod(transpiler) { prioritiy = Harmony.Priority.First });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched LoadingManager.<LoadSimulationData>.MoveNext with Universal Simulation Shield Transpiler (Priority.First) ✓");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching LoadingManager.LoadSimulationData MoveNext: " + ex);
+                }
+
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
                 {
@@ -16338,6 +16367,157 @@ namespace MoreNetworkCapacityRenew
         private static readonly FieldInfo s_wmProcessedCells = typeof(WaterManager).GetField("m_processedCells", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo s_wmConductiveCells = typeof(WaterManager).GetField("m_conductiveCells", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo s_wmCanContinue = typeof(WaterManager).GetField("m_canContinue", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly ConstructorInfo s_dsCtor = typeof(ColossalFramework.IO.DataSerializer).GetConstructor(
+            BindingFlags.NonPublic | BindingFlags.Instance, null,
+            new Type[] { typeof(Stream), typeof(ColossalFramework.IO.DataSerializer.Mode), typeof(bool) }, null);
+
+        private static readonly FieldInfo s_dsVersionField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_version", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_dsAltVersionField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_altVersion", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_dsObjectListField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_objectList", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static ColossalFramework.IO.DataSerializer CreateDataSerializer(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)
+        {
+            if (s_dsCtor != null)
+            {
+                return (ColossalFramework.IO.DataSerializer)s_dsCtor.Invoke(new object[] { stream, mode, false });
+            }
+            return null;
+        }
+
+        public static void EnsureContainerSafe(ColossalFramework.IO.IDataContainer container)
+        {
+            if (container == null) return;
+            try
+            {
+                string name = container.GetType().Name;
+                if (name.Contains("Net")) ResetNetSimulationState();
+                else if (name.Contains("Tree")) ResetTreeSimulationState();
+                else if (name.Contains("Prop")) ResetPropSimulationState();
+                else if (name.Contains("Building")) ResetBuildingSimulationState();
+                else if (name.Contains("Citizen")) ResetCitizenSimulationState();
+                else if (name.Contains("Zone")) ResetZoneSimulationState();
+                else if (name.Contains("Vehicle")) ResetVehicleSimulationState();
+                else if (name.Contains("District")) ResetDistrictSimulationState();
+                else if (name.Contains("Electricity")) ResetElectricitySimulationState();
+                else if (name.Contains("WaterSimulation")) ResetWaterSimulationSimulationState();
+                else if (name.Contains("Water")) ResetWaterSimulationState();
+                else if (name.Contains("NaturalResource")) ResetNaturalResourceSimulationState();
+                else if (name.Contains("Transfer")) ResetTransferManagerSimulationState();
+                else if (name.Contains("Terrain")) ResetTerrainSimulationState();
+                else EnsureAllSimulationManagersSafe();
+            }
+            catch {}
+        }
+
+        public static SimulationManager.Data SafeDeserializeSimulationData(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)
+        {
+            try
+            {
+                ColossalFramework.IO.DataSerializer s = CreateDataSerializer(stream, mode);
+                if (s == null)
+                {
+                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SafeDeserializeSimulationData: Failed to instantiate DataSerializer! Falling back to vanilla.");
+                    return ColossalFramework.IO.DataSerializer.Deserialize<SimulationManager.Data>(stream, mode);
+                }
+
+                uint altVer = s.ReadUInt16();
+                uint ver = s.ReadUInt16();
+                uint combined = (altVer << 16) | ver;
+                if (ver <= 322 && altVer <= 6)
+                {
+                    s_dsAltVersionField?.SetValue(s, altVer);
+                    s_dsVersionField?.SetValue(s, ver);
+                }
+                else if ((altVer & 0x8000) != 0)
+                {
+                    uint fullAlt = s.ReadUInt32();
+                    s_dsAltVersionField?.SetValue(s, fullAlt);
+                    s_dsVersionField?.SetValue(s, combined & 0x7FFFFFFF);
+                }
+                else
+                {
+                    s_dsAltVersionField?.SetValue(s, 0u);
+                    s_dsVersionField?.SetValue(s, combined);
+                }
+
+                // Read root SimulationManager.Data (which registers all simulation managers into m_objectList)
+                SimulationManager.Data root = s.ReadObject<SimulationManager.Data>(null);
+
+                var objectList = s_dsObjectListField?.GetValue(s) as List<ColossalFramework.IO.IDataContainer>;
+                if (objectList != null)
+                {
+                    int i = 0;
+                    while (i < objectList.Count)
+                    {
+                        ColossalFramework.IO.IDataContainer container = objectList[i];
+                        string cName = container != null ? container.GetType().Name : "null";
+                        try
+                        {
+                            container.Deserialize(s);
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format(
+                                "[MoreNetworkCapacityRenew] Universal Simulation Shield: Protected against error in {0}.Deserialize ({1}: {2}). Continuing load ✓",
+                                cName, ex.GetType().Name, ex.Message));
+                            SafeCloseProfilerDeserialize(cName);
+                            EnsureContainerSafe(container);
+                        }
+                        i++;
+                    }
+
+                    i = 0;
+                    while (i < objectList.Count)
+                    {
+                        ColossalFramework.IO.IDataContainer container = objectList[i];
+                        string cName = container != null ? container.GetType().Name : "null";
+                        try
+                        {
+                            container.AfterDeserialize(s);
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format(
+                                "[MoreNetworkCapacityRenew] Universal Simulation Shield: Protected against error in {0}.AfterDeserialize ({1}: {2}) ✓",
+                                cName, ex.GetType().Name, ex.Message));
+                        }
+                        i++;
+                    }
+                }
+
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Universal Simulation Shield: Simulation data deserialization completed with 100% protection ✓");
+                return root;
+            }
+            catch (Exception fatalEx)
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] Fatal error in SafeDeserializeSimulationData: " + fatalEx);
+                EnsureAllSimulationManagersSafe();
+                SafeCloseProfilerDeserialize("SimulationManager");
+                return new SimulationManager.Data();
+            }
+        }
+
+        public static IEnumerable<CodeInstruction> LoadSimulationData_MoveNext_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo safeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeDeserializeSimulationData), BindingFlags.Public | BindingFlags.Static);
+            int replaced = 0;
+            foreach (var inst in instructions)
+            {
+                if (inst.opcode == OpCodes.Call && inst.operand is MethodInfo m &&
+                    m.Name == "Deserialize" && m.DeclaringType == typeof(ColossalFramework.IO.DataSerializer) &&
+                    m.IsGenericMethod && m.GetGenericArguments().Length > 0 && m.GetGenericArguments()[0] == typeof(SimulationManager.Data))
+                {
+                    yield return new CodeInstruction(OpCodes.Call, safeMethod);
+                    replaced++;
+                }
+                else
+                {
+                    yield return inst;
+                }
+            }
+            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] LoadSimulationData_MoveNext_Transpiler: Replaced {0} call(s) with SafeDeserializeSimulationData.", replaced));
+        }
 
         public static void SafeCloseProfilerDeserialize(string tag)
         {

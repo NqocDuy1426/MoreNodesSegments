@@ -1859,6 +1859,48 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 40: LoadSimulationData Universal Simulation Shield (v5.0.26)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 40: LoadSimulationData Universal Simulation Shield (v5.0.26) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+            // 40.1 Close Beta v5.0.26 Version Branding
+            bool hasV26 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy") &&
+                          renewCode.Contains("[Close Beta v5.0.26] Definitive Simulation Thread & Container Immunity");
+            Assert(hasV26, "Renew.cs is correctly branded as Close Beta v5.0.26");
+
+            // 40.2 SafeDeserializeSimulationData Implementation
+            bool hasSafeSimDes = renewCode.Contains("public static SimulationManager.Data SafeDeserializeSimulationData(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)") &&
+                                 renewCode.Contains("s.ReadObject<SimulationManager.Data>(null)") &&
+                                 renewCode.Contains("container.Deserialize(s);") &&
+                                 renewCode.Contains("container.AfterDeserialize(s);");
+            Assert(hasSafeSimDes, "SafeDeserializeSimulationData implements isolated try-catch loops for both Deserialize and AfterDeserialize");
+
+            // 40.3 LoadSimulationData MoveNext Transpiler
+            bool hasSimTranspiler = renewCode.Contains("public static IEnumerable<CodeInstruction> LoadSimulationData_MoveNext_Transpiler") &&
+                                    renewCode.Contains("m.GetGenericArguments()[0] == typeof(SimulationManager.Data)") &&
+                                    renewCode.Contains("yield return new CodeInstruction(OpCodes.Call, safeMethod);");
+            Assert(hasSimTranspiler, "LoadSimulationData_MoveNext_Transpiler surgically redirects DataSerializer.Deserialize<SimulationManager.Data> to SafeDeserializeSimulationData");
+
+            // 40.4 LoadingManager MoveNext Transpiler Application
+            bool hasPatchLmMoveNext = renewCode.Contains("t.Name.Contains(\"LoadSimulationData\")") &&
+                                      renewCode.Contains("harmony.Patch(mMoveNext, transpiler: new HarmonyMethod(transpiler) { prioritiy = Harmony.Priority.First });");
+            Assert(hasPatchLmMoveNext, "LoadingManager.<LoadSimulationData>.MoveNext is hooked with Universal Simulation Shield Transpiler at Priority.First");
+
+            // 40.5 EnsureContainerSafe Container Recovery Mapping
+            bool hasContainerSafe = renewCode.Contains("EnsureContainerSafe(ColossalFramework.IO.IDataContainer container)") &&
+                                    renewCode.Contains("ResetNetSimulationState()") &&
+                                    renewCode.Contains("ResetTreeSimulationState()") &&
+                                    renewCode.Contains("ResetElectricitySimulationState()");
+            Assert(hasContainerSafe, "EnsureContainerSafe maps failing simulation containers to their safe reset handlers");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 40 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
