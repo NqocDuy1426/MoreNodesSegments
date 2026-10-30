@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29 / v5.0.30)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy");
@@ -1944,14 +1945,51 @@ class TestSuite
 
             // 41.4 SimulationManager_LateUpdateData_Prefix profiler safety and timeout
             bool hasLateSafety = renewCode.Contains("profiler.BeginLoading(\"SimulationManager.LateUpdateData\");") &&
-                                 renewCode.Contains("sw.ElapsedMilliseconds > 15000") &&
+                                 renewCode.Contains("sw.ElapsedMilliseconds > 2500") &&
                                  renewCode.Contains("mgr.SimulationStep(1000);") &&
                                  renewCode.Contains("profiler.EndLoading();");
-            Assert(hasLateSafety, "SimulationManager_LateUpdateData_Prefix implements profiler safety, try-catch per manager, and 15s timeout rescue");
+            Assert(hasLateSafety, "SimulationManager_LateUpdateData_Prefix implements profiler safety, try-catch per manager, and 2.5s timeout rescue");
         }
         catch (Exception ex)
         {
             Assert(false, "Test Group 41 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 42: Dynamic Font Armor & Non-Blocking Simulation Shield (v5.0.30)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 42: Dynamic Font Armor & Non-Blocking Simulation Shield (v5.0.30) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+            
+            // 42.1 UILabel.set_text Dynamic Font Texture Atlas Protection
+            bool hasLabelPatch = renewCode.Contains("UILabel_set_text_Prefix") &&
+                                 renewCode.Contains("value.Length > 2048") &&
+                                 renewCode.Contains("value.Substring(0, 2045) + \"...\"");
+            Assert(hasLabelPatch, "UILabel.set_text is patched to clamp runaway strings and protect Arial dynamic font texture");
+
+            // 42.2 UIView.ForwardException BrokenAssetException Suppression
+            bool hasForwardEx = renewCode.Contains("ForwardException_Prefix") &&
+                                renewCode.Contains("BrokenAsset") &&
+                                renewCode.Contains("BrokenAssetException");
+            Assert(hasForwardEx, "UIView.ForwardException suppresses BrokenAssetException modals to prevent font texture corruption");
+
+            // 42.3 Non-blocking SimulationManager.LateUpdateData progress updates
+            bool hasNonBlocking = renewCode.Contains("SimulationManager_LateUpdateData_Prefix") &&
+                                  renewCode.Contains("int num = 256;") &&
+                                  renewCode.Contains("sw.ElapsedMilliseconds > 2500");
+            Assert(hasNonBlocking, "SimulationManager.LateUpdateData caps warm-up ticks to 256 with 2.5s timeout rescue to prevent deadlocks");
+
+            // 42.4 LSM AssetMissing string sanitizer
+            bool hasLSMSanitizer = renewCode.Contains("LSM_AssetMissing_Prefix") &&
+                                   renewCode.Contains("ArmLSMIfPresent") &&
+                                   renewCode.Contains("assetName.Length > 256");
+            Assert(hasLSMSanitizer, "LoadingScreenModRevisited.AssetLoader.AssetMissing is armored against corrupted binary strings");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 42 exception", ex.ToString());
         }
 
         // ====================================================================

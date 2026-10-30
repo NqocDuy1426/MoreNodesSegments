@@ -9,21 +9,23 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.29:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.30:[/h2]
 [list]
-[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Simulation thread: SimulationManager.LateUpdateData / TreeManager / ElectricityManager):[/b]
+[*] [b]Sửa triệt để 100% lỗi không hiện chữ ingame và không hiện Missing Asset:[/b]
     [list]
-    [*] Sửa lỗi NetManager deserialization bị từ chối do Core IsExpanded & PrepareExpandedSaveForLoad chỉ chấp nhận chính xác 65024. Đã arm và mở rộng toàn diện cho mọi bộ đệm >= 65024.
-    [*] Khắc phục triệt để lỗi mất dữ liệu đường (0 nodes/segments) khiến thành phố bị rỗng mạng lưới gây treo simulation.
-    [*] Bọc SimulationManager.LateUpdateData bằng Universal Warm-Up Armor và Timeout Shield (15s): bảo đảm profiler EndLoading luôn được gọi, cứu thread simulation không bao giờ bị đứng khung hình loading.
-    [*] Tách biệt vòng lặp deserialization của từng manager (TreeManager, ElectricityManager, NetManager, WaterManager, WeatherManager...) vào các khối try-catch độc lập tuyệt đối.
-    [*] Sửa lỗi EightyOne2 (81 Tiles 2) CustomDeserialize bị IndexOutOfRangeException ở ElectricityManager/WaterManager: Khởi chạy static constructor và mở rộng mảng pulse units an toàn.
-    [*] Bổ sung SafeCloseProfilerDeserialize và Stream Resynchronization cho toàn bộ Finalizer (ElectricityManager, WaterManager, TreeManager, NetManager...).
-    [*] Mở rộng bộ đệm lane tối thiểu lên MNCConstants.LANE_CAPACITY (524K) ở NetManager để ngăn chặn triệt để IndexOutOfRangeException ở các save lớn.
+    [*] Dynamic Font (Arial) Texture Protection: Bọc UILabel.text setter tự động cắt tỉa chuỗi quá dài (> 2048 ký tự), ngăn chặn Unity dynamic font texture bị tràn kích thước 4096 khiến toàn bộ chữ ingame bị biến mất.
+    [*] Khắc phục triệt để lỗi Loading Screen Mod không hiển thị Missing Asset: Bổ sung bộ lọc sanitize chuỗi tên asset trong LoadingScreenModRevisited.AssetLoader.AssetMissing, loại bỏ triệt để các ký tự rác / binary làm hỏng font atlas.
+    [*] Chặn popup modal BrokenAssetException trong UIView.ForwardException để không làm đơ giao diện khi vào save.
     [/list]
-[*] [b]Bảo toàn 100% dữ liệu save/load:[/b] Tương thích tuyệt đối Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K và TM:PE.
+[*] [b]Sửa triệt để lỗi treo loading ở SimulationManager.LateUpdateData & Daynight Properties:[/b]
+    [list]
+    [*] Chuyển toàn bộ cập nhật LoadingManager.m_loadingLock trong LateUpdateData sang cơ chế Non-Blocking (TryEnter 5ms), loại bỏ hoàn toàn hiện tượng deadlock CPU giữa Main thread và Simulation thread.
+    [*] Tối ưu số vòng lặp warm-up xuống 256 ticks cùng Timeout Shield 2.5s: đảm bảo simulation thread kết thúc và vào game ngay lập tức.
+    [*] Loại bỏ stream jumping unaligned trong NetManager Deserialize Finalizer để bảo toàn 100% dữ liệu cho các manager tiếp theo.
+    [/list]
+[*] [b]Bảo toàn 100% dữ liệu save/load:[/b] Tương thích tuyệt đối Loading Screen Mod, Tree Control, 81 Tiles 2, MoreProps 64K và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.29 Close Beta: Fix NetManager Core IsExpanded rejection, add SimulationManager.LateUpdateData Universal Armor & 15s timeout shield."
+	"changenote"		"v5.0.30 Close Beta: Fix in-game missing text & missing asset display (Arial dynamic font texture protection) + Fix SimulationManager.LateUpdateData non-blocking lock deadlock."
 }

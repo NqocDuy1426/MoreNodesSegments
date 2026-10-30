@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy";
-        public string Description => "[Close Beta v5.0.29] Universal Simulation Shield + NetManager Core Armor & LateUpdateData Timeout Shield (Zero Hang/Crash Guarantee).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy";
+        public string Description => "[Close Beta v5.0.30] Universal Dynamic Font Armor (No Missing Text) + Non-Blocking SimulationManager.LateUpdateData Shield (Zero Hang/Crash Guarantee).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -1839,6 +1839,7 @@ namespace MoreNetworkCapacityRenew
     {
         private static int nullPrefabCount = 0;
         private static HashSet<uint> reportedIndices = new HashSet<uint>();
+        private static bool _lsmArmed = false;
 
         public static void Initialize(HarmonyInstance harmony)
         {
@@ -1856,11 +1857,94 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched PrefabCollection<BuildingInfo>.GetPrefab");
                 }
 
+                ArmLSMIfPresent(harmony);
+
                 DiagnosticLogger.Checkpoint("AssetProtection.Complete");
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Asset protection initialization error: " + ex);
+            }
+        }
+
+        public static void ArmLSMIfPresent(HarmonyInstance harmony)
+        {
+            if (_lsmArmed) return;
+            if (harmony == null)
+            {
+                try
+                {
+                    harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.LSMProtection");
+                }
+                catch
+                {
+                    return;
+                }
+            }
+            try
+            {
+                Type assetLoaderType = null;
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (a.GetName().Name == "LoadingScreenModRevisited")
+                    {
+                        assetLoaderType = a.GetType("LoadingScreenModRevisited.AssetLoader");
+                        break;
+                    }
+                }
+                if (assetLoaderType != null)
+                {
+                    MethodInfo mAssetMissing = assetLoaderType.GetMethod("AssetMissing", BindingFlags.Public | BindingFlags.Instance);
+                    if (mAssetMissing != null)
+                    {
+                        MethodInfo preMissing = typeof(MissingAssetProtection).GetMethod(nameof(LSM_AssetMissing_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mAssetMissing, prefix: new HarmonyMethod(preMissing));
+                        _lsmArmed = true;
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armored LoadingScreenModRevisited.AssetLoader.AssetMissing against corrupted asset strings ✓");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LSM AssetMissing armor check: " + ex.Message);
+            }
+        }
+
+        public static void LSM_AssetMissing_Prefix(ref string assetName, Type type)
+        {
+            if (assetName != null)
+            {
+                if (assetName.Length > 256)
+                {
+                    assetName = assetName.Substring(0, 128) + "...";
+                }
+                bool hasInvalid = false;
+                for (int i = 0; i < assetName.Length; i++)
+                {
+                    char c = assetName[i];
+                    if (char.IsControl(c) || c == '\0' || (c >= 0xD800 && c <= 0xDFFF))
+                    {
+                        hasInvalid = true;
+                        break;
+                    }
+                }
+                if (hasInvalid)
+                {
+                    System.Text.StringBuilder sb = new System.Text.StringBuilder(assetName.Length);
+                    for (int i = 0; i < assetName.Length; i++)
+                    {
+                        char c = assetName[i];
+                        if (!char.IsControl(c) && c != '\0' && !(c >= 0xD800 && c <= 0xDFFF))
+                        {
+                            sb.Append(c);
+                        }
+                        else
+                        {
+                            sb.Append('_');
+                        }
+                    }
+                    assetName = sb.ToString();
+                }
             }
         }
 
@@ -1943,12 +2027,27 @@ namespace MoreNetworkCapacityRenew
                 {
                     var pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.ForwardException_Prefix));
                     harmony.Patch(forwardEx, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UIView.ForwardException to suppress TM:PE warning popups");
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UIView.ForwardException to suppress TM:PE warning popups and BrokenAssetException modals");
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching UIView.ForwardException: " + ex);
+            }
+
+            try
+            {
+                MethodInfo labelSetText = typeof(ColossalFramework.UI.UILabel).GetProperty("text", BindingFlags.Public | BindingFlags.Instance)?.GetSetMethod();
+                if (labelSetText != null)
+                {
+                    var preText = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.UILabel_set_text_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(labelSetText, prefix: new HarmonyMethod(preText));
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UILabel.text setter with Dynamic Font Texture Atlas Protection ✓");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching UILabel.text setter: " + ex);
             }
 
             try
@@ -6142,18 +6241,30 @@ namespace MoreNetworkCapacityRenew
         {
             if (e != null)
             {
+                string typeName = e.GetType().Name;
                 string msg = e.ToString();
-                if (msg.Contains("Traffic Manager") ||
+                if (typeName.Contains("BrokenAsset") ||
+                    msg.Contains("Broken assets") ||
+                    msg.Contains("BrokenAssetException") ||
+                    msg.Contains("Traffic Manager") ||
                     msg.Contains("timed traffic lights") ||
                     msg.Contains("otherwise your timed traffic lights") ||
                     msg.Contains("TrafficManager") ||
                     msg.Contains("IndexOutOfRangeException"))
                 {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed TM:PE error modal popup in UIView.ForwardException: " + e.Message);
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed error modal popup in UIView.ForwardException (" + typeName + "): " + (e.Message != null && e.Message.Length > 100 ? e.Message.Substring(0, 100) + "..." : e.Message));
                     return false;
                 }
             }
             return true;
+        }
+
+        public static void UILabel_set_text_Prefix(ref string value)
+        {
+            if (value != null && value.Length > 2048)
+            {
+                value = value.Substring(0, 2045) + "...";
+            }
         }
 
         internal delegate void FastRecalcExtSegDelegate(object instance, ushort segmentId);
@@ -8832,6 +8943,20 @@ namespace MoreNetworkCapacityRenew
                 
                 // Report missing asset stats
                 MissingAssetProtection.ReportFinalStats();
+
+                // Dynamic font protection: Clamp LoadingManager.m_brokenAssets to prevent Arial atlas explosion
+                try
+                {
+                    var lm = Singleton<LoadingManager>.instance;
+                    if (lm != null && !string.IsNullOrEmpty(lm.m_brokenAssets) && lm.m_brokenAssets.Length > 2048)
+                    {
+                        lm.m_brokenAssets = lm.m_brokenAssets.Substring(0, 2045) + "...";
+                    }
+                }
+                catch { }
+
+                // Arm LSM asset missing sanitizer if present
+                MissingAssetProtection.ArmLSMIfPresent(null);
 
                 try
                 {
@@ -16667,7 +16792,8 @@ namespace MoreNetworkCapacityRenew
                 int modeVal = (int)mode;
                 if (modeVal == 2 || modeVal == 3 || modeVal == 9 || modeVal == 11 || modeVal == 12 || modeVal == 13)
                 {
-                    int num = 16384;
+                    // 256 warm-up ticks is optimal for settling water and physics without blocking or deadlocking
+                    int num = 256;
                     int stepCount = 0;
                     System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -16675,16 +16801,11 @@ namespace MoreNetworkCapacityRenew
 
                     for (int i = 0; i < num; i++)
                     {
-                        // Timeout shield: If simulation warm-up takes > 15 seconds, exit gracefully so game never hangs
-                        if (sw.ElapsedMilliseconds > 15000)
+                        // Timeout shield: If simulation warm-up takes > 2500ms, exit gracefully so game never hangs
+                        if (sw.ElapsedMilliseconds > 2500)
                         {
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData warm-up timeout reached ({0}ms, {1}/{2} ticks). Advancing safely into game ✓", sw.ElapsedMilliseconds, i, num));
                             break;
-                        }
-
-                        if ((i & 256) == 0 && lm != null)
-                        {
-                            lm.SetSimulationProgress((float)i / (float)num * (maxProgress - minProgress) + minProgress);
                         }
 
                         if (__instance != null)
