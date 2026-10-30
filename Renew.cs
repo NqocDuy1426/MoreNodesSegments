@@ -1934,11 +1934,13 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 Type assetLoaderType = null;
+                Type reportsType = null;
                 foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     if (a.GetName().Name == "LoadingScreenModRevisited")
                     {
                         assetLoaderType = a.GetType("LoadingScreenModRevisited.AssetLoader");
+                        reportsType = a.GetType("LoadingScreenMod.Reports");
                         break;
                     }
                 }
@@ -1953,6 +1955,16 @@ namespace MoreNetworkCapacityRenew
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armored LoadingScreenModRevisited.AssetLoader.AssetMissing against corrupted asset strings ✓");
                     }
                 }
+                if (reportsType != null)
+                {
+                    MethodInfo mAddMissing = reportsType.GetMethod("AddMissing", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                    if (mAddMissing != null)
+                    {
+                        MethodInfo preMissing = typeof(MissingAssetProtection).GetMethod(nameof(LSM_AssetMissing_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mAddMissing, prefix: new HarmonyMethod(preMissing));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armored LoadingScreenMod.Reports.AddMissing against corrupted asset strings ✓");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1960,33 +1972,33 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static bool LSM_AssetMissing_Prefix(ref string assetName, Type type)
+        public static bool LSM_AssetMissing_Prefix(ref string fullName, object type)
         {
-            if (string.IsNullOrEmpty(assetName)) return false;
-            if (assetName.Length > 256)
+            if (string.IsNullOrEmpty(fullName)) return false;
+            if (fullName.Length > 256)
             {
-                assetName = assetName.Substring(0, 128) + "...";
+                fullName = fullName.Substring(0, 128) + "...";
             }
             int invalidCount = 0;
-            for (int i = 0; i < assetName.Length; i++)
+            for (int i = 0; i < fullName.Length; i++)
             {
-                char c = assetName[i];
+                char c = fullName[i];
                 if (char.IsControl(c) || c == '\0' || (c >= 0xD800 && c <= 0xDFFF) || c > 0x2FFF)
                 {
                     invalidCount++;
                 }
             }
-            if (invalidCount > 8)
+            if (invalidCount > 4)
             {
                 // Pure corrupted garbage string! Reject and suppress completely so LSM doesn't log or display it
                 return false;
             }
             if (invalidCount > 0)
             {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder(assetName.Length);
-                for (int i = 0; i < assetName.Length; i++)
+                System.Text.StringBuilder sb = new System.Text.StringBuilder(fullName.Length);
+                for (int i = 0; i < fullName.Length; i++)
                 {
-                    char c = assetName[i];
+                    char c = fullName[i];
                     if (!char.IsControl(c) && c != '\0' && !(c >= 0xD800 && c <= 0xDFFF))
                     {
                         sb.Append(c);
@@ -1996,7 +2008,7 @@ namespace MoreNetworkCapacityRenew
                         sb.Append('_');
                     }
                 }
-                assetName = sb.ToString();
+                fullName = sb.ToString();
             }
             return true;
         }

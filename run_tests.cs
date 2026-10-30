@@ -1986,7 +1986,7 @@ class TestSuite
             // 42.4 LSM AssetMissing string sanitizer
             bool hasLSMSanitizer = renewCode.Contains("LSM_AssetMissing_Prefix") &&
                                    renewCode.Contains("ArmLSMIfPresent") &&
-                                   renewCode.Contains("assetName.Length > 256");
+                                   renewCode.Contains("fullName.Length > 256");
             Assert(hasLSMSanitizer, "LoadingScreenModRevisited.AssetLoader.AssetMissing is armored against corrupted binary strings");
         }
         catch (Exception ex)
@@ -2026,7 +2026,7 @@ class TestSuite
 
             // 43.5 ArmLSMIfPresent searches non-public AssetMissing and drops corrupt binary strings
             bool hasFullLSMArmor = renewCode.Contains("assetLoaderType.GetMethod(\"AssetMissing\", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);") &&
-                                   renewCode.Contains("if (invalidCount > 8)") &&
+                                   renewCode.Contains("if (invalidCount > 4)") &&
                                    renewCode.Contains("return false;");
             Assert(hasFullLSMArmor, "LoadingScreenModRevisited AssetMissing is hooked via non-public reflection and drops corrupt binary strings");
         }
