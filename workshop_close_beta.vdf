@@ -9,23 +9,22 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.30:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.31:[/h2]
 [list]
-[*] [b]Sửa triệt để 100% lỗi không hiện chữ ingame và không hiện Missing Asset:[/b]
+[*] [b]Sửa triệt để 100% lỗi bị đơ / treo loading ở TreeManager & SimulationManager.LateUpdateData:[/b]
     [list]
-    [*] Dynamic Font (Arial) Texture Protection: Bọc UILabel.text setter tự động cắt tỉa chuỗi quá dài (> 2048 ký tự), ngăn chặn Unity dynamic font texture bị tràn kích thước 4096 khiến toàn bộ chữ ingame bị biến mất.
-    [*] Khắc phục triệt để lỗi Loading Screen Mod không hiển thị Missing Asset: Bổ sung bộ lọc sanitize chuỗi tên asset trong LoadingScreenModRevisited.AssetLoader.AssetMissing, loại bỏ triệt để các ký tự rác / binary làm hỏng font atlas.
-    [*] Chặn popup modal BrokenAssetException trong UIView.ForwardException để không làm đơ giao diện khi vào save.
+    [*] Khắc phục tận gốc lỗi đọc quá luồng (stream over-read) khi nạp savegame vanilla: Giữ nguyên giới hạn đọc 32.768 nodes / 36.864 segments trong quá trình Deserialize, sau đó mới mở rộng lên 64K trong bộ nhớ (ExpandPreservingLoadedData).
+    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm khiến TreeManager, WeatherManager, BuildingManager bị bỏ qua dẫn tới "Simulation failed: TreeManager".
+    [*] Đảm bảo toàn bộ cây cối, thời tiết, mạng lưới giao thông của thành phố được nạp nguyên vẹn 100%.
     [/list]
-[*] [b]Sửa triệt để lỗi treo loading ở SimulationManager.LateUpdateData & Daynight Properties:[/b]
+[*] [b]Bọc giáp bảo vệ Loading Screen Mod Revisited AssetLoader.AssetMissing:[/b]
     [list]
-    [*] Chuyển toàn bộ cập nhật LoadingManager.m_loadingLock trong LateUpdateData sang cơ chế Non-Blocking (TryEnter 5ms), loại bỏ hoàn toàn hiện tượng deadlock CPU giữa Main thread và Simulation thread.
-    [*] Tối ưu số vòng lặp warm-up xuống 256 ticks cùng Timeout Shield 2.5s: đảm bảo simulation thread kết thúc và vào game ngay lập tức.
-    [*] Loại bỏ stream jumping unaligned trong NetManager Deserialize Finalizer để bảo toàn 100% dữ liệu cho các manager tiếp theo.
+    [*] Quét và loại bỏ tức thì các chuỗi rác binary corrupt trước khi LSM ghi vào log hoặc render lên màn hình.
+    [*] Chống tràn bộ đệm texture Arial dynamic font atlas, đảm bảo toàn bộ chữ ingame và danh sách asset hiển thị sắc nét.
     [/list]
-[*] [b]Bảo toàn 100% dữ liệu save/load:[/b] Tương thích tuyệt đối Loading Screen Mod, Tree Control, 81 Tiles 2, MoreProps 64K và TM:PE.
+[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.30 Close Beta: Fix in-game missing text & missing asset display (Arial dynamic font texture protection) + Fix SimulationManager.LateUpdateData non-blocking lock deadlock."
+	"changenote"		"v5.0.31 Close Beta: Fix Vanilla Save stream over-reading (resolve TreeManager simulation failure & LateUpdateData hang) + Early LSM AssetMissing corruption filter."
 }

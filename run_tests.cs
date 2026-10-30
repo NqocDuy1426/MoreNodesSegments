@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29 / v5.0.30)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29 / v5.0.30 / v5.0.31)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
@@ -1990,6 +1991,47 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 42 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 43: Vanilla 32K Save Auto-Preservation & Full LSM Armor (v5.0.31)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 43: Vanilla 32K Save Auto-Preservation & Full LSM Armor (v5.0.31) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 43.1 ThirdPartyCompatibility.IsSaveGameExpanded accurately returns false for vanilla saves
+            bool isExpSafe = renewCode.Contains("If not identified as an expanded save by any metadata or packages, it is a vanilla save!") &&
+                             renewCode.Contains("return false;");
+            Assert(isExpSafe, "ThirdPartyCompatibility.IsSaveGameExpanded accurately returns false for vanilla saves to prevent over-reading");
+
+            // 43.2 CoreCustomizer_PrepareVanillaSaveForLoad_Prefix sets 32K/36K limits & LoadingExpanded=false
+            bool hasVanillaPrep = renewCode.Contains("CoreCustomizer_PrepareVanillaSaveForLoad_Prefix") &&
+                                  renewCode.Contains("fNode.SetValue(null, 32768);") &&
+                                  renewCode.Contains("fSeg.SetValue(null, 36864);") &&
+                                  renewCode.Contains("mSet.Invoke(null, new object[] { false });");
+            Assert(hasVanillaPrep, "CoreCustomizer_PrepareVanillaSaveForLoad_Prefix correctly configures 32K/36K loop limits and LoadingExpanded=false");
+
+            // 43.3 SimulationManager_Data_Deserialize_Prefix guards 64K-v1 flag with IsSaveGameExpanded check
+            bool hasSimDesGuard = renewCode.Contains("if (ThirdPartyCompatibility.IsSaveGameExpanded())") &&
+                                  renewCode.Contains("sm.m_metaData.m_modOverride[\"User/MoreNetworkCapacity/64K-v1\"] = true;");
+            Assert(hasSimDesGuard, "SimulationManager_Data_Deserialize_Prefix only injects 64K-v1 flag when save is already expanded");
+
+            // 43.4 MissingAssetProtection initialized during EnsureAllPatchesApplied
+            bool hasInitInLoading = renewCode.Contains("MissingAssetProtection.Initialize(harmony);") &&
+                                    renewCode.Contains("TMPECompatibility.SynchronizeTMPEBuffersAndArrays(\"EnsureAllPatchesApplied\");");
+            Assert(hasInitInLoading, "MissingAssetProtection is properly initialized early inside EnsureAllPatchesApplied");
+
+            // 43.5 ArmLSMIfPresent searches non-public AssetMissing and drops corrupt binary strings
+            bool hasFullLSMArmor = renewCode.Contains("assetLoaderType.GetMethod(\"AssetMissing\", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);") &&
+                                   renewCode.Contains("if (invalidCount > 8)") &&
+                                   renewCode.Contains("return false;");
+            Assert(hasFullLSMArmor, "LoadingScreenModRevisited AssetMissing is hooked via non-public reflection and drops corrupt binary strings");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 43 exception", ex.ToString());
         }
 
         // ====================================================================

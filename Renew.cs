@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy";
-        public string Description => "[Close Beta v5.0.30] Universal Dynamic Font Armor (No Missing Text) + Non-Blocking SimulationManager.LateUpdateData Shield (Zero Hang/Crash Guarantee).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy";
+        public string Description => "[Close Beta v5.0.31] Vanilla Save 32K/64K Auto-Preservation (Fix TreeManager & LateUpdateData Freeze) + LSM AssetMissing Armor.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -1646,6 +1646,31 @@ namespace MoreNetworkCapacityRenew
                 }
                 TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
                 TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
+                if (manager.m_nodes != null) manager.m_nodes.ClearUnused();
+                if (manager.m_segments != null) manager.m_segments.ClearUnused();
+
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
+                    {
+                        Type capType = asm.GetType("MoreNetworkCapacity.Capacity");
+                        if (capType != null)
+                        {
+                            FieldInfo fNode = capType.GetField("NodeLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (fNode != null) fNode.SetValue(null, (int)MNCConstants.CORE_NET_CAPACITY);
+                            FieldInfo fSeg = capType.GetField("SegmentLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (fSeg != null) fSeg.SetValue(null, (int)MNCConstants.CORE_NET_CAPACITY);
+                        }
+                        Type desType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
+                        if (desType != null)
+                        {
+                            MethodInfo mSet = desType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mSet != null) mSet.Invoke(null, new object[] { true });
+                        }
+                        break;
+                    }
+                }
+
                 __result = true;
                 return false;
             }
@@ -1667,6 +1692,31 @@ namespace MoreNetworkCapacityRenew
                 }
                 TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
                 TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
+                if (manager.m_nodes != null) manager.m_nodes.ClearUnused();
+                if (manager.m_segments != null) manager.m_segments.ClearUnused();
+
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
+                    {
+                        Type capType = asm.GetType("MoreNetworkCapacity.Capacity");
+                        if (capType != null)
+                        {
+                            FieldInfo fNode = capType.GetField("NodeLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (fNode != null) fNode.SetValue(null, 32768);
+                            FieldInfo fSeg = capType.GetField("SegmentLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (fSeg != null) fSeg.SetValue(null, 36864);
+                        }
+                        Type desType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
+                        if (desType != null)
+                        {
+                            MethodInfo mSet = desType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mSet != null) mSet.Invoke(null, new object[] { false });
+                        }
+                        break;
+                    }
+                }
+
                 __result = true;
                 return false;
             }
@@ -1894,7 +1944,7 @@ namespace MoreNetworkCapacityRenew
                 }
                 if (assetLoaderType != null)
                 {
-                    MethodInfo mAssetMissing = assetLoaderType.GetMethod("AssetMissing", BindingFlags.Public | BindingFlags.Instance);
+                    MethodInfo mAssetMissing = assetLoaderType.GetMethod("AssetMissing", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                     if (mAssetMissing != null)
                     {
                         MethodInfo preMissing = typeof(MissingAssetProtection).GetMethod(nameof(LSM_AssetMissing_Prefix), BindingFlags.Public | BindingFlags.Static);
@@ -1910,42 +1960,45 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static void LSM_AssetMissing_Prefix(ref string assetName, Type type)
+        public static bool LSM_AssetMissing_Prefix(ref string assetName, Type type)
         {
-            if (assetName != null)
+            if (string.IsNullOrEmpty(assetName)) return false;
+            if (assetName.Length > 256)
             {
-                if (assetName.Length > 256)
+                assetName = assetName.Substring(0, 128) + "...";
+            }
+            int invalidCount = 0;
+            for (int i = 0; i < assetName.Length; i++)
+            {
+                char c = assetName[i];
+                if (char.IsControl(c) || c == '\0' || (c >= 0xD800 && c <= 0xDFFF) || c > 0x2FFF)
                 {
-                    assetName = assetName.Substring(0, 128) + "...";
+                    invalidCount++;
                 }
-                bool hasInvalid = false;
+            }
+            if (invalidCount > 8)
+            {
+                // Pure corrupted garbage string! Reject and suppress completely so LSM doesn't log or display it
+                return false;
+            }
+            if (invalidCount > 0)
+            {
+                System.Text.StringBuilder sb = new System.Text.StringBuilder(assetName.Length);
                 for (int i = 0; i < assetName.Length; i++)
                 {
                     char c = assetName[i];
-                    if (char.IsControl(c) || c == '\0' || (c >= 0xD800 && c <= 0xDFFF))
+                    if (!char.IsControl(c) && c != '\0' && !(c >= 0xD800 && c <= 0xDFFF))
                     {
-                        hasInvalid = true;
-                        break;
+                        sb.Append(c);
+                    }
+                    else
+                    {
+                        sb.Append('_');
                     }
                 }
-                if (hasInvalid)
-                {
-                    System.Text.StringBuilder sb = new System.Text.StringBuilder(assetName.Length);
-                    for (int i = 0; i < assetName.Length; i++)
-                    {
-                        char c = assetName[i];
-                        if (!char.IsControl(c) && c != '\0' && !(c >= 0xD800 && c <= 0xDFFF))
-                        {
-                            sb.Append(c);
-                        }
-                        else
-                        {
-                            sb.Append('_');
-                        }
-                    }
-                    assetName = sb.ToString();
-                }
+                assetName = sb.ToString();
             }
+            return true;
         }
 
         private static void GetPrefabSafePostfix(uint index, ref BuildingInfo __result)
@@ -8822,6 +8875,7 @@ namespace MoreNetworkCapacityRenew
                 patchApplied = true;
                 DiagnosticLogger.Checkpoint("EnsureAllPatchesApplied.Complete");
 
+                try { MissingAssetProtection.Initialize(harmony); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] MissingAssetProtection init error: " + ex); }
                 try { TMPECompatibility.SynchronizeTMPEBuffersAndArrays("EnsureAllPatchesApplied"); } catch {}
                 try { ThirdPartyCompatibility.SynchronizeThirdPartyMods("EnsureAllPatchesApplied"); } catch {}
                 try { RenewMod.EnsureRenderManagerCapacity(); } catch {}
@@ -8943,6 +8997,9 @@ namespace MoreNetworkCapacityRenew
                 
                 // Report missing asset stats
                 MissingAssetProtection.ReportFinalStats();
+
+                // Confirm expanded save state for gameplay and all subsequent saves
+                try { TMPECompatibility.EnsureExpandedSave(); } catch { }
 
                 // Dynamic font protection: Clamp LoadingManager.m_brokenAssets to prevent Arial atlas explosion
                 try
@@ -11047,14 +11104,14 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
 
-                // Universal safety: When MoreNodesSegmentsRenew is active, all saves run in expanded 64K mode
-                return true;
+                // If not identified as an expanded save by any metadata or packages, it is a vanilla save!
+                return false;
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] IsSaveGameExpanded check error: " + ex);
             }
-            return true;
+            return false;
         }
 
         public static void Apply(HarmonyInstance harmony)
@@ -16525,15 +16582,15 @@ namespace MoreNetworkCapacityRenew
                 if (ThirdPartyCompatibility.IsSaveGameExpanded())
                 {
                     TMPECompatibility.EnsureExpandedSave();
-                }
-                var sm = Singleton<SimulationManager>.instance;
-                if (sm != null && sm.m_metaData != null)
-                {
-                    if (sm.m_metaData.m_modOverride == null)
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null)
                     {
-                        sm.m_metaData.m_modOverride = new Dictionary<string, bool>();
+                        if (sm.m_metaData.m_modOverride == null)
+                        {
+                            sm.m_metaData.m_modOverride = new Dictionary<string, bool>();
+                        }
+                        sm.m_metaData.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
                     }
-                    sm.m_metaData.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
                 }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationManager.Data.Deserialize.Prefix");
