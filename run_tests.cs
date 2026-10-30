@@ -1753,6 +1753,112 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 38: Universal Simulation Thread & TreeManager Deserialization Immunity (v5.0.23 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 38: Universal Simulation Thread & TreeManager Deserialization Immunity (v5.0.23) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 38.1 65,536 buffer pre-expansion in NetManager.Data.Deserialize.Prefix
+            bool has65kCap = renewCode.Contains("int netCap = 65536;") &&
+                             renewCode.Contains("EnsureArray16NodeCapacity(nm.m_nodes, netCap);") &&
+                             renewCode.Contains("EnsureArray16SegCapacity(nm.m_segments, netCap);");
+            Assert(has65kCap, "NetManager.Data.Deserialize.Prefix pre-expands node and segment buffers to full 65,536 16-bit ushort range");
+
+            // 38.2 Stream Resynchronization Engine
+            bool hasResyncEngine = renewCode.Contains("EncodeDataSerializerString(string text)") &&
+                                   renewCode.Contains("TryAdvanceStreamToTag(ColossalFramework.IO.DataSerializer s, string targetTag)") &&
+                                   renewCode.Contains("TryAdvanceStreamToTag(s, \"BuildingManager\");");
+            Assert(hasResyncEngine, "Stream Resynchronization Engine advances DataSerializer stream to next valid container tag on NetManager exception");
+
+            // 38.3 TreeManager.Data.Deserialize Prefix & Finalizer Armor
+            bool hasTreeArmor = renewCode.Contains("TreeManager_Data_Deserialize_Prefix") &&
+                                renewCode.Contains("TreeManager_Data_Deserialize_Finalizer") &&
+                                renewCode.Contains("ResetTreeSimulationState") &&
+                                renewCode.Contains("Patched TreeManager.Data.Deserialize with Universal Dynamic Buffer Guard");
+            Assert(hasTreeArmor, "TreeManager.Data.Deserialize is protected with Harmony 2 Finalizer and EOF armor preventing TreeManager simulation crashes");
+
+            // 38.4 PropManager, BuildingManager, CitizenManager & ZoneManager Deserialization Armor
+            bool hasUniversalManagers = renewCode.Contains("PropManager_Data_Deserialize_Finalizer") &&
+                                        renewCode.Contains("BuildingManager_Data_Deserialize_Finalizer") &&
+                                        renewCode.Contains("CitizenManager_Data_Deserialize_Finalizer") &&
+                                        renewCode.Contains("ZoneManager_Data_Deserialize_Finalizer");
+            Assert(hasUniversalManagers, "All primary simulation data containers (Prop, Building, Citizen, Zone) are guarded with Harmony 2 Finalizers");
+
+            // 38.5 InitializeSegment & InitializeNode patched with Harmony 2
+            bool hasInitSegH2 = renewCode.Contains("if (!TryPatchHarmony2(initSeg, pre, null, 900))") &&
+                                renewCode.Contains("if (!TryPatchHarmony2(initNode, pre, null, 900))");
+            Assert(hasInitSegH2, "NetManager InitializeSegment & InitializeNode are hooked with Harmony 2 priority 900 for absolute bounds armor");
+
+            // 38.6 CoreCustomizer recognizes 65,536 buffer as expanded
+            bool hasMnc65kPreserve = renewCode.Contains("manager.m_nodes.m_buffer.Length >= (int)MNCConstants.CORE_NET_CAPACITY") &&
+                                     renewCode.Contains("manager.m_segments.m_buffer.Length >= (int)MNCConstants.CORE_NET_CAPACITY");
+            Assert(hasMnc65kPreserve, "CoreCustomizer.EnsureExpanded preserves expanded 65,536 buffer without downsizing or re-allocating");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 38 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 39: Complete Simulation Thread & Manager Deserialization Immunity (v5.0.24)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 39: Complete Simulation Thread & Manager Deserialization Immunity (v5.0.24) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+            // 39.1 Top-Level Shield on DataSerializer.Deserialize<SimulationManager.Data>
+            bool hasTopLevelShield = renewCode.Contains("DataSerializer_Deserialize_SimulationManager_Finalizer") &&
+                                     renewCode.Contains("TryPatchHarmony2(gm2, null, fin, 1000)") &&
+                                     renewCode.Contains("TryPatchHarmony2(gm3, null, fin, 1000)") &&
+                                     renewCode.Contains("Patched DataSerializer.Deserialize<SimulationManager.Data> (2-arg) with Ultimate Simulation Shield") &&
+                                     renewCode.Contains("Patched DataSerializer.Deserialize<SimulationManager.Data> (3-arg) with Ultimate Simulation Shield");
+            Assert(hasTopLevelShield, "Top-level DataSerializer.Deserialize<SimulationManager.Data> is armored with Harmony 2 Finalizer (priority 1000)");
+
+            // 39.2 SafeCloseProfilerDeserialize (Zero-Stream Profiler Event Closing)
+            bool hasSafeCloseProf = renewCode.Contains("SafeCloseProfilerDeserialize(string tag)") &&
+                                    renewCode.Contains("SafeCloseProfilerDeserialize(\"TreeManager\")") &&
+                                    renewCode.Contains("SafeCloseProfilerDeserialize(\"ElectricityManager\")") &&
+                                    renewCode.Contains("SafeCloseProfilerDeserialize(\"NetManager\")");
+            Assert(hasSafeCloseProf, "SafeCloseProfilerDeserialize pushes Type.EndDeserialize directly to LoadingProfiler without reading from stream");
+
+            // 39.3 Universal Container Finalizers for All Simulation Managers
+            bool hasAllContainers = renewCode.Contains("VehicleManager_Data_Deserialize_Finalizer") &&
+                                    renewCode.Contains("DistrictManager_Data_Deserialize_Finalizer") &&
+                                    renewCode.Contains("NaturalResourceManager_Data_Deserialize_Finalizer") &&
+                                    renewCode.Contains("TransferManager_Data_Deserialize_Finalizer") &&
+                                    renewCode.Contains("TerrainManager_Data_Deserialize_Finalizer") &&
+                                    renewCode.Contains("WaterSimulation_Data_Deserialize_Finalizer");
+            Assert(hasAllContainers, "Every simulation data container (Vehicle, District, NaturalResource, Transfer, Terrain, WaterSim) has Harmony 2 Finalizer armor");
+
+            // 39.4 EnsureAllSimulationManagersSafe Universal Recovery
+            bool hasEnsureSafe = renewCode.Contains("EnsureAllSimulationManagersSafe()") &&
+                                 renewCode.Contains("ResetNetSimulationState()") &&
+                                 renewCode.Contains("ResetVehicleSimulationState()") &&
+                                 renewCode.Contains("ResetDistrictSimulationState()") &&
+                                 renewCode.Contains("ResetNaturalResourceSimulationState()");
+            Assert(hasEnsureSafe, "EnsureAllSimulationManagersSafe provides comprehensive state recovery for all simulation managers");
+
+            // 39.5 Tree Control & Large Buffer Preservation
+            bool hasTreePreserve = renewCode.Contains("tm.m_trees.m_buffer.Length > curBuf") &&
+                                   renewCode.Contains("curBuf = tm.m_trees.m_buffer.Length;") &&
+                                   renewCode.Contains("tm.m_trees.m_size = (uint)curBuf;");
+            Assert(hasTreePreserve, "ResetTreeSimulationState dynamically preserves expanded tree buffers from Tree Control and Unlimited Trees");
+
+            // 39.6 LoadingProfiler Harmony 2 Priority 950 Patches
+            bool hasProfH2 = renewCode.Contains("TryPatchHarmony2(beginDes, preBegin, null, 950)") &&
+                             renewCode.Contains("TryPatchHarmony2(endDes, preEnd, null, 950)") &&
+                             renewCode.Contains("TryPatchHarmony2(beginDes3, preBegin3, null, 950)") &&
+                             renewCode.Contains("TryPatchHarmony2(endDes3, preEnd3, null, 950)");
+            Assert(hasProfH2, "LoadingProfiler Begin/EndDeserialize (both 2-arg and 3-arg) are hooked with Harmony 2 priority 950");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 39 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
