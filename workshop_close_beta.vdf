@@ -9,14 +9,20 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.32:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.33:[/h2]
 [list]
+[*] [b]Động cơ Universal Harmony Resilience (Khắc phục triệt để lỗi TypeLoadException & văng game):[/b]
+    [list]
+    [*] Xoá bỏ hoàn toàn phụ thuộc cứng vào assembly 0Harmony.dll phiên bản cũ (v1.2).
+    [*] Tích hợp cơ chế Universal Harmony Binding: Tương thích 100% không xung đột khi chạy cùng CitiesHarmony (Harmony 2.x), Prop Control, Network Anarchy, TM:PE, IMT...
+    [*] Ngăn chặn tận gốc ngoại lệ TypeLoadException: Could not load type 'Harmony.HarmonyInstance' khi nạp hoặc tải lại save (reload).
+    [*] Bọc giáp bảo vệ từng giai đoạn khởi tạo trong OnCreated để đảm bảo quá trình tải save không bao giờ bị huỷ ngang bởi ModException.
+    [/list]
 [*] [b]Sửa triệt để 100% lỗi bị đơ / treo loading ở TreeManager & SimulationManager.LateUpdateData:[/b]
     [list]
     [*] Khắc phục tận gốc nguyên nhân khiến savegame thường bị nhận diện nhầm thành save mở rộng (do quét ID workshop 3818403598 trong metadata của save).
     [*] Đảm bảo savegame thông thường đọc chính xác tuyệt đối 32K nodes và 36K segments, không ăn lạm vào dữ liệu stream của TreeManager và BuildingManager.
-    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm dẫn tới "Simulation failed: TreeManager".
-    [*] Đảm bảo toàn bộ cây cối, thời tiết, mạng lưới giao thông của thành phố được nạp nguyên vẹn 100%.
+    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm dẫn tới \"Simulation failed: TreeManager\".
     [/list]
 [*] [b]Bọc giáp bảo vệ Loading Screen Mod Revisited AssetLoader.AssetMissing:[/b]
     [list]
@@ -27,5 +33,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.32 Close Beta: Fix false-positive expanded save detection from workshop IDs in save metadata (guarantee clean 32K deserialization for vanilla saves, completely fixing TreeManager simulation failure and LateUpdateData hang)."
+	"changenote"		"v5.0.33 Close Beta: Universal Harmony Resilience Engine (Completely fixes TypeLoadException: Could not load type 'Harmony.HarmonyInstance' when running alongside CitiesHarmony / PropControl / Harmony 2.0+, and eliminates ModException reload crashes)."
 }

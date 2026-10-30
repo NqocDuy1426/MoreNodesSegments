@@ -122,6 +122,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.15 - Crash & Compatibility Shield: Neutralized unsafe Core KianCommons reflection loop before HarmonyBootstrap.Enable() to prevent native mono.dll 0xc0000005 access violation; expanded Stops & Stations (1776052533) PassengerCountLimiter passengerCount buffer to 65,536 elements with simulation tick armor, eliminating recurring IndexOutOfRangeException in ThreadingWrapper on cities > 32K nodes; normalized TM:PE ExtSegmentEnds & SegmentEnds buffer allocations to 130,048 (CORE_SPLIT_CAPACITY) to eliminate MNC Core length validation errors; hardened EightyOne 2 Water CustomSerialize with null-safe pulse unit copying and fallback to native serializer; armored ModsCommon CustomUITextField text selection bounds against ArgumentOutOfRangeException; preserved 100% native traffic simulation with zero TM:PE hooks."
+	"changenote"		"v5.0.33 - Universal Harmony Resilience & Crash Shield: Eliminated hard dependency on legacy 0Harmony.dll assembly, introducing Universal Dynamic Harmony Binding that is 100% immune to TypeLoadException when running alongside CitiesHarmony / PropControl / Harmony 2.0+; added defensive lifecycle armor to OnCreated to eliminate ModException reload crashes; guaranteed byte-accurate vanilla 32K save auto-preservation fixing TreeManager simulation failures; protected Arial dynamic font atlas and sanitized corrupted strings in LSM."
 }
 

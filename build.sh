@@ -19,8 +19,8 @@ echo "=========================================================="
 
 # 0. Compile and run test suite
 echo "0️⃣ Running Test Suite before build..."
-mcs -r:"$CECIL_DLL" run_tests.cs -out:run_tests.exe
-mono run_tests.exe
+mcs -r:"$CECIL_DLL" -r:"0Harmony.dll" run_tests.cs -out:run_tests.exe
+MONO_PATH=".:$MONO_PATH" mono run_tests.exe
 echo "✅ Test Suite passed 100%."
 
 # 1. Use clean, stable core engine (MoreNetworkCapacity.Core.dll v1.0.19 from stable depot)
@@ -34,7 +34,6 @@ mcs -sdk:2 -target:library \
     -r:"$GAME_DIR/ICities.dll" \
     -r:"$GAME_DIR/ColossalManaged.dll" \
     -r:"$GAME_DIR/UnityEngine.dll" \
-    -r:"$HARMONY_DLL" \
     -resource:MoreNetworkCapacity.Core.dll \
     -out:MoreNodesSegments.dll \
     Renew.cs
