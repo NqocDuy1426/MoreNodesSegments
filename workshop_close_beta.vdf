@@ -9,23 +9,22 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.34:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.35:[/h2]
 [list]
-[*] [b]Động cơ Universal Stream Armor (Khắc phục triệt để lỗi lệch dòng & chữ Trung Quốc biến dạng):[/b]
+[*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
-    [*] Loại bỏ hoàn toàn vòng lặp quét dò stream 2MB sai lệch trong LoadingProfiler tag handling.
     [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
     [*] Chấm dứt triệt để lỗi LSM giải mã byte nhị phân thành hàng chục nghìn ký tự rác Unicode/tiếng Trung làm tràn font texture atlas (nguyên nhân mất chữ ingame và không hiện missing assets).
     [/list]
-[*] [b]Lá chắn Universal Simulation Shield (Khắc phục đơ / treo loading ở LateUpdateData & UpdateData):[/b]
+[*] [b]Triệt tiêu văng game khi load save (Native Manager Dispatch & Assembly Isolation):[/b]
     [list]
-    [*] Bọc giáp an toàn tuyệt đối cho chu trình SimulationManager.Managers_UpdateData, Managers_LateUpdateData và Managers_EarlyUpdateData.
-    [*] Cô lập từng manager trong khối try-catch riêng biệt, bảo vệ luồng mô phỏng không bao giờ bị crash bởi lỗi vtable/SIGSEGV hoặc lỗi khởi tạo của TreeUnlimiter / NetworkSkins.
-    [*] Bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string) khi FpsBooster / UI truy cập material chưa khởi tạo.
+    [*] Bỏ bọc prefix trên SimulationManager.Managers_UpdateData/LateUpdateData/EarlyUpdateData, trả về luồng xử lý native nội bộ của Cities: Skylines, loại bỏ hoàn toàn lỗi Mono JIT SIGSEGV (get_object_generic_inst) trên WeatherManager và các open generic classes.
+    [*] Cô lập phân giải assembly EManagersLib, ngăn chặn TypeLoadException spam do nhầm lẫn với EManagersLib.API.
+    [*] Duy trì lá chắn 2500ms timeout shield cho SimulationManager.LateUpdateData warm-up và bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string).
     [/list]
 [*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.34 Close Beta: Universal Stream Armor & Simulation Shield (Fix stream tag desync devouring bytes, font texture overflow & LateUpdateData/UpdateData simulation hang)."
+	"changenote"		"v5.0.35 Close Beta: Eliminate Mono generic vtable SIGSEGV crash during manager updates, isolate EManagersLib assembly resolution, retain LateUpdateData warm-up timeout shield & Material.HasProperty null safety."
 }
