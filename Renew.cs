@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.37 by NgocDuy";
-        public string Description => "[Close Beta v5.0.37] Unpatch NetworkSkins from Managers_UpdateData to defeat Mono generic vtable SIGSEGV crash; let vanilla CIL-compiled loop handle all manager dispatch safely.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy";
+        public string Description => "[Close Beta v5.0.38] Direct Type-Safe Manager Dispatch (Permanently defeat Mono generic vtable get_object_generic_inst SIGSEGV by dispatching directly to concrete manager singletons and skipping empty generic base methods).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15011,102 +15011,44 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
                 }
 
-                 // 2e. Unpatch external mods from Managers_UpdateData/LateUpdateData/EarlyUpdateData
-                 //      to defeat Mono generic vtable SIGSEGV crash. Vanilla's CIL-compiled manager loop
-                 //      within Assembly-CSharp.dll safely dispatches callvirt ISimulationManager::*UpdateData
-                 //      because Mono has full generic type context there. External DynamicMethods (Harmony
-                 //      patches from NetworkSkins etc.) that re-emit callvirt in a new JIT context trigger
-                 //      get_object_generic_inst on SimulationManagerBase<T,P> subclasses -> SIGSEGV.
-                 //      Solution: unpatch all external patches, let vanilla loop run, and call NetworkSkins'
-                 //      OnPreUpdateData safely via a lightweight prefix that returns true (does NOT replace loop).
+                 // 2e. Patch SimulationManager.Managers_* with Direct Type-Safe Dispatch Armor (Priority.First)
+                //      On Mono (macOS), dynamic interface dispatch `callvirt ISimulationManager::UpdateData`
+                //      inside any Harmony DynamicMethod crashes with SIGSEGV at get_object_generic_inst + 97
+                //      when reaching managers that inherit empty methods from SimulationManagerBase<T,P>
+                //      (WeatherManager, ToolManager, PathManager, etc.) because their generic_class pointer is NULL.
+                //      Solution: Our Priority.First prefix returns `false` to completely bypass Harmony's dynamic
+                //      loop, and directly calls the 25 concrete manager singletons using non-generic type-safe calls.
                 try
                 {
-                    string[] methodNames = new string[] { "Managers_UpdateData", "Managers_LateUpdateData", "Managers_EarlyUpdateData" };
-                    foreach (string mName in methodNames)
-                    {
-                        MethodInfo smMethod;
-                        if (mName == "Managers_EarlyUpdateData")
-                            smMethod = typeof(SimulationManager).GetMethod(mName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
-                        else
-                            smMethod = typeof(SimulationManager).GetMethod(mName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-
-                        if (smMethod == null) continue;
-
-                        object patchInfo = HarmonyInstance.GetPatchInfo(smMethod);
-                        if (patchInfo == null) continue;
-
-                        int removedCount = 0;
-                        Type patchInfoType = patchInfo.GetType();
-
-                        // Iterate Prefixes, Transpilers, Postfixes via reflection
-                        string[] patchListNames = new string[] { "Prefixes", "Transpilers", "Postfixes" };
-                        foreach (string listName in patchListNames)
-                        {
-                            PropertyInfo listProp = patchInfoType.GetProperty(listName);
-                            if (listProp == null) continue;
-                            object listObj = listProp.GetValue(patchInfo, null);
-                            if (listObj == null) continue;
-
-                            // listObj is ReadOnlyCollection<Patch> — enumerate it
-                            System.Collections.IEnumerable enumerable = listObj as System.Collections.IEnumerable;
-                            if (enumerable == null) continue;
-
-                            // Collect patch methods first to avoid modifying collection during iteration
-                            var patchMethods = new List<MethodInfo>();
-                            var patchOwners = new List<string>();
-                            foreach (object patchObj in enumerable)
-                            {
-                                if (patchObj == null) continue;
-                                Type patchType = patchObj.GetType();
-                                // Harmony 2 Patch has PatchMethod property (MethodInfo)
-                                PropertyInfo pmProp = patchType.GetProperty("PatchMethod");
-                                if (pmProp == null) pmProp = patchType.GetProperty("patch"); // Harmony 1 fallback
-                                MethodInfo pm = pmProp != null ? pmProp.GetValue(patchObj, null) as MethodInfo : null;
-                                if (pm != null)
-                                {
-                                    patchMethods.Add(pm);
-                                    // Get owner
-                                    PropertyInfo ownerProp = patchType.GetProperty("owner") ?? patchType.GetField("owner")?.DeclaringType?.GetProperty("owner");
-                                    FieldInfo ownerField = patchType.GetField("owner");
-                                    string owner = "?";
-                                    if (ownerProp != null) owner = ownerProp.GetValue(patchObj, null) as string ?? "?";
-                                    else if (ownerField != null) owner = ownerField.GetValue(patchObj) as string ?? "?";
-                                    patchOwners.Add(owner);
-                                }
-                            }
-
-                            for (int pi = 0; pi < patchMethods.Count; pi++)
-                            {
-                                harmony.Unpatch(smMethod, patchMethods[pi]);
-                                removedCount++;
-                                string typeName = listName.TrimEnd('e', 's').TrimEnd('x', 'i').Length > 0 ? listName : listName;
-                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Unpatched {0} {4} from {1} (owner: {2}, method: {3}) to prevent Mono SIGSEGV ✓",
-                                    patchMethods[pi].DeclaringType != null ? patchMethods[pi].DeclaringType.Name : "?",
-                                    mName, patchOwners[pi],
-                                    patchMethods[pi].Name, listName));
-                            }
-                        }
-
-                        if (removedCount > 0)
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Removed {0} patches from {1}. Vanilla CIL-compiled manager loop will handle dispatch safely ✓", removedCount, mName));
-                        else
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] No external patches found on {0}. Vanilla CIL loop is clean ✓", mName));
-                    }
-
-                    // Install lightweight Managers_UpdateData prefix to call NetworkSkins.OnPreUpdateData safely
-                    // This prefix returns true so vanilla's CIL loop still runs after it
-                    MethodInfo smUpdForNS = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smUpdForNS != null)
+                    MethodInfo smUpd = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smUpd != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smUpdForNS, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Installed lightweight Managers_UpdateData prefix for NetworkSkins OnPreUpdateData hook (returns true, vanilla loop runs) ✓");
+                        harmony.Patch(smUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_UpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
+                    }
+
+                    MethodInfo smLateUpd = typeof(SimulationManager).GetMethod("Managers_LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smLateUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_LateUpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
+                    }
+
+                    MethodInfo smEarlyUpd = typeof(SimulationManager).GetMethod("Managers_EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
+                    if (smEarlyUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_EarlyUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
                     }
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in Managers_* unpatch/repatch: " + ex);
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Managers_* methods: " + ex);
                 }
+
                 // 2f. Patch UnityEngine.Material.HasProperty (Prevent native C++ null dereference crash in FpsBooster/UI)
                 try
                 {
@@ -17388,24 +17330,190 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        private static void SafeCallManagerAction(Action a, string label)
         {
-            // Lightweight prefix: call NetworkSkins.OnPreUpdateData safely via reflection,
-            // then return true so vanilla's CIL-compiled manager loop handles all dispatch.
-            // This avoids the Mono get_object_generic_inst SIGSEGV that occurs when external
-            // DynamicMethods (Harmony patches) callvirt ISimulationManager on generic subclasses.
             try
             {
-                InvokeNetworkSkinsPreUpdateData(mode);
+                if (a != null) a();
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetworkSkins OnPreUpdateData error: " + ex.Message);
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
             }
-            return true; // Let vanilla CIL loop run
         }
 
+        private static void SafeStepManagerAction(Action a, LoadingManager lm, float progress, string label)
+        {
+            try
+            {
+                if (lm != null) lm.SetSimulationProgress(progress);
+            }
+            catch {}
+            try
+            {
+                if (a != null) a();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_EarlyUpdateData_Prefix()
+        {
+            try
+            {
+                // Only 7 managers have concrete EarlyUpdateData:
+                // AudioManager, BuildingManager, DisasterManager, EventManager, NetManager, TransportManager, UnlockManager.
+                // All other managers inherit empty `ret` from SimulationManagerBase<T,P>.
+                SafeCallManagerAction(() => Singleton<AudioManager>.instance.EarlyUpdateData(), "AudioManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<BuildingManager>.instance.EarlyUpdateData(), "BuildingManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<DisasterManager>.instance.EarlyUpdateData(), "DisasterManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<EventManager>.instance.EarlyUpdateData(), "EventManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<NetManager>.instance.EarlyUpdateData(), "NetManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<TransportManager>.instance.EarlyUpdateData(), "TransportManager.EarlyUpdateData");
+                SafeCallManagerAction(() => Singleton<UnlockManager>.instance.EarlyUpdateData(), "UnlockManager.EarlyUpdateData");
+
+                // Mod managers outside Assembly-CSharp
+                FastList<ISimulationManager> managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int mgrCount = managers.m_size;
+                    var coreAsm = typeof(NetManager).Assembly;
+                    for (int i = 0; i < mgrCount; i++)
+                    {
+                        var m = managers.m_buffer[i];
+                        if (m != null && m.GetType().Assembly != coreAsm)
+                        {
+                            try { m.EarlyUpdateData(); }
+                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager EarlyUpdateData: " + ex.Message); }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_EarlyUpdateData error: " + ex.Message);
+            }
+            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                // 1. Invoke NetworkSkins pre-update hook safely
+                InvokeNetworkSkinsPreUpdateData(mode);
+
+                // 2. Direct concrete manager execution - completely eliminates generic interface callvirt on Mono
+                var lm = Singleton<LoadingManager>.instance;
+                float range = maxProgress - minProgress;
+                const float totalSteps = 26f;
+
+                SafeStepManagerAction(() => Singleton<GameAreaManager>.instance.UpdateData(mode), lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<TerrainManager>.instance.UpdateData(mode), lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<InstanceManager>.instance.UpdateData(mode), lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<NetManager>.instance.UpdateData(mode), lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<BuildingManager>.instance.UpdateData(mode), lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<CitizenManager>.instance.UpdateData(mode), lm, minProgress + range * (6f / totalSteps), "CitizenManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<TransferManager>.instance.UpdateData(mode), lm, minProgress + range * (7f / totalSteps), "TransferManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<ElectricityManager>.instance.UpdateData(mode), lm, minProgress + range * (8f / totalSteps), "ElectricityManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<WaterManager>.instance.UpdateData(mode), lm, minProgress + range * (9f / totalSteps), "WaterManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<ZoneManager>.instance.UpdateData(mode), lm, minProgress + range * (10f / totalSteps), "ZoneManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<PropManager>.instance.UpdateData(mode), lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<TreeManager>.instance.UpdateData(mode), lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<VehicleManager>.instance.UpdateData(mode), lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<TransportManager>.instance.UpdateData(mode), lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<EconomyManager>.instance.UpdateData(mode), lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<DistrictManager>.instance.UpdateData(mode), lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<EventManager>.instance.UpdateData(mode), lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<DisasterManager>.instance.UpdateData(mode), lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<InfoManager>.instance.UpdateData(mode), lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<RenderManager>.instance.UpdateData(mode), lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<AudioManager>.instance.UpdateData(mode), lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<StatisticsManager>.instance.UpdateData(mode), lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<UnlockManager>.instance.UpdateData(mode), lm, minProgress + range * (23f / totalSteps), "UnlockManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<MessageManager>.instance.UpdateData(mode), lm, minProgress + range * (24f / totalSteps), "MessageManager.UpdateData");
+                SafeStepManagerAction(() => Singleton<GuideManager>.instance.UpdateData(mode), lm, minProgress + range * (25f / totalSteps), "GuideManager.UpdateData");
+
+                // 3. Mod managers outside Assembly-CSharp
+                FastList<ISimulationManager> managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int mgrCount = managers.m_size;
+                    var coreAsm = typeof(NetManager).Assembly;
+                    for (int i = 0; i < mgrCount; i++)
+                    {
+                        var m = managers.m_buffer[i];
+                        if (m != null && m.GetType().Assembly != coreAsm)
+                        {
+                            try { m.UpdateData(mode); }
+                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager UpdateData: " + ex.Message); }
+                        }
+                    }
+                }
+
+                if (lm != null)
+                {
+                    try { lm.SetSimulationProgress(maxProgress); } catch {}
+                }
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Direct Managers_UpdateData executed 25 concrete managers safely ✓");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_UpdateData error: " + ex.Message);
+            }
+            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_LateUpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                // Only 8 managers have concrete LateUpdateData:
+                // DisasterManager, DistrictManager, EconomyManager, RenderManager, NetManager, ToolManager, TerrainManager, UnlockManager.
+                SafeCallManagerAction(() => Singleton<DisasterManager>.instance.LateUpdateData(mode), "DisasterManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<DistrictManager>.instance.LateUpdateData(mode), "DistrictManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<EconomyManager>.instance.LateUpdateData(mode), "EconomyManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<RenderManager>.instance.LateUpdateData(mode), "RenderManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<NetManager>.instance.LateUpdateData(mode), "NetManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<ToolManager>.instance.LateUpdateData(mode), "ToolManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<TerrainManager>.instance.LateUpdateData(mode), "TerrainManager.LateUpdateData");
+                SafeCallManagerAction(() => Singleton<UnlockManager>.instance.LateUpdateData(mode), "UnlockManager.LateUpdateData");
+
+                // Mod managers outside Assembly-CSharp
+                FastList<ISimulationManager> managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int mgrCount = managers.m_size;
+                    var coreAsm = typeof(NetManager).Assembly;
+                    for (int i = 0; i < mgrCount; i++)
+                    {
+                        var m = managers.m_buffer[i];
+                        if (m != null && m.GetType().Assembly != coreAsm)
+                        {
+                            try { m.LateUpdateData(mode); }
+                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager LateUpdateData: " + ex.Message); }
+                        }
+                    }
+                }
+
+                // Instance-level warm-up shield
+                var sm = Singleton<SimulationManager>.instance;
+                if (sm != null)
+                {
+                    SimulationManager_LateUpdateData_Prefix(sm, mode, minProgress, maxProgress);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_LateUpdateData error: " + ex.Message);
+            }
+            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
+        }
 
         public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
         {

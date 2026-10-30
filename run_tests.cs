@@ -1865,8 +1865,8 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.37)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.37 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.38)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
@@ -2040,9 +2040,9 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 44: Mono SIGSEGV Defense - Unpatch External Mods from Managers_* (v5.0.37)
+        // TEST GROUP 44: Direct Type-Safe Simulation Manager Dispatch (v5.0.38)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 44: Mono SIGSEGV Defense - Unpatch External Mods from Managers_*, NetworkSkins Safe Hook & Assembly Isolation (v5.0.37) ---");
+        Console.WriteLine("\n--- Test Group 44: Direct Type-Safe Simulation Manager Dispatch (v5.0.38) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -2052,29 +2052,28 @@ class TestSuite
                                     !renewCode.Contains("curPos + 2 * 1024 * 1024");
             Assert(hasCleanTagArmor, "SafeHandleDeserializeTag reads exact shared tag and suppresses mismatch without stream seeking or scanning");
 
-            // 44.2 Unpatch external mods from Managers_* (NOT replace the loop) + lightweight NetworkSkins prefix returns true
-            bool hasUnpatchLogic = renewCode.Contains("harmony.Unpatch(smMethod, patchMethods[pi])") &&
-                                   renewCode.Contains("Vanilla CIL-compiled manager loop will handle dispatch safely") &&
-                                   renewCode.Contains("Managers_UpdateData") &&
-                                   renewCode.Contains("Managers_LateUpdateData") &&
-                                   renewCode.Contains("Managers_EarlyUpdateData");
-            Assert(hasUnpatchLogic, "External mod patches (NetworkSkins etc.) removed from Managers_UpdateData/LateUpdateData/EarlyUpdateData to prevent Mono SIGSEGV");
+            // 44.2 Direct Type-Safe Manager Dispatch: All 3 Managers_* methods return false to skip Harmony dynamic loop
+            bool hasDirectDispatch = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
+                                     renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
+                                     renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
+                                     renewCode.Contains("Singleton<NetManager>.instance.UpdateData(mode)") &&
+                                     renewCode.Contains("Singleton<TreeManager>.instance.UpdateData(mode)") &&
+                                     renewCode.Contains("Singleton<BuildingManager>.instance.UpdateData(mode)") &&
+                                     renewCode.Contains("return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV");
+            Assert(hasDirectDispatch, "SimulationManager.Managers_* prefixes dispatch directly to concrete singletons and return false to bypass Harmony loop");
 
-            // 44.3 Lightweight Managers_UpdateData prefix calls NetworkSkins OnPreUpdateData and returns true (lets vanilla loop run)
-            bool hasLightweightPrefix = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
-                                        renewCode.Contains("InvokeNetworkSkinsPreUpdateData(mode)") &&
-                                        renewCode.Contains("return true; // Let vanilla CIL loop run");
-            Assert(hasLightweightPrefix, "Managers_UpdateData prefix is lightweight: calls NetworkSkins.OnPreUpdateData safely, returns true to let vanilla CIL loop run");
+            // 44.3 NetworkSkins OnPreUpdateData hook executed before manager dispatch
+            bool hasNSHook = renewCode.Contains("InvokeNetworkSkinsPreUpdateData(mode);") &&
+                             renewCode.Contains("Safely executed NetworkSkinManager.OnPreUpdateData ✓");
+            Assert(hasNSHook, "NetworkSkins.OnPreUpdateData is safely invoked before concrete manager updates");
 
-            // 44.4 NO SafeExecute methods or generic no-op dictionaries (all removed - proven to crash via reflection too)
-            bool noReflectionLoop = !renewCode.Contains("SafeExecuteUpdateData") &&
-                                    !renewCode.Contains("SafeExecuteLateUpdateData") &&
-                                    !renewCode.Contains("SafeExecuteEarlyUpdateData") &&
-                                    !renewCode.Contains("s_noOpUpdateDataManagers") &&
-                                    !renewCode.Contains("s_concreteUpdateDataMethods") &&
-                                    !renewCode.Contains("SimulationManager_Managers_LateUpdateData_Prefix") &&
-                                    !renewCode.Contains("SimulationManager_Managers_EarlyUpdateData_Prefix");
-            Assert(noReflectionLoop, "No SafeExecute* methods, no generic dictionaries, no LateUpdateData/EarlyUpdateData prefixes (reflection Invoke also crashes Mono)");
+            // 44.4 Generic no-op managers (WeatherManager, ToolManager, PathManager, etc.) are NOT called via interface callvirt
+            bool noGenericDispatch = !renewCode.Contains("SafeExecuteUpdateData") &&
+                                     !renewCode.Contains("SafeExecuteLateUpdateData") &&
+                                     !renewCode.Contains("SafeExecuteEarlyUpdateData") &&
+                                     !renewCode.Contains("s_noOpUpdateDataManagers") &&
+                                     !renewCode.Contains("s_concreteUpdateDataMethods");
+            Assert(noGenericDispatch, "Generic no-op methods are safely skipped, eliminating Mono get_object_generic_inst SIGSEGV");
 
             // 44.5 Assembly resolve strictly separates EManagersLib and EManagersLib.API
             bool strictEManagersLib = renewCode.Contains("if (a.GetName().Name == \"EManagersLib\") return a;") &&

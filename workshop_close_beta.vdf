@@ -9,7 +9,10 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.37:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.38:[/h2]
+- Fix triệt để crash văng game khi vào save (SIGSEGV get_object_generic_inst) trên macOS/Mono bằng Direct Type-Safe Simulation Manager Dispatch.
+- Trực tiếp gọi 25 Manager Singleton có override, bỏ qua an toàn 8 Generic Manager kế thừa hàm rỗng từ SimulationManagerBase<T,P> (như WeatherManager, ToolManager, PathManager).
+- Tích hợp chuẩn NetworkSkins OnPreUpdateData hook.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -28,5 +31,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.37 Close Beta: Unpatch external mods (NetworkSkins etc.) from Managers_UpdateData/LateUpdateData/EarlyUpdateData to defeat Mono get_object_generic_inst SIGSEGV; let vanilla CIL-compiled manager loop handle all dispatch safely."
+	"changenote"		"v5.0.38 Close Beta: Direct Type-Safe Simulation Manager Dispatch (Eliminate Mono get_object_generic_inst SIGSEGV crash during manager updates, protect NetworkSkins & skip empty generic base methods)."
 }
