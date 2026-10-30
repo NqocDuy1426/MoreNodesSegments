@@ -9,19 +9,18 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.24:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.25:[/h2]
 [list]
-[*] [b]Khắc phục TRIỆT ĐỂ lỗi Simulation thread bị kẹt ở TreeManager / ElectricityManager / NetManager ('Simulation failed'):[/b]
+[*] [b]Sửa triệt để lỗi crash văng ngay khi khởi động game (Engine Startup / Locale Crash):[/b]
     [list]
-    [*] Mở rộng toàn diện bộ đệm NetNode và NetSegment lên đầy đủ 65.536 phần tử (dải ushort 16-bit 0..65535), triệt tiêu hoàn toàn khả năng văng lỗi IndexOutOfRangeException khi giải tuần tự phân đoạn trỏ tới các Node ID cao (65.280, 65.512, 65.535...).
-    [*] Bọc Harmony 2 (priority 900) thay thế an toàn tuyệt đối cho NetManager.InitializeSegment và InitializeNode, loại bỏ mã CIL vanilla thiếu kiểm tra biên.
-    [*] Bổ sung cơ chế Stream Resynchronization Engine: tự động rà quét và đồng bộ lại con trỏ luồng DataSerializer đến vùng dữ liệu container tiếp theo nếu có lỗi, ngăn chặn hiện tượng trôi lệch byte lan truyền sang các manager kế tiếp.
-    [*] Trang bị lá chắn Harmony 2 Finalizer Armor và bảo vệ EOF toàn diện cho TreeManager.Data.Deserialize, PropManager, BuildingManager, CitizenManager và ZoneManager.
-    [*] Khóa chặt lỗi Simulation thread: dù bất kỳ manager thứ cấp nào gặp sự cố, Finalizer tự động vô hiệu hóa lỗi và bảo đảm tiến trình nạp mô phỏng kết thúc an toàn, vào thẳng game.
+    [*] Loại bỏ hoàn toàn patch trên phương thức generic DataSerializer.Deserialize<T> (vốn làm Mono JIT áp dụng nhầm lá chắn sang các kiểu dữ liệu hệ thống như Locale/Language, gây InvalidCastException và văng game lúc khởi động).
+    [*] Giữ vững lá chắn an toàn tối thượng tại chính SimulationManager.Data.Deserialize (phương thức non-generic đích thực quản lý toàn bộ 10 container mô phỏng).
+    [*] Bảo vệ hoàn hảo tất cả các container: TreeManager (tương thích 100% Tree Control/Unlimited Trees > 262K), PropManager, ElectricityManager, WaterManager, VehicleManager, CitizenManager...
+    [*] Ngăn chặn văng luồng Simulation thread ('Simulation failed') tuyệt đối mà không can thiệp vào các tiến trình khởi tạo engine của game.
     [/list]
 [*] [b]Đảm bảo 100% dữ liệu nguyên vẹn:[/b] Lưu và tải hoàn hảo mạng lưới 65K nodes/segments, 64K MoreProps, 54K Procedural Objects và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.24 Close Beta: Universal Simulation Thread & TreeManager Deserialization Immunity. Full 65,536 node/segment buffer expansion, Harmony 2 InitializeSegment/Node bounds replacement, Stream Resynchronization Engine, and TreeManager/PropManager/BuildingManager/ZoneManager Finalizer Armor. Completely eliminates Simulation failed at TreeManager & ElectricityManager."
+	"changenote"		"v5.0.25 Close Beta: Fix game startup / locale crash by removing generic DataSerializer patch while maintaining full SimulationManager.Data & individual container (TreeManager, ElectricityManager, etc.) Finalizer armor. Eliminates Simulation failed without engine interference."
 }

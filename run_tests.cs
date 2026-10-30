@@ -1725,7 +1725,8 @@ class TestSuite
 
             // 37.2 SimulationManager.Data.Deserialize Finalizer exception suppression
             bool hasSimDesArmor = renewCode.Contains("SimulationManager_Data_Deserialize_Finalizer") &&
-                                  renewCode.Contains("m_loadingProfilerSimulation.EndDeserialize(s, \"SimulationManager\")");
+                                  (renewCode.Contains("m_loadingProfilerSimulation.EndDeserialize(s, \"SimulationManager\")") ||
+                                   renewCode.Contains("SafeCloseProfilerDeserialize(\"SimulationManager\")"));
             Assert(hasSimDesArmor, "SimulationManager.Data.Deserialize Finalizer prevents simulation loading failure from unhandled manager exceptions");
 
             // 37.3 CoreCapacity ReadSize bounds clamping
@@ -1804,17 +1805,16 @@ class TestSuite
         // ====================================================================
         // TEST GROUP 39: Complete Simulation Thread & Manager Deserialization Immunity (v5.0.24)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 39: Complete Simulation Thread & Manager Deserialization Immunity (v5.0.24) ---");
+        Console.WriteLine("\n--- Test Group 39: Complete Simulation Thread & Manager Deserialization Immunity (v5.0.25) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 39.1 Top-Level Shield on DataSerializer.Deserialize<SimulationManager.Data>
-            bool hasTopLevelShield = renewCode.Contains("DataSerializer_Deserialize_SimulationManager_Finalizer") &&
-                                     renewCode.Contains("TryPatchHarmony2(gm2, null, fin, 1000)") &&
-                                     renewCode.Contains("TryPatchHarmony2(gm3, null, fin, 1000)") &&
-                                     renewCode.Contains("Patched DataSerializer.Deserialize<SimulationManager.Data> (2-arg) with Ultimate Simulation Shield") &&
-                                     renewCode.Contains("Patched DataSerializer.Deserialize<SimulationManager.Data> (3-arg) with Ultimate Simulation Shield");
-            Assert(hasTopLevelShield, "Top-level DataSerializer.Deserialize<SimulationManager.Data> is armored with Harmony 2 Finalizer (priority 1000)");
+            // 39.1 SimulationManager.Data.Deserialize Shield (Safe from Mono Generic Type Pollution)
+            bool hasTopLevelShield = renewCode.Contains("SimulationManager_Data_Deserialize_Finalizer") &&
+                                     renewCode.Contains("TryPatchHarmony2(simDes, preDes, finDes, 900)") &&
+                                     !renewCode.Contains("DataSerializer_Deserialize_SimulationManager_Finalizer") &&
+                                     !renewCode.Contains("MakeGenericMethod(typeof(SimulationManager.Data))");
+            Assert(hasTopLevelShield, "SimulationManager.Data.Deserialize is armored with Harmony 2 Finalizer and generic DataSerializer is left unpatched");
 
             // 39.2 SafeCloseProfilerDeserialize (Zero-Stream Profiler Event Closing)
             bool hasSafeCloseProf = renewCode.Contains("SafeCloseProfilerDeserialize(string tag)") &&

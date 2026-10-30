@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.24 by NgocDuy";
-        public string Description => "[Close Beta v5.0.24] Complete Simulation Thread & Manager Deserialization Immunity (Top-Level DataSerializer Shield + TreeManager/PropManager/All Containers Finalizer Armor).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.25 by NgocDuy";
+        public string Description => "[Close Beta v5.0.25] Complete Simulation Thread & Manager Deserialization Immunity (SimulationManager Shield + TreeManager/PropManager/All Containers Finalizer Armor).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14279,40 +14279,6 @@ namespace MoreNetworkCapacityRenew
                         }
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.Data.Deserialize with early metadata synchronization and Exception Finalizer (Priority.First).");
                     }
-
-                    // 2c. Patch DataSerializer.Deserialize<SimulationManager.Data> (Ultimate Top-Level Simulation Shield)
-                    try
-                    {
-                        MethodInfo m2 = typeof(ColossalFramework.IO.DataSerializer).GetMethod("Deserialize", new Type[] {
-                            typeof(System.IO.Stream), typeof(ColossalFramework.IO.DataSerializer.Mode)
-                        });
-                        if (m2 != null)
-                        {
-                            MethodInfo gm2 = m2.MakeGenericMethod(typeof(SimulationManager.Data));
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(DataSerializer_Deserialize_SimulationManager_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            TryPatchHarmony2(gm2, null, fin, 1000);
-                            {
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DataSerializer.Deserialize<SimulationManager.Data> (2-arg) with Ultimate Simulation Shield.");
-                        }
-
-                        MethodInfo m3 = typeof(ColossalFramework.IO.DataSerializer).GetMethod("Deserialize", new Type[] {
-                            typeof(System.IO.Stream), typeof(ColossalFramework.IO.DataSerializer.Mode), typeof(ColossalFramework.IO.DataSerializer.LegacyResolverHandler)
-                        });
-                        if (m3 != null)
-                        {
-                            MethodInfo gm3 = m3.MakeGenericMethod(typeof(SimulationManager.Data));
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(DataSerializer_Deserialize_SimulationManager_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            TryPatchHarmony2(gm3, null, fin, 1000);
-                            {
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DataSerializer.Deserialize<SimulationManager.Data> (3-arg) with Ultimate Simulation Shield.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching DataSerializer.Deserialize<SimulationManager.Data>: " + ex);
-                    }
                 }
 
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
@@ -16309,12 +16275,9 @@ namespace MoreNetworkCapacityRenew
         {
             if (__exception != null)
             {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed SimulationManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Ensuring simulation load continues ✓");
-                try
-                {
-                    Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "SimulationManager");
-                }
-                catch {}
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: Intercepted SimulationManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Ensuring simulation load continues ✓");
+                SafeCloseProfilerDeserialize("SimulationManager");
+                EnsureAllSimulationManagersSafe();
             }
             return null; // Suppress crash!
         }
@@ -16554,21 +16517,6 @@ namespace MoreNetworkCapacityRenew
             try { ResetTransferManagerSimulationState(); } catch {}
             try { ResetTerrainSimulationState(); } catch {}
             try { ResetWaterSimulationSimulationState(); } catch {}
-        }
-
-        public static Exception DataSerializer_Deserialize_SimulationManager_Finalizer(Exception __exception, ref SimulationManager.Data __result)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: Intercepted top-level simulation exception (" + __exception.GetType().Name + ": " + __exception.Message + "). Ensuring simulation thread completes safely ✓");
-                if (__result == null)
-                {
-                    try { __result = (SimulationManager.Data)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SimulationManager.Data)); } catch {}
-                }
-                SafeCloseProfilerDeserialize("SimulationManager");
-                EnsureAllSimulationManagersSafe();
-            }
-            return null; // Suppress crash!
         }
 
         public static void ResetElectricitySimulationState()
