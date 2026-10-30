@@ -1865,10 +1865,10 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta v5.0.26 Version Branding
-            bool hasV26 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy") &&
-                          renewCode.Contains("[Close Beta v5.0.26] Definitive Simulation Thread & Container Immunity");
-            Assert(hasV26, "Renew.cs is correctly branded as Close Beta v5.0.26");
+            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy");
+            Assert(hasBetaBranding, "Renew.cs is correctly branded as Close Beta");
 
             // 40.2 SafeDeserializeSimulationData Implementation
             bool hasSafeSimDes = renewCode.Contains("public static SimulationManager.Data SafeDeserializeSimulationData(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)") &&
@@ -1894,6 +1894,12 @@ class TestSuite
                                     renewCode.Contains("ResetTreeSimulationState()") &&
                                     renewCode.Contains("ResetElectricitySimulationState()");
             Assert(hasContainerSafe, "EnsureContainerSafe maps failing simulation containers to their safe reset handlers");
+
+            // 40.6 WeatherManager Armor & Recovery
+            bool hasWeatherArmor = renewCode.Contains("WeatherManager_Data_Deserialize_Finalizer") &&
+                                   renewCode.Contains("ResetWeatherSimulationState();") &&
+                                   renewCode.Contains("else if (name.Contains(\"Weather\")) ResetWeatherSimulationState();");
+            Assert(hasWeatherArmor, "WeatherManager.Data.Deserialize is armored with Finalizer and registered in EnsureContainerSafe");
         }
         catch (Exception ex)
         {

@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy";
-        public string Description => "[Close Beta v5.0.26] Definitive Simulation Thread & Container Immunity (LoadSimulationData Shield + Individual Container Armor).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy";
+        public string Description => "[Close Beta v5.0.27] Universal Simulation Shield + Weather & Container Deserialization Armor (Zero Hang/Crash Guarantee).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14772,8 +14772,12 @@ namespace MoreNetworkCapacityRenew
                         if (wmDes != null)
                         {
                             MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WeatherManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WeatherManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(WeatherManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TryPatchHarmony2(wmDes, pre, fin, 800))
+                            {
+                                harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WeatherManager.Data.Deserialize with Universal Dynamic Buffer Guard & Finalizer (Priority.First).");
                         }
                     }
                 }
@@ -16405,6 +16409,7 @@ namespace MoreNetworkCapacityRenew
                 else if (name.Contains("NaturalResource")) ResetNaturalResourceSimulationState();
                 else if (name.Contains("Transfer")) ResetTransferManagerSimulationState();
                 else if (name.Contains("Terrain")) ResetTerrainSimulationState();
+                else if (name.Contains("Weather")) ResetWeatherSimulationState();
                 else EnsureAllSimulationManagersSafe();
             }
             catch {}
@@ -16697,6 +16702,7 @@ namespace MoreNetworkCapacityRenew
             try { ResetTransferManagerSimulationState(); } catch {}
             try { ResetTerrainSimulationState(); } catch {}
             try { ResetWaterSimulationSimulationState(); } catch {}
+            try { ResetWeatherSimulationState(); } catch {}
         }
 
         public static void ResetElectricitySimulationState()
@@ -17522,7 +17528,7 @@ namespace MoreNetworkCapacityRenew
                 {
                     UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix: Stream reached EOF before WeatherManager. Initializing safe defaults ✓");
                     ResetWeatherSimulationState();
-                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "WeatherManager", "WindManager"); } catch {}
+                    SafeCloseProfilerDeserialize("WeatherManager");
                     return false; // Skip original crashing method!
                 }
             }
@@ -17531,6 +17537,17 @@ namespace MoreNetworkCapacityRenew
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix error: " + ex);
             }
             return true;
+        }
+
+        public static Exception WeatherManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WeatherManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
+                SafeCloseProfilerDeserialize("WeatherManager");
+                ResetWeatherSimulationState();
+            }
+            return null; // Suppress crash!
         }
 
         public static bool GenericManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)

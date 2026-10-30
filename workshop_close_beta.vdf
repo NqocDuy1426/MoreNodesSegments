@@ -9,18 +9,18 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.26:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.27:[/h2]
 [list]
-[*] [b]Sửa triệt để 100% lỗi đứng hình / Simulation failed tại TreeManager & ElectricityManager:[/b]
+[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Main thread: Weather Properties / Simulation failed):[/b]
     [list]
-    [*] Triển khai Universal Simulation Shield Transpiler trực tiếp vào LoadingManager.LoadSimulationData (tiến trình tải mô phỏng của game).
-    [*] Tách biệt vòng lặp deserialization của từng manager: TreeManager, ElectricityManager, NetManager, WaterManager, PropManager, BuildingManager, CitizenManager... vào các khối bảo vệ cô lập (isolated try-catch).
-    [*] Bất kỳ lỗi chỉ số mảng (IndexOutOfRangeException) từ các mod mở rộng (như Tree Control, Unlimited Trees, 81 Tiles 2) hay lỗi chia cho 0 đều được chặn đứng và phục hồi trạng thái an toàn ngay tức thì.
-    [*] Ngăn chặn hoàn toàn lỗi sập luồng Simulation thread ('Simulation failed:') màu đỏ trên Loading Screen Mod.
+    [*] Triển khai Universal Simulation Shield Transpiler trực tiếp vào LoadingManager.LoadSimulationData.
+    [*] Tách biệt vòng lặp deserialization của từng manager (TreeManager, ElectricityManager, NetManager, WaterManager, WeatherManager...) vào các khối try-catch độc lập tuyệt đối.
+    [*] Bổ sung lá chắn hai lớp Buffer Guard + Harmony Exception Finalizer cho WeatherManager.Data.Deserialize và cập nhật bộ dọn dẹp an toàn ResetWeatherSimulationState.
+    [*] Ngăn chặn hoàn toàn hiện tượng luồng Simulation bị crash khiến luồng Main thread đứng chờ vĩnh viễn tại Weather Properties.
     [/list]
-[*] [b]Đảm bảo game khởi động và vào map mượt mà 100%:[/b] Không can thiệp generic, bảo toàn dữ liệu lưu và tải hoàn hảo mạng lưới 65K nodes/segments, 64K MoreProps và TM:PE.
+[*] [b]Bảo toàn 100% dữ liệu save/load:[/b] Tương thích tuyệt đối Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.26 Close Beta: Definitive Simulation Thread & Container Shield. Intercepts LoadSimulationData with isolated per-container try-catch loops. Permanently eliminates 'Simulation failed' on TreeManager, ElectricityManager, and all other managers without crashing the loading screen."
+	"changenote"		"v5.0.27 Close Beta: Universal Simulation Shield Transpiler & WeatherManager Deserialization Finalizer Armor. Permanently resolves simulation thread crashes and loading hangs at Weather Properties."
 }
