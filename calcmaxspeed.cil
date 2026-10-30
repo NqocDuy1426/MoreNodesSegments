@@ -1,0 +1,179 @@
+Method: System.Single TrafficManager.Manager.Impl.VehicleBehaviorManager::CalcMaxSpeed(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo,PathUnit/Position,NetSegment&,UnityEngine.Vector3,System.Single,System.Boolean)
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0005: ldfld System.Boolean NetManager::m_treatWetAsSnow
+  IL_000a: brfalse IL_010f
+  IL_000f: call !0 ColossalFramework.Singleton`1<DistrictManager>::get_instance()
+  IL_0014: stloc.0
+  IL_0015: ldloc.0
+  IL_0016: ldarg.s pos
+  IL_0018: callvirt System.Byte DistrictManager::GetDistrict(UnityEngine.Vector3)
+  IL_001d: stloc.1
+  IL_001e: ldloc.0
+  IL_001f: ldfld Array8`1<District> DistrictManager::m_districts
+  IL_0024: ldfld !0[] Array8`1<District>::m_buffer
+  IL_0029: ldloc.1
+  IL_002a: ldelema District
+  IL_002f: ldfld DistrictPolicies/CityPlanning District::m_cityPlanningPolicies
+  IL_0034: ldc.i4 1024
+  IL_0039: and
+  IL_003a: brfalse.s IL_00b5
+  IL_003c: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_0041: ldfld System.Boolean TrafficManager.State.SavedGameOptions::strongerRoadConditionEffects
+  IL_0046: brfalse.s IL_0078
+  IL_0048: ldarg.s maxSpeed
+  IL_004a: ldc.r4 6.4
+  IL_004f: ble.un.s IL_0091
+  IL_0051: ldc.r4 6.4
+  IL_0056: ldc.i4 255
+  IL_005b: ldarg.s segment
+  IL_005d: ldfld System.Byte NetSegment::m_wetness
+  IL_0062: sub
+  IL_0063: conv.r4
+  IL_0064: ldc.r4 0.003921568
+  IL_0069: mul
+  IL_006a: ldarg.s maxSpeed
+  IL_006c: ldc.r4 6.4
+  IL_0071: sub
+  IL_0072: mul
+  IL_0073: add
+  IL_0074: starg.s maxSpeed
+  IL_0076: br.s IL_0091
+  IL_0078: ldarg.s maxSpeed
+  IL_007a: ldc.r4 1
+  IL_007f: ldarg.s segment
+  IL_0081: ldfld System.Byte NetSegment::m_wetness
+  IL_0086: conv.r4
+  IL_0087: ldc.r4 0.0005882353
+  IL_008c: mul
+  IL_008d: sub
+  IL_008e: mul
+  IL_008f: starg.s maxSpeed
+  IL_0091: ldloc.0
+  IL_0092: ldfld Array8`1<District> DistrictManager::m_districts
+  IL_0097: ldfld !0[] Array8`1<District>::m_buffer
+  IL_009c: ldloc.1
+  IL_009d: ldelema District
+  IL_00a2: ldflda DistrictPolicies/CityPlanning District::m_cityPlanningPoliciesEffect
+  IL_00a7: dup
+  IL_00a8: ldind.i4
+  IL_00a9: ldc.i4 1024
+  IL_00ae: or
+  IL_00af: stind.i4
+  IL_00b0: br IL_016b
+  IL_00b5: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_00ba: ldfld System.Boolean TrafficManager.State.SavedGameOptions::strongerRoadConditionEffects
+  IL_00bf: brfalse.s IL_00f4
+  IL_00c1: ldarg.s maxSpeed
+  IL_00c3: ldc.r4 3.2
+  IL_00c8: ble.un IL_016b
+  IL_00cd: ldc.r4 3.2
+  IL_00d2: ldc.i4 255
+  IL_00d7: ldarg.s segment
+  IL_00d9: ldfld System.Byte NetSegment::m_wetness
+  IL_00de: sub
+  IL_00df: conv.r4
+  IL_00e0: ldc.r4 0.003921568
+  IL_00e5: mul
+  IL_00e6: ldarg.s maxSpeed
+  IL_00e8: ldc.r4 3.2
+  IL_00ed: sub
+  IL_00ee: mul
+  IL_00ef: add
+  IL_00f0: starg.s maxSpeed
+  IL_00f2: br.s IL_016b
+  IL_00f4: ldarg.s maxSpeed
+  IL_00f6: ldc.r4 1
+  IL_00fb: ldarg.s segment
+  IL_00fd: ldfld System.Byte NetSegment::m_wetness
+  IL_0102: conv.r4
+  IL_0103: ldc.r4 0.001176471
+  IL_0108: mul
+  IL_0109: sub
+  IL_010a: mul
+  IL_010b: starg.s maxSpeed
+  IL_010d: br.s IL_016b
+  IL_010f: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_0114: ldfld System.Boolean TrafficManager.State.SavedGameOptions::strongerRoadConditionEffects
+  IL_0119: brfalse.s IL_0152
+  IL_011b: ldarg.s maxSpeed
+  IL_011d: ldc.r4 0.75
+  IL_0122: mul
+  IL_0123: ldc.r4 16
+  IL_0128: call System.Single System.Math::Min(System.Single,System.Single)
+  IL_012d: stloc.2
+  IL_012e: ldarg.s maxSpeed
+  IL_0130: ldloc.2
+  IL_0131: ble.un.s IL_016b
+  IL_0133: ldloc.2
+  IL_0134: ldc.i4 255
+  IL_0139: ldarg.s segment
+  IL_013b: ldfld System.Byte NetSegment::m_wetness
+  IL_0140: sub
+  IL_0141: conv.r4
+  IL_0142: ldc.r4 0.003921568
+  IL_0147: mul
+  IL_0148: ldarg.s maxSpeed
+  IL_014a: ldloc.2
+  IL_014b: sub
+  IL_014c: mul
+  IL_014d: add
+  IL_014e: starg.s maxSpeed
+  IL_0150: br.s IL_016b
+  IL_0152: ldarg.s maxSpeed
+  IL_0154: ldc.r4 1
+  IL_0159: ldarg.s segment
+  IL_015b: ldfld System.Byte NetSegment::m_wetness
+  IL_0160: conv.r4
+  IL_0161: ldc.r4 0.0005882353
+  IL_0166: mul
+  IL_0167: sub
+  IL_0168: mul
+  IL_0169: starg.s maxSpeed
+  IL_016b: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_0170: ldfld System.Boolean TrafficManager.State.SavedGameOptions::strongerRoadConditionEffects
+  IL_0175: brfalse.s IL_01a8
+  IL_0177: ldarg.s maxSpeed
+  IL_0179: ldc.r4 0.75
+  IL_017e: mul
+  IL_017f: ldc.r4 12.8
+  IL_0184: call System.Single System.Math::Min(System.Single,System.Single)
+  IL_0189: stloc.3
+  IL_018a: ldarg.s maxSpeed
+  IL_018c: ldloc.3
+  IL_018d: ble.un.s IL_01c1
+  IL_018f: ldloc.3
+  IL_0190: ldarg.s segment
+  IL_0192: ldfld System.Byte NetSegment::m_condition
+  IL_0197: conv.r4
+  IL_0198: ldc.r4 0.003921569
+  IL_019d: mul
+  IL_019e: ldarg.s maxSpeed
+  IL_01a0: ldloc.3
+  IL_01a1: sub
+  IL_01a2: mul
+  IL_01a3: add
+  IL_01a4: starg.s maxSpeed
+  IL_01a6: br.s IL_01c1
+  IL_01a8: ldarg.s maxSpeed
+  IL_01aa: ldc.r4 1
+  IL_01af: ldarg.s segment
+  IL_01b1: ldfld System.Byte NetSegment::m_condition
+  IL_01b6: conv.r4
+  IL_01b7: ldc.r4 0.0005882353
+  IL_01bc: mul
+  IL_01bd: add
+  IL_01be: mul
+  IL_01bf: starg.s maxSpeed
+  IL_01c1: ldarg.0
+  IL_01c2: ldarg.s maxSpeed
+  IL_01c4: ldarg.1
+  IL_01c5: ldarg.2
+  IL_01c6: ldarg.3
+  IL_01c7: call System.Single TrafficManager.Manager.Impl.VehicleBehaviorManager::ApplyRealisticSpeeds(System.Single,System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo)
+  IL_01cc: starg.s maxSpeed
+  IL_01ce: ldc.r4 1.6
+  IL_01d3: ldarg.s maxSpeed
+  IL_01d5: call System.Single System.Math::Max(System.Single,System.Single)
+  IL_01da: starg.s maxSpeed
+  IL_01dc: ldarg.s maxSpeed
+  IL_01de: ret

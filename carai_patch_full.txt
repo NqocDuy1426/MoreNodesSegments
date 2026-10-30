@@ -1,0 +1,1156 @@
+Type: TrafficManager.Patch._VehicleAI._PoliceCarAI.StartPathFindPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._PoliceCarAI.StartPathFindPatch::TargetMethod()
+    0000: call System.Reflection.MethodBase TrafficManager.Patch._VehicleAI.StartPathFindCommons::TargetMethod<PoliceCarAI>()
+    0005: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PoliceCarAI.StartPathFindPatch::Prefix(System.UInt16,Vehicle&)
+    0000: ldarg.1 
+    0001: ldfld Vehicle/Flags Vehicle::m_flags
+    0006: ldc.i4 128
+    000B: call System.Boolean TrafficManager.Util.Extensions.FlagsExtensions::IsFlagSet(Vehicle/Flags,Vehicle/Flags)
+    0010: brtrue.s IL_0016: ldc.i4.s 32
+    0012: ldc.i4.s 16
+    0014: br.s IL_0018: stloc.0
+    0016: ldc.i4.s 32
+    0018: stloc.0 
+    0019: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    001E: ldarg.0 
+    001F: ldarg.1 
+    0020: ldloc.0 
+    0021: newobj System.Void System.Nullable`1<TrafficManager.API.Traffic.Enums.ExtVehicleType>::.ctor(!0)
+    0026: callvirt TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.Manager.Impl.ExtVehicleManager::OnStartPathFind(System.UInt16,Vehicle&,System.Nullable`1<TrafficManager.API.Traffic.Enums.ExtVehicleType>)
+    002B: stsfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.Patch._PathManager.CreatePathPatch::ExtVehicleType
+    0030: ldc.i4.0 
+    0031: stsfld TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.Patch._PathManager.CreatePathPatch::ExtPathType
+    0036: ldarg.0 
+    0037: stsfld System.UInt16 TrafficManager.Patch._PathManager.CreatePathPatch::VehicleID
+    003C: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PoliceCarAI.StartPathFindPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::TargetMethod()
+    0000: ldtoken PassengerCarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr GetLocalizedStatus
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch/TargetDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::Prepare()
+    0000: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    0005: callvirt TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_PassengerCarAIConnection()
+    000A: callvirt TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_GetDriverInstance()
+    000F: stsfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::GetDriverInstance
+    0014: ret 
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::Prefix(System.String&,PassengerCarAI,System.UInt16,Vehicle&,InstanceID&)
+    0000: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    0005: stloc.0 
+    0006: ldsfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::GetDriverInstance
+    000B: ldarg.1 
+    000C: ldarg.2 
+    000D: ldarg.3 
+    000E: callvirt System.UInt16 TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::Invoke(PassengerCarAI,System.UInt16,Vehicle&)
+    0013: stloc.1 
+    0014: ldc.i4.0 
+    0015: stloc.2 
+    0016: ldc.i4.0 
+    0017: stloc.3 
+    0018: ldloc.1 
+    0019: brfalse.s IL_008c: ldloc.2
+    001B: ldloc.0 
+    001C: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+    0021: ldfld !0[] Array16`1<CitizenInstance>::m_buffer
+    0026: ldloc.1 
+    0027: ldelema CitizenInstance
+    002C: stloc.s V_5
+    002E: ldarg.3 
+    002F: ldfld Vehicle/Flags Vehicle::m_flags
+    0034: ldc.i4 4194304
+    0039: and 
+    003A: brfalse.s IL_007c: ldloc.s V_5
+    003C: ldloc.s V_5
+    003E: ldfld System.UInt32 CitizenInstance::m_citizen
+    0043: stloc.s V_6
+    0045: ldloc.s V_6
+    0047: brfalse.s IL_007c: ldloc.s V_5
+    0049: ldloc.0 
+    004A: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+    004F: ldfld !0[] Array32`1<Citizen>::m_buffer
+    0054: ldloc.s V_6
+    0056: ldelema Citizen
+    005B: ldfld System.UInt16 Citizen::m_parkedVehicle
+    0060: brfalse.s IL_007c: ldloc.s V_5
+    0062: ldarg.s target
+    0064: ldsfld InstanceID InstanceID::Empty
+    0069: stobj InstanceID
+    006E: ldarg.0 
+    006F: ldstr VEHICLE_STATUS_PARKING
+    0074: call System.String ColossalFramework.Globalization.Locale::Get(System.String)
+    0079: stind.ref 
+    007A: ldc.i4.0 
+    007B: ret 
+    007C: ldloc.s V_5
+    007E: ldfld System.UInt16 CitizenInstance::m_targetBuilding
+    0083: stloc.2 
+    0084: ldloc.s V_5
+    0086: call System.Boolean TrafficManager.Util.Extensions.CitizenInstanceExtensions::TargetIsNode(CitizenInstance&)
+    008B: stloc.3 
+    008C: ldloc.2 
+    008D: brtrue.s IL_00a9: ldloc.2
+    008F: ldarg.s target
+    0091: ldsfld InstanceID InstanceID::Empty
+    0096: stobj InstanceID
+    009B: ldarg.0 
+    009C: ldstr VEHICLE_STATUS_CONFUSED
+    00A1: call System.String ColossalFramework.Globalization.Locale::Get(System.String)
+    00A6: stind.ref 
+    00A7: ldc.i4.0 
+    00A8: ret 
+    00A9: ldloc.2 
+    00AA: call Building& TrafficManager.Util.Extensions.BuildingExtensions::ToBuilding(System.UInt16)
+    00AF: ldfld Building/Flags Building::m_flags
+    00B4: ldc.i4 192
+    00B9: and 
+    00BA: ldc.i4.0 
+    00BB: cgt.un 
+    00BD: brfalse.s IL_00d9: ldarg.s target
+    00BF: ldarg.s target
+    00C1: ldsfld InstanceID InstanceID::Empty
+    00C6: stobj InstanceID
+    00CB: ldstr VEHICLE_STATUS_LEAVING
+    00D0: call System.String ColossalFramework.Globalization.Locale::Get(System.String)
+    00D5: stloc.s V_4
+    00D7: br.s IL_0106: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    00D9: ldarg.s target
+    00DB: ldsfld InstanceID InstanceID::Empty
+    00E0: stobj InstanceID
+    00E5: ldloc.3 
+    00E6: brfalse.s IL_00f2: ldarg.s target
+    00E8: ldarg.s target
+    00EA: ldloc.2 
+    00EB: call System.Void InstanceID::set_NetNode(System.UInt16)
+    00F0: br.s IL_00fa: ldstr "VEHICLE_STATUS_GOINGTO"
+    00F2: ldarg.s target
+    00F4: ldloc.2 
+    00F5: call System.Void InstanceID::set_Building(System.UInt16)
+    00FA: ldstr VEHICLE_STATUS_GOINGTO
+    00FF: call System.String ColossalFramework.Globalization.Locale::Get(System.String)
+    0104: stloc.s V_4
+    0106: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    010B: ldfld System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+    0110: brfalse.s IL_0130: ldarg.0
+    0112: ldsfld TrafficManager.Manager.Impl.AdvancedParkingManager TrafficManager.Manager.Impl.AdvancedParkingManager::Instance
+    0117: ldloc.s V_4
+    0119: ldsfld TrafficManager.Manager.Impl.ExtCitizenInstanceManager TrafficManager.Manager.Impl.ExtCitizenInstanceManager::Instance
+    011E: callvirt TrafficManager.API.Traffic.Data.ExtCitizenInstance[] TrafficManager.Manager.Impl.ExtCitizenInstanceManager::get_ExtInstances()
+    0123: ldloc.1 
+    0124: ldelema TrafficManager.API.Traffic.Data.ExtCitizenInstance
+    0129: callvirt System.String TrafficManager.Manager.Impl.AdvancedParkingManager::EnrichLocalizedCarStatus(System.String,TrafficManager.API.Traffic.Data.ExtCitizenInstance&)
+    012E: stloc.s V_4
+    0130: ldarg.0 
+    0131: ldloc.s V_4
+    0133: stind.ref 
+    0134: ldc.i4.0 
+    0135: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.GetLocalizedStatusPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.ParkVehiclePatch
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.ParkVehiclePatch::Prefix(System.Boolean&,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Int32,System.Byte&)
+    0000: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    0005: dup 
+    0006: ldfld Array32`1<CitizenUnit> CitizenManager::m_units
+    000B: ldfld System.UInt32 Array32`1<CitizenUnit>::m_size
+    0010: stloc.0 
+    0011: dup 
+    0012: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+    0017: ldfld !0[] Array16`1<CitizenInstance>::m_buffer
+    001C: stloc.1 
+    001D: dup 
+    001E: ldfld Array32`1<CitizenUnit> CitizenManager::m_units
+    0023: ldfld !0[] Array32`1<CitizenUnit>::m_buffer
+    0028: stloc.2 
+    0029: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+    002E: ldfld !0[] Array32`1<Citizen>::m_buffer
+    0033: stloc.3 
+    0034: ldc.i4.0 
+    0035: stloc.s V_4
+    0037: ldc.i4.0 
+    0038: stloc.s V_5
+    003A: ldc.i4.0 
+    003B: stloc.s V_6
+    003D: ldarg.2 
+    003E: ldfld System.UInt32 Vehicle::m_citizenUnits
+    0043: stloc.s V_7
+    0045: ldc.i4.0 
+    0046: stloc.s V_8
+    0048: br IL_00ce: ldloc.s V_7
+    004D: ldloc.2 
+    004E: ldloc.s V_7
+    0050: ldelema CitizenUnit
+    0055: stloc.s V_9
+    0057: ldc.i4.0 
+    0058: stloc.s V_10
+    005A: br.s IL_009d: ldloc.s V_10
+    005C: ldloc.s V_9
+    005E: ldloc.s V_10
+    0060: call System.UInt32 CitizenUnit::GetCitizen(System.Int32)
+    0065: stloc.s V_11
+    0067: ldloc.s V_11
+    0069: brfalse.s IL_0097: ldloc.s V_10
+    006B: ldloc.3 
+    006C: ldloc.s V_11
+    006E: ldelema Citizen
+    0073: ldfld System.UInt16 Citizen::m_instance
+    0078: stloc.s V_5
+    007A: ldloc.s V_5
+    007C: brfalse.s IL_0097: ldloc.s V_10
+    007E: ldloc.1 
+    007F: ldloc.s V_5
+    0081: ldelema CitizenInstance
+    0086: dup 
+    0087: ldfld System.UInt32 CitizenInstance::m_citizen
+    008C: stloc.s V_4
+    008E: ldfld System.UInt16 CitizenInstance::m_targetBuilding
+    0093: stloc.s V_6
+    0095: br.s IL_00a2: ldloc.s V_9
+    0097: ldloc.s V_10
+    0099: ldc.i4.1 
+    009A: add 
+    009B: stloc.s V_10
+    009D: ldloc.s V_10
+    009F: ldc.i4.5 
+    00A0: blt.s IL_005c: ldloc.s V_9
+    00A2: ldloc.s V_9
+    00A4: ldfld System.UInt32 CitizenUnit::m_nextUnit
+    00A9: stloc.s V_7
+    00AB: ldloc.s V_8
+    00AD: ldc.i4.1 
+    00AE: add 
+    00AF: dup 
+    00B0: stloc.s V_8
+    00B2: conv.i8 
+    00B3: ldloc.0 
+    00B4: conv.u8 
+    00B5: ble.s IL_00ce: ldloc.s V_7
+    00B7: ldc.i4.1 
+    00B8: ldstr Invalid list detected!
+
+    00BD: call System.String System.Environment::get_StackTrace()
+    00C2: call System.String System.String::Concat(System.String,System.String)
+    00C7: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+    00CC: br.s IL_00d9: ldarg.0
+    00CE: ldloc.s V_7
+    00D0: brfalse.s IL_00d9: ldarg.0
+    00D2: ldloc.s V_4
+    00D4: brfalse IL_004d: ldloc.2
+    00D9: ldarg.0 
+    00DA: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    00DF: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+    00E4: ldarg.1 
+    00E5: ldarg.2 
+    00E6: ldarg.2 
+    00E7: call VehicleInfo Vehicle::get_Info()
+    00EC: ldloc.s V_4
+    00EE: ldloc.3 
+    00EF: ldloc.s V_4
+    00F1: ldelema Citizen
+    00F6: ldloc.s V_5
+    00F8: ldloc.1 
+    00F9: ldloc.s V_5
+    00FB: ldelema CitizenInstance
+    0100: ldsfld TrafficManager.Manager.Impl.ExtCitizenInstanceManager TrafficManager.Manager.Impl.ExtCitizenInstanceManager::Instance
+    0105: callvirt TrafficManager.API.Traffic.Data.ExtCitizenInstance[] TrafficManager.Manager.Impl.ExtCitizenInstanceManager::get_ExtInstances()
+    010A: ldloc.s V_5
+    010C: ldelema TrafficManager.API.Traffic.Data.ExtCitizenInstance
+    0111: ldloc.s V_6
+    0113: ldarg.3 
+    0114: ldarg.s nextPath
+    0116: ldarg.s nextPositionIndex
+    0118: ldarg.s segmentOffset
+    011A: callvirt System.Boolean TrafficManager.API.Manager.IVehicleBehaviorManager::ParkPassengerCar(System.UInt16,Vehicle&,VehicleInfo,System.UInt32,Citizen&,System.UInt16,CitizenInstance&,TrafficManager.API.Traffic.Data.ExtCitizenInstance&,System.UInt16,PathUnit/Position,System.UInt32,System.Int32,System.Byte&)
+    011F: stind.i1 
+    0120: ldc.i4.0 
+    0121: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.SimulationStepPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._PassengerCarAI.SimulationStepPatch::TargetMethod()
+    0000: ldtoken PassengerCarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr SimulationStep
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._PassengerCarAI.SimulationStepPatch/TargetDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> TrafficManager.Patch._VehicleAI._PassengerCarAI.SimulationStepPatch::Transpiler(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>)
+    0000: ldarg.0 
+    0001: call System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> TrafficManager.Patch.PatchCommons::ReplaceSimulationStepIsCongestedCheck(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>)
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::TargetMethod()
+    0000: call System.Reflection.MethodBase TrafficManager.Patch._VehicleAI.StartPathFindCommons::TargetMethod<PassengerCarAI>()
+    0005: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::Prepare()
+    0000: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    0005: callvirt TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_PassengerCarAIConnection()
+    000A: callvirt TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_GetDriverInstance()
+    000F: stsfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::GetDriverInstance
+    0014: ret 
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::Prefix(System.Boolean&,VehicleInfo,PassengerCarAI,System.UInt16,Vehicle&,UnityEngine.Vector3,UnityEngine.Vector3,System.Boolean,System.Boolean,System.Boolean)
+    0000: ldsfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::GetDriverInstance
+    0005: ldarg.2 
+    0006: ldarg.3 
+    0007: ldarg.s vehicleData
+    0009: callvirt System.UInt16 TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::Invoke(PassengerCarAI,System.UInt16,Vehicle&)
+    000E: stloc.0 
+    000F: ldarg.0 
+    0010: ldloc.0 
+    0011: brfalse.s IL_005b: ldc.i4.0
+    0013: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0018: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+    001D: ldarg.3 
+    001E: ldarg.s vehicleData
+    0020: ldarg.1 
+    0021: ldloc.0 
+    0022: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    0027: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+    002C: ldfld !0[] Array16`1<CitizenInstance>::m_buffer
+    0031: ldloc.0 
+    0032: ldelema CitizenInstance
+    0037: ldsfld TrafficManager.Manager.Impl.ExtCitizenInstanceManager TrafficManager.Manager.Impl.ExtCitizenInstanceManager::Instance
+    003C: callvirt TrafficManager.API.Traffic.Data.ExtCitizenInstance[] TrafficManager.Manager.Impl.ExtCitizenInstanceManager::get_ExtInstances()
+    0041: ldloc.0 
+    0042: ldelema TrafficManager.API.Traffic.Data.ExtCitizenInstance
+    0047: ldarg.s startPos
+    0049: ldarg.s endPos
+    004B: ldarg.s startBothWays
+    004D: ldarg.s endBothWays
+    004F: ldarg.s undergroundTarget
+    0051: ldc.i4.0 
+    0052: ldc.i4.0 
+    0053: ldc.i4.0 
+    0054: callvirt System.Boolean TrafficManager.API.Manager.IVehicleBehaviorManager::StartPassengerCarPathFind(System.UInt16,Vehicle&,VehicleInfo,System.UInt16,CitizenInstance&,TrafficManager.API.Traffic.Data.ExtCitizenInstance&,UnityEngine.Vector3,UnityEngine.Vector3,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)
+    0059: br.s IL_005c: stind.i1
+    005B: ldc.i4.0 
+    005C: stind.i1 
+    005D: ldc.i4.0 
+    005E: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.StartPathFindPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.UpdateParkedVehiclePatch
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.UpdateParkedVehiclePatch::Prefix(System.UInt16,VehicleParked&)
+    0000: ldarg.1 
+    0001: ldfld System.UInt32 VehicleParked::m_ownerCitizen
+    0006: stloc.0 
+    0007: ldc.i4.0 
+    0008: stloc.1 
+    0009: ldloc.0 
+    000A: brfalse.s IL_0027: ldsfld TrafficManager.Manager.Impl.AdvancedParkingManager TrafficManager.Manager.Impl.AdvancedParkingManager::Instance
+    000C: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    0011: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+    0016: ldfld !0[] Array32`1<Citizen>::m_buffer
+    001B: ldloc.0 
+    001C: ldelema Citizen
+    0021: ldfld System.UInt16 Citizen::m_homeBuilding
+    0026: stloc.1 
+    0027: ldsfld TrafficManager.Manager.Impl.AdvancedParkingManager TrafficManager.Manager.Impl.AdvancedParkingManager::Instance
+    002C: ldarg.0 
+    002D: ldarg.1 
+    002E: ldarg.1 
+    002F: ldfld UnityEngine.Vector3 VehicleParked::m_position
+    0034: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+    0039: ldfld TrafficManager.State.ConfigData.ParkingAI TrafficManager.State.GlobalConfig::ParkingAI
+    003E: ldfld System.Single TrafficManager.State.ConfigData.ParkingAI::MaxParkedCarDistanceToBuilding
+    0043: ldloc.1 
+    0044: callvirt System.Boolean TrafficManager.Manager.Impl.AdvancedParkingManager::TryMoveParkedVehicle(System.UInt16,VehicleParked&,UnityEngine.Vector3,System.Single,System.UInt16)
+    0049: brtrue.s IL_0056: ldc.i4.0
+    004B: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+    0050: ldarg.0 
+    0051: callvirt System.Void VehicleManager::ReleaseParkedVehicle(System.UInt16)
+    0056: ldc.i4.0 
+    0057: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate::.ctor(System.Object,System.IntPtr)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate::Invoke(System.UInt16,System.UInt16,UnityEngine.Vector3,System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&)
+  Method: System.IAsyncResult TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate::BeginInvoke(System.UInt16,System.UInt16,UnityEngine.Vector3,System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&,System.AsyncCallback,System.Object)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate::EndInvoke(UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&,System.IAsyncResult)
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate::.ctor(System.Object,System.IntPtr)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate::Invoke(System.Boolean,System.UInt16,UnityEngine.Vector3,UnityEngine.Vector3,System.UInt16,System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&)
+  Method: System.IAsyncResult TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate::BeginInvoke(System.Boolean,System.UInt16,UnityEngine.Vector3,UnityEngine.Vector3,System.UInt16,System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&,System.AsyncCallback,System.Object)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate::EndInvoke(UnityEngine.Vector3&,UnityEngine.Quaternion&,System.Single&,System.IAsyncResult)
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate::.ctor(System.Object,System.IntPtr)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate::Invoke(System.Boolean,System.UInt16,PropInfo,UnityEngine.Vector3,System.Single,System.Boolean,UnityEngine.Vector3,System.Single,System.Single,System.Single&,UnityEngine.Vector3&,UnityEngine.Quaternion&)
+  Method: System.IAsyncResult TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate::BeginInvoke(System.Boolean,System.UInt16,PropInfo,UnityEngine.Vector3,System.Single,System.Boolean,UnityEngine.Vector3,System.Single,System.Single,System.Single&,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.AsyncCallback,System.Object)
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate::EndInvoke(System.Single&,UnityEngine.Vector3&,UnityEngine.Quaternion&,System.IAsyncResult)
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::.ctor(System.Object,System.IntPtr)
+  Method: System.UInt16 TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::Invoke(PassengerCarAI,System.UInt16,Vehicle&)
+  Method: System.IAsyncResult TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::BeginInvoke(PassengerCarAI,System.UInt16,Vehicle&,System.AsyncCallback,System.Object)
+  Method: System.UInt16 TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate::EndInvoke(Vehicle&,System.IAsyncResult)
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection
+  Method: System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::.ctor(TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate)
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ldarg.0 
+    0007: ldarg.1 
+    0008: dup 
+    0009: brtrue.s IL_0017: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpace>k__BackingField
+    000B: pop 
+    000C: ldstr findParkingSpaceDelegate
+    0011: newobj System.Void System.ArgumentNullException::.ctor(System.String)
+    0016: throw 
+    0017: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpace>k__BackingField
+    001C: ldarg.0 
+    001D: ldarg.2 
+    001E: dup 
+    001F: brtrue.s IL_002d: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceProp>k__BackingField
+    0021: pop 
+    0022: ldstr findParkingSpacePropDelegate
+    0027: newobj System.Void System.ArgumentNullException::.ctor(System.String)
+    002C: throw 
+    002D: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceProp>k__BackingField
+    0032: ldarg.0 
+    0033: ldarg.3 
+    0034: dup 
+    0035: brtrue.s IL_0043: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceRoadSide>k__BackingField
+    0037: pop 
+    0038: ldstr findParkingSpaceRoadSideDelegate
+    003D: newobj System.Void System.ArgumentNullException::.ctor(System.String)
+    0042: throw 
+    0043: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceRoadSide>k__BackingField
+    0048: ldarg.0 
+    0049: ldarg.s getDriverInstanceDelegate
+    004B: dup 
+    004C: brtrue.s IL_005a: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<GetDriverInstance>k__BackingField
+    004E: pop 
+    004F: ldstr getDriverInstanceDelegate
+    0054: newobj System.Void System.ArgumentNullException::.ctor(System.String)
+    0059: throw 
+    005A: stfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<GetDriverInstance>k__BackingField
+    005F: ret 
+  Method: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_FindParkingSpace()
+    0000: ldarg.0 
+    0001: ldfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpace>k__BackingField
+    0006: ret 
+  Method: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_FindParkingSpaceProp()
+    0000: ldarg.0 
+    0001: ldfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceProp>k__BackingField
+    0006: ret 
+  Method: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_FindParkingSpaceRoadSide()
+    0000: ldarg.0 
+    0001: ldfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<FindParkingSpaceRoadSide>k__BackingField
+    0006: ret 
+  Method: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::get_GetDriverInstance()
+    0000: ldarg.0 
+    0001: ldfld TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::<GetDriverInstance>k__BackingField
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook
+  Method: System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethod()
+    0000: ldtoken PassengerCarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr FindParkingSpace
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethodProp()
+    0000: ldtoken PassengerCarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr FindParkingSpaceProp
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethodRoadSide()
+    0000: ldtoken PassengerCarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr FindParkingSpaceRoadSide
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::GetConnection()
+    0000: call System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethod()
+    0005: ldnull 
+    0006: ldc.i4.1 
+    0007: call !!0 HarmonyLib.AccessTools::MethodDelegate<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate>(System.Reflection.MethodInfo,System.Object,System.Boolean)
+    000C: call System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethodProp()
+    0011: ldnull 
+    0012: ldc.i4.1 
+    0013: call !!0 HarmonyLib.AccessTools::MethodDelegate<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate>(System.Reflection.MethodInfo,System.Object,System.Boolean)
+    0018: stloc.0 
+    0019: call System.Reflection.MethodInfo TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIHook::TargetMethodRoadSide()
+    001E: ldnull 
+    001F: ldc.i4.1 
+    0020: call !!0 HarmonyLib.AccessTools::MethodDelegate<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate>(System.Reflection.MethodInfo,System.Object,System.Boolean)
+    0025: stloc.1 
+    0026: ldtoken PassengerCarAI
+    002B: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    0030: ldstr GetDriverInstance
+    0035: ldc.i4.1 
+    0036: call TDelegate TrafficManager.Util.TranspilerUtil::CreateDelegate<TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate>(System.Type,System.String,System.Boolean)
+    003B: stloc.2 
+    003C: ldloc.0 
+    003D: ldloc.1 
+    003E: ldloc.2 
+    003F: newobj System.Void TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.PassengerCarAIConnection::.ctor(TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpacePropDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.FindParkingSpaceRoadSideDelegate,TrafficManager.Patch._VehicleAI._PassengerCarAI.Connection.GetDriverInstanceDelegate)
+    0044: stloc.3 
+    0045: leave.s IL_0055: ldloc.3
+    0047: callvirt System.String System.Exception::get_Message()
+    004C: call System.Void CSUtil.Commons.Log::Error(System.String)
+    0051: ldnull 
+    0052: stloc.3 
+    0053: leave.s IL_0055: ldloc.3
+    0055: ldloc.3 
+    0056: ret 
+Type: TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::TargetMethod()
+    0000: ldtoken CarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr CalculateSegmentPosition
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch/CalculatePositionDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::Prefix(CarAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+    0000: ldarg.0 
+    0001: ldarg.1 
+    0002: ldarg.2 
+    0003: ldarg.3 
+    0004: ldarg.s laneID
+    0006: ldarg.s offset
+    0008: ldarg.s pos
+    000A: ldarg.s dir
+    000C: ldarg.s maxSpeed
+    000E: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateSegmentPosition(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+    0013: ldarg.s maxSpeed
+    0015: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    001A: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+    001F: ldarg.1 
+    0020: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0025: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    002A: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+    002F: ldarg.1 
+    0030: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+    0035: ldarg.0 
+    0036: ldfld VehicleInfo VehicleAI::m_info
+    003B: ldarg.3 
+    003C: ldarg.3 
+    003D: ldfld System.UInt16 PathUnit/Position::m_segment
+    0042: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+    0047: ldarg.s pos
+    0049: ldobj UnityEngine.Vector3
+    004E: ldarg.s maxSpeed
+    0050: ldind.r4 
+    0051: ldc.i4.0 
+    0052: callvirt System.Single TrafficManager.API.Manager.IVehicleBehaviorManager::CalcMaxSpeed(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo,PathUnit/Position,NetSegment&,UnityEngine.Vector3,System.Single,System.Boolean)
+    0057: stind.r4 
+    0058: ldc.i4.0 
+    0059: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch2
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch2::TargetMethod()
+    0000: ldtoken CarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr CalculateSegmentPosition
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch2/CalculatePositionDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch2::Prefix(CarAI,System.UInt16,Vehicle&,PathUnit/Position,PathUnit/Position,System.UInt32,System.Byte,PathUnit/Position,System.UInt32,System.Byte,System.Int32,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+    0000: ldarg.s position
+    0002: ldfld System.UInt16 PathUnit/Position::m_segment
+    0007: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+    000C: stloc.2 
+    000D: ldarg.s offset
+    000F: ldarg.s position
+    0011: ldfld System.Byte PathUnit/Position::m_offset
+    0016: bge.s IL_0028: ldloc.2
+    0018: ldloc.2 
+    0019: ldfld System.UInt16 NetSegment::m_startNode
+    001E: stloc.0 
+    001F: ldloc.2 
+    0020: ldfld System.UInt16 NetSegment::m_endNode
+    0025: stloc.1 
+    0026: br.s IL_0036: ldarg.s prevPos
+    0028: ldloc.2 
+    0029: ldfld System.UInt16 NetSegment::m_endNode
+    002E: stloc.0 
+    002F: ldloc.2 
+    0030: ldfld System.UInt16 NetSegment::m_startNode
+    0035: stloc.1 
+    0036: ldarg.s prevPos
+    0038: ldfld System.UInt16 PathUnit/Position::m_segment
+    003D: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+    0042: stloc.3 
+    0043: ldarg.s prevOffset
+    0045: brfalse.s IL_004f: ldloc.3
+    0047: ldloc.3 
+    0048: ldfld System.UInt16 NetSegment::m_endNode
+    004D: br.s IL_0055: stloc.s V_4
+    004F: ldloc.3 
+    0050: ldfld System.UInt16 NetSegment::m_startNode
+    0055: stloc.s V_4
+    0057: ldarg.2 
+    0058: call Vehicle/Frame Vehicle::GetLastFrameData()
+    005D: stloc.s V_5
+    005F: ldloc.s V_5
+    0061: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+    0066: ldloca.s V_5
+    0068: ldflda UnityEngine.Vector3 Vehicle/Frame::m_velocity
+    006D: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+    0072: stloc.s V_6
+    0074: ldarg.s laneID
+    0076: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+    007B: ldarg.s offset
+    007D: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+    0082: ldarg.s pos
+    0084: ldarg.s dir
+    0086: call System.Void NetLane::CalculatePositionAndDirection(System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+    008B: ldarg.0 
+    008C: ldfld VehicleInfo VehicleAI::m_info
+    0091: ldfld System.Single VehicleInfo::m_braking
+    0096: stloc.s V_7
+    0098: ldarg.2 
+    0099: ldfld Vehicle/Flags Vehicle::m_flags
+    009E: ldc.i4 128
+    00A3: and 
+    00A4: brfalse.s IL_00b0: ldarg.s prevLaneID
+    00A6: ldloc.s V_7
+    00A8: ldc.r4 2
+    00AD: mul 
+    00AE: stloc.s V_7
+    00B0: ldarg.s prevLaneID
+    00B2: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+    00B7: ldarg.s prevOffset
+    00B9: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+    00BE: call UnityEngine.Vector3 NetLane::CalculatePosition(System.Single)
+    00C3: stloc.s V_8
+    00C5: ldc.r4 0,5
+    00CA: ldloc.s V_6
+    00CC: mul 
+    00CD: ldloc.s V_7
+    00CF: div 
+    00D0: ldarg.0 
+    00D1: ldfld VehicleInfo VehicleAI::m_info
+    00D6: ldfld VehicleInfoGen VehicleInfoBase::m_generatedInfo
+    00DB: ldflda UnityEngine.Vector3 VehicleInfoGen::m_size
+    00E0: ldfld System.Single UnityEngine.Vector3::z
+    00E5: ldc.r4 0,5
+    00EA: mul 
+    00EB: add 
+    00EC: stloc.s V_9
+    00EE: ldloc.s V_8
+    00F0: call System.Single UnityEngine.Vector3::Distance(UnityEngine.Vector3,UnityEngine.Vector3)
+    00F5: stloc.s V_10
+    00F7: ldloc.s V_10
+    00F9: ldloc.s V_9
+    00FB: ldc.r4 1
+    0100: sub 
+    0101: clt.un 
+    0103: ldc.i4.0 
+    0104: ceq 
+    0106: stloc.s V_11
+    0108: ldloc.0 
+    0109: ldloc.s V_4
+    010B: ceq 
+    010D: ldloc.s V_11
+    010F: and 
+    0110: brfalse IL_0263: ldloc.2
+    0115: ldloc.0 
+    0116: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+    011B: stloc.s V_13
+    011D: ldsfld TrafficManager.Manager.Impl.VehicleBehaviorManager TrafficManager.Manager.Impl.VehicleBehaviorManager::Instance
+    0122: ldarg.1 
+    0123: ldarg.2 
+    0124: ldloc.s V_6
+    0126: ldarga.s prevPos
+    0128: ldloc.3 
+    0129: ldloc.s V_4
+    012B: ldarg.s prevLaneID
+    012D: ldarga.s position
+    012F: ldloc.0 
+    0130: ldloc.s V_13
+    0132: ldarg.s laneID
+    0134: ldarga.s nextPosition
+    0136: ldloc.1 
+    0137: ldarg.s maxSpeed
+    0139: callvirt System.Boolean TrafficManager.Manager.Impl.VehicleBehaviorManager::MayChangeSegment(System.UInt16,Vehicle&,System.Single,PathUnit/Position&,NetSegment&,System.UInt16,System.UInt32,PathUnit/Position&,System.UInt16,NetNode&,System.UInt32,PathUnit/Position&,System.UInt16,System.Single&)
+    013E: brtrue.s IL_0142: ldloc.s V_13
+    0140: ldc.i4.0 
+    0141: ret 
+    0142: ldloc.s V_13
+    0144: call NetNode/FlagsLong NetNode::get_flags()
+    0149: stloc.s V_14
+    014B: ldloc.s V_14
+    014D: ldc.i8 4294967296
+    0156: and 
+    0157: ldc.i4.0 
+    0158: conv.i8 
+    0159: cgt.un 
+    015B: brfalse IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    0160: ldarg.s prevPos
+    0162: ldfld System.UInt16 PathUnit/Position::m_segment
+    0167: ldarg.s position
+    0169: ldfld System.UInt16 PathUnit/Position::m_segment
+    016E: beq IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    0173: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    0178: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+    017D: stloc.s V_15
+    017F: ldloc.s V_4
+    0181: ldc.i4.8 
+    0182: shl 
+    0183: ldc.i4 32768
+    0188: div.un 
+    0189: stloc.s V_16
+    018B: ldloc.s V_15
+    018D: ldloc.s V_16
+    018F: sub 
+    0190: ldc.i4 255
+    0195: and 
+    0196: stloc.s V_17
+    0198: ldarg.s prevPos
+    019A: ldfld System.UInt16 PathUnit/Position::m_segment
+    019F: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+    01A4: stloc.s V_18
+    01A6: ldloc.s V_4
+    01A8: ldloc.s V_18
+    01AA: ldloc.s V_15
+    01AC: ldloc.s V_16
+    01AE: sub 
+    01AF: ldloca.s V_19
+    01B1: ldloca.s V_20
+    01B3: ldloca.s V_21
+    01B5: ldloca.s V_22
+    01B7: call System.Void RoadBaseAI::GetBollardState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState&,RoadBaseAI/TrafficLightState&,System.Boolean&,System.Boolean&)
+    01BC: ldloc.s V_14
+    01BE: ldc.i4 8388608
+    01C3: conv.i8 
+    01C4: and 
+    01C5: ldc.i4.0 
+    01C6: conv.i8 
+    01C7: cgt.un 
+    01C9: stloc.s V_23
+    01CB: ldarg.2 
+    01CC: ldfld Vehicle/Flags Vehicle::m_flags
+    01D1: ldc.i4 128
+    01D6: and 
+    01D7: brtrue.s IL_01f9: ldloc.s V_22
+    01D9: ldloc.s V_23
+    01DB: brtrue.s IL_0216: ldloc.s V_20
+    01DD: ldloc.s V_5
+    01DF: ldfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+    01E4: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+    01E9: call System.Boolean UnityEngine.Vector3::op_Equality(UnityEngine.Vector3,UnityEngine.Vector3)
+    01EE: brfalse.s IL_0216: ldloc.s V_20
+    01F0: ldloc.s V_10
+    01F2: ldc.r4 30
+    01F7: bgt.un.s IL_0216: ldloc.s V_20
+    01F9: ldloc.s V_22
+    01FB: brtrue.s IL_0216: ldloc.s V_20
+    01FD: ldc.i4.1 
+    01FE: stloc.s V_22
+    0200: ldloc.s V_4
+    0202: ldloc.s V_18
+    0204: ldloc.s V_15
+    0206: ldloc.s V_16
+    0208: sub 
+    0209: ldloc.s V_19
+    020B: ldloc.s V_20
+    020D: ldloc.s V_21
+    020F: ldloc.s V_22
+    0211: call System.Void RoadBaseAI::SetBollardState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState,RoadBaseAI/TrafficLightState,System.Boolean,System.Boolean)
+    0216: ldloc.s V_20
+    0218: ldc.i4.1 
+    0219: sub 
+    021A: switch Mono.Cecil.Cil.Instruction[]
+    022B: br.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    022D: ldloc.s V_17
+    022F: ldc.i4.s 60
+    0231: bge.un.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    0233: ldarg.s maxSpeed
+    0235: ldc.r4 0
+    023A: stind.r4 
+    023B: ldc.i4.0 
+    023C: ret 
+    023D: ldloc.s V_17
+    023F: ldc.i4.s 30
+    0241: blt.un.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    0243: ldarg.s maxSpeed
+    0245: ldc.r4 0
+    024A: stind.r4 
+    024B: ldc.i4.0 
+    024C: ret 
+    024D: ldarg.s maxSpeed
+    024F: ldc.r4 0
+    0254: stind.r4 
+    0255: ldc.i4.0 
+    0256: ret 
+    0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    025C: ldarg.1 
+    025D: ldarg.2 
+    025E: callvirt System.Void TrafficManager.Manager.Impl.ExtVehicleManager::UpdateVehiclePosition(System.UInt16,Vehicle&)
+    0263: ldloc.2 
+    0264: call NetInfo NetSegment::get_Info()
+    0269: stloc.s V_12
+    026B: ldarg.0 
+    026C: ldarg.1 
+    026D: ldarg.2 
+    026E: ldarg.s position
+    0270: ldarg.s laneID
+    0272: ldloc.s V_12
+    0274: ldarg.s maxSpeed
+    0276: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateTargetSpeed(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,NetInfo,System.Single&)
+    027B: ldarg.s maxSpeed
+    027D: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0282: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+    0287: ldarg.1 
+    0288: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    028D: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    0292: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+    0297: ldarg.1 
+    0298: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+    029D: ldarg.0 
+    029E: ldfld VehicleInfo VehicleAI::m_info
+    02A3: ldarg.s position
+    02A5: ldloc.2 
+    02A6: ldarg.s pos
+    02A8: ldobj UnityEngine.Vector3
+    02AD: ldarg.s maxSpeed
+    02AF: ldind.r4 
+    02B0: ldc.i4.0 
+    02B1: callvirt System.Single TrafficManager.API.Manager.IVehicleBehaviorManager::CalcMaxSpeed(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo,PathUnit/Position,NetSegment&,UnityEngine.Vector3,System.Single,System.Boolean)
+    02B6: stind.r4 
+    02B7: ldc.i4.0 
+    02B8: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch2::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::TargetMethod()
+    0000: ldtoken CarAI
+    0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    000A: ldstr SimulationStep
+    000F: ldc.i4.0 
+    0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch/SimulationStepTargetDelegate>(System.Type,System.String,System.Boolean)
+    0015: ret 
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::Prefix(CarAI,System.UInt16,Vehicle&,UnityEngine.Vector3)
+    0000: ldarg.2 
+    0001: ldfld Vehicle/Flags Vehicle::m_flags
+    0006: ldc.i4 256
+    000B: and 
+    000C: brfalse IL_01a4: ldarg.2
+    0011: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    0016: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+    001B: ldfld !0[] Array32`1<PathUnit>::m_buffer
+    0020: ldarg.2 
+    0021: ldfld System.UInt32 Vehicle::m_path
+    0026: ldelema PathUnit
+    002B: ldfld System.Byte PathUnit::m_pathFindFlags
+    0030: stloc.s V_4
+    0032: ldc.i4.1 
+    0033: stloc.s V_5
+    0035: ldloc.s V_4
+    0037: ldc.i4.8 
+    0038: and 
+    0039: brtrue.s IL_0043: ldc.i4.3
+    003B: ldarg.2 
+    003C: ldfld System.UInt32 Vehicle::m_path
+    0041: brtrue.s IL_0048: ldloc.s V_4
+    0043: ldc.i4.3 
+    0044: stloc.s V_5
+    0046: br.s IL_0051: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0048: ldloc.s V_4
+    004A: ldc.i4.4 
+    004B: and 
+    004C: brfalse.s IL_0051: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    004E: ldc.i4.2 
+    004F: stloc.s V_5
+    0051: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0056: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    005B: stloc.s V_6
+    005D: ldloc.s V_5
+    005F: call TrafficManager.API.Traffic.Enums.ExtSoftPathState TrafficManager.API.Traffic.Data.ExtCitizenInstance::ConvertPathStateToSoftPathState(TrafficManager.API.Traffic.Enums.ExtPathState)
+    0064: stloc.s V_7
+    0066: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    006B: ldfld System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+    0070: brfalse.s IL_00c9: ldloc.s V_7
+    0072: ldloc.s V_6
+    0074: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+    0079: ldarg.1 
+    007A: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+    007F: ldfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.ExtVehicle::vehicleType
+    0084: ldc.i4.1 
+    0085: bne.un.s IL_00c9: ldloc.s V_7
+    0087: ldloc.s V_6
+    0089: ldarg.1 
+    008A: ldarg.2 
+    008B: callvirt System.UInt16 TrafficManager.API.Manager.IExtVehicleManager::GetDriverInstanceId(System.UInt16,Vehicle&)
+    0090: stloc.s V_8
+    0092: ldsfld TrafficManager.Manager.Impl.AdvancedParkingManager TrafficManager.Manager.Impl.AdvancedParkingManager::Instance
+    0097: ldarg.1 
+    0098: ldarg.2 
+    0099: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    009E: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+    00A3: ldfld !0[] Array16`1<CitizenInstance>::m_buffer
+    00A8: ldloc.s V_8
+    00AA: ldelema CitizenInstance
+    00AF: ldsfld TrafficManager.Manager.Impl.ExtCitizenInstanceManager TrafficManager.Manager.Impl.ExtCitizenInstanceManager::Instance
+    00B4: callvirt TrafficManager.API.Traffic.Data.ExtCitizenInstance[] TrafficManager.Manager.Impl.ExtCitizenInstanceManager::get_ExtInstances()
+    00B9: ldloc.s V_8
+    00BB: ldelema TrafficManager.API.Traffic.Data.ExtCitizenInstance
+    00C0: ldloc.s V_5
+    00C2: callvirt TrafficManager.API.Traffic.Enums.ExtSoftPathState TrafficManager.Manager.Impl.AdvancedParkingManager::UpdateCarPathState(System.UInt16,Vehicle&,CitizenInstance&,TrafficManager.API.Traffic.Data.ExtCitizenInstance&,TrafficManager.API.Traffic.Enums.ExtPathState)
+    00C7: stloc.s V_7
+    00C9: ldloc.s V_7
+    00CB: ldc.i4.1 
+    00CC: sub 
+    00CD: switch Mono.Cecil.Cil.Instruction[]
+    00E6: br IL_01bb: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    00EB: ldarg.2 
+    00EC: ldc.i4 255
+    00F1: stfld System.Byte Vehicle::m_pathPositionIndex
+    00F6: ldarg.2 
+    00F7: ldflda Vehicle/Flags Vehicle::m_flags
+    00FC: dup 
+    00FD: ldind.i4 
+    00FE: ldc.i4 -257
+    0103: and 
+    0104: stind.i4 
+    0105: ldarg.2 
+    0106: ldflda Vehicle/Flags Vehicle::m_flags
+    010B: dup 
+    010C: ldind.i4 
+    010D: ldc.i4 -2049
+    0112: and 
+    0113: stind.i4 
+    0114: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    0119: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    011E: callvirt TrafficManager.Patch._VehicleAI.Connection.PathfindSuccessDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_PathfindSuccess()
+    0123: ldarg.0 
+    0124: ldarg.1 
+    0125: ldarg.2 
+    0126: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.PathfindSuccessDelegate::Invoke(CarAI,System.UInt16,Vehicle&)
+    012B: ldarg.0 
+    012C: ldarg.1 
+    012D: ldarg.2 
+    012E: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+    0133: pop 
+    0134: br IL_01bb: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    0139: ldc.i4.0 
+    013A: ret 
+    013B: ldarg.2 
+    013C: ldflda Vehicle/Flags Vehicle::m_flags
+    0141: dup 
+    0142: ldind.i4 
+    0143: ldc.i4 -257
+    0148: and 
+    0149: stind.i4 
+    014A: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    014F: ldarg.2 
+    0150: ldfld System.UInt32 Vehicle::m_path
+    0155: callvirt System.Void PathManager::ReleasePath(System.UInt32)
+    015A: ldarg.2 
+    015B: ldc.i4.0 
+    015C: stfld System.UInt32 Vehicle::m_path
+    0161: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    0166: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    016B: callvirt TrafficManager.Patch._VehicleAI.Connection.PathfindFailureDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_PathfindFailure()
+    0170: ldarg.0 
+    0171: ldarg.1 
+    0172: ldarg.2 
+    0173: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.PathfindFailureDelegate::Invoke(CarAI,System.UInt16,Vehicle&)
+    0178: ldc.i4.0 
+    0179: ret 
+    017A: ldarg.2 
+    017B: ldflda Vehicle/Flags Vehicle::m_flags
+    0180: dup 
+    0181: ldind.i4 
+    0182: ldc.i4 -257
+    0187: and 
+    0188: stind.i4 
+    0189: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    018E: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    0193: callvirt TrafficManager.Patch._VehicleAI.Connection.InvalidPathDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_InvalidPath()
+    0198: ldarg.0 
+    0199: ldarg.1 
+    019A: ldarg.2 
+    019B: ldarg.1 
+    019C: ldarg.2 
+    019D: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.InvalidPathDelegate::Invoke(VehicleAI,System.UInt16,Vehicle&,System.UInt16,Vehicle&)
+    01A2: br.s IL_01bb: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    01A4: ldarg.2 
+    01A5: ldfld Vehicle/Flags Vehicle::m_flags
+    01AA: ldc.i4 65536
+    01AF: and 
+    01B0: brfalse.s IL_01bb: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    01B2: ldarg.0 
+    01B3: ldarg.1 
+    01B4: ldarg.2 
+    01B5: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+    01BA: pop 
+    01BB: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    01C0: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    01C5: stloc.0 
+    01C6: ldloc.0 
+    01C7: ldarg.1 
+    01C8: ldarg.2 
+    01C9: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::UpdateVehiclePosition(System.UInt16,Vehicle&)
+    01CE: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    01D3: ldfld System.Boolean TrafficManager.State.SavedGameOptions::advancedAI
+    01D8: brfalse.s IL_01ec: ldarg.2
+    01DA: ldarg.2 
+    01DB: ldfld Vehicle/Flags Vehicle::m_flags
+    01E0: ldc.i4.4 
+    01E1: and 
+    01E2: brfalse.s IL_01ec: ldarg.2
+    01E4: ldloc.0 
+    01E5: ldarg.1 
+    01E6: ldarg.2 
+    01E7: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::LogTraffic(System.UInt16,Vehicle&)
+    01EC: ldarg.2 
+    01ED: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+    01F2: stloc.1 
+    01F3: ldarg.3 
+    01F4: ldloc.1 
+    01F5: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+    01FA: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+    01FF: ldc.r4 1210000
+    0204: blt.un.s IL_020a: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    0206: ldc.i4.2 
+    0207: stloc.2 
+    0208: br.s IL_0231: ldarg.0
+    020A: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    020F: ldflda SimulationManager/ViewData SimulationManager::m_simulationView
+    0214: ldfld UnityEngine.Vector3 SimulationManager/ViewData::m_position
+    0219: ldloc.1 
+    021A: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+    021F: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+    0224: ldc.r4 250000
+    0229: blt.un.s IL_022f: ldc.i4.0
+    022B: ldc.i4.1 
+    022C: stloc.2 
+    022D: br.s IL_0231: ldarg.0
+    022F: ldc.i4.0 
+    0230: stloc.2 
+    0231: ldarg.0 
+    0232: ldarg.1 
+    0233: ldarg.2 
+    0234: ldarg.1 
+    0235: ldarg.2 
+    0236: ldloc.2 
+    0237: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+    023C: ldarg.2 
+    023D: ldfld System.UInt16 Vehicle::m_leadingVehicle
+    0242: brtrue.s IL_02ac: ldarg.0
+    0244: ldarg.2 
+    0245: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    024A: brfalse.s IL_02ac: ldarg.0
+    024C: ldarg.2 
+    024D: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    0252: stloc.s V_9
+    0254: ldc.i4.0 
+    0255: stloc.s V_10
+    0257: br.s IL_02a8: ldloc.s V_9
+    0259: ldloc.s V_9
+    025B: call Vehicle& TrafficManager.Util.Extensions.VehicleExtensions::ToVehicle(System.UInt16)
+    0260: stloc.s V_11
+    0262: ldloc.s V_11
+    0264: call VehicleInfo Vehicle::get_Info()
+    0269: ldfld VehicleAI VehicleInfo::m_vehicleAI
+    026E: ldloc.s V_9
+    0270: ldloc.s V_11
+    0272: ldarg.1 
+    0273: ldarg.2 
+    0274: ldloc.2 
+    0275: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+    027A: ldloc.s V_11
+    027C: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    0281: stloc.s V_9
+    0283: ldloc.s V_10
+    0285: ldc.i4.1 
+    0286: add 
+    0287: dup 
+    0288: stloc.s V_10
+    028A: ldc.i4 16384
+    028F: ble.s IL_02a8: ldloc.s V_9
+    0291: ldc.i4.1 
+    0292: ldstr Invalid list detected!
+
+    0297: call System.String System.Environment::get_StackTrace()
+    029C: call System.String System.String::Concat(System.String,System.String)
+    02A1: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+    02A6: br.s IL_02ac: ldarg.0
+    02A8: ldloc.s V_9
+    02AA: brtrue.s IL_0259: ldloc.s V_9
+    02AC: ldarg.0 
+    02AD: ldfld VehicleInfo VehicleAI::m_info
+    02B2: ldfld ItemClass VehicleInfo::m_class
+    02B7: ldfld ItemClass/Service ItemClass::m_service
+    02BC: call System.Int32 ItemClass::GetPrivateServiceIndex(ItemClass/Service)
+    02C1: ldc.i4.m1 
+    02C2: beq.s IL_02c8: ldc.i4 150
+    02C4: ldc.i4.s 100
+    02C6: br.s IL_02cd: stloc.3
+    02C8: ldc.i4 150
+    02CD: stloc.3 
+    02CE: ldarg.2 
+    02CF: ldfld Vehicle/Flags Vehicle::m_flags
+    02D4: ldc.i4 65796
+    02D9: and 
+    02DA: brtrue.s IL_02f1: ldarg.2
+    02DC: ldarg.2 
+    02DD: ldfld System.UInt16 Vehicle::m_cargoParent
+    02E2: brtrue.s IL_02f1: ldarg.2
+    02E4: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+    02E9: ldarg.1 
+    02EA: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+    02EF: br.s IL_0313: ldc.i4.0
+    02F1: ldarg.2 
+    02F2: ldfld System.Byte Vehicle::m_blockCounter
+    02F7: ldloc.3 
+    02F8: blt.s IL_0313: ldc.i4.0
+    02FA: ldsfld TrafficManager.Manager.Impl.VehicleBehaviorManager TrafficManager.Manager.Impl.VehicleBehaviorManager::Instance
+    02FF: ldarg.1 
+    0300: ldarg.2 
+    0301: callvirt System.Boolean TrafficManager.Manager.Impl.VehicleBehaviorManager::MayDespawn(System.UInt16,Vehicle&)
+    0306: brfalse.s IL_0313: ldc.i4.0
+    0308: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+    030D: ldarg.1 
+    030E: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+    0313: ldc.i4.0 
+    0314: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 
+Type: TrafficManager.Patch._VehicleAI._CarAI.StartPathFindPatch
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.StartPathFindPatch::TargetMethod()
+    0000: call System.Reflection.MethodBase TrafficManager.Patch._VehicleAI.StartPathFindCommons::TargetMethod<CarAI>()
+    0005: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.StartPathFindPatch::Prefix(System.UInt16,Vehicle&,UnityEngine.Vector3,UnityEngine.Vector3,System.Boolean,System.Boolean,System.Boolean)
+    0000: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+    0005: ldarg.0 
+    0006: ldarg.1 
+    0007: ldloca.s V_1
+    0009: initobj System.Nullable`1<TrafficManager.API.Traffic.Enums.ExtVehicleType>
+    000F: ldloc.1 
+    0010: callvirt TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.Manager.Impl.ExtVehicleManager::OnStartPathFind(System.UInt16,Vehicle&,System.Nullable`1<TrafficManager.API.Traffic.Enums.ExtVehicleType>)
+    0015: stloc.0 
+    0016: ldloc.0 
+    0017: brtrue.s IL_001c: ldloc.0
+    0019: ldc.i4.s 63
+    001B: stloc.0 
+    001C: ldloc.0 
+    001D: stsfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.Patch._PathManager.CreatePathPatch::ExtVehicleType
+    0022: ldc.i4.0 
+    0023: stsfld TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.Patch._PathManager.CreatePathPatch::ExtPathType
+    0028: ldarg.0 
+    0029: stsfld System.UInt16 TrafficManager.Patch._PathManager.CreatePathPatch::VehicleID
+    002E: ret 
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.StartPathFindPatch::.ctor()
+    0000: ldarg.0 
+    0001: call System.Void System.Object::.ctor()
+    0006: ret 

@@ -1,0 +1,417 @@
+
+=== SpeedLimitManager.GetGameSpeedLimit ===
+  IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::customSpeedLimitsEnabled
+  IL_000A: brfalse.s IL_0014: ldarg.2
+  IL_000C: ldarg.2 
+  IL_000D: call System.Boolean TrafficManager.Manager.Impl.SpeedLimitManagerExt::MayHaveCustomSpeedLimits(NetInfo/Lane)
+  IL_0012: brtrue.s IL_001d: ldarg.0
+  IL_0014: ldarg.2 
+  IL_0015: ldfld System.Single NetInfo/Lane::m_speedLimit
+  IL_001A: stloc.0 
+  IL_001B: leave.s IL_0059: ldloc.0
+  IL_001D: ldarg.0 
+  IL_001E: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_0023: ldarg.1 
+  IL_0024: ldelem.r4 
+  IL_0025: stloc.0 
+  IL_0026: leave.s IL_0059: ldloc.0
+  IL_0028: stloc.1 
+  IL_0029: ldstr GetGameSpeedLimit({0}, {1}
+  IL_002E: ldarg.1 
+  IL_002F: box System.UInt32
+  IL_0034: ldarg.2 
+  IL_0035: call System.String System.String::Format(System.String,System.Object,System.Object)
+  IL_003A: ldloc.1 
+  IL_003B: newobj System.Void System.Exception::.ctor(System.String,System.Exception)
+  IL_0040: ldc.i4.0 
+  IL_0041: call System.Void TrafficManager.Util.Shortcuts::LogException(System.Exception,System.Boolean)
+  IL_0046: ldarg.2 
+  IL_0047: brtrue.s IL_0050: ldarg.2
+  IL_0049: ldc.r4 0
+  IL_004E: br.s IL_0056: stloc.0
+  IL_0050: ldarg.2 
+  IL_0051: ldfld System.Single NetInfo/Lane::m_speedLimit
+  IL_0056: stloc.0 
+  IL_0057: leave.s IL_0059: ldloc.0
+  IL_0059: ldloc.0 
+  IL_005A: ret 
+
+=== SpeedLimitManager.CacheSegmentSpeeds ===
+  IL_0000: ldarg.1 
+  IL_0001: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_0006: stloc.0 
+  IL_0007: ldloc.0 
+  IL_0008: call NetInfo NetSegment::get_Info()
+  IL_000D: dup 
+  IL_000E: brtrue.s IL_0014: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0010: pop 
+  IL_0011: ldnull 
+  IL_0012: br.s IL_0019: stloc.1
+  IL_0014: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0019: stloc.1 
+  IL_001A: ldloc.1 
+  IL_001B: brfalse.s IL_0050: ret
+  IL_001D: ldloc.0 
+  IL_001E: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0023: stloc.2 
+  IL_0024: ldc.i4.0 
+  IL_0025: stloc.3 
+  IL_0026: br.s IL_0047: ldloc.2
+  IL_0028: ldarg.0 
+  IL_0029: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_002E: ldloc.2 
+  IL_002F: ldarg.0 
+  IL_0030: ldloc.2 
+  IL_0031: call System.Single TrafficManager.Manager.Impl.SpeedLimitManager::CalculateGameSpeedLimit(System.UInt32)
+  IL_0036: stelem.r4 
+  IL_0037: ldloc.2 
+  IL_0038: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_003D: ldfld System.UInt32 NetLane::m_nextLane
+  IL_0042: stloc.2 
+  IL_0043: ldloc.3 
+  IL_0044: ldc.i4.1 
+  IL_0045: add 
+  IL_0046: stloc.3 
+  IL_0047: ldloc.2 
+  IL_0048: brfalse.s IL_0050: ret
+  IL_004A: ldloc.3 
+  IL_004B: ldloc.1 
+  IL_004C: ldlen 
+  IL_004D: conv.i4 
+  IL_004E: blt.s IL_0028: ldarg.0
+  IL_0050: ret 
+
+=== SpeedLimitManager.HandleValidSegment ===
+  IL_0000: ldarg.1 
+  IL_0001: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegment::segmentId
+  IL_0006: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_000B: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable TrafficManager.Util.Extensions.NetSegmentExtensions::GetSegmentLaneIdsAndLaneIndexes(NetSegment&)
+  IL_0010: stloc.1 
+  IL_0011: ldloca.s V_1
+  IL_0013: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable::GetEnumerator()
+  IL_0018: stloc.0 
+  IL_0019: br.s IL_003c: ldloca.s V_0
+  IL_001B: ldloca.s V_0
+  IL_001D: call TrafficManager.Manager.Impl.LaneIdAndIndex TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::get_Current()
+  IL_0022: stloc.2 
+  IL_0023: ldarg.0 
+  IL_0024: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_0029: ldloc.2 
+  IL_002A: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+  IL_002F: ldarg.0 
+  IL_0030: ldloc.2 
+  IL_0031: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+  IL_0036: call System.Single TrafficManager.Manager.Impl.SpeedLimitManager::CalculateGameSpeedLimit(System.UInt32)
+  IL_003B: stelem.r4 
+  IL_003C: ldloca.s V_0
+  IL_003E: call System.Boolean TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::MoveNext()
+  IL_0043: brtrue.s IL_001b: ldloca.s V_0
+  IL_0045: leave.s IL_0055: ret
+  IL_0047: ldloca.s V_0
+  IL_0049: constrained. TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator
+  IL_004F: callvirt System.Void System.IDisposable::Dispose()
+  IL_0054: endfinally 
+  IL_0055: ret 
+
+=== SpeedLimitManager.SetLaneSpeedLimit ===
+  IL_0000: ldarg.1 
+  IL_0001: ldc.i4.0 
+  IL_0002: ble.s IL_0008: ret
+  IL_0004: ldarg.3 
+  IL_0005: ldc.i4.0 
+  IL_0006: bgt.un.s IL_0009: ldarg.1
+  IL_0008: ret 
+  IL_0009: ldarg.1 
+  IL_000A: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_000F: stloc.0 
+  IL_0010: ldloc.0 
+  IL_0011: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0016: ldc.i4.3 
+  IL_0017: and 
+  IL_0018: ldc.i4.1 
+  IL_0019: beq.s IL_001c: ldarg.3
+  IL_001B: ret 
+  IL_001C: ldarg.3 
+  IL_001D: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_0022: ldfld System.UInt16 NetLane::m_flags
+  IL_0027: ldc.i4.3 
+  IL_0028: and 
+  IL_0029: ldc.i4.1 
+  IL_002A: beq.s IL_002d: ldloc.0
+  IL_002C: ret 
+  IL_002D: ldloc.0 
+  IL_002E: call NetInfo NetSegment::get_Info()
+  IL_0033: stloc.1 
+  IL_0034: ldarg.2 
+  IL_0035: conv.u8 
+  IL_0036: ldloc.1 
+  IL_0037: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_003C: ldlen 
+  IL_003D: conv.i4 
+  IL_003E: conv.i8 
+  IL_003F: blt.s IL_0042: ldarg.0
+  IL_0041: ret 
+  IL_0042: ldarg.0 
+  IL_0043: ldfld System.Object TrafficManager.Manager.Impl.SpeedLimitManager::laneSpeedLimitLock_
+  IL_0048: stloc.2 
+  IL_0049: ldloc.2 
+  IL_004A: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_004F: ldarga.s action
+  IL_0051: call TrafficManager.State.SetSpeedLimitAction/ActionType TrafficManager.State.SetSpeedLimitAction::get_Type()
+  IL_0056: stloc.s V_4
+  IL_0058: ldloc.s V_4
+  IL_005A: ldc.i4.1 
+  IL_005B: ble.un.s IL_0071: ldarga.s action
+  IL_005D: ldloc.s V_4
+  IL_005F: ldc.i4.2 
+  IL_0060: bne.un.s IL_0094: ldarg.0
+  IL_0062: ldarg.0 
+  IL_0063: ldfld System.Collections.Generic.Dictionary`2<System.UInt32,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::laneOverrideSpeedLimit_
+  IL_0068: ldarg.3 
+  IL_0069: callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.UInt32,System.Single>::Remove(!0)
+  IL_006E: pop 
+  IL_006F: br.s IL_0094: ldarg.0
+  IL_0071: ldarga.s action
+  IL_0073: ldflda TrafficManager.State.SetSpeedLimitAction/Variant3 TrafficManager.State.SetSpeedLimitAction::GuardedValue
+  IL_0078: call TrafficManager.API.Traffic.Data.SpeedValue TrafficManager.State.SetSpeedLimitAction/Variant3::get_Override()
+  IL_007D: stloc.s V_5
+  IL_007F: ldloca.s V_5
+  IL_0081: call System.Single TrafficManager.API.Traffic.Data.SpeedValue::get_GameUnits()
+  IL_0086: stloc.3 
+  IL_0087: ldarg.0 
+  IL_0088: ldfld System.Collections.Generic.Dictionary`2<System.UInt32,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::laneOverrideSpeedLimit_
+  IL_008D: ldarg.3 
+  IL_008E: ldloc.3 
+  IL_008F: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt32,System.Single>::set_Item(!0,!1)
+  IL_0094: ldarg.0 
+  IL_0095: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_009A: ldarg.3 
+  IL_009B: ldarg.0 
+  IL_009C: ldarg.3 
+  IL_009D: call System.Single TrafficManager.Manager.Impl.SpeedLimitManager::CalculateGameSpeedLimit(System.UInt32)
+  IL_00A2: stelem.r4 
+  IL_00A3: leave.s IL_00ac: ret
+  IL_00A5: ldloc.2 
+  IL_00A6: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_00AB: endfinally 
+  IL_00AC: ret 
+
+=== SpeedLimitManager.ResetSpeedLimits ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld System.Object TrafficManager.Manager.Impl.SpeedLimitManager::laneSpeedLimitLock_
+  IL_0006: stloc.0 
+  IL_0007: ldloc.0 
+  IL_0008: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_000D: ldarg.0 
+  IL_000E: ldfld System.Collections.Generic.Dictionary`2<System.UInt32,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::laneOverrideSpeedLimit_
+  IL_0013: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt32,System.Single>::Clear()
+  IL_0018: ldarg.0 
+  IL_0019: ldfld System.Collections.Generic.Dictionary`2<NetInfo,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::customNetinfoSpeedLimits_
+  IL_001E: callvirt System.Void System.Collections.Generic.Dictionary`2<NetInfo,System.Single>::Clear()
+  IL_0023: ldc.i4.1 
+  IL_0024: stloc.1 
+  IL_0025: br.s IL_009e: ldloc.1
+  IL_0027: ldloc.1 
+  IL_0028: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_002D: stloc.2 
+  IL_002E: ldloc.2 
+  IL_002F: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsValid(NetSegment&)
+  IL_0034: brfalse.s IL_0099: ldloc.1
+  IL_0036: ldloc.2 
+  IL_0037: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable TrafficManager.Util.Extensions.NetSegmentExtensions::GetSegmentLaneIdsAndLaneIndexes(NetSegment&)
+  IL_003C: stloc.s V_4
+  IL_003E: ldloca.s V_4
+  IL_0040: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable::GetEnumerator()
+  IL_0045: stloc.3 
+  IL_0046: br.s IL_0080: ldloca.s V_3
+  IL_0048: ldloca.s V_3
+  IL_004A: call TrafficManager.Manager.Impl.LaneIdAndIndex TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::get_Current()
+  IL_004F: stloc.s V_5
+  IL_0051: ldloc.2 
+  IL_0052: ldloc.s V_5
+  IL_0054: ldfld System.Int32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneIndex
+  IL_0059: call NetInfo/Lane TrafficManager.Util.Extensions.NetSegmentExtensions::GetLaneInfo(NetSegment&,System.Int32)
+  IL_005E: stloc.s V_6
+  IL_0060: ldarg.0 
+  IL_0061: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_0066: ldloc.s V_5
+  IL_0068: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+  IL_006D: ldloc.s V_6
+  IL_006F: brtrue.s IL_0078: ldloc.s V_6
+  IL_0071: ldc.r4 0
+  IL_0076: br.s IL_007f: stelem.r4
+  IL_0078: ldloc.s V_6
+  IL_007A: ldfld System.Single NetInfo/Lane::m_speedLimit
+  IL_007F: stelem.r4 
+  IL_0080: ldloca.s V_3
+  IL_0082: call System.Boolean TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::MoveNext()
+  IL_0087: brtrue.s IL_0048: ldloca.s V_3
+  IL_0089: leave.s IL_0099: ldloc.1
+  IL_008B: ldloca.s V_3
+  IL_008D: constrained. TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator
+  IL_0093: callvirt System.Void System.IDisposable::Dispose()
+  IL_0098: endfinally 
+  IL_0099: ldloc.1 
+  IL_009A: ldc.i4.1 
+  IL_009B: add 
+  IL_009C: conv.u2 
+  IL_009D: stloc.1 
+  IL_009E: ldloc.1 
+  IL_009F: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_00A4: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_00A9: ldfld System.UInt32 Array16`1<NetSegment>::m_size
+  IL_00AE: blt.un IL_0027: ldloc.1
+  IL_00B3: leave.s IL_00bc: ret
+  IL_00B5: ldloc.0 
+  IL_00B6: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_00BB: endfinally 
+  IL_00BC: ret 
+
+=== SpeedLimitManager.PrintDebugInfo ===
+  IL_0000: ldstr -------------------------
+  IL_0005: call System.Void CSUtil.Commons.Log::Info(System.String)
+  IL_000A: ldstr --- LANE SPEED LIMITS ---
+  IL_000F: call System.Void CSUtil.Commons.Log::Info(System.String)
+  IL_0014: ldstr -------------------------
+  IL_0019: call System.Void CSUtil.Commons.Log::Info(System.String)
+  IL_001E: ldc.i4.0 
+  IL_001F: stloc.0 
+  IL_0020: br IL_00d2: ldloc.0
+  IL_0025: ldloc.0 
+  IL_0026: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_002B: stloc.1 
+  IL_002C: ldloc.1 
+  IL_002D: call NetInfo NetSegment::get_Info()
+  IL_0032: dup 
+  IL_0033: brtrue.s IL_0039: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0035: pop 
+  IL_0036: ldnull 
+  IL_0037: br.s IL_003e: stloc.2
+  IL_0039: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_003E: stloc.2 
+  IL_003F: ldloc.2 
+  IL_0040: brfalse IL_00cd: ldloc.0
+  IL_0045: ldloc.1 
+  IL_0046: ldfld System.UInt32 NetSegment::m_lanes
+  IL_004B: stloc.3 
+  IL_004C: ldc.i4.0 
+  IL_004D: stloc.s V_4
+  IL_004F: br.s IL_00c3: ldloc.3
+  IL_0051: ldloc.3 
+  IL_0052: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_0057: stloc.s V_5
+  IL_0059: ldstr lane={0}, idx={1}, segment:{2}, valid={3}, 
+  IL_005E: ldc.i4.4 
+  IL_005F: newarr System.Object
+  IL_0064: dup 
+  IL_0065: ldc.i4.0 
+  IL_0066: ldloc.3 
+  IL_0067: box System.UInt32
+  IL_006C: stelem.ref 
+  IL_006D: dup 
+  IL_006E: ldc.i4.1 
+  IL_006F: ldloc.s V_4
+  IL_0071: box System.Int32
+  IL_0076: stelem.ref 
+  IL_0077: dup 
+  IL_0078: ldc.i4.2 
+  IL_0079: ldloc.0 
+  IL_007A: box System.UInt16
+  IL_007F: stelem.ref 
+  IL_0080: dup 
+  IL_0081: ldc.i4.3 
+  IL_0082: ldloc.s V_5
+  IL_0084: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+  IL_0089: box System.Boolean
+  IL_008E: stelem.ref 
+  IL_008F: call System.String System.String::Format(System.String,System.Object[])
+  IL_0094: ldstr speedLimit={0}
+  IL_0099: ldarg.0 
+  IL_009A: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_009F: ldloc.3 
+  IL_00A0: ldelem.r4 
+  IL_00A1: box System.Single
+  IL_00A6: call System.String System.String::Format(System.String,System.Object)
+  IL_00AB: call System.String System.String::Concat(System.String,System.String)
+  IL_00B0: call System.Void CSUtil.Commons.Log::Info(System.String)
+  IL_00B5: ldloc.s V_5
+  IL_00B7: ldfld System.UInt32 NetLane::m_nextLane
+  IL_00BC: stloc.3 
+  IL_00BD: ldloc.s V_4
+  IL_00BF: ldc.i4.1 
+  IL_00C0: add 
+  IL_00C1: stloc.s V_4
+  IL_00C3: ldloc.3 
+  IL_00C4: brfalse.s IL_00cd: ldloc.0
+  IL_00C6: ldloc.s V_4
+  IL_00C8: ldloc.2 
+  IL_00C9: ldlen 
+  IL_00CA: conv.i4 
+  IL_00CB: blt.s IL_0051: ldloc.3
+  IL_00CD: ldloc.0 
+  IL_00CE: ldc.i4.1 
+  IL_00CF: add 
+  IL_00D0: conv.u2 
+  IL_00D1: stloc.0 
+  IL_00D2: ldloc.0 
+  IL_00D3: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_00D8: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_00DD: ldfld System.UInt32 Array16`1<NetSegment>::m_size
+  IL_00E2: blt.un IL_0025: ldloc.0
+  IL_00E7: ret 
+
+=== SpeedLimitManager.OnLevelUnloading ===
+  IL_0000: ldc.i4.0 
+  IL_0001: stloc.0 
+  IL_0002: br.s IL_0015: ldloc.0
+  IL_0004: ldarg.0 
+  IL_0005: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_000A: ldloc.0 
+  IL_000B: ldc.r4 0
+  IL_0010: stelem.r4 
+  IL_0011: ldloc.0 
+  IL_0012: ldc.i4.1 
+  IL_0013: add 
+  IL_0014: stloc.0 
+  IL_0015: ldloc.0 
+  IL_0016: conv.u8 
+  IL_0017: ldarg.0 
+  IL_0018: ldfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_001D: ldlen 
+  IL_001E: conv.i4 
+  IL_001F: conv.i8 
+  IL_0020: blt.s IL_0004: ldarg.0
+  IL_0022: ldarg.0 
+  IL_0023: ldfld System.Object TrafficManager.Manager.Impl.SpeedLimitManager::laneSpeedLimitLock_
+  IL_0028: stloc.1 
+  IL_0029: ldloc.1 
+  IL_002A: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_002F: ldarg.0 
+  IL_0030: ldfld System.Collections.Generic.Dictionary`2<System.UInt32,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::laneOverrideSpeedLimit_
+  IL_0035: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt32,System.Single>::Clear()
+  IL_003A: leave.s IL_0043: ret
+  IL_003C: ldloc.1 
+  IL_003D: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0042: endfinally 
+  IL_0043: ret 
+
+=== SpeedLimitManager..ctor ===
+  IL_0000: ldarg.0 
+  IL_0001: newobj System.Void System.Object::.ctor()
+  IL_0006: stfld System.Object TrafficManager.Manager.Impl.SpeedLimitManager::laneSpeedLimitLock_
+  IL_000B: ldarg.0 
+  IL_000C: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt32,System.Single>::.ctor()
+  IL_0011: stfld System.Collections.Generic.Dictionary`2<System.UInt32,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::laneOverrideSpeedLimit_
+  IL_0016: ldarg.0 
+  IL_0017: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_001C: ldfld Array32`1<NetLane> NetManager::m_lanes
+  IL_0021: ldfld System.UInt32 Array32`1<NetLane>::m_size
+  IL_0026: newarr System.Single
+  IL_002B: stfld System.Single[] TrafficManager.Manager.Impl.SpeedLimitManager::cachedLaneSpeedLimits_
+  IL_0030: ldarg.0 
+  IL_0031: newobj System.Void System.Collections.Generic.Dictionary`2<NetInfo,System.Single>::.ctor()
+  IL_0036: stfld System.Collections.Generic.Dictionary`2<NetInfo,System.Single> TrafficManager.Manager.Impl.SpeedLimitManager::customNetinfoSpeedLimits_
+  IL_003B: ldarg.0 
+  IL_003C: call System.Void TrafficManager.Manager.AbstractGeometryObservingManager::.ctor()
+  IL_0041: ret 

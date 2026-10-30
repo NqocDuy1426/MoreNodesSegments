@@ -1,0 +1,1268 @@
+=== Method: System.Int32 EconomyManager::get_moneyEarnedFromInvestments() ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0006: ret 
+=== Method: System.Void EconomyManager::AddInvestmentProfit(System.Int32) ===
+  IL_0000: ldarg.0 
+  IL_0001: dup 
+  IL_0002: ldfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0007: ldarg.1 
+  IL_0008: add 
+  IL_0009: stfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_000E: ldarg.0 
+  IL_000F: dup 
+  IL_0010: ldfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_0015: ldarg.1 
+  IL_0016: add 
+  IL_0017: stfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_001C: ldarg.0 
+  IL_001D: ldfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0022: ldc.i4 5000000
+  IL_0027: blt IL_0054: ret
+  IL_002C: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_0031: ldsfld System.Action EconomyManager::<>f__am$cache0
+  IL_0036: brtrue.s IL_0049: ldsfld System.Action EconomyManager::<>f__am$cache0
+  IL_0038: ldnull 
+  IL_0039: ldftn System.Void EconomyManager::<AddInvestmentProfit>m__2()
+  IL_003F: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_0044: stsfld System.Action EconomyManager::<>f__am$cache0
+  IL_0049: ldsfld System.Action EconomyManager::<>f__am$cache0
+  IL_004E: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_0053: pop 
+  IL_0054: ret 
+=== Method: System.Void EconomyManager::InvestmentsUpdated() ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld System.Action EconomyManager::m_investmentsUpdated
+  IL_0006: brfalse IL_0016: ret
+  IL_000B: ldarg.0 
+  IL_000C: ldfld System.Action EconomyManager::m_investmentsUpdated
+  IL_0011: callvirt System.Void System.Action::Invoke()
+  IL_0016: ret 
+=== Method: System.Void EconomyManager::AwakeInvestments() ===
+  IL_0000: ldarg.0 
+  IL_0001: ldc.i4 255
+  IL_0006: newobj System.Void Array8`1<Investment>::.ctor(System.UInt32)
+  IL_000B: stfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0010: ret 
+=== Method: System.Void EconomyManager::UpdateInvestmentData(SimulationManager/UpdateMode) ===
+  IL_0000: ldarg.1 
+  IL_0001: ldc.i4.2 
+  IL_0002: beq IL_0016: ldc.i4.1
+  IL_0007: ldarg.1 
+  IL_0008: ldc.i4.s 9
+  IL_000A: beq IL_0016: ldc.i4.1
+  IL_000F: ldarg.1 
+  IL_0010: ldc.i4.s 13
+  IL_0012: ceq 
+  IL_0014: br.s IL_0017: stloc.0
+  IL_0016: ldc.i4.1 
+  IL_0017: stloc.0 
+  IL_0018: ldloc.0 
+  IL_0019: brtrue IL_0029: ldarg.0
+  IL_001E: ldarg.0 
+  IL_001F: ldfld GenericGuide EconomyManager::m_investmentsPanelOpened
+  IL_0024: brtrue IL_0034: ldloc.0
+  IL_0029: ldarg.0 
+  IL_002A: newobj System.Void GenericGuide::.ctor()
+  IL_002F: stfld GenericGuide EconomyManager::m_investmentsPanelOpened
+  IL_0034: ldloc.0 
+  IL_0035: brtrue IL_0045: ldarg.0
+  IL_003A: ldarg.0 
+  IL_003B: ldfld GenericGuide EconomyManager::m_investmentBought
+  IL_0040: brtrue IL_0050: ldloc.0
+  IL_0045: ldarg.0 
+  IL_0046: newobj System.Void GenericGuide::.ctor()
+  IL_004B: stfld GenericGuide EconomyManager::m_investmentBought
+  IL_0050: ldloc.0 
+  IL_0051: brtrue IL_0061: ldarg.0
+  IL_0056: ldarg.0 
+  IL_0057: ldfld GenericGuide EconomyManager::m_investmentSold
+  IL_005C: brtrue IL_006c: ret
+  IL_0061: ldarg.0 
+  IL_0062: newobj System.Void GenericGuide::.ctor()
+  IL_0067: stfld GenericGuide EconomyManager::m_investmentSold
+  IL_006C: ret 
+=== Method: System.Void EconomyManager::SimulationStepInvestments(System.UInt32,System.UInt32) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0005: stloc.0 
+  IL_0006: ldarg.0 
+  IL_0007: ldfld System.Int32 EconomyManager::m_lastUpdatedDay
+  IL_000C: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0011: ldflda System.DateTime SimulationManager::m_currentGameTime
+  IL_0016: call System.Int32 System.DateTime::get_Day()
+  IL_001B: beq IL_0098: ldarg.0
+  IL_0020: ldc.i4.1 
+  IL_0021: stloc.1 
+  IL_0022: br IL_007c: ldloc.1
+  IL_0027: ldarg.0 
+  IL_0028: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_002D: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0032: ldloc.1 
+  IL_0033: ldelema Investment
+  IL_0038: ldfld Investment/Flags Investment::m_flags
+  IL_003D: ldc.i4.2 
+  IL_003E: and 
+  IL_003F: conv.u2 
+  IL_0040: brfalse IL_0077: ldloc.1
+  IL_0045: ldarg.0 
+  IL_0046: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_004B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0050: ldloc.1 
+  IL_0051: ldelema Investment
+  IL_0056: call InvestmentInfo Investment::get_Info()
+  IL_005B: ldfld InvestmentAI InvestmentInfo::m_investmentAI
+  IL_0060: ldloc.1 
+  IL_0061: ldarg.0 
+  IL_0062: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0067: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_006C: ldloc.1 
+  IL_006D: ldelema Investment
+  IL_0072: callvirt System.Void InvestmentAI::UpdateInvestment(System.Byte,Investment&)
+  IL_0077: ldloc.1 
+  IL_0078: ldc.i4.1 
+  IL_0079: add 
+  IL_007A: conv.u1 
+  IL_007B: stloc.1 
+  IL_007C: ldloc.1 
+  IL_007D: ldc.i4 255
+  IL_0082: blt IL_0027: ldarg.0
+  IL_0087: ldarg.0 
+  IL_0088: ldloc.0 
+  IL_0089: ldflda System.DateTime SimulationManager::m_currentGameTime
+  IL_008E: call System.Int32 System.DateTime::get_Day()
+  IL_0093: stfld System.Int32 EconomyManager::m_lastUpdatedDay
+  IL_0098: ldarg.0 
+  IL_0099: ldfld System.Int32 EconomyManager::m_lastUpdatedMonth
+  IL_009E: ldloc.0 
+  IL_009F: ldflda System.DateTime SimulationManager::m_currentGameTime
+  IL_00A4: call System.Int32 System.DateTime::get_Month()
+  IL_00A9: beq IL_00d2: ldarg.2
+  IL_00AE: ldarg.0 
+  IL_00AF: ldarg.0 
+  IL_00B0: ldfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_00B5: stfld System.Int32 EconomyManager::m_finalMonthlyEarned
+  IL_00BA: ldarg.0 
+  IL_00BB: ldc.i4.0 
+  IL_00BC: stfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_00C1: ldarg.0 
+  IL_00C2: ldloc.0 
+  IL_00C3: ldflda System.DateTime SimulationManager::m_currentGameTime
+  IL_00C8: call System.Int32 System.DateTime::get_Month()
+  IL_00CD: stfld System.Int32 EconomyManager::m_lastUpdatedMonth
+  IL_00D2: ldarg.2 
+  IL_00D3: brtrue IL_020b: ret
+  IL_00D8: ldloc.0 
+  IL_00D9: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_00DE: ldc.i4 4095
+  IL_00E3: and 
+  IL_00E4: ldc.i4 3840
+  IL_00E9: blt.un IL_020b: ret
+  IL_00EE: ldarg.0 
+  IL_00EF: ldfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_00F4: ldarg.0 
+  IL_00F5: ldfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_00FA: add 
+  IL_00FB: ldc.i4 1000000
+  IL_0100: blt IL_0134: ldarg.0
+  IL_0105: call System.Int64 EconomyManager::get_playerMoney()
+  IL_010A: conv.r4 
+  IL_010B: ldc.r4 1000
+  IL_0110: ldarg.0 
+  IL_0111: call System.Int64 EconomyManager::get_LastCashDelta()
+  IL_0116: conv.r4 
+  IL_0117: ldc.r4 0,01
+  IL_011C: mul 
+  IL_011D: ldc.r4 0
+  IL_0122: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_0127: add 
+  IL_0128: bge.un IL_0134: ldarg.0
+  IL_012D: ldarg.0 
+  IL_012E: ldc.i4.1 
+  IL_012F: stfld System.Boolean EconomyManager::m_allIn
+  IL_0134: ldarg.0 
+  IL_0135: ldfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_013A: ldsfld System.DateTime System.DateTime::MinValue
+  IL_013F: call System.Boolean System.DateTime::op_Equality(System.DateTime,System.DateTime)
+  IL_0144: brfalse IL_015a: ldarg.0
+  IL_0149: ldarg.0 
+  IL_014A: ldloc.0 
+  IL_014B: ldfld System.DateTime SimulationManager::m_currentGameTime
+  IL_0150: stfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_0155: br IL_01ad: ldarg.0
+  IL_015A: ldarg.0 
+  IL_015B: ldfld System.Boolean EconomyManager::m_allIn
+  IL_0160: brfalse IL_01ad: ldarg.0
+  IL_0165: ldloc.0 
+  IL_0166: ldfld System.DateTime SimulationManager::m_currentGameTime
+  IL_016B: ldarg.0 
+  IL_016C: ldfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_0171: call System.TimeSpan System.DateTime::op_Subtraction(System.DateTime,System.DateTime)
+  IL_0176: stloc.2 
+  IL_0177: ldloca.s V_2
+  IL_0179: call System.Int32 System.TimeSpan::get_Days()
+  IL_017E: ldc.i4.s 30
+  IL_0180: ble IL_01ad: ldarg.0
+  IL_0185: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_018A: ldsfld System.Action EconomyManager::<>f__am$cache1
+  IL_018F: brtrue.s IL_01a2: ldsfld System.Action EconomyManager::<>f__am$cache1
+  IL_0191: ldnull 
+  IL_0192: ldftn System.Void EconomyManager::<SimulationStepInvestments>m__3()
+  IL_0198: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_019D: stsfld System.Action EconomyManager::<>f__am$cache1
+  IL_01A2: ldsfld System.Action EconomyManager::<>f__am$cache1
+  IL_01A7: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_01AC: pop 
+  IL_01AD: ldarg.0 
+  IL_01AE: ldarg.0 
+  IL_01AF: ldfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_01B4: stfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_01B9: ldarg.0 
+  IL_01BA: ldc.i4.0 
+  IL_01BB: stfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_01C0: ldarg.0 
+  IL_01C1: ldarg.0 
+  IL_01C2: ldfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_01C7: stfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_01CC: ldarg.0 
+  IL_01CD: ldc.i4.0 
+  IL_01CE: stfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_01D3: ldarg.0 
+  IL_01D4: ldfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_01D9: ldc.i4 2000000
+  IL_01DE: blt IL_020b: ret
+  IL_01E3: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_01E8: ldsfld System.Action EconomyManager::<>f__am$cache2
+  IL_01ED: brtrue.s IL_0200: ldsfld System.Action EconomyManager::<>f__am$cache2
+  IL_01EF: ldnull 
+  IL_01F0: ldftn System.Void EconomyManager::<SimulationStepInvestments>m__4()
+  IL_01F6: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_01FB: stsfld System.Action EconomyManager::<>f__am$cache2
+  IL_0200: ldsfld System.Action EconomyManager::<>f__am$cache2
+  IL_0205: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_020A: pop 
+  IL_020B: ret 
+=== Method: System.Void EconomyManager::SerializeInvestments(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: ldarg.1 
+  IL_0001: ldarg.0 
+  IL_0002: ldfld System.Int32 EconomyManager::m_lastUpdatedDay
+  IL_0007: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt16(System.Int32)
+  IL_000C: ldarg.1 
+  IL_000D: ldarg.0 
+  IL_000E: ldfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0013: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_0018: ldarg.1 
+  IL_0019: ldarg.0 
+  IL_001A: ldfld System.Int32 EconomyManager::m_lastUpdatedMonth
+  IL_001F: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt16(System.Int32)
+  IL_0024: ldarg.1 
+  IL_0025: ldarg.0 
+  IL_0026: ldfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_002B: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_0030: ldarg.1 
+  IL_0031: ldarg.0 
+  IL_0032: ldfld System.Int32 EconomyManager::m_finalMonthlyEarned
+  IL_0037: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_003C: ldarg.1 
+  IL_003D: ldarg.0 
+  IL_003E: ldfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_0043: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_0048: ldarg.1 
+  IL_0049: ldarg.0 
+  IL_004A: ldfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_004F: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_0054: ldarg.1 
+  IL_0055: ldarg.0 
+  IL_0056: ldfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_005B: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_0060: ldarg.1 
+  IL_0061: ldarg.0 
+  IL_0062: ldfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_0067: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_006C: ldarg.1 
+  IL_006D: ldarg.0 
+  IL_006E: ldflda System.DateTime EconomyManager::m_lastInvestmentBuy
+  IL_0073: call System.Int64 System.DateTime::get_Ticks()
+  IL_0078: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteLong64(System.Int64)
+  IL_007D: ldarg.1 
+  IL_007E: ldarg.0 
+  IL_007F: ldflda System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_0084: call System.Int64 System.DateTime::get_Ticks()
+  IL_0089: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteLong64(System.Int64)
+  IL_008E: ldarg.1 
+  IL_008F: ldarg.0 
+  IL_0090: ldfld System.Boolean EconomyManager::m_allIn
+  IL_0095: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteBool(System.Boolean)
+  IL_009A: ldarg.1 
+  IL_009B: ldarg.0 
+  IL_009C: ldfld GenericGuide EconomyManager::m_investmentsPanelOpened
+  IL_00A1: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteObject<GenericGuide>(!!0)
+  IL_00A6: ldarg.1 
+  IL_00A7: ldarg.0 
+  IL_00A8: ldfld GenericGuide EconomyManager::m_investmentBought
+  IL_00AD: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteObject<GenericGuide>(!!0)
+  IL_00B2: ldarg.1 
+  IL_00B3: ldarg.0 
+  IL_00B4: ldfld GenericGuide EconomyManager::m_investmentSold
+  IL_00B9: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteObject<GenericGuide>(!!0)
+  IL_00BE: ldarg.0 
+  IL_00BF: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_00C4: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_00C9: ldlen 
+  IL_00CA: conv.i4 
+  IL_00CB: stloc.0 
+  IL_00CC: ldarg.1 
+  IL_00CD: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginWrite(ColossalFramework.IO.DataSerializer)
+  IL_00D2: stloc.1 
+  IL_00D3: ldc.i4.1 
+  IL_00D4: stloc.2 
+  IL_00D5: br IL_00fa: ldloc.2
+  IL_00DA: ldloc.1 
+  IL_00DB: ldarg.0 
+  IL_00DC: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_00E1: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_00E6: ldloc.2 
+  IL_00E7: ldelema Investment
+  IL_00EC: ldfld Investment/Flags Investment::m_flags
+  IL_00F1: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::Write(System.UInt16)
+  IL_00F6: ldloc.2 
+  IL_00F7: ldc.i4.1 
+  IL_00F8: add 
+  IL_00F9: stloc.2 
+  IL_00FA: ldloc.2 
+  IL_00FB: ldloc.0 
+  IL_00FC: blt IL_00da: ldloc.1
+  IL_0101: ldloc.1 
+  IL_0102: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndWrite()
+  IL_0107: ldc.i4.1 
+  IL_0108: stloc.3 
+  IL_0109: br IL_0190: ldloc.3
+  IL_010E: ldarg.0 
+  IL_010F: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0114: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0119: ldloc.3 
+  IL_011A: ldelema Investment
+  IL_011F: ldfld Investment/Flags Investment::m_flags
+  IL_0124: brfalse IL_018c: ldloc.3
+  IL_0129: ldarg.0 
+  IL_012A: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_012F: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0134: ldloc.3 
+  IL_0135: ldelema Investment
+  IL_013A: call Investment/Queue`1<System.Single> Investment::get_allValues()
+  IL_013F: stloc.s V_4
+  IL_0141: ldarg.1 
+  IL_0142: ldloc.s V_4
+  IL_0144: callvirt System.Int32 Investment/Queue`1<System.Single>::get_Count()
+  IL_0149: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt16(System.Int32)
+  IL_014E: ldarg.1 
+  IL_014F: call ColossalFramework.IO.EncodedArray/Float ColossalFramework.IO.EncodedArray/Float::BeginWrite(ColossalFramework.IO.DataSerializer)
+  IL_0154: stloc.s V_5
+  IL_0156: ldloc.s V_4
+  IL_0158: callvirt System.Int32 Investment/Queue`1<System.Single>::get_Count()
+  IL_015D: ldc.i4.1 
+  IL_015E: sub 
+  IL_015F: stloc.s V_6
+  IL_0161: br IL_017d: ldloc.s V_6
+  IL_0166: ldloc.s V_5
+  IL_0168: ldloc.s V_4
+  IL_016A: ldloc.s V_6
+  IL_016C: ldc.i4.0 
+  IL_016D: callvirt T Investment/Queue`1<System.Single>::get_Item(System.Int32,Investment/Queue`1/Direction<T>)
+  IL_0172: callvirt System.Void ColossalFramework.IO.EncodedArray/Float::Write(System.Single)
+  IL_0177: ldloc.s V_6
+  IL_0179: ldc.i4.1 
+  IL_017A: sub 
+  IL_017B: stloc.s V_6
+  IL_017D: ldloc.s V_6
+  IL_017F: ldc.i4.0 
+  IL_0180: bge IL_0166: ldloc.s V_5
+  IL_0185: ldloc.s V_5
+  IL_0187: callvirt System.Void ColossalFramework.IO.EncodedArray/Float::EndWrite()
+  IL_018C: ldloc.3 
+  IL_018D: ldc.i4.1 
+  IL_018E: add 
+  IL_018F: stloc.3 
+  IL_0190: ldloc.3 
+  IL_0191: ldloc.0 
+  IL_0192: blt IL_010e: ldarg.0
+  IL_0197: ldc.i4.1 
+  IL_0198: stloc.s V_7
+  IL_019A: br IL_0218: ldloc.s V_7
+  IL_019F: ldarg.0 
+  IL_01A0: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_01A5: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_01AA: ldloc.s V_7
+  IL_01AC: ldelema Investment
+  IL_01B1: ldfld Investment/Flags Investment::m_flags
+  IL_01B6: brfalse IL_0212: ldloc.s V_7
+  IL_01BB: ldarg.1 
+  IL_01BC: ldarg.0 
+  IL_01BD: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_01C2: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_01C7: ldloc.s V_7
+  IL_01C9: ldelema Investment
+  IL_01CE: ldfld System.Int32 Investment::m_playerSpentMoney
+  IL_01D3: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt32(System.Int32)
+  IL_01D8: ldarg.1 
+  IL_01D9: ldarg.0 
+  IL_01DA: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_01DF: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_01E4: ldloc.s V_7
+  IL_01E6: ldelema Investment
+  IL_01EB: ldfld System.UInt32 Investment::m_playerOwnedShareCount
+  IL_01F0: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteUInt32(System.UInt32)
+  IL_01F5: ldarg.1 
+  IL_01F6: ldarg.0 
+  IL_01F7: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_01FC: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0201: ldloc.s V_7
+  IL_0203: ldelema Investment
+  IL_0208: ldfld System.Single Investment::m_baseValue
+  IL_020D: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteFloat(System.Single)
+  IL_0212: ldloc.s V_7
+  IL_0214: ldc.i4.1 
+  IL_0215: add 
+  IL_0216: stloc.s V_7
+  IL_0218: ldloc.s V_7
+  IL_021A: ldloc.0 
+  IL_021B: blt IL_019f: ldarg.0
+  IL_0220: ldc.i4.1 
+  IL_0221: stloc.s V_8
+  IL_0223: br IL_026c: ldloc.s V_8
+  IL_0228: ldarg.0 
+  IL_0229: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_022E: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0233: ldloc.s V_8
+  IL_0235: ldelema Investment
+  IL_023A: ldfld Investment/Flags Investment::m_flags
+  IL_023F: brfalse IL_0266: ldloc.s V_8
+  IL_0244: ldarg.1 
+  IL_0245: ldarg.0 
+  IL_0246: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_024B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0250: ldloc.s V_8
+  IL_0252: ldelema Investment
+  IL_0257: ldflda System.DateTime Investment::m_requirementMissingDate
+  IL_025C: call System.Int64 System.DateTime::get_Ticks()
+  IL_0261: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteLong64(System.Int64)
+  IL_0266: ldloc.s V_8
+  IL_0268: ldc.i4.1 
+  IL_0269: add 
+  IL_026A: stloc.s V_8
+  IL_026C: ldloc.s V_8
+  IL_026E: ldloc.0 
+  IL_026F: blt IL_0228: ldarg.0
+  IL_0274: ldc.i4.1 
+  IL_0275: stloc.s V_9
+  IL_0277: br IL_02d8: ldloc.s V_9
+  IL_027C: ldarg.0 
+  IL_027D: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0282: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0287: ldloc.s V_9
+  IL_0289: ldelema Investment
+  IL_028E: ldfld Investment/Flags Investment::m_flags
+  IL_0293: brfalse IL_02d2: ldloc.s V_9
+  IL_0298: ldarg.1 
+  IL_0299: ldarg.0 
+  IL_029A: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_029F: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_02A4: ldloc.s V_9
+  IL_02A6: ldelema Investment
+  IL_02AB: ldfld RandomRiskInvestmentAI/State Investment::m_currentState
+  IL_02B0: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteInt16(System.Int32)
+  IL_02B5: ldarg.1 
+  IL_02B6: ldarg.0 
+  IL_02B7: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_02BC: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_02C1: ldloc.s V_9
+  IL_02C3: ldelema Investment
+  IL_02C8: ldfld System.Single Investment::m_randomInfluence
+  IL_02CD: callvirt System.Void ColossalFramework.IO.DataSerializer::WriteFloat(System.Single)
+  IL_02D2: ldloc.s V_9
+  IL_02D4: ldc.i4.1 
+  IL_02D5: add 
+  IL_02D6: stloc.s V_9
+  IL_02D8: ldloc.s V_9
+  IL_02DA: ldloc.0 
+  IL_02DB: blt IL_027c: ldarg.0
+  IL_02E0: ldarg.1 
+  IL_02E1: call System.Void PrefabCollection`1<InvestmentInfo>::BeginSerialize(ColossalFramework.IO.DataSerializer)
+  IL_02E6: ldc.i4.1 
+  IL_02E7: stloc.s V_10
+  IL_02E9: br IL_032c: ldloc.s V_10
+  IL_02EE: ldarg.0 
+  IL_02EF: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_02F4: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_02F9: ldloc.s V_10
+  IL_02FB: ldelema Investment
+  IL_0300: ldfld Investment/Flags Investment::m_flags
+  IL_0305: brfalse IL_0326: ldloc.s V_10
+  IL_030A: ldarg.0 
+  IL_030B: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0310: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0315: ldloc.s V_10
+  IL_0317: ldelema Investment
+  IL_031C: ldfld System.UInt16 Investment::m_infoIndex
+  IL_0321: call System.Void PrefabCollection`1<InvestmentInfo>::Serialize(System.UInt32)
+  IL_0326: ldloc.s V_10
+  IL_0328: ldc.i4.1 
+  IL_0329: add 
+  IL_032A: stloc.s V_10
+  IL_032C: ldloc.s V_10
+  IL_032E: ldloc.0 
+  IL_032F: blt IL_02ee: ldarg.0
+  IL_0334: leave IL_0340: ret
+  IL_0339: ldarg.1 
+  IL_033A: call System.Void PrefabCollection`1<InvestmentInfo>::EndSerialize(ColossalFramework.IO.DataSerializer)
+  IL_033F: endfinally 
+  IL_0340: ret 
+=== Method: System.Void EconomyManager::DeserializeInvestments(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: ldarg.0 
+  IL_0001: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32>::.ctor()
+  IL_0006: stfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32> EconomyManager::m_usedInfos
+  IL_000B: ldarg.1 
+  IL_000C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0011: ldc.i4 116000
+  IL_0016: blt.un IL_002c: ldarg.0
+  IL_001B: ldarg.0 
+  IL_001C: ldarg.1 
+  IL_001D: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_0022: stfld System.Int32 EconomyManager::m_lastUpdatedDay
+  IL_0027: br IL_0033: ldarg.1
+  IL_002C: ldarg.0 
+  IL_002D: ldc.i4.0 
+  IL_002E: stfld System.Int32 EconomyManager::m_lastUpdatedDay
+  IL_0033: ldarg.1 
+  IL_0034: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0039: ldc.i4 116000
+  IL_003E: blt.un IL_00fc: ldarg.1
+  IL_0043: ldarg.1 
+  IL_0044: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0049: ldc.i4 116008
+  IL_004E: bgt.un IL_00fc: ldarg.1
+  IL_0053: ldarg.1 
+  IL_0054: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_0059: stloc.0 
+  IL_005A: ldc.i4.0 
+  IL_005B: stloc.1 
+  IL_005C: br IL_00f5: ldloc.1
+  IL_0061: ldarg.1 
+  IL_0062: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0067: ldc.i4 116005
+  IL_006C: bgt.un IL_009d: ldarg.1
+  IL_0071: ldarg.1 
+  IL_0072: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0077: pop 
+  IL_0078: ldarg.1 
+  IL_0079: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_007E: stloc.2 
+  IL_007F: ldc.i4.0 
+  IL_0080: stloc.3 
+  IL_0081: br IL_0091: ldloc.3
+  IL_0086: ldarg.1 
+  IL_0087: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_008C: pop 
+  IL_008D: ldloc.3 
+  IL_008E: ldc.i4.1 
+  IL_008F: add 
+  IL_0090: stloc.3 
+  IL_0091: ldloc.3 
+  IL_0092: ldloc.2 
+  IL_0093: blt IL_0086: ldarg.1
+  IL_0098: br IL_00f1: ldloc.1
+  IL_009D: ldarg.1 
+  IL_009E: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00A3: ldc.i4 116007
+  IL_00A8: blt.un IL_00f1: ldloc.1
+  IL_00AD: ldarg.1 
+  IL_00AE: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_00B3: stloc.s V_4
+  IL_00B5: ldc.i4.0 
+  IL_00B6: stloc.s V_5
+  IL_00B8: br IL_00ca: ldloc.s V_5
+  IL_00BD: ldarg.1 
+  IL_00BE: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_00C3: pop 
+  IL_00C4: ldloc.s V_5
+  IL_00C6: ldc.i4.1 
+  IL_00C7: add 
+  IL_00C8: stloc.s V_5
+  IL_00CA: ldloc.s V_5
+  IL_00CC: ldloc.s V_4
+  IL_00CE: blt IL_00bd: ldarg.1
+  IL_00D3: ldarg.1 
+  IL_00D4: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00D9: ldc.i4 116008
+  IL_00DE: blt.un IL_00f1: ldloc.1
+  IL_00E3: ldarg.1 
+  IL_00E4: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_00E9: pop 
+  IL_00EA: ldarg.1 
+  IL_00EB: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_00F0: pop 
+  IL_00F1: ldloc.1 
+  IL_00F2: ldc.i4.1 
+  IL_00F3: add 
+  IL_00F4: stloc.1 
+  IL_00F5: ldloc.1 
+  IL_00F6: ldloc.0 
+  IL_00F7: blt IL_0061: ldarg.1
+  IL_00FC: ldarg.1 
+  IL_00FD: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0102: ldc.i4 116005
+  IL_0107: blt.un IL_011d: ldarg.0
+  IL_010C: ldarg.0 
+  IL_010D: ldarg.1 
+  IL_010E: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_0113: stfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0118: br IL_0124: ldarg.1
+  IL_011D: ldarg.0 
+  IL_011E: ldc.i4.0 
+  IL_011F: stfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0124: ldarg.1 
+  IL_0125: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_012A: ldc.i4 116010
+  IL_012F: blt.un IL_015d: ldarg.0
+  IL_0134: ldarg.0 
+  IL_0135: ldarg.1 
+  IL_0136: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_013B: stfld System.Int32 EconomyManager::m_lastUpdatedMonth
+  IL_0140: ldarg.0 
+  IL_0141: ldarg.1 
+  IL_0142: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_0147: stfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_014C: ldarg.0 
+  IL_014D: ldarg.1 
+  IL_014E: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_0153: stfld System.Int32 EconomyManager::m_finalMonthlyEarned
+  IL_0158: br IL_0172: ldarg.1
+  IL_015D: ldarg.0 
+  IL_015E: ldc.i4.0 
+  IL_015F: stfld System.Int32 EconomyManager::m_lastUpdatedMonth
+  IL_0164: ldarg.0 
+  IL_0165: ldc.i4.0 
+  IL_0166: stfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_016B: ldarg.0 
+  IL_016C: ldc.i4.0 
+  IL_016D: stfld System.Int32 EconomyManager::m_finalMonthlyEarned
+  IL_0172: ldarg.1 
+  IL_0173: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0178: ldc.i4 116014
+  IL_017D: blt.un IL_019f: ldarg.0
+  IL_0182: ldarg.0 
+  IL_0183: ldarg.1 
+  IL_0184: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_0189: stfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_018E: ldarg.0 
+  IL_018F: ldarg.1 
+  IL_0190: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_0195: stfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_019A: br IL_01ad: ldarg.1
+  IL_019F: ldarg.0 
+  IL_01A0: ldc.i4.0 
+  IL_01A1: stfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_01A6: ldarg.0 
+  IL_01A7: ldc.i4.0 
+  IL_01A8: stfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_01AD: ldarg.1 
+  IL_01AE: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01B3: ldc.i4 116015
+  IL_01B8: blt.un IL_0208: ldarg.0
+  IL_01BD: ldarg.0 
+  IL_01BE: ldarg.1 
+  IL_01BF: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_01C4: stfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_01C9: ldarg.0 
+  IL_01CA: ldarg.1 
+  IL_01CB: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_01D0: stfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_01D5: ldarg.0 
+  IL_01D6: ldarg.1 
+  IL_01D7: callvirt System.Int64 ColossalFramework.IO.DataSerializer::ReadLong64()
+  IL_01DC: newobj System.Void System.DateTime::.ctor(System.Int64)
+  IL_01E1: stfld System.DateTime EconomyManager::m_lastInvestmentBuy
+  IL_01E6: ldarg.0 
+  IL_01E7: ldarg.1 
+  IL_01E8: callvirt System.Int64 ColossalFramework.IO.DataSerializer::ReadLong64()
+  IL_01ED: newobj System.Void System.DateTime::.ctor(System.Int64)
+  IL_01F2: stfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_01F7: ldarg.0 
+  IL_01F8: ldarg.1 
+  IL_01F9: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+  IL_01FE: stfld System.Boolean EconomyManager::m_allIn
+  IL_0203: br IL_0233: ldarg.1
+  IL_0208: ldarg.0 
+  IL_0209: ldc.i4.0 
+  IL_020A: stfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_020F: ldarg.0 
+  IL_0210: ldc.i4.0 
+  IL_0211: stfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_0216: ldarg.0 
+  IL_0217: ldsfld System.DateTime System.DateTime::MinValue
+  IL_021C: stfld System.DateTime EconomyManager::m_lastInvestmentBuy
+  IL_0221: ldarg.0 
+  IL_0222: ldsfld System.DateTime System.DateTime::MinValue
+  IL_0227: stfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_022C: ldarg.0 
+  IL_022D: ldc.i4.0 
+  IL_022E: stfld System.Boolean EconomyManager::m_allIn
+  IL_0233: ldarg.1 
+  IL_0234: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0239: ldc.i4 116017
+  IL_023E: blt.un IL_026c: ldarg.0
+  IL_0243: ldarg.0 
+  IL_0244: ldarg.1 
+  IL_0245: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_024A: stfld GenericGuide EconomyManager::m_investmentsPanelOpened
+  IL_024F: ldarg.0 
+  IL_0250: ldarg.1 
+  IL_0251: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_0256: stfld GenericGuide EconomyManager::m_investmentBought
+  IL_025B: ldarg.0 
+  IL_025C: ldarg.1 
+  IL_025D: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_0262: stfld GenericGuide EconomyManager::m_investmentSold
+  IL_0267: br IL_0281: ldarg.0
+  IL_026C: ldarg.0 
+  IL_026D: ldnull 
+  IL_026E: stfld GenericGuide EconomyManager::m_investmentsPanelOpened
+  IL_0273: ldarg.0 
+  IL_0274: ldnull 
+  IL_0275: stfld GenericGuide EconomyManager::m_investmentBought
+  IL_027A: ldarg.0 
+  IL_027B: ldnull 
+  IL_027C: stfld GenericGuide EconomyManager::m_investmentSold
+  IL_0281: ldarg.0 
+  IL_0282: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0287: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_028C: ldlen 
+  IL_028D: conv.i4 
+  IL_028E: stloc.s V_6
+  IL_0290: ldarg.1 
+  IL_0291: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0296: ldc.i4 116009
+  IL_029B: blt.un IL_02e9: ldc.i4.1
+  IL_02A0: ldarg.1 
+  IL_02A1: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_02A6: stloc.s V_7
+  IL_02A8: ldc.i4.1 
+  IL_02A9: stloc.s V_8
+  IL_02AB: br IL_02d4: ldloc.s V_8
+  IL_02B0: ldarg.0 
+  IL_02B1: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_02B6: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_02BB: ldloc.s V_8
+  IL_02BD: ldelema Investment
+  IL_02C2: ldloc.s V_7
+  IL_02C4: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_02C9: stfld Investment/Flags Investment::m_flags
+  IL_02CE: ldloc.s V_8
+  IL_02D0: ldc.i4.1 
+  IL_02D1: add 
+  IL_02D2: stloc.s V_8
+  IL_02D4: ldloc.s V_8
+  IL_02D6: ldloc.s V_6
+  IL_02D8: blt IL_02b0: ldarg.0
+  IL_02DD: ldloc.s V_7
+  IL_02DF: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_02E4: br IL_0318: ldarg.1
+  IL_02E9: ldc.i4.1 
+  IL_02EA: stloc.s V_9
+  IL_02EC: br IL_030f: ldloc.s V_9
+  IL_02F1: ldarg.0 
+  IL_02F2: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_02F7: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_02FC: ldloc.s V_9
+  IL_02FE: ldelema Investment
+  IL_0303: ldc.i4.0 
+  IL_0304: stfld Investment/Flags Investment::m_flags
+  IL_0309: ldloc.s V_9
+  IL_030B: ldc.i4.1 
+  IL_030C: add 
+  IL_030D: stloc.s V_9
+  IL_030F: ldloc.s V_9
+  IL_0311: ldloc.s V_6
+  IL_0313: blt IL_02f1: ldarg.0
+  IL_0318: ldarg.1 
+  IL_0319: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_031E: ldc.i4 116009
+  IL_0323: blt.un IL_03be: ldarg.1
+  IL_0328: ldc.i4.1 
+  IL_0329: stloc.s V_10
+  IL_032B: br IL_03b5: ldloc.s V_10
+  IL_0330: ldarg.0 
+  IL_0331: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0336: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_033B: ldloc.s V_10
+  IL_033D: ldelema Investment
+  IL_0342: call System.Void Investment::ClearValues()
+  IL_0347: ldarg.0 
+  IL_0348: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_034D: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0352: ldloc.s V_10
+  IL_0354: ldelema Investment
+  IL_0359: ldfld Investment/Flags Investment::m_flags
+  IL_035E: brfalse IL_03af: ldloc.s V_10
+  IL_0363: ldarg.1 
+  IL_0364: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_0369: stloc.s V_11
+  IL_036B: ldarg.1 
+  IL_036C: call ColossalFramework.IO.EncodedArray/Float ColossalFramework.IO.EncodedArray/Float::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0371: stloc.s V_12
+  IL_0373: ldc.i4.0 
+  IL_0374: stloc.s V_13
+  IL_0376: br IL_039f: ldloc.s V_13
+  IL_037B: ldarg.0 
+  IL_037C: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0381: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0386: ldloc.s V_10
+  IL_0388: ldelema Investment
+  IL_038D: ldloc.s V_12
+  IL_038F: callvirt System.Single ColossalFramework.IO.EncodedArray/Float::Read()
+  IL_0394: call System.Void Investment::AddValue(System.Single)
+  IL_0399: ldloc.s V_13
+  IL_039B: ldc.i4.1 
+  IL_039C: add 
+  IL_039D: stloc.s V_13
+  IL_039F: ldloc.s V_13
+  IL_03A1: ldloc.s V_11
+  IL_03A3: blt IL_037b: ldarg.0
+  IL_03A8: ldloc.s V_12
+  IL_03AA: callvirt System.Void ColossalFramework.IO.EncodedArray/Float::EndRead()
+  IL_03AF: ldloc.s V_10
+  IL_03B1: ldc.i4.1 
+  IL_03B2: add 
+  IL_03B3: stloc.s V_10
+  IL_03B5: ldloc.s V_10
+  IL_03B7: ldloc.s V_6
+  IL_03B9: blt IL_0330: ldarg.0
+  IL_03BE: ldarg.1 
+  IL_03BF: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_03C4: ldc.i4 116009
+  IL_03C9: blt.un IL_04a9: ldarg.1
+  IL_03CE: ldc.i4.1 
+  IL_03CF: stloc.s V_14
+  IL_03D1: br IL_04a0: ldloc.s V_14
+  IL_03D6: ldarg.0 
+  IL_03D7: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_03DC: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_03E1: ldloc.s V_14
+  IL_03E3: ldelema Investment
+  IL_03E8: ldfld Investment/Flags Investment::m_flags
+  IL_03ED: brfalse IL_044e: ldarg.0
+  IL_03F2: ldarg.0 
+  IL_03F3: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_03F8: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_03FD: ldloc.s V_14
+  IL_03FF: ldelema Investment
+  IL_0404: ldarg.1 
+  IL_0405: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt32()
+  IL_040A: stfld System.Int32 Investment::m_playerSpentMoney
+  IL_040F: ldarg.0 
+  IL_0410: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0415: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_041A: ldloc.s V_14
+  IL_041C: ldelema Investment
+  IL_0421: ldarg.1 
+  IL_0422: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0427: stfld System.UInt32 Investment::m_playerOwnedShareCount
+  IL_042C: ldarg.0 
+  IL_042D: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0432: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0437: ldloc.s V_14
+  IL_0439: ldelema Investment
+  IL_043E: ldarg.1 
+  IL_043F: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_0444: stfld System.Single Investment::m_baseValue
+  IL_0449: br IL_049a: ldloc.s V_14
+  IL_044E: ldarg.0 
+  IL_044F: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0454: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0459: ldloc.s V_14
+  IL_045B: ldelema Investment
+  IL_0460: ldc.i4.0 
+  IL_0461: stfld System.Int32 Investment::m_playerSpentMoney
+  IL_0466: ldarg.0 
+  IL_0467: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_046C: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0471: ldloc.s V_14
+  IL_0473: ldelema Investment
+  IL_0478: ldc.i4.0 
+  IL_0479: stfld System.UInt32 Investment::m_playerOwnedShareCount
+  IL_047E: ldarg.0 
+  IL_047F: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0484: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0489: ldloc.s V_14
+  IL_048B: ldelema Investment
+  IL_0490: ldc.r4 0
+  IL_0495: stfld System.Single Investment::m_baseValue
+  IL_049A: ldloc.s V_14
+  IL_049C: ldc.i4.1 
+  IL_049D: add 
+  IL_049E: stloc.s V_14
+  IL_04A0: ldloc.s V_14
+  IL_04A2: ldloc.s V_6
+  IL_04A4: blt IL_03d6: ldarg.0
+  IL_04A9: ldarg.1 
+  IL_04AA: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_04AF: ldc.i4 116010
+  IL_04B4: blt.un IL_053d: ldc.i4.1
+  IL_04B9: ldc.i4.1 
+  IL_04BA: stloc.s V_15
+  IL_04BC: br IL_052f: ldloc.s V_15
+  IL_04C1: ldarg.0 
+  IL_04C2: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_04C7: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_04CC: ldloc.s V_15
+  IL_04CE: ldelema Investment
+  IL_04D3: ldfld Investment/Flags Investment::m_flags
+  IL_04D8: brfalse IL_0504: ldarg.0
+  IL_04DD: ldarg.0 
+  IL_04DE: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_04E3: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_04E8: ldloc.s V_15
+  IL_04EA: ldelema Investment
+  IL_04EF: ldarg.1 
+  IL_04F0: callvirt System.Int64 ColossalFramework.IO.DataSerializer::ReadLong64()
+  IL_04F5: newobj System.Void System.DateTime::.ctor(System.Int64)
+  IL_04FA: stfld System.DateTime Investment::m_requirementMissingDate
+  IL_04FF: br IL_0529: ldloc.s V_15
+  IL_0504: ldarg.0 
+  IL_0505: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_050A: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_050F: ldloc.s V_15
+  IL_0511: ldelema Investment
+  IL_0516: ldsfld System.DateTime System.DateTime::MaxValue
+  IL_051B: stloc.s V_16
+  IL_051D: ldloca.s V_16
+  IL_051F: call System.DateTime System.DateTime::get_Date()
+  IL_0524: stfld System.DateTime Investment::m_requirementMissingDate
+  IL_0529: ldloc.s V_15
+  IL_052B: ldc.i4.1 
+  IL_052C: add 
+  IL_052D: stloc.s V_15
+  IL_052F: ldloc.s V_15
+  IL_0531: ldloc.s V_6
+  IL_0533: blt IL_04c1: ldarg.0
+  IL_0538: br IL_0579: ldarg.1
+  IL_053D: ldc.i4.1 
+  IL_053E: stloc.s V_17
+  IL_0540: br IL_0570: ldloc.s V_17
+  IL_0545: ldarg.0 
+  IL_0546: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_054B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0550: ldloc.s V_17
+  IL_0552: ldelema Investment
+  IL_0557: ldsfld System.DateTime System.DateTime::MaxValue
+  IL_055C: stloc.s V_18
+  IL_055E: ldloca.s V_18
+  IL_0560: call System.DateTime System.DateTime::get_Date()
+  IL_0565: stfld System.DateTime Investment::m_requirementMissingDate
+  IL_056A: ldloc.s V_17
+  IL_056C: ldc.i4.1 
+  IL_056D: add 
+  IL_056E: stloc.s V_17
+  IL_0570: ldloc.s V_17
+  IL_0572: ldloc.s V_6
+  IL_0574: blt IL_0545: ldarg.0
+  IL_0579: ldarg.1 
+  IL_057A: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_057F: ldc.i4 116012
+  IL_0584: blt.un IL_0634: ldc.i4.1
+  IL_0589: ldc.i4.1 
+  IL_058A: stloc.s V_19
+  IL_058C: br IL_0626: ldloc.s V_19
+  IL_0591: ldarg.0 
+  IL_0592: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0597: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_059C: ldloc.s V_19
+  IL_059E: ldelema Investment
+  IL_05A3: ldfld Investment/Flags Investment::m_flags
+  IL_05A8: brfalse IL_05ec: ldarg.0
+  IL_05AD: ldarg.0 
+  IL_05AE: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_05B3: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_05B8: ldloc.s V_19
+  IL_05BA: ldelema Investment
+  IL_05BF: ldarg.1 
+  IL_05C0: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_05C5: stfld RandomRiskInvestmentAI/State Investment::m_currentState
+  IL_05CA: ldarg.0 
+  IL_05CB: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_05D0: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_05D5: ldloc.s V_19
+  IL_05D7: ldelema Investment
+  IL_05DC: ldarg.1 
+  IL_05DD: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_05E2: stfld System.Single Investment::m_randomInfluence
+  IL_05E7: br IL_0620: ldloc.s V_19
+  IL_05EC: ldarg.0 
+  IL_05ED: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_05F2: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_05F7: ldloc.s V_19
+  IL_05F9: ldelema Investment
+  IL_05FE: ldc.i4.0 
+  IL_05FF: stfld RandomRiskInvestmentAI/State Investment::m_currentState
+  IL_0604: ldarg.0 
+  IL_0605: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_060A: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_060F: ldloc.s V_19
+  IL_0611: ldelema Investment
+  IL_0616: ldc.r4 0
+  IL_061B: stfld System.Single Investment::m_randomInfluence
+  IL_0620: ldloc.s V_19
+  IL_0622: ldc.i4.1 
+  IL_0623: add 
+  IL_0624: stloc.s V_19
+  IL_0626: ldloc.s V_19
+  IL_0628: ldloc.s V_6
+  IL_062A: blt IL_0591: ldarg.0
+  IL_062F: br IL_067f: ldarg.1
+  IL_0634: ldc.i4.1 
+  IL_0635: stloc.s V_20
+  IL_0637: br IL_0676: ldloc.s V_20
+  IL_063C: ldarg.0 
+  IL_063D: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0642: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0647: ldloc.s V_20
+  IL_0649: ldelema Investment
+  IL_064E: ldc.i4.0 
+  IL_064F: stfld RandomRiskInvestmentAI/State Investment::m_currentState
+  IL_0654: ldarg.0 
+  IL_0655: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_065A: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_065F: ldloc.s V_20
+  IL_0661: ldelema Investment
+  IL_0666: ldc.r4 0
+  IL_066B: stfld System.Single Investment::m_randomInfluence
+  IL_0670: ldloc.s V_20
+  IL_0672: ldc.i4.1 
+  IL_0673: add 
+  IL_0674: stloc.s V_20
+  IL_0676: ldloc.s V_20
+  IL_0678: ldloc.s V_6
+  IL_067A: blt IL_063c: ldarg.0
+  IL_067F: ldarg.1 
+  IL_0680: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0685: ldc.i4 116009
+  IL_068A: blt.un IL_075e: ret
+  IL_068F: ldarg.1 
+  IL_0690: call System.Void PrefabCollection`1<InvestmentInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_0695: ldc.i4.1 
+  IL_0696: stloc.s V_21
+  IL_0698: br IL_074f: ldloc.s V_21
+  IL_069D: ldarg.0 
+  IL_069E: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_06A3: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_06A8: ldloc.s V_21
+  IL_06AA: ldelema Investment
+  IL_06AF: ldfld Investment/Flags Investment::m_flags
+  IL_06B4: brfalse IL_0749: ldloc.s V_21
+  IL_06B9: ldarg.0 
+  IL_06BA: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_06BF: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_06C4: ldloc.s V_21
+  IL_06C6: ldelema Investment
+  IL_06CB: ldc.i4.1 
+  IL_06CC: call System.UInt32 PrefabCollection`1<InvestmentInfo>::Deserialize(System.Boolean)
+  IL_06D1: conv.u2 
+  IL_06D2: stfld System.UInt16 Investment::m_infoIndex
+  IL_06D7: ldarg.0 
+  IL_06D8: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32> EconomyManager::m_usedInfos
+  IL_06DD: ldarg.0 
+  IL_06DE: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_06E3: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_06E8: ldloc.s V_21
+  IL_06EA: ldelema Investment
+  IL_06EF: ldfld System.UInt16 Investment::m_infoIndex
+  IL_06F4: callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32>::ContainsKey(!0)
+  IL_06F9: brtrue IL_0727: ldarg.0
+  IL_06FE: ldarg.0 
+  IL_06FF: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32> EconomyManager::m_usedInfos
+  IL_0704: ldarg.0 
+  IL_0705: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_070A: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_070F: ldloc.s V_21
+  IL_0711: ldelema Investment
+  IL_0716: ldfld System.UInt16 Investment::m_infoIndex
+  IL_071B: ldloc.s V_21
+  IL_071D: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32>::Add(!0,!1)
+  IL_0722: br IL_0749: ldloc.s V_21
+  IL_0727: ldarg.0 
+  IL_0728: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_072D: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0732: ldloc.s V_21
+  IL_0734: ldelema Investment
+  IL_0739: ldc.i4.0 
+  IL_073A: stfld Investment/Flags Investment::m_flags
+  IL_073F: ldstr Adding the same investment
+  IL_0744: call System.Void UnityEngine.Debug::LogWarning(System.Object)
+  IL_0749: ldloc.s V_21
+  IL_074B: ldc.i4.1 
+  IL_074C: add 
+  IL_074D: stloc.s V_21
+  IL_074F: ldloc.s V_21
+  IL_0751: ldloc.s V_6
+  IL_0753: blt IL_069d: ldarg.0
+  IL_0758: ldarg.1 
+  IL_0759: call System.Void PrefabCollection`1<InvestmentInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_075E: ret 
+=== Method: System.Boolean EconomyManager::CreateInvestment(System.Byte&,ColossalFramework.Math.Randomizer&,InvestmentInfo) ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0006: ldarg.1 
+  IL_0007: ldarg.2 
+  IL_0008: callvirt System.Boolean Array8`1<Investment>::CreateItem(System.Byte&,ColossalFramework.Math.Randomizer&)
+  IL_000D: brfalse IL_009e: ldarg.1
+  IL_0012: ldarg.0 
+  IL_0013: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0018: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_001D: ldarg.1 
+  IL_001E: ldind.u1 
+  IL_001F: ldelema Investment
+  IL_0024: call System.Void Investment::ClearValues()
+  IL_0029: ldarg.0 
+  IL_002A: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_002F: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0034: ldarg.1 
+  IL_0035: ldind.u1 
+  IL_0036: ldelema Investment
+  IL_003B: ldc.i4.2 
+  IL_003C: stfld Investment/Flags Investment::m_flags
+  IL_0041: ldarg.0 
+  IL_0042: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0047: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_004C: ldarg.1 
+  IL_004D: ldind.u1 
+  IL_004E: ldelema Investment
+  IL_0053: ldsfld System.DateTime System.DateTime::MaxValue
+  IL_0058: stloc.0 
+  IL_0059: ldloca.s V_0
+  IL_005B: call System.DateTime System.DateTime::get_Date()
+  IL_0060: stfld System.DateTime Investment::m_requirementMissingDate
+  IL_0065: ldarg.0 
+  IL_0066: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_006B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0070: ldarg.1 
+  IL_0071: ldind.u1 
+  IL_0072: ldelema Investment
+  IL_0077: ldarg.3 
+  IL_0078: call System.Void Investment::set_Info(InvestmentInfo)
+  IL_007D: ldarg.3 
+  IL_007E: ldfld InvestmentAI InvestmentInfo::m_investmentAI
+  IL_0083: ldarg.1 
+  IL_0084: ldind.u1 
+  IL_0085: ldarg.0 
+  IL_0086: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_008B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0090: ldarg.1 
+  IL_0091: ldind.u1 
+  IL_0092: ldelema Investment
+  IL_0097: callvirt System.Void InvestmentAI::CreateInvestment(System.Byte,Investment&)
+  IL_009C: ldc.i4.1 
+  IL_009D: ret 
+  IL_009E: ldarg.1 
+  IL_009F: ldc.i4.0 
+  IL_00A0: stind.i1 
+  IL_00A1: ldc.i4.0 
+  IL_00A2: ret 
+=== Method: System.Void EconomyManager::ResetAllInvestments() ===
+  IL_0000: ldarg.0 
+  IL_0001: ldc.i4.0 
+  IL_0002: stfld System.Int32 EconomyManager::m_moneyEarnedFromInvestments
+  IL_0007: ldarg.0 
+  IL_0008: ldc.i4.0 
+  IL_0009: stfld System.Int32 EconomyManager::m_tempMonthlyEarned
+  IL_000E: ldarg.0 
+  IL_000F: ldc.i4.0 
+  IL_0010: stfld System.Int32 EconomyManager::m_finalMonthlyEarned
+  IL_0015: ldarg.0 
+  IL_0016: ldc.i4.0 
+  IL_0017: stfld System.Int32 EconomyManager::m_tempCashCollecting
+  IL_001C: ldarg.0 
+  IL_001D: ldc.i4.0 
+  IL_001E: stfld System.Int32 EconomyManager::m_finalCashCollecting
+  IL_0023: ldarg.0 
+  IL_0024: ldsfld System.DateTime System.DateTime::MinValue
+  IL_0029: stfld System.DateTime EconomyManager::m_lastInvestmentSell
+  IL_002E: ldarg.0 
+  IL_002F: ldsfld System.DateTime System.DateTime::MinValue
+  IL_0034: stfld System.DateTime EconomyManager::m_lastInvestmentBuy
+  IL_0039: ldarg.0 
+  IL_003A: ldc.i4.0 
+  IL_003B: stfld System.Int32 EconomyManager::m_finalSpendOnInvestment
+  IL_0040: ldarg.0 
+  IL_0041: ldc.i4.0 
+  IL_0042: stfld System.Int32 EconomyManager::m_tempSpendOnInvestment
+  IL_0047: ldarg.0 
+  IL_0048: ldc.i4.0 
+  IL_0049: stfld System.Boolean EconomyManager::m_allIn
+  IL_004E: ldc.i4.0 
+  IL_004F: stloc.0 
+  IL_0050: br IL_00aa: ldloc.0
+  IL_0055: ldarg.0 
+  IL_0056: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_005B: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_0060: ldloc.0 
+  IL_0061: ldelema Investment
+  IL_0066: ldfld Investment/Flags Investment::m_flags
+  IL_006B: ldc.i4.2 
+  IL_006C: and 
+  IL_006D: conv.u2 
+  IL_006E: brfalse IL_00a5: ldloc.0
+  IL_0073: ldarg.0 
+  IL_0074: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0079: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_007E: ldloc.0 
+  IL_007F: ldelema Investment
+  IL_0084: call InvestmentInfo Investment::get_Info()
+  IL_0089: ldfld InvestmentAI InvestmentInfo::m_investmentAI
+  IL_008E: ldloc.0 
+  IL_008F: ldarg.0 
+  IL_0090: ldfld Array8`1<Investment> EconomyManager::m_investments
+  IL_0095: ldfld T[] Array8`1<Investment>::m_buffer
+  IL_009A: ldloc.0 
+  IL_009B: ldelema Investment
+  IL_00A0: callvirt System.Void InvestmentAI::ResetInvestment(System.Byte,Investment&)
+  IL_00A5: ldloc.0 
+  IL_00A6: ldc.i4.1 
+  IL_00A7: add 
+  IL_00A8: conv.u1 
+  IL_00A9: stloc.0 
+  IL_00AA: ldloc.0 
+  IL_00AB: ldc.i4 255
+  IL_00B0: blt IL_0055: ldarg.0
+  IL_00B5: ldarg.0 
+  IL_00B6: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32> EconomyManager::m_usedInfos
+  IL_00BB: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.Int32>::Clear()
+  IL_00C0: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_00C5: ldarg.0 
+  IL_00C6: ldftn System.Void EconomyManager::InvestmentsUpdated()
+  IL_00CC: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_00D1: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_00D6: pop 
+  IL_00D7: ret 
+=== Method: System.Void EconomyManager::<AddInvestmentProfit>m__2() ===
+  IL_0000: ldstr CantBuyMeLove
+  IL_0005: call System.Void SteamHelper::UnlockAchievement(System.String)
+  IL_000A: ret 
+=== Method: System.Void EconomyManager::<SimulationStepInvestments>m__3() ===
+  IL_0000: ldstr AllIn
+  IL_0005: call System.Void SteamHelper::UnlockAchievement(System.String)
+  IL_000A: ret 
+=== Method: System.Void EconomyManager::<SimulationStepInvestments>m__4() ===
+  IL_0000: ldstr SoMuchCash
+  IL_0005: call System.Void SteamHelper::UnlockAchievement(System.String)
+  IL_000A: ret 
+=== Method: System.Void EconomyManager/Data::AfterDeserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000A: ldarg.1 
+  IL_000B: ldstr EconomyManager
+  IL_0010: callvirt System.Void LoadingProfiler::BeginAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_001A: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_001F: ldarg.1 
+  IL_0020: ldstr EconomyManager
+  IL_0025: callvirt System.Void LoadingProfiler::EndAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_002A: ret 

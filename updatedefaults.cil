@@ -1,0 +1,179 @@
+Method: System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager::UpdateDefaults(TrafficManager.API.Traffic.Data.ExtSegment&)
+  IL_0000: ldarg.1
+  IL_0001: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegment::segmentId
+  IL_0006: stloc.0
+  IL_0007: ldloc.0
+  IL_0008: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_000d: stloc.1
+  IL_000e: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_0013: callvirt TrafficManager.API.Manager.IExtSegmentEndManager TrafficManager.API.Manager.IManagerFactory::get_ExtSegmentEndManager()
+  IL_0018: stloc.2
+  IL_0019: ldarg.0
+  IL_001a: ldloc.2
+  IL_001b: callvirt TrafficManager.API.Traffic.Data.ExtSegmentEnd[] TrafficManager.API.Manager.IExtSegmentEndManager::get_ExtSegmentEnds()
+  IL_0020: ldloc.2
+  IL_0021: ldloc.0
+  IL_0022: ldc.i4.1
+  IL_0023: callvirt System.Int32 TrafficManager.API.Manager.IExtSegmentEndManager::GetIndex(System.UInt16,System.Boolean)
+  IL_0028: ldelema TrafficManager.API.Traffic.Data.ExtSegmentEnd
+  IL_002d: ldarg.0
+  IL_002e: ldfld TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions[] TrafficManager.Manager.Impl.JunctionRestrictionsManager::segmentRestrictions
+  IL_0033: ldloc.0
+  IL_0034: ldelema TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions
+  IL_0039: ldflda TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions::startNodeRestrictions
+  IL_003e: ldloc.1
+  IL_003f: ldfld System.UInt16 NetSegment::m_startNode
+  IL_0044: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_0049: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager::UpdateDefaults(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions&,NetNode&)
+  IL_004e: ldarg.0
+  IL_004f: ldloc.2
+  IL_0050: callvirt TrafficManager.API.Traffic.Data.ExtSegmentEnd[] TrafficManager.API.Manager.IExtSegmentEndManager::get_ExtSegmentEnds()
+  IL_0055: ldloc.2
+  IL_0056: ldloc.0
+  IL_0057: ldc.i4.0
+  IL_0058: callvirt System.Int32 TrafficManager.API.Manager.IExtSegmentEndManager::GetIndex(System.UInt16,System.Boolean)
+  IL_005d: ldelema TrafficManager.API.Traffic.Data.ExtSegmentEnd
+  IL_0062: ldarg.0
+  IL_0063: ldfld TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions[] TrafficManager.Manager.Impl.JunctionRestrictionsManager::segmentRestrictions
+  IL_0068: ldloc.0
+  IL_0069: ldelema TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions
+  IL_006e: ldflda TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions TrafficManager.Manager.Impl.JunctionRestrictionsManager/SegmentJunctionRestrictions::endNodeRestrictions
+  IL_0073: ldloc.1
+  IL_0074: ldfld System.UInt16 NetSegment::m_endNode
+  IL_0079: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_007e: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager::UpdateDefaults(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions&,NetNode&)
+  IL_0083: ret
+Method: System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager::UpdateDefaults(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions&,NetNode&)
+  IL_0000: ldarg.0
+  IL_0001: ldarg.1
+  IL_0002: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0007: ldarg.1
+  IL_0008: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_000d: ldarg.3
+  IL_000e: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsUturnAllowedConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_0013: brtrue.s IL_001c
+  IL_0015: ldarg.2
+  IL_0016: ldc.i4.1
+  IL_0017: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_001c: ldarg.0
+  IL_001d: ldarg.1
+  IL_001e: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0023: ldarg.1
+  IL_0024: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_0029: ldarg.3
+  IL_002a: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsNearTurnOnRedAllowedConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_002f: brtrue.s IL_0038
+  IL_0031: ldarg.2
+  IL_0032: ldc.i4.2
+  IL_0033: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_0038: ldarg.0
+  IL_0039: ldarg.1
+  IL_003a: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_003f: ldarg.1
+  IL_0040: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_0045: ldarg.3
+  IL_0046: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsFarTurnOnRedAllowedConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_004b: brtrue.s IL_0054
+  IL_004d: ldarg.2
+  IL_004e: ldc.i4.4
+  IL_004f: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_0054: ldarg.0
+  IL_0055: ldarg.1
+  IL_0056: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_005b: ldarg.1
+  IL_005c: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_0061: ldarg.3
+  IL_0062: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsLaneChangingAllowedWhenGoingStraightConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_0067: brtrue.s IL_0070
+  IL_0069: ldarg.2
+  IL_006a: ldc.i4.8
+  IL_006b: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_0070: ldarg.0
+  IL_0071: ldarg.1
+  IL_0072: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0077: ldarg.1
+  IL_0078: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_007d: ldarg.3
+  IL_007e: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsEnteringBlockedJunctionAllowedConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_0083: brtrue.s IL_008d
+  IL_0085: ldarg.2
+  IL_0086: ldc.i4.s 16
+  IL_0088: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_008d: ldarg.0
+  IL_008e: ldarg.1
+  IL_008f: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0094: ldarg.1
+  IL_0095: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_009a: ldarg.3
+  IL_009b: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsPedestrianCrossingAllowedConfigurable(System.UInt16,System.Boolean,NetNode&)
+  IL_00a0: brtrue.s IL_00aa
+  IL_00a2: ldarg.2
+  IL_00a3: ldc.i4.s 32
+  IL_00a5: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::ClearValue(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags)
+  IL_00aa: ldarg.2
+  IL_00ab: ldc.i4.1
+  IL_00ac: ldarg.0
+  IL_00ad: ldarg.1
+  IL_00ae: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_00b3: ldarg.1
+  IL_00b4: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_00b9: ldarg.3
+  IL_00ba: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultUturnAllowed(System.UInt16,System.Boolean,NetNode&)
+  IL_00bf: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_00c4: ldarg.2
+  IL_00c5: ldc.i4.2
+  IL_00c6: ldarg.0
+  IL_00c7: ldarg.1
+  IL_00c8: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_00cd: ldarg.1
+  IL_00ce: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_00d3: ldarg.3
+  IL_00d4: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultNearTurnOnRedAllowed(System.UInt16,System.Boolean,NetNode&)
+  IL_00d9: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_00de: ldarg.2
+  IL_00df: ldc.i4.4
+  IL_00e0: ldarg.0
+  IL_00e1: ldarg.1
+  IL_00e2: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_00e7: ldarg.1
+  IL_00e8: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_00ed: ldarg.3
+  IL_00ee: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultFarTurnOnRedAllowed(System.UInt16,System.Boolean,NetNode&)
+  IL_00f3: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_00f8: ldarg.2
+  IL_00f9: ldc.i4.8
+  IL_00fa: ldarg.0
+  IL_00fb: ldarg.1
+  IL_00fc: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0101: ldarg.1
+  IL_0102: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_0107: ldarg.3
+  IL_0108: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultLaneChangingAllowedWhenGoingStraight(System.UInt16,System.Boolean,NetNode&)
+  IL_010d: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_0112: ldarg.2
+  IL_0113: ldc.i4.s 16
+  IL_0115: ldarg.0
+  IL_0116: ldarg.1
+  IL_0117: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_011c: ldarg.1
+  IL_011d: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_0122: ldarg.3
+  IL_0123: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultEnteringBlockedJunctionAllowed(System.UInt16,System.Boolean,NetNode&)
+  IL_0128: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_012d: ldarg.2
+  IL_012e: ldc.i4.s 32
+  IL_0130: ldarg.0
+  IL_0131: ldarg.1
+  IL_0132: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_0137: ldarg.1
+  IL_0138: ldfld System.Boolean TrafficManager.API.Traffic.Data.ExtSegmentEnd::startNode
+  IL_013d: ldarg.3
+  IL_013e: call System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::GetDefaultPedestrianCrossingAllowed(System.UInt16,System.Boolean,NetNode&)
+  IL_0143: call System.Void TrafficManager.Manager.Impl.JunctionRestrictionsManager/JunctionRestrictions::SetDefault(TrafficManager.API.Traffic.Enums.JunctionRestrictionFlags,System.Boolean)
+  IL_0148: call TrafficManager.Notifier TrafficManager.Notifier::get_Instance()
+  IL_014d: ldarg.1
+  IL_014e: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::nodeId
+  IL_0153: ldarg.0
+  IL_0154: ldnull
+  IL_0155: callvirt System.Void TrafficManager.Notifier::OnNodeModified(System.UInt16,System.Object,System.Object)
+  IL_015a: ret

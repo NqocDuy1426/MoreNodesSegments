@@ -1,0 +1,373 @@
+=== System.Void SimulationManager/Data::Deserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "SimulationManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_001a: stloc.0
+  IL_001b: ldloc.0
+  IL_001c: ldc.i4.1
+  IL_001d: stfld System.Int32 SimulationManager::m_simulationSpeed
+  IL_0022: ldloc.0
+  IL_0023: ldloc.0
+  IL_0024: ldfld ColossalFramework.SavedBool SimulationManager::m_pauseOnLoad
+  IL_0029: call System.Boolean ColossalFramework.SavedBool::op_Implicit(ColossalFramework.SavedBool)
+  IL_002e: stfld System.Boolean SimulationManager::m_simulationPaused
+  IL_0033: ldarg.1
+  IL_0034: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0039: ldc.i4.s 37
+  IL_003b: bge.un IL_0060
+  IL_0040: ldstr "File version "
+  IL_0045: ldarg.1
+  IL_0046: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_004b: box System.UInt32
+  IL_0050: ldstr " is no longer supported :("
+  IL_0055: call System.String System.String::Concat(System.Object,System.Object,System.Object)
+  IL_005a: newobj System.Void System.Exception::.ctor(System.String)
+  IL_005f: throw
+  IL_0060: ldarg.1
+  IL_0061: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0066: ldc.i4.s 84
+  IL_0068: blt.un IL_007e
+  IL_006d: ldloc.0
+  IL_006e: ldarg.1
+  IL_006f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0074: stfld System.UInt32 SimulationManager::m_currentTickIndex
+  IL_0079: br IL_0085
+  IL_007e: ldloc.0
+  IL_007f: ldc.i4.0
+  IL_0080: stfld System.UInt32 SimulationManager::m_currentTickIndex
+  IL_0085: ldarg.1
+  IL_0086: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_008b: ldc.i4.5
+  IL_008c: blt.un IL_009d
+  IL_0091: ldloc.0
+  IL_0092: ldarg.1
+  IL_0093: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0098: stfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_009d: ldarg.1
+  IL_009e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00a3: ldc.i4.s 13
+  IL_00a5: blt.un IL_00bb
+  IL_00aa: ldloc.0
+  IL_00ab: ldarg.1
+  IL_00ac: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_00b1: stfld System.UInt32 SimulationManager::m_currentBuildIndex
+  IL_00b6: br IL_00c7
+  IL_00bb: ldloc.0
+  IL_00bc: ldloc.0
+  IL_00bd: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_00c2: stfld System.UInt32 SimulationManager::m_currentBuildIndex
+  IL_00c7: ldarg.1
+  IL_00c8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00cd: ldc.i4.s 10
+  IL_00cf: blt.un IL_00e5
+  IL_00d4: ldloc.0
+  IL_00d5: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_00da: ldarg.1
+  IL_00db: callvirt System.UInt64 ColossalFramework.IO.DataSerializer::ReadULong64()
+  IL_00e0: stfld System.UInt64 ColossalFramework.Math.Randomizer::seed
+  IL_00e5: ldarg.1
+  IL_00e6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00eb: ldc.i4 212
+  IL_00f0: blt.un IL_0101
+  IL_00f5: ldloc.0
+  IL_00f6: ldarg.1
+  IL_00f7: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_00fc: stfld System.UInt32 SimulationManager::m_dayTimeOffsetFrames
+  IL_0101: ldloc.0
+  IL_0102: ldfld System.Boolean SimulationManager::m_enableDayNight
+  IL_0107: brfalse IL_011c
+  IL_010c: ldarg.1
+  IL_010d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0112: ldc.i4 212
+  IL_0117: bge.un IL_0138
+  IL_011c: ldloc.0
+  IL_011d: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_0122: ldc.i4.1
+  IL_0123: shr.un
+  IL_0124: ldloc.0
+  IL_0125: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_012a: sub
+  IL_012b: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_0130: ldc.i4.1
+  IL_0131: sub
+  IL_0132: and
+  IL_0133: stfld System.UInt32 SimulationManager::m_dayTimeOffsetFrames
+  IL_0138: ldloc.0
+  IL_0139: ldloc.0
+  IL_013a: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_013f: ldloc.0
+  IL_0140: ldfld System.UInt32 SimulationManager::m_dayTimeOffsetFrames
+  IL_0145: add
+  IL_0146: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_014b: ldc.i4.1
+  IL_014c: sub
+  IL_014d: and
+  IL_014e: stfld System.UInt32 SimulationManager::m_dayTimeFrame
+  IL_0153: ldloc.0
+  IL_0154: ldfld System.UInt32 SimulationManager::m_dayTimeFrame
+  IL_0159: conv.r.un
+  IL_015a: conv.r4
+  IL_015b: ldsfld System.Single SimulationManager::DAYTIME_FRAME_TO_HOUR
+  IL_0160: mul
+  IL_0161: stloc.1
+  IL_0162: ldloc.0
+  IL_0163: ldloc.1
+  IL_0164: ldsfld System.Single SimulationManager::SUNRISE_HOUR
+  IL_0169: blt IL_0178
+  IL_016e: ldloc.1
+  IL_016f: ldsfld System.Single SimulationManager::SUNSET_HOUR
+  IL_0174: cgt
+  IL_0176: br.s IL_0179
+  IL_0178: ldc.i4.1
+  IL_0179: stfld System.Boolean SimulationManager::m_isNightTime
+  IL_017e: ldarg.1
+  IL_017f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0184: ldc.i4.s 20
+  IL_0186: blt.un IL_01d4
+  IL_018b: ldarg.1
+  IL_018c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0191: ldc.i4 183
+  IL_0196: bge.un IL_01d4
+  IL_019b: ldloc.0
+  IL_019c: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_01a1: ldflda System.DateTime SimulationMetaData::m_currentDateTime
+  IL_01a6: call System.Int64 System.DateTime::get_Ticks()
+  IL_01ab: ldc.i4.0
+  IL_01ac: conv.i8
+  IL_01ad: bne.un IL_01cd
+  IL_01b2: ldloc.0
+  IL_01b3: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_01b8: ldarg.1
+  IL_01b9: callvirt System.Int64 ColossalFramework.IO.DataSerializer::ReadLong64()
+  IL_01be: newobj System.Void System.DateTime::.ctor(System.Int64)
+  IL_01c3: stfld System.DateTime SimulationMetaData::m_currentDateTime
+  IL_01c8: br IL_01d4
+  IL_01cd: ldarg.1
+  IL_01ce: callvirt System.Int64 ColossalFramework.IO.DataSerializer::ReadLong64()
+  IL_01d3: pop
+  IL_01d4: ldloc.0
+  IL_01d5: ldloc.0
+  IL_01d6: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_01db: ldflda System.DateTime SimulationMetaData::m_currentDateTime
+  IL_01e0: call System.Int64 System.DateTime::get_Ticks()
+  IL_01e5: ldloc.0
+  IL_01e6: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_01eb: conv.u8
+  IL_01ec: ldloc.0
+  IL_01ed: ldflda System.TimeSpan SimulationManager::m_timePerFrame
+  IL_01f2: call System.Int64 System.TimeSpan::get_Ticks()
+  IL_01f7: mul
+  IL_01f8: sub
+  IL_01f9: stfld System.Int64 SimulationManager::m_timeOffsetTicks
+  IL_01fe: ldarg.1
+  IL_01ff: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0204: ldc.i4 164
+  IL_0209: blt.un IL_023a
+  IL_020e: ldc.i4.0
+  IL_020f: stloc.2
+  IL_0210: br IL_0227
+  IL_0215: ldloc.0
+  IL_0216: ldfld System.UInt32[] SimulationManager::m_buildIndexHistory
+  IL_021b: ldloc.2
+  IL_021c: ldarg.1
+  IL_021d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0222: stelem.i4
+  IL_0223: ldloc.2
+  IL_0224: ldc.i4.1
+  IL_0225: add
+  IL_0226: stloc.2
+  IL_0227: ldloc.2
+  IL_0228: ldloc.0
+  IL_0229: ldfld System.UInt32[] SimulationManager::m_buildIndexHistory
+  IL_022e: ldlen
+  IL_022f: conv.i4
+  IL_0230: blt IL_0215
+  IL_0235: br IL_0261
+  IL_023a: ldc.i4.0
+  IL_023b: stloc.3
+  IL_023c: br IL_0253
+  IL_0241: ldloc.0
+  IL_0242: ldfld System.UInt32[] SimulationManager::m_buildIndexHistory
+  IL_0247: ldloc.3
+  IL_0248: ldloc.0
+  IL_0249: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+  IL_024e: stelem.i4
+  IL_024f: ldloc.3
+  IL_0250: ldc.i4.1
+  IL_0251: add
+  IL_0252: stloc.3
+  IL_0253: ldloc.3
+  IL_0254: ldloc.0
+  IL_0255: ldfld System.UInt32[] SimulationManager::m_buildIndexHistory
+  IL_025a: ldlen
+  IL_025b: conv.i4
+  IL_025c: blt IL_0241
+  IL_0261: ldarg.1
+  IL_0262: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0267: ldc.i4.s 41
+  IL_0269: blt.un IL_027a
+  IL_026e: ldarg.1
+  IL_026f: callvirt !!0[] ColossalFramework.IO.DataSerializer::ReadObjectArray<ColossalFramework.IO.IDataContainer>()
+  IL_0274: pop
+  IL_0275: br IL_0376
+  IL_027a: ldarg.1
+  IL_027b: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0280: ldc.i4.s 9
+  IL_0282: blt.un IL_028e
+  IL_0287: ldarg.1
+  IL_0288: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ErrorManager/Data>()
+  IL_028d: pop
+  IL_028e: ldarg.1
+  IL_028f: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<TerrainManager/Data>()
+  IL_0294: pop
+  IL_0295: ldarg.1
+  IL_0296: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<WaterSimulation/Data>()
+  IL_029b: pop
+  IL_029c: ldarg.1
+  IL_029d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02a2: ldc.i4.3
+  IL_02a3: blt.un IL_02af
+  IL_02a8: ldarg.1
+  IL_02a9: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<TransferManager/Data>()
+  IL_02ae: pop
+  IL_02af: ldarg.1
+  IL_02b0: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NaturalResourceManager/Data>()
+  IL_02b5: pop
+  IL_02b6: ldarg.1
+  IL_02b7: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02bc: ldc.i4.7
+  IL_02bd: blt.un IL_02c9
+  IL_02c2: ldarg.1
+  IL_02c3: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ElectricityManager/Data>()
+  IL_02c8: pop
+  IL_02c9: ldarg.1
+  IL_02ca: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02cf: ldc.i4.s 17
+  IL_02d1: blt.un IL_02dd
+  IL_02d6: ldarg.1
+  IL_02d7: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<WaterManager/Data>()
+  IL_02dc: pop
+  IL_02dd: ldarg.1
+  IL_02de: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ZoneManager/Data>()
+  IL_02e3: pop
+  IL_02e4: ldarg.1
+  IL_02e5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02ea: ldc.i4.s 34
+  IL_02ec: blt.un IL_02f8
+  IL_02f1: ldarg.1
+  IL_02f2: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<PropManager/Data>()
+  IL_02f7: pop
+  IL_02f8: ldarg.1
+  IL_02f9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02fe: ldc.i4.s 21
+  IL_0300: blt.un IL_030c
+  IL_0305: ldarg.1
+  IL_0306: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<TreeManager/Data>()
+  IL_030b: pop
+  IL_030c: ldarg.1
+  IL_030d: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetManager/Data>()
+  IL_0312: pop
+  IL_0313: ldarg.1
+  IL_0314: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0319: ldc.i4.s 28
+  IL_031b: blt.un IL_0327
+  IL_0320: ldarg.1
+  IL_0321: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<VehicleManager/Data>()
+  IL_0326: pop
+  IL_0327: ldarg.1
+  IL_0328: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_032d: ldc.i4.s 12
+  IL_032f: blt.un IL_033b
+  IL_0334: ldarg.1
+  IL_0335: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<CitizenManager/Data>()
+  IL_033a: pop
+  IL_033b: ldarg.1
+  IL_033c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0341: ldc.i4.3
+  IL_0342: blt.un IL_034e
+  IL_0347: ldarg.1
+  IL_0348: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<BuildingManager/Data>()
+  IL_034d: pop
+  IL_034e: ldarg.1
+  IL_034f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0354: ldc.i4.s 38
+  IL_0356: blt.un IL_0362
+  IL_035b: ldarg.1
+  IL_035c: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<DistrictManager/Data>()
+  IL_0361: pop
+  IL_0362: ldarg.1
+  IL_0363: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0368: ldc.i4.s 40
+  IL_036a: blt.un IL_0376
+  IL_036f: ldarg.1
+  IL_0370: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<EconomyManager/Data>()
+  IL_0375: pop
+  IL_0376: ldarg.1
+  IL_0377: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_037c: ldc.i4 209
+  IL_0381: bge.un IL_0390
+  IL_0386: call !0 ColossalFramework.Singleton`1<EventManager>::get_instance()
+  IL_038b: callvirt System.Void EventManager::ClearAll()
+  IL_0390: ldarg.1
+  IL_0391: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0396: ldc.i4 257
+  IL_039b: bge.un IL_03aa
+  IL_03a0: call !0 ColossalFramework.Singleton`1<DisasterManager>::get_instance()
+  IL_03a5: callvirt System.Void DisasterManager::ClearAll()
+  IL_03aa: ldarg.1
+  IL_03ab: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_03b0: ldc.i4 280
+  IL_03b5: bge.un IL_03c4
+  IL_03ba: call !0 ColossalFramework.Singleton`1<AudioManager>::get_instance()
+  IL_03bf: callvirt System.Void AudioManager::ClearAll()
+  IL_03c4: br IL_03c9
+  IL_03c9: ldloc.0
+  IL_03ca: ldfld System.Collections.Generic.Dictionary`2<System.String,System.Byte[]> SimulationManager::m_serializableDataStorage
+  IL_03cf: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_03d4: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_03d9: brfalse IL_03c9
+  IL_03de: ldloc.0
+  IL_03df: ldfld System.Collections.Generic.Dictionary`2<System.String,System.Byte[]> SimulationManager::m_serializableDataStorage
+  IL_03e4: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Byte[]>::Clear()
+  IL_03e9: ldarg.1
+  IL_03ea: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_03ef: ldc.i4 186
+  IL_03f4: blt.un IL_0437
+  IL_03f9: ldarg.1
+  IL_03fa: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_03ff: stloc.s V_4
+  IL_0401: ldc.i4.0
+  IL_0402: stloc.s V_5
+  IL_0404: br IL_042e
+  IL_0409: ldarg.1
+  IL_040a: callvirt System.String ColossalFramework.IO.DataSerializer::ReadUniqueString()
+  IL_040f: stloc.s V_6
+  IL_0411: ldarg.1
+  IL_0412: callvirt System.Byte[] ColossalFramework.IO.DataSerializer::ReadByteArray()
+  IL_0417: stloc.s V_7
+  IL_0419: ldloc.0
+  IL_041a: ldfld System.Collections.Generic.Dictionary`2<System.String,System.Byte[]> SimulationManager::m_serializableDataStorage
+  IL_041f: ldloc.s V_6
+  IL_0421: ldloc.s V_7
+  IL_0423: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Byte[]>::Add(!0,!1)
+  IL_0428: ldloc.s V_5
+  IL_042a: ldc.i4.1
+  IL_042b: add
+  IL_042c: stloc.s V_5
+  IL_042e: ldloc.s V_5
+  IL_0430: ldloc.s V_4
+  IL_0432: blt.un IL_0409
+  IL_0437: leave IL_0448
+  IL_043c: ldloc.0
+  IL_043d: ldfld System.Collections.Generic.Dictionary`2<System.String,System.Byte[]> SimulationManager::m_serializableDataStorage
+  IL_0442: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0447: endfinally
+  IL_0448: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_044d: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_0452: ldarg.1
+  IL_0453: ldstr "SimulationManager"
+  IL_0458: callvirt System.Void LoadingProfiler::EndDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_045d: ret

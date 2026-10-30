@@ -1,0 +1,337 @@
+   0 IL_0000: ldarg.0 
+   1 IL_0001: ldc.i4 256
+   2 IL_0006: newarr ImprovedPublicTransport.Data.LineData
+   3 IL_000b: stind.ref 
+   4 IL_000c: ldsfld ImprovedPublicTransport.Data.SerializableDataExtension ImprovedPublicTransport.Data.SerializableDataExtension::instance
+   5 IL_0011: callvirt ICities.ISerializableData ImprovedPublicTransport.Data.SerializableDataExtension::get_SerializableData()
+   6 IL_0016: ldsfld System.String ImprovedPublicTransport.Data.CachedTransportLineData::_dataID
+   7 IL_001b: callvirt System.Byte[] ICities.ISerializableData::LoadData(System.String)
+   8 IL_0020: stloc.0 
+   9 IL_0021: ldloc.0 
+  10 IL_0022: brtrue.s IL_0026: ldc.i4.0
+  11 IL_0024: ldc.i4.0 
+  12 IL_0025: ret 
+  13 IL_0026: ldc.i4.0 
+  14 IL_0027: stloc.1 
+  15 IL_0028: ldc.i4.0 
+  16 IL_0029: stloc.2 
+  17 IL_002a: ldstr Try to load transport line data.
+  18 IL_002f: call System.Void ImprovedPublicTransport.Util.Utils::Log(System.Object)
+  19 IL_0034: ldloc.0 
+  20 IL_0035: ldloca.s V_1
+  21 IL_0037: call System.String ImprovedPublicTransport.Data.SerializableDataExtension::ReadString(System.Byte[],System.Int32&)
+  22 IL_003c: stloc.3 
+  23 IL_003d: ldloc.3 
+  24 IL_003e: call System.Boolean System.String::IsNullOrEmpty(System.String)
+  25 IL_0043: brtrue.s IL_004e: ldstr "Unknown data found."
+  26 IL_0045: ldloc.3 
+  27 IL_0046: callvirt System.Int32 System.String::get_Length()
+  28 IL_004b: ldc.i4.4 
+  29 IL_004c: beq.s IL_0060: ldstr "Found transport line data version: "
+  30 IL_004e: ldstr Unknown data found.
+  31 IL_0053: call System.Void ImprovedPublicTransport.Util.Utils::LogWarning(System.Object)
+  32 IL_0058: ldc.i4.0 
+  33 IL_0059: stloc.s V_6
+  34 IL_005b: leave IL_0367: ldloc.s V_6
+  35 IL_0060: ldstr Found transport line data version: 
+  36 IL_0065: ldloc.3 
+  37 IL_0066: call System.String System.String::Concat(System.String,System.String)
+  38 IL_006b: call System.Void ImprovedPublicTransport.Util.Utils::Log(System.Object)
+  39 IL_0070: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  40 IL_0075: stloc.s V_4
+  41 IL_0077: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  42 IL_007c: stloc.s V_5
+  43 IL_007e: br IL_0330: ldloc.1
+  44 IL_0083: ldloc.s V_5
+  45 IL_0085: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  46 IL_008a: ldfld !0[] Array16`1<TransportLine>::m_buffer
+  47 IL_008f: ldloc.2 
+  48 IL_0090: ldelema TransportLine
+  49 IL_0095: call System.Boolean TransportLine::get_Complete()
+  50 IL_009a: brfalse.s IL_00b4: ldloc.1
+  51 IL_009c: ldloc.0 
+  52 IL_009d: ldloc.1 
+  53 IL_009e: call System.Int32 System.BitConverter::ToInt32(System.Byte[],System.Int32)
+  54 IL_00a3: stloc.s V_10
+  55 IL_00a5: ldarg.0 
+  56 IL_00a6: ldind.ref 
+  57 IL_00a7: ldloc.2 
+  58 IL_00a8: ldelema ImprovedPublicTransport.Data.LineData
+  59 IL_00ad: ldloc.s V_10
+  60 IL_00af: call System.Void ImprovedPublicTransport.Data.LineData::set_TargetVehicleCount(System.Int32)
+  61 IL_00b4: ldloc.1 
+  62 IL_00b5: ldc.i4.4 
+  63 IL_00b6: add 
+  64 IL_00b7: stloc.1 
+  65 IL_00b8: ldloc.0 
+  66 IL_00b9: ldloc.1 
+  67 IL_00ba: call System.Single System.BitConverter::ToSingle(System.Byte[],System.Int32)
+  68 IL_00bf: call T ImprovedPublicTransport.OptionsFramework.OptionsWrapper`1<ImprovedPublicTransport.Settings.Settings>::get_Options()
+  69 IL_00c4: callvirt System.Int32 ImprovedPublicTransport.Settings.Settings::get_SpawnTimeInterval()
+  70 IL_00c9: conv.r4 
+  71 IL_00ca: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  72 IL_00cf: stloc.s V_7
+  73 IL_00d1: ldloc.s V_7
+  74 IL_00d3: conv.r8 
+  75 IL_00d4: ldc.r8 0
+  76 IL_00dd: ble.un.s IL_00f4: ldloc.1
+  77 IL_00df: ldarg.0 
+  78 IL_00e0: ldind.ref 
+  79 IL_00e1: ldloc.2 
+  80 IL_00e2: ldelema ImprovedPublicTransport.Data.LineData
+  81 IL_00e7: call System.Single ImprovedPublicTransport.SimHelper::get_SimulationTime()
+  82 IL_00ec: ldloc.s V_7
+  83 IL_00ee: add 
+  84 IL_00ef: call System.Void ImprovedPublicTransport.Data.LineData::set_NextSpawnTime(System.Single)
+  85 IL_00f4: ldloc.1 
+  86 IL_00f5: ldc.i4.4 
+  87 IL_00f6: add 
+  88 IL_00f7: stloc.1 
+  89 IL_00f8: ldloc.0 
+  90 IL_00f9: ldloc.1 
+  91 IL_00fa: call System.Boolean System.BitConverter::ToBoolean(System.Byte[],System.Int32)
+  92 IL_00ff: stloc.s V_8
+  93 IL_0101: ldarg.0 
+  94 IL_0102: ldind.ref 
+  95 IL_0103: ldloc.2 
+  96 IL_0104: ldelema ImprovedPublicTransport.Data.LineData
+  97 IL_0109: ldloc.s V_8
+  98 IL_010b: call System.Void ImprovedPublicTransport.Data.LineData::set_BudgetControl(System.Boolean)
+  99 IL_0110: ldloc.1 
+ 100 IL_0111: ldc.i4.1 
+ 101 IL_0112: add 
+ 102 IL_0113: stloc.1 
+ 103 IL_0114: ldloc.0 
+ 104 IL_0115: ldloc.1 
+ 105 IL_0116: call System.UInt16 System.BitConverter::ToUInt16(System.Byte[],System.Int32)
+ 106 IL_011b: stloc.s V_9
+ 107 IL_011d: ldarg.0 
+ 108 IL_011e: ldind.ref 
+ 109 IL_011f: ldloc.2 
+ 110 IL_0120: ldelema ImprovedPublicTransport.Data.LineData
+ 111 IL_0125: ldloc.s V_9
+ 112 IL_0127: brtrue.s IL_015f: ldloc.s V_9
+ 113 IL_0129: ldloc.2 
+ 114 IL_012a: ldloc.s V_4
+ 115 IL_012c: ldfld Array16`1<NetNode> NetManager::m_nodes
+ 116 IL_0131: ldfld !0[] Array16`1<NetNode>::m_buffer
+ 117 IL_0136: ldloc.s V_5
+ 118 IL_0138: ldfld Array16`1<TransportLine> TransportManager::m_lines
+ 119 IL_013d: ldfld !0[] Array16`1<TransportLine>::m_buffer
+ 120 IL_0142: ldloc.2 
+ 121 IL_0143: ldelema TransportLine
+ 122 IL_0148: ldc.i4.0 
+ 123 IL_0149: call System.UInt16 TransportLine::GetStop(System.Int32)
+ 124 IL_014e: ldelema NetNode
+ 125 IL_0153: ldfld UnityEngine.Vector3 NetNode::m_position
+ 126 IL_0158: call System.UInt16 ImprovedPublicTransport.Util.DepotUtil::GetClosestDepot(System.UInt16,UnityEngine.Vector3)
+ 127 IL_015d: br.s IL_0161: call System.Void ImprovedPublicTransport.Data.LineData::set_Depot(System.UInt16)
+ 128 IL_015f: ldloc.s V_9
+ 129 IL_0161: call System.Void ImprovedPublicTransport.Data.LineData::set_Depot(System.UInt16)
+ 130 IL_0166: ldloc.1 
+ 131 IL_0167: ldc.i4.2 
+ 132 IL_0168: add 
+ 133 IL_0169: stloc.1 
+ 134 IL_016a: ldloc.3 
+ 135 IL_016b: ldstr v001
+ 136 IL_0170: call System.Boolean System.String::op_Equality(System.String,System.String)
+ 137 IL_0175: brfalse.s IL_01dd: ldloc.0
+ 138 IL_0177: ldloc.0 
+ 139 IL_0178: ldloca.s V_1
+ 140 IL_017a: call System.String ImprovedPublicTransport.Data.SerializableDataExtension::ReadString(System.Byte[],System.Int32&)
+ 141 IL_017f: stloc.s V_11
+ 142 IL_0181: ldloc.s V_11
+ 143 IL_0183: ldstr Random
+ 144 IL_0188: call System.Boolean System.String::op_Inequality(System.String,System.String)
+ 145 IL_018d: brfalse IL_024b: ldloc.3
+ 146 IL_0192: ldarg.0 
+ 147 IL_0193: ldind.ref 
+ 148 IL_0194: ldloc.2 
+ 149 IL_0195: ldelema ImprovedPublicTransport.Data.LineData
+ 150 IL_019a: stloc.s V_12
+ 151 IL_019c: ldloc.s V_12
+ 152 IL_019e: call System.Collections.Generic.HashSet`1<System.String> ImprovedPublicTransport.Data.LineData::get_Prefabs()
+ 153 IL_01a3: brtrue.s IL_01b4: ldloc.s V_11
+ 154 IL_01a5: ldloc.s V_12
+ 155 IL_01a7: newobj System.Void System.Collections.Generic.HashSet`1<System.String>::.ctor()
+ 156 IL_01ac: dup 
+ 157 IL_01ad: stloc.s V_13
+ 158 IL_01af: call System.Void ImprovedPublicTransport.Data.LineData::set_Prefabs(System.Collections.Generic.HashSet`1<System.String>)
+ 159 IL_01b4: ldloc.s V_11
+ 160 IL_01b6: call !0 PrefabCollection`1<VehicleInfo>::FindLoaded(System.String)
+ 161 IL_01bb: ldnull 
+ 162 IL_01bc: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+ 163 IL_01c1: brfalse IL_024b: ldloc.3
+ 164 IL_01c6: ldarg.0 
+ 165 IL_01c7: ldind.ref 
+ 166 IL_01c8: ldloc.2 
+ 167 IL_01c9: ldelema ImprovedPublicTransport.Data.LineData
+ 168 IL_01ce: call System.Collections.Generic.HashSet`1<System.String> ImprovedPublicTransport.Data.LineData::get_Prefabs()
+ 169 IL_01d3: ldloc.s V_11
+ 170 IL_01d5: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Add(!0)
+ 171 IL_01da: pop 
+ 172 IL_01db: br.s IL_024b: ldloc.3
+ 173 IL_01dd: ldloc.0 
+ 174 IL_01de: ldloc.1 
+ 175 IL_01df: call System.Int32 System.BitConverter::ToInt32(System.Byte[],System.Int32)
+ 176 IL_01e4: stloc.s V_14
+ 177 IL_01e6: ldloc.1 
+ 178 IL_01e7: ldc.i4.4 
+ 179 IL_01e8: add 
+ 180 IL_01e9: stloc.1 
+ 181 IL_01ea: ldc.i4.0 
+ 182 IL_01eb: stloc.s V_15
+ 183 IL_01ed: br.s IL_0245: ldloc.s V_15
+ 184 IL_01ef: ldloc.0 
+ 185 IL_01f0: ldloca.s V_1
+ 186 IL_01f2: call System.String ImprovedPublicTransport.Data.SerializableDataExtension::ReadString(System.Byte[],System.Int32&)
+ 187 IL_01f7: stloc.s V_16
+ 188 IL_01f9: ldarg.0 
+ 189 IL_01fa: ldind.ref 
+ 190 IL_01fb: ldloc.2 
+ 191 IL_01fc: ldelema ImprovedPublicTransport.Data.LineData
+ 192 IL_0201: stloc.s V_12
+ 193 IL_0203: ldloc.s V_12
+ 194 IL_0205: call System.Collections.Generic.HashSet`1<System.String> ImprovedPublicTransport.Data.LineData::get_Prefabs()
+ 195 IL_020a: brtrue.s IL_021b: ldloc.s V_16
+ 196 IL_020c: ldloc.s V_12
+ 197 IL_020e: newobj System.Void System.Collections.Generic.HashSet`1<System.String>::.ctor()
+ 198 IL_0213: dup 
+ 199 IL_0214: stloc.s V_13
+ 200 IL_0216: call System.Void ImprovedPublicTransport.Data.LineData::set_Prefabs(System.Collections.Generic.HashSet`1<System.String>)
+ 201 IL_021b: ldloc.s V_16
+ 202 IL_021d: call !0 PrefabCollection`1<VehicleInfo>::FindLoaded(System.String)
+ 203 IL_0222: ldnull 
+ 204 IL_0223: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+ 205 IL_0228: brfalse.s IL_023f: ldloc.s V_15
+ 206 IL_022a: ldarg.0 
+ 207 IL_022b: ldind.ref 
+ 208 IL_022c: ldloc.2 
+ 209 IL_022d: ldelema ImprovedPublicTransport.Data.LineData
+ 210 IL_0232: call System.Collections.Generic.HashSet`1<System.String> ImprovedPublicTransport.Data.LineData::get_Prefabs()
+ 211 IL_0237: ldloc.s V_16
+ 212 IL_0239: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Add(!0)
+ 213 IL_023e: pop 
+ 214 IL_023f: ldloc.s V_15
+ 215 IL_0241: ldc.i4.1 
+ 216 IL_0242: add 
+ 217 IL_0243: stloc.s V_15
+ 218 IL_0245: ldloc.s V_15
+ 219 IL_0247: ldloc.s V_14
+ 220 IL_0249: blt.s IL_01ef: ldloc.0
+ 221 IL_024b: ldloc.3 
+ 222 IL_024c: ldstr v001
+ 223 IL_0251: call System.Boolean System.String::op_Inequality(System.String,System.String)
+ 224 IL_0256: brfalse IL_02ec: ldloc.3
+ 225 IL_025b: ldloc.0 
+ 226 IL_025c: ldloc.1 
+ 227 IL_025d: call System.Int32 System.BitConverter::ToInt32(System.Byte[],System.Int32)
+ 228 IL_0262: stloc.s V_17
+ 229 IL_0264: ldloc.1 
+ 230 IL_0265: ldc.i4.4 
+ 231 IL_0266: add 
+ 232 IL_0267: stloc.1 
+ 233 IL_0268: ldc.i4.0 
+ 234 IL_0269: stloc.s V_18
+ 235 IL_026b: br.s IL_02e6: ldloc.s V_18
+ 236 IL_026d: ldloc.0 
+ 237 IL_026e: ldloca.s V_1
+ 238 IL_0270: call System.String ImprovedPublicTransport.Data.SerializableDataExtension::ReadString(System.Byte[],System.Int32&)
+ 239 IL_0275: stloc.s V_19
+ 240 IL_0277: ldloc.s V_8
+ 241 IL_0279: brtrue.s IL_02e0: ldloc.s V_18
+ 242 IL_027b: ldarg.0 
+ 243 IL_027c: ldind.ref 
+ 244 IL_027d: ldloc.2 
+ 245 IL_027e: ldelema ImprovedPublicTransport.Data.LineData
+ 246 IL_0283: stloc.s V_12
+ 247 IL_0285: ldloc.s V_12
+ 248 IL_0287: call System.Collections.Generic.Queue`1<System.String> ImprovedPublicTransport.Data.LineData::get_QueuedVehicles()
+ 249 IL_028c: brtrue.s IL_029d: ldloc.s V_19
+ 250 IL_028e: ldloc.s V_12
+ 251 IL_0290: newobj System.Void System.Collections.Generic.Queue`1<System.String>::.ctor()
+ 252 IL_0295: dup 
+ 253 IL_0296: stloc.s V_20
+ 254 IL_0298: call System.Void ImprovedPublicTransport.Data.LineData::set_QueuedVehicles(System.Collections.Generic.Queue`1<System.String>)
+ 255 IL_029d: ldloc.s V_19
+ 256 IL_029f: call !0 PrefabCollection`1<VehicleInfo>::FindLoaded(System.String)
+ 257 IL_02a4: ldnull 
+ 258 IL_02a5: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+ 259 IL_02aa: brtrue.s IL_02e0: ldloc.s V_18
+ 260 IL_02ac: ldarg.0 
+ 261 IL_02ad: ldind.ref 
+ 262 IL_02ae: ldloc.2 
+ 263 IL_02af: ldelema ImprovedPublicTransport.Data.LineData
+ 264 IL_02b4: call System.Collections.Generic.Queue`1<System.String> ImprovedPublicTransport.Data.LineData::get_QueuedVehicles()
+ 265 IL_02b9: stloc.s V_20
+ 266 IL_02bb: ldloc.s V_20
+ 267 IL_02bd: call System.Void System.Threading.Monitor::Enter(System.Object)
+ 268 IL_02c2: ldarg.0 
+ 269 IL_02c3: ldind.ref 
+ 270 IL_02c4: ldloc.2 
+ 271 IL_02c5: ldelema ImprovedPublicTransport.Data.LineData
+ 272 IL_02ca: call System.Collections.Generic.Queue`1<System.String> ImprovedPublicTransport.Data.LineData::get_QueuedVehicles()
+ 273 IL_02cf: ldloc.s V_19
+ 274 IL_02d1: callvirt System.Void System.Collections.Generic.Queue`1<System.String>::Enqueue(!0)
+ 275 IL_02d6: leave.s IL_02e0: ldloc.s V_18
+ 276 IL_02d8: ldloc.s V_20
+ 277 IL_02da: call System.Void System.Threading.Monitor::Exit(System.Object)
+ 278 IL_02df: endfinally 
+ 279 IL_02e0: ldloc.s V_18
+ 280 IL_02e2: ldc.i4.1 
+ 281 IL_02e3: add 
+ 282 IL_02e4: stloc.s V_18
+ 283 IL_02e6: ldloc.s V_18
+ 284 IL_02e8: ldloc.s V_17
+ 285 IL_02ea: blt.s IL_026d: ldloc.0
+ 286 IL_02ec: ldloc.3 
+ 287 IL_02ed: ldstr v003
+ 288 IL_02f2: call System.Boolean System.String::op_Equality(System.String,System.String)
+ 289 IL_02f7: brfalse.s IL_02fd: ldarg.0
+ 290 IL_02f9: ldloc.1 
+ 291 IL_02fa: ldc.i4.1 
+ 292 IL_02fb: add 
+ 293 IL_02fc: stloc.1 
+ 294 IL_02fd: ldarg.0 
+ 295 IL_02fe: ldind.ref 
+ 296 IL_02ff: ldloc.2 
+ 297 IL_0300: ldelema ImprovedPublicTransport.Data.LineData
+ 298 IL_0305: ldloc.3 
+ 299 IL_0306: ldstr v004
+ 300 IL_030b: call System.Boolean System.String::op_Inequality(System.String,System.String)
+ 301 IL_0310: brtrue.s IL_031c: call T ImprovedPublicTransport.OptionsFramework.OptionsWrapper`1<ImprovedPublicTransport.Settings.Settings>::get_Options()
+ 302 IL_0312: ldloc.0 
+ 303 IL_0313: ldloca.s V_1
+ 304 IL_0315: call System.Boolean ImprovedPublicTransport.Data.SerializableDataExtension::ReadBool(System.Byte[],System.Int32&)
+ 305 IL_031a: br.s IL_0326: call System.Void ImprovedPublicTransport.Data.LineData::set_Unbunching(System.Boolean)
+ 306 IL_031c: call T ImprovedPublicTransport.OptionsFramework.OptionsWrapper`1<ImprovedPublicTransport.Settings.Settings>::get_Options()
+ 307 IL_0321: callvirt System.Boolean ImprovedPublicTransport.Settings.Settings::get_Unbunching()
+ 308 IL_0326: call System.Void ImprovedPublicTransport.Data.LineData::set_Unbunching(System.Boolean)
+ 309 IL_032b: ldloc.2 
+ 310 IL_032c: ldc.i4.1 
+ 311 IL_032d: add 
+ 312 IL_032e: conv.u2 
+ 313 IL_032f: stloc.2 
+ 314 IL_0330: ldloc.1 
+ 315 IL_0331: ldloc.0 
+ 316 IL_0332: ldlen 
+ 317 IL_0333: conv.i4 
+ 318 IL_0334: blt IL_0083: ldloc.s V_5
+ 319 IL_0339: ldc.i4.1 
+ 320 IL_033a: stloc.s V_6
+ 321 IL_033c: leave.s IL_0367: ldloc.s V_6
+ 322 IL_033e: stloc.s V_21
+ 323 IL_0340: ldstr Could not load transport line data. 
+ 324 IL_0345: ldloc.s V_21
+ 325 IL_0347: callvirt System.String System.Exception::get_Message()
+ 326 IL_034c: call System.String System.String::Concat(System.String,System.String)
+ 327 IL_0351: call System.Void ImprovedPublicTransport.Util.Utils::LogWarning(System.Object)
+ 328 IL_0356: ldarg.0 
+ 329 IL_0357: ldc.i4 256
+ 330 IL_035c: newarr ImprovedPublicTransport.Data.LineData
+ 331 IL_0361: stind.ref 
+ 332 IL_0362: ldc.i4.0 
+ 333 IL_0363: stloc.s V_6
+ 334 IL_0365: leave.s IL_0367: ldloc.s V_6
+ 335 IL_0367: ldloc.s V_6
+ 336 IL_0369: ret 

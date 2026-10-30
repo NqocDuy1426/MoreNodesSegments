@@ -307,6 +307,75 @@ namespace Harmony
             catch { }
         }
 
+        /// <summary>
+        /// Unpatch a specific patch method from the original. Works via reflection on the underlying Harmony engine.
+        /// In Harmony 2: harmony.Unpatch(original, patchMethod)
+        /// </summary>
+        public void Unpatch(MethodBase original, MethodInfo patchMethod)
+        {
+            EnsureEngine();
+            if (_underlyingInstance == null || _underlyingHarmonyType == null || original == null || patchMethod == null) return;
+            try
+            {
+                MethodInfo unpatchM = _underlyingHarmonyType.GetMethod("Unpatch", new Type[] { typeof(MethodBase), typeof(MethodInfo) });
+                if (unpatchM != null)
+                {
+                    unpatchM.Invoke(_underlyingInstance, new object[] { original, patchMethod });
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Harmony.Unpatch(MethodBase,MethodInfo) not found on engine.");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Unpatch error: {0}", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get patch info for a method. In Harmony 2: Harmony.GetPatchInfo(method) is a static method.
+        /// Returns a dynamic object with Prefixes, Postfixes, Transpilers properties (each is IEnumerable of Patch).
+        /// </summary>
+        public static object GetPatchInfo(MethodBase method)
+        {
+            if (method == null) return null;
+            try
+            {
+                // Harmony 2: HarmonyLib.Harmony.GetPatchInfo(MethodBase) is static
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    Type h2 = asm.GetType("HarmonyLib.Harmony");
+                    if (h2 != null)
+                    {
+                        MethodInfo gpi = h2.GetMethod("GetPatchInfo", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
+                        if (gpi != null)
+                        {
+                            return gpi.Invoke(null, new object[] { method });
+                        }
+                    }
+                }
+                // Harmony 1: HarmonySharedState or HarmonyInstance.GetPatchInfo
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    Type h1 = asm.GetType("Harmony.HarmonyInstance");
+                    if (h1 != null)
+                    {
+                        MethodInfo gpi = h1.GetMethod("GetPatchInfo", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
+                        if (gpi != null)
+                        {
+                            return gpi.Invoke(null, new object[] { method });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GetPatchInfo error: {0}", ex.Message));
+            }
+            return null;
+        }
+
         private object ConvertHarmonyMethod(HarmonyMethod hm)
         {
             if (hm == null || hm.method == null || _underlyingHarmonyMethodType == null) return null;
@@ -1439,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.36 by NgocDuy";
-        public string Description => "[Close Beta v5.0.36] Universal Simulation Manager Armor (Defeat Mono generic vtable SIGSEGV crash during manager updates, protect NetworkSkins & Material.HasProperty).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.37 by NgocDuy";
+        public string Description => "[Close Beta v5.0.37] Unpatch NetworkSkins from Managers_UpdateData to defeat Mono generic vtable SIGSEGV crash; let vanilla CIL-compiled loop handle all manager dispatch safely.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14942,38 +15011,102 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
                 }
 
-                // 2e. Patch SimulationManager.Managers_* methods with Universal Simulation Manager Armor (Priority.First)
+                 // 2e. Unpatch external mods from Managers_UpdateData/LateUpdateData/EarlyUpdateData
+                 //      to defeat Mono generic vtable SIGSEGV crash. Vanilla's CIL-compiled manager loop
+                 //      within Assembly-CSharp.dll safely dispatches callvirt ISimulationManager::*UpdateData
+                 //      because Mono has full generic type context there. External DynamicMethods (Harmony
+                 //      patches from NetworkSkins etc.) that re-emit callvirt in a new JIT context trigger
+                 //      get_object_generic_inst on SimulationManagerBase<T,P> subclasses -> SIGSEGV.
+                 //      Solution: unpatch all external patches, let vanilla loop run, and call NetworkSkins'
+                 //      OnPreUpdateData safely via a lightweight prefix that returns true (does NOT replace loop).
                 try
                 {
-                    MethodInfo smUpd = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smUpd != null)
+                    string[] methodNames = new string[] { "Managers_UpdateData", "Managers_LateUpdateData", "Managers_EarlyUpdateData" };
+                    foreach (string mName in methodNames)
+                    {
+                        MethodInfo smMethod;
+                        if (mName == "Managers_EarlyUpdateData")
+                            smMethod = typeof(SimulationManager).GetMethod(mName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
+                        else
+                            smMethod = typeof(SimulationManager).GetMethod(mName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+
+                        if (smMethod == null) continue;
+
+                        object patchInfo = HarmonyInstance.GetPatchInfo(smMethod);
+                        if (patchInfo == null) continue;
+
+                        int removedCount = 0;
+                        Type patchInfoType = patchInfo.GetType();
+
+                        // Iterate Prefixes, Transpilers, Postfixes via reflection
+                        string[] patchListNames = new string[] { "Prefixes", "Transpilers", "Postfixes" };
+                        foreach (string listName in patchListNames)
+                        {
+                            PropertyInfo listProp = patchInfoType.GetProperty(listName);
+                            if (listProp == null) continue;
+                            object listObj = listProp.GetValue(patchInfo, null);
+                            if (listObj == null) continue;
+
+                            // listObj is ReadOnlyCollection<Patch> — enumerate it
+                            System.Collections.IEnumerable enumerable = listObj as System.Collections.IEnumerable;
+                            if (enumerable == null) continue;
+
+                            // Collect patch methods first to avoid modifying collection during iteration
+                            var patchMethods = new List<MethodInfo>();
+                            var patchOwners = new List<string>();
+                            foreach (object patchObj in enumerable)
+                            {
+                                if (patchObj == null) continue;
+                                Type patchType = patchObj.GetType();
+                                // Harmony 2 Patch has PatchMethod property (MethodInfo)
+                                PropertyInfo pmProp = patchType.GetProperty("PatchMethod");
+                                if (pmProp == null) pmProp = patchType.GetProperty("patch"); // Harmony 1 fallback
+                                MethodInfo pm = pmProp != null ? pmProp.GetValue(patchObj, null) as MethodInfo : null;
+                                if (pm != null)
+                                {
+                                    patchMethods.Add(pm);
+                                    // Get owner
+                                    PropertyInfo ownerProp = patchType.GetProperty("owner") ?? patchType.GetField("owner")?.DeclaringType?.GetProperty("owner");
+                                    FieldInfo ownerField = patchType.GetField("owner");
+                                    string owner = "?";
+                                    if (ownerProp != null) owner = ownerProp.GetValue(patchObj, null) as string ?? "?";
+                                    else if (ownerField != null) owner = ownerField.GetValue(patchObj) as string ?? "?";
+                                    patchOwners.Add(owner);
+                                }
+                            }
+
+                            for (int pi = 0; pi < patchMethods.Count; pi++)
+                            {
+                                harmony.Unpatch(smMethod, patchMethods[pi]);
+                                removedCount++;
+                                string typeName = listName.TrimEnd('e', 's').TrimEnd('x', 'i').Length > 0 ? listName : listName;
+                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Unpatched {0} {4} from {1} (owner: {2}, method: {3}) to prevent Mono SIGSEGV ✓",
+                                    patchMethods[pi].DeclaringType != null ? patchMethods[pi].DeclaringType.Name : "?",
+                                    mName, patchOwners[pi],
+                                    patchMethods[pi].Name, listName));
+                            }
+                        }
+
+                        if (removedCount > 0)
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Removed {0} patches from {1}. Vanilla CIL-compiled manager loop will handle dispatch safely ✓", removedCount, mName));
+                        else
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] No external patches found on {0}. Vanilla CIL loop is clean ✓", mName));
+                    }
+
+                    // Install lightweight Managers_UpdateData prefix to call NetworkSkins.OnPreUpdateData safely
+                    // This prefix returns true so vanilla's CIL loop still runs after it
+                    MethodInfo smUpdForNS = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smUpdForNS != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_UpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
-                    }
-
-                    MethodInfo smLateUpd = typeof(SimulationManager).GetMethod("Managers_LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smLateUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_LateUpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
-                    }
-
-                    MethodInfo smEarlyUpd = typeof(SimulationManager).GetMethod("Managers_EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
-                    if (smEarlyUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_EarlyUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
+                        harmony.Patch(smUpdForNS, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Installed lightweight Managers_UpdateData prefix for NetworkSkins OnPreUpdateData hook (returns true, vanilla loop runs) ✓");
                     }
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.Managers_* methods: " + ex);
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in Managers_* unpatch/repatch: " + ex);
                 }
-
                 // 2f. Patch UnityEngine.Material.HasProperty (Prevent native C++ null dereference crash in FpsBooster/UI)
                 try
                 {
@@ -17215,14 +17348,8 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        private static readonly Dictionary<Type, MethodInfo> s_concreteUpdateDataMethods = new Dictionary<Type, MethodInfo>();
-        private static readonly HashSet<Type> s_noOpUpdateDataManagers = new HashSet<Type>();
 
-        private static readonly Dictionary<Type, MethodInfo> s_concreteLateUpdateDataMethods = new Dictionary<Type, MethodInfo>();
-        private static readonly HashSet<Type> s_noOpLateUpdateDataManagers = new HashSet<Type>();
 
-        private static readonly Dictionary<Type, MethodInfo> s_concreteEarlyUpdateDataMethods = new Dictionary<Type, MethodInfo>();
-        private static readonly HashSet<Type> s_noOpEarlyUpdateDataManagers = new HashSet<Type>();
 
         private static void InvokeNetworkSkinsPreUpdateData(SimulationManager.UpdateMode mode)
         {
@@ -17261,188 +17388,24 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private static void SafeExecuteUpdateData(ISimulationManager mgr, SimulationManager.UpdateMode mode)
-        {
-            Type t = mgr.GetType();
-            if (s_noOpUpdateDataManagers.Contains(t)) return;
-
-            MethodInfo m;
-            if (!s_concreteUpdateDataMethods.TryGetValue(t, out m))
-            {
-                m = t.GetMethod("UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
-                {
-                    s_noOpUpdateDataManagers.Add(t);
-                    return;
-                }
-                s_concreteUpdateDataMethods[t] = m;
-            }
-
-            try
-            {
-                m.Invoke(mgr, new object[] { mode });
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.UpdateData({1}) error: {2}", t.FullName, mode, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
-            }
-        }
-
-        private static void SafeExecuteLateUpdateData(ISimulationManager mgr, SimulationManager.UpdateMode mode)
-        {
-            Type t = mgr.GetType();
-            if (s_noOpLateUpdateDataManagers.Contains(t)) return;
-
-            MethodInfo m;
-            if (!s_concreteLateUpdateDataMethods.TryGetValue(t, out m))
-            {
-                m = t.GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
-                {
-                    s_noOpLateUpdateDataManagers.Add(t);
-                    return;
-                }
-                s_concreteLateUpdateDataMethods[t] = m;
-            }
-
-            try
-            {
-                m.Invoke(mgr, new object[] { mode });
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.LateUpdateData({1}) error: {2}", t.FullName, mode, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
-            }
-        }
-
-        private static void SafeExecuteEarlyUpdateData(ISimulationManager mgr)
-        {
-            Type t = mgr.GetType();
-            if (s_noOpEarlyUpdateDataManagers.Contains(t)) return;
-
-            MethodInfo m;
-            if (!s_concreteEarlyUpdateDataMethods.TryGetValue(t, out m))
-            {
-                m = t.GetMethod("EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
-                {
-                    s_noOpEarlyUpdateDataManagers.Add(t);
-                    return;
-                }
-                s_concreteEarlyUpdateDataMethods[t] = m;
-            }
-
-            try
-            {
-                m.Invoke(mgr, null);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.EarlyUpdateData() error: {2}", t.FullName, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_EarlyUpdateData_Prefix()
-        {
-            try
-            {
-                var managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int size = managers.m_size;
-                    var buffer = managers.m_buffer;
-                    for (int i = 0; i < size; i++)
-                    {
-                        var mgr = buffer[i];
-                        if (mgr != null)
-                        {
-                            SafeExecuteEarlyUpdateData(mgr);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_EarlyUpdateData exception: " + ex.Message);
-            }
-            return false;
-        }
-
         [HarmonyPriority(Priority.First)]
         public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
         {
+            // Lightweight prefix: call NetworkSkins.OnPreUpdateData safely via reflection,
+            // then return true so vanilla's CIL-compiled manager loop handles all dispatch.
+            // This avoids the Mono get_object_generic_inst SIGSEGV that occurs when external
+            // DynamicMethods (Harmony patches) callvirt ISimulationManager on generic subclasses.
             try
             {
-                // Guarantee NetworkSkins pre-update hook runs cleanly
                 InvokeNetworkSkinsPreUpdateData(mode);
-
-                var lm = Singleton<LoadingManager>.instance;
-                var managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int size = managers.m_size;
-                    var buffer = managers.m_buffer;
-                    float range = maxProgress - minProgress;
-
-                    for (int i = 0; i < size; i++)
-                    {
-                        try
-                        {
-                            if (lm != null && size > 0)
-                            {
-                                lm.SetSimulationProgress(minProgress + range * (float)i / (float)size);
-                            }
-                        }
-                        catch {}
-
-                        var mgr = buffer[i];
-                        if (mgr != null)
-                        {
-                            SafeExecuteUpdateData(mgr, mode);
-                        }
-                    }
-                }
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_UpdateData exception: " + ex.Message);
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetworkSkins OnPreUpdateData error: " + ex.Message);
             }
-            return false;
+            return true; // Let vanilla CIL loop run
         }
 
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_LateUpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
-        {
-            try
-            {
-                var managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int size = managers.m_size;
-                    var buffer = managers.m_buffer;
-                    for (int i = 0; i < size; i++)
-                    {
-                        var mgr = buffer[i];
-                        if (mgr != null)
-                        {
-                            SafeExecuteLateUpdateData(mgr, mode);
-                        }
-                    }
-                }
-
-                var sm = Singleton<SimulationManager>.instance;
-                if (sm != null)
-                {
-                    SimulationManager_LateUpdateData_Prefix(sm, mode, minProgress, maxProgress);
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_LateUpdateData exception: " + ex.Message);
-            }
-            return false;
-        }
 
         public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
         {

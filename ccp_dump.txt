@@ -1,0 +1,428 @@
+Method: System.Boolean TrafficManager.Custom.PathFinding.CustomPathManager::CustomCreatePath(System.UInt32&,ColossalFramework.Math.Randomizer&,TrafficManager.API.Traffic.Data.PathCreationArgs)
+IL_0000: ldarg.0 
+IL_0001: ldfld System.Object PathManager::m_bufferLock
+IL_0006: stloc.3 
+IL_0007: ldloc.3 
+IL_0008: call System.Void System.Threading.Monitor::Enter(System.Object)
+IL_000D: ldc.i4.0 
+IL_000E: stloc.s V_4
+IL_0010: ldloc.s V_4
+IL_0012: ldc.i4.1 
+IL_0013: add 
+IL_0014: stloc.s V_4
+IL_0016: ldarg.0 
+IL_0017: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_001C: ldloca.s V_0
+IL_001E: ldarg.2 
+IL_001F: callvirt System.Boolean Array32`1<PathUnit>::CreateItem(System.UInt32&,ColossalFramework.Math.Randomizer&)
+IL_0024: brtrue.s IL_0031: ldarg.0
+IL_0026: ldarg.1 
+IL_0027: ldc.i4.0 
+IL_0028: stind.i4 
+IL_0029: ldc.i4.0 
+IL_002A: stloc.s V_5
+IL_002C: leave IL_047d: ldloc.s V_5
+IL_0031: ldarg.0 
+IL_0032: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0037: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_003C: ldloc.0 
+IL_003D: ldelema PathUnit
+IL_0042: ldc.i4.1 
+IL_0043: stfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_0048: ldarg.0 
+IL_0049: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_004E: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0053: ldloc.0 
+IL_0054: ldelema PathUnit
+IL_0059: ldc.i4.1 
+IL_005A: stfld System.Byte PathUnit::m_referenceCount
+IL_005F: ldarg.0 
+IL_0060: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0065: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_006A: ldloc.0 
+IL_006B: ldelema PathUnit
+IL_0070: ldc.i4.0 
+IL_0071: stfld System.UInt32 PathUnit::m_nextPathUnit
+IL_0076: ldarg.0 
+IL_0077: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_007C: ldloc.0 
+IL_007D: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_0082: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathUnitQueueItem::queued
+IL_0087: brfalse.s IL_00a4: ldarg.0
+IL_0089: ldarg.0 
+IL_008A: ldloc.0 
+IL_008B: call System.Void TrafficManager.Custom.PathFinding.CustomPathManager::CustomReleasePath(System.UInt32)
+IL_0090: ldloc.s V_4
+IL_0092: ldc.i4.s 10
+IL_0094: ble IL_0010: ldloc.s V_4
+IL_0099: ldarg.1 
+IL_009A: ldc.i4.0 
+IL_009B: stind.i4 
+IL_009C: ldc.i4.0 
+IL_009D: stloc.s V_5
+IL_009F: leave IL_047d: ldloc.s V_5
+IL_00A4: ldarg.0 
+IL_00A5: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_00AA: ldloc.0 
+IL_00AB: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_00B0: ldarg.3 
+IL_00B1: ldfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.PathCreationArgs::extVehicleType
+IL_00B6: stfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.PathUnitQueueItem::vehicleType
+IL_00BB: ldarg.0 
+IL_00BC: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_00C1: ldloc.0 
+IL_00C2: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_00C7: ldarg.3 
+IL_00C8: ldfld System.UInt16 TrafficManager.API.Traffic.Data.PathCreationArgs::vehicleId
+IL_00CD: stfld System.UInt16 TrafficManager.API.Traffic.Data.PathUnitQueueItem::vehicleId
+IL_00D2: ldarg.0 
+IL_00D3: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_00D8: ldloc.0 
+IL_00D9: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_00DE: ldarg.3 
+IL_00DF: ldfld TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.API.Traffic.Data.PathCreationArgs::extPathType
+IL_00E4: stfld TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.API.Traffic.Data.PathUnitQueueItem::pathType
+IL_00E9: ldarg.0 
+IL_00EA: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_00EF: ldloc.0 
+IL_00F0: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_00F5: ldarg.3 
+IL_00F6: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::spawned
+IL_00FB: stfld System.Boolean TrafficManager.API.Traffic.Data.PathUnitQueueItem::spawned
+IL_0100: ldarg.0 
+IL_0101: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_0106: ldloc.0 
+IL_0107: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_010C: ldc.i4.1 
+IL_010D: stfld System.Boolean TrafficManager.API.Traffic.Data.PathUnitQueueItem::queued
+IL_0112: ldarg.0 
+IL_0113: ldarg.0 
+IL_0114: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0119: callvirt System.UInt32 Array32`1<PathUnit>::ItemCount()
+IL_011E: ldc.i4.1 
+IL_011F: sub 
+IL_0120: stfld System.Int32 PathManager::m_pathUnitCount
+IL_0125: leave.s IL_012e: ldarg.1
+IL_0127: ldloc.3 
+IL_0128: call System.Void System.Threading.Monitor::Exit(System.Object)
+IL_012D: endfinally 
+IL_012E: ldarg.1 
+IL_012F: ldloc.0 
+IL_0130: stind.i4 
+IL_0131: ldarg.3 
+IL_0132: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::isHeavyVehicle
+IL_0137: brfalse.s IL_0156: ldarg.3
+IL_0139: ldarg.0 
+IL_013A: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_013F: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0144: ldarg.1 
+IL_0145: ldind.u4 
+IL_0146: ldelema PathUnit
+IL_014B: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_0150: dup 
+IL_0151: ldind.u2 
+IL_0152: ldc.i4.s 16
+IL_0154: or 
+IL_0155: stind.i2 
+IL_0156: ldarg.3 
+IL_0157: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::ignoreBlocked
+IL_015C: brtrue.s IL_0166: ldarg.0
+IL_015E: ldarg.3 
+IL_015F: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::ignoreFlooded
+IL_0164: brfalse.s IL_0183: ldarg.3
+IL_0166: ldarg.0 
+IL_0167: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_016C: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0171: ldarg.1 
+IL_0172: ldind.u4 
+IL_0173: ldelema PathUnit
+IL_0178: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_017D: dup 
+IL_017E: ldind.u2 
+IL_017F: ldc.i4.s 32
+IL_0181: or 
+IL_0182: stind.i2 
+IL_0183: ldarg.3 
+IL_0184: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::stablePath
+IL_0189: brfalse.s IL_01a8: ldarg.3
+IL_018B: ldarg.0 
+IL_018C: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0191: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0196: ldarg.1 
+IL_0197: ldind.u4 
+IL_0198: ldelema PathUnit
+IL_019D: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_01A2: dup 
+IL_01A3: ldind.u2 
+IL_01A4: ldc.i4.s 64
+IL_01A6: or 
+IL_01A7: stind.i2 
+IL_01A8: ldarg.3 
+IL_01A9: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::randomParking
+IL_01AE: brfalse.s IL_01d0: ldarg.3
+IL_01B0: ldarg.0 
+IL_01B1: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_01B6: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_01BB: ldarg.1 
+IL_01BC: ldind.u4 
+IL_01BD: ldelema PathUnit
+IL_01C2: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_01C7: dup 
+IL_01C8: ldind.u2 
+IL_01C9: ldc.i4 128
+IL_01CE: or 
+IL_01CF: stind.i2 
+IL_01D0: ldarg.3 
+IL_01D1: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::ignoreFlooded
+IL_01D6: brfalse.s IL_01f4: ldarg.3
+IL_01D8: ldarg.0 
+IL_01D9: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_01DE: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_01E3: ldarg.1 
+IL_01E4: ldind.u4 
+IL_01E5: ldelema PathUnit
+IL_01EA: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_01EF: dup 
+IL_01F0: ldind.u2 
+IL_01F1: ldc.i4.2 
+IL_01F2: or 
+IL_01F3: stind.i2 
+IL_01F4: ldarg.3 
+IL_01F5: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::hasCombustionEngine
+IL_01FA: brfalse.s IL_0218: ldarg.3
+IL_01FC: ldarg.0 
+IL_01FD: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0202: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0207: ldarg.1 
+IL_0208: ldind.u4 
+IL_0209: ldelema PathUnit
+IL_020E: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_0213: dup 
+IL_0214: ldind.u2 
+IL_0215: ldc.i4.4 
+IL_0216: or 
+IL_0217: stind.i2 
+IL_0218: ldarg.3 
+IL_0219: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::ignoreCosts
+IL_021E: brfalse.s IL_023c: ldarg.3
+IL_0220: ldarg.0 
+IL_0221: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0226: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_022B: ldarg.1 
+IL_022C: ldind.u4 
+IL_022D: ldelema PathUnit
+IL_0232: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_0237: dup 
+IL_0238: ldind.u2 
+IL_0239: ldc.i4.8 
+IL_023A: or 
+IL_023B: stind.i2 
+IL_023C: ldarg.3 
+IL_023D: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::ignoreClosed
+IL_0242: brfalse.s IL_0264: ldarg.0
+IL_0244: ldarg.0 
+IL_0245: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_024A: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_024F: ldarg.1 
+IL_0250: ldind.u4 
+IL_0251: ldelema PathUnit
+IL_0256: ldflda PathUnit/SimulationFlags PathUnit::m_simulationFlags
+IL_025B: dup 
+IL_025C: ldind.u2 
+IL_025D: ldc.i4 256
+IL_0262: or 
+IL_0263: stind.i2 
+IL_0264: ldarg.0 
+IL_0265: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_026A: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_026F: ldarg.1 
+IL_0270: ldind.u4 
+IL_0271: ldelema PathUnit
+IL_0276: ldc.i4.0 
+IL_0277: stfld System.Byte PathUnit::m_pathFindFlags
+IL_027C: ldarg.0 
+IL_027D: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0282: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0287: ldarg.1 
+IL_0288: ldind.u4 
+IL_0289: ldelema PathUnit
+IL_028E: ldarg.3 
+IL_028F: ldfld System.UInt32 TrafficManager.API.Traffic.Data.PathCreationArgs::buildIndex
+IL_0294: stfld System.UInt32 PathUnit::m_buildIndex
+IL_0299: ldarg.0 
+IL_029A: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_029F: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_02A4: ldarg.1 
+IL_02A5: ldind.u4 
+IL_02A6: ldelema PathUnit
+IL_02AB: ldarg.3 
+IL_02AC: ldfld PathUnit/Position TrafficManager.API.Traffic.Data.PathCreationArgs::startPosA
+IL_02B1: stfld PathUnit/Position PathUnit::m_position00
+IL_02B6: ldarg.0 
+IL_02B7: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_02BC: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_02C1: ldarg.1 
+IL_02C2: ldind.u4 
+IL_02C3: ldelema PathUnit
+IL_02C8: ldarg.3 
+IL_02C9: ldfld PathUnit/Position TrafficManager.API.Traffic.Data.PathCreationArgs::endPosA
+IL_02CE: stfld PathUnit/Position PathUnit::m_position01
+IL_02D3: ldarg.0 
+IL_02D4: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_02D9: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_02DE: ldarg.1 
+IL_02DF: ldind.u4 
+IL_02E0: ldelema PathUnit
+IL_02E5: ldarg.3 
+IL_02E6: ldfld PathUnit/Position TrafficManager.API.Traffic.Data.PathCreationArgs::startPosB
+IL_02EB: stfld PathUnit/Position PathUnit::m_position02
+IL_02F0: ldarg.0 
+IL_02F1: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_02F6: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_02FB: ldarg.1 
+IL_02FC: ldind.u4 
+IL_02FD: ldelema PathUnit
+IL_0302: ldarg.3 
+IL_0303: ldfld PathUnit/Position TrafficManager.API.Traffic.Data.PathCreationArgs::endPosB
+IL_0308: stfld PathUnit/Position PathUnit::m_position03
+IL_030D: ldarg.0 
+IL_030E: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0313: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0318: ldarg.1 
+IL_0319: ldind.u4 
+IL_031A: ldelema PathUnit
+IL_031F: ldarg.3 
+IL_0320: ldfld PathUnit/Position TrafficManager.API.Traffic.Data.PathCreationArgs::vehiclePosition
+IL_0325: stfld PathUnit/Position PathUnit::m_position11
+IL_032A: ldarg.0 
+IL_032B: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0330: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0335: ldarg.1 
+IL_0336: ldind.u4 
+IL_0337: ldelema PathUnit
+IL_033C: ldarg.3 
+IL_033D: ldfld NetInfo/LaneType TrafficManager.API.Traffic.Data.PathCreationArgs::laneTypes
+IL_0342: stfld System.Byte PathUnit::m_laneTypes
+IL_0347: ldarg.0 
+IL_0348: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_034D: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_0352: ldarg.1 
+IL_0353: ldind.u4 
+IL_0354: ldelema PathUnit
+IL_0359: ldarg.3 
+IL_035A: ldfld VehicleInfo/VehicleType TrafficManager.API.Traffic.Data.PathCreationArgs::vehicleTypes
+IL_035F: stfld System.UInt32 PathUnit::m_vehicleTypes
+IL_0364: ldarg.0 
+IL_0365: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_036A: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_036F: ldarg.1 
+IL_0370: ldind.u4 
+IL_0371: ldelema PathUnit
+IL_0376: ldarg.3 
+IL_0377: ldfld VehicleInfo/VehicleCategory TrafficManager.API.Traffic.Data.PathCreationArgs::vehicleCategories
+IL_037C: stfld System.Int64 PathUnit::m_vehicleCategories
+IL_0381: ldarg.0 
+IL_0382: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0387: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_038C: ldarg.1 
+IL_038D: ldind.u4 
+IL_038E: ldelema PathUnit
+IL_0393: ldarg.3 
+IL_0394: ldfld System.Single TrafficManager.API.Traffic.Data.PathCreationArgs::maxLength
+IL_0399: stfld System.Single PathUnit::m_length
+IL_039E: ldarg.0 
+IL_039F: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_03A4: ldfld !0[] Array32`1<PathUnit>::m_buffer
+IL_03A9: ldarg.1 
+IL_03AA: ldind.u4 
+IL_03AB: ldelema PathUnit
+IL_03B0: ldc.i4.s 20
+IL_03B2: stfld System.Byte PathUnit::m_positionCount
+IL_03B7: ldc.i4 10000000
+IL_03BC: stloc.1 
+IL_03BD: ldnull 
+IL_03BE: stloc.2 
+IL_03BF: ldc.i4.0 
+IL_03C0: call System.Void TrafficManager.Custom.PathFinding.CustomPathManager::set_TotalQueuedPathFinds(System.UInt32)
+IL_03C5: ldarg.0 
+IL_03C6: ldfld TrafficManager.Custom.PathFinding.CustomPathFind[] TrafficManager.Custom.PathFinding.CustomPathManager::_replacementPathFinds
+IL_03CB: stloc.s V_6
+IL_03CD: ldc.i4.0 
+IL_03CE: stloc.s V_7
+IL_03D0: br.s IL_0415: ldloc.s V_7
+IL_03D2: ldloc.s V_6
+IL_03D4: ldloc.s V_7
+IL_03D6: ldelem.ref 
+IL_03D7: stloc.s V_8
+IL_03D9: call System.UInt32 TrafficManager.Custom.PathFinding.CustomPathManager::get_TotalQueuedPathFinds()
+IL_03DE: ldloc.s V_8
+IL_03E0: volatile. 
+IL_03E2: ldfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+IL_03E7: add 
+IL_03E8: call System.Void TrafficManager.Custom.PathFinding.CustomPathManager::set_TotalQueuedPathFinds(System.UInt32)
+IL_03ED: ldloc.s V_8
+IL_03EF: callvirt System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::get_IsAvailable()
+IL_03F4: brfalse.s IL_040f: ldloc.s V_7
+IL_03F6: ldloc.s V_8
+IL_03F8: volatile. 
+IL_03FA: ldfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+IL_03FF: ldloc.1 
+IL_0400: bge.s IL_040f: ldloc.s V_7
+IL_0402: ldloc.s V_8
+IL_0404: volatile. 
+IL_0406: ldfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+IL_040B: stloc.1 
+IL_040C: ldloc.s V_8
+IL_040E: stloc.2 
+IL_040F: ldloc.s V_7
+IL_0411: ldc.i4.1 
+IL_0412: add 
+IL_0413: stloc.s V_7
+IL_0415: ldloc.s V_7
+IL_0417: ldloc.s V_6
+IL_0419: ldlen 
+IL_041A: conv.i4 
+IL_041B: blt.s IL_03d2: ldloc.s V_6
+IL_041D: ldloc.2 
+IL_041E: ldnull 
+IL_041F: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_0424: brfalse.s IL_0438: ldarg.0
+IL_0426: ldloc.2 
+IL_0427: ldarg.1 
+IL_0428: ldind.u4 
+IL_0429: ldarg.3 
+IL_042A: ldfld System.Boolean TrafficManager.API.Traffic.Data.PathCreationArgs::skipQueue
+IL_042F: callvirt System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::CalculatePath(System.UInt32,System.Boolean)
+IL_0434: brfalse.s IL_0438: ldarg.0
+IL_0436: ldc.i4.1 
+IL_0437: ret 
+IL_0438: ldarg.0 
+IL_0439: ldfld System.Object PathManager::m_bufferLock
+IL_043E: stloc.3 
+IL_043F: ldloc.3 
+IL_0440: call System.Void System.Threading.Monitor::Enter(System.Object)
+IL_0445: ldarg.0 
+IL_0446: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+IL_044B: ldloc.0 
+IL_044C: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+IL_0451: ldc.i4.0 
+IL_0452: stfld System.Boolean TrafficManager.API.Traffic.Data.PathUnitQueueItem::queued
+IL_0457: ldarg.0 
+IL_0458: ldarg.1 
+IL_0459: ldind.u4 
+IL_045A: call System.Void TrafficManager.Custom.PathFinding.CustomPathManager::CustomReleasePath(System.UInt32)
+IL_045F: ldarg.0 
+IL_0460: ldarg.0 
+IL_0461: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0466: callvirt System.UInt32 Array32`1<PathUnit>::ItemCount()
+IL_046B: ldc.i4.1 
+IL_046C: sub 
+IL_046D: stfld System.Int32 PathManager::m_pathUnitCount
+IL_0472: leave.s IL_047b: ldc.i4.0
+IL_0474: ldloc.3 
+IL_0475: call System.Void System.Threading.Monitor::Exit(System.Object)
+IL_047A: endfinally 
+IL_047B: ldc.i4.0 
+IL_047C: ret 
+IL_047D: ldloc.s V_5
+IL_047F: ret 

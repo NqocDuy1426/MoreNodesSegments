@@ -1,0 +1,40 @@
+Method: System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateSegmentPosition(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+  IL_0000: ldarg.s laneId
+  IL_0002: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_0007: ldarg.s offset
+  IL_0009: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+  IL_000e: ldarg.s pos
+  IL_0010: ldarg.s dir
+  IL_0012: call System.Void NetLane::CalculatePositionAndDirection(System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+  IL_0017: ldarg.0
+  IL_0018: ldarg.1
+  IL_0019: ldarg.2
+  IL_001a: ldarg.3
+  IL_001b: ldarg.s laneId
+  IL_001d: ldarg.3
+  IL_001e: ldfld System.UInt16 PathUnit/Position::m_segment
+  IL_0023: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_0028: call NetInfo NetSegment::get_Info()
+  IL_002d: ldarg.s maxSpeed
+  IL_002f: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateTargetSpeed(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,NetInfo,System.Single&)
+  IL_0034: ret
+Method: System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateSegmentPosition_NoSlowDriving(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+  IL_0000: ldarg.s laneId
+  IL_0002: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_0007: ldarg.s offset
+  IL_0009: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+  IL_000e: ldarg.s pos
+  IL_0010: ldarg.s dir
+  IL_0012: call System.Void NetLane::CalculatePositionAndDirection(System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+  IL_0017: ldarg.0
+  IL_0018: ldarg.1
+  IL_0019: ldarg.2
+  IL_001a: ldarg.3
+  IL_001b: ldarg.s laneId
+  IL_001d: ldarg.3
+  IL_001e: ldfld System.UInt16 PathUnit/Position::m_segment
+  IL_0023: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_0028: call NetInfo NetSegment::get_Info()
+  IL_002d: ldarg.s maxSpeed
+  IL_002f: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateTargetSpeed_NoSlowDriving(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,NetInfo,System.Single&)
+  IL_0034: ret

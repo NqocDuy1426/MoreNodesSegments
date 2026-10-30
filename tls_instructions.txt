@@ -1,0 +1,658 @@
+Target: System.Void RoadBaseAI::TrafficLightSimulationStep(System.UInt16,NetNode&)
+0000: call         !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+0005: stloc.0      
+0006: call         !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+000B: ldfld        System.UInt32 SimulationManager::m_currentFrameIndex
+0010: stloc.1      
+0011: ldarg.1      
+0012: ldfld        System.Byte NetNode::m_maxWaitTime
+0017: ldc.i4.3     
+0018: and          
+0019: stloc.2      
+001A: ldarg.1      
+001B: ldfld        System.Byte NetNode::m_maxWaitTime
+0020: ldc.i4.2     
+0021: shr          
+0022: ldc.i4.7     
+0023: and          
+0024: stloc.3      
+0025: ldarg.1      
+0026: ldfld        System.Byte NetNode::m_maxWaitTime
+002B: ldc.i4.5     
+002C: shr          
+002D: stloc.s      V_4
+002F: ldc.i4.m1    
+0030: stloc.s      V_5
+0032: ldc.i4.m1    
+0033: stloc.s      V_6
+0035: ldc.i4.m1    
+0036: stloc.s      V_7
+0038: ldc.i4.m1    
+0039: stloc.s      V_8
+003B: ldc.i4.m1    
+003C: stloc.s      V_9
+003E: ldc.i4.m1    
+003F: stloc.s      V_10
+0041: ldc.i4.0     
+0042: stloc.s      V_11
+0044: ldc.i4.0     
+0045: stloc.s      V_12
+0047: ldc.i4.0     
+0048: stloc.s      V_13
+004A: ldc.i4.0     
+004B: stloc.s      V_14
+004D: ldc.i4.0     
+004E: stloc.s      V_15
+0050: ldc.i4.0     
+0051: stloc.s      V_16
+0053: br           IL_01d5: ldloc.s V_16
+0058: ldarg.1      
+0059: ldloc.s      V_16
+005B: call         System.UInt16 NetNode::GetSegment(System.Int32)
+0060: stloc.s      V_17
+0062: ldloc.s      V_17
+0064: brfalse      IL_01cf: ldloc.s V_16
+0069: ldc.i4.0     
+006A: stloc.s      V_18
+006C: ldc.i4.0     
+006D: stloc.s      V_19
+006F: ldloc.0      
+0070: ldfld        Array16`1<NetSegment> NetManager::m_segments
+0075: ldfld        T[] Array16`1<NetSegment>::m_buffer
+007A: ldloc.s      V_17
+007C: ldelema      NetSegment
+0081: ldloc.s      V_17
+0083: ldc.i4.s     33
+0085: ldc.i4       65601
+008A: ldc.i4.m1    
+008B: conv.i8      
+008C: ldloca.s     V_18
+008E: ldloca.s     V_19
+0090: call         System.Void NetSegment::CountLanes(System.UInt16,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32&,System.Int32&)
+0095: ldloc.0      
+0096: ldfld        Array16`1<NetSegment> NetManager::m_segments
+009B: ldfld        T[] Array16`1<NetSegment>::m_buffer
+00A0: ldloc.s      V_17
+00A2: ldelema      NetSegment
+00A7: ldfld        System.UInt16 NetSegment::m_startNode
+00AC: ldarg.0      
+00AD: ceq          
+00AF: stloc.s      V_20
+00B1: ldloc.s      V_20
+00B3: brfalse      IL_00c5: ldloc.s V_18
+00B8: ldloc.s      V_19
+00BA: ldc.i4.0     
+00BB: ceq          
+00BD: ldc.i4.0     
+00BE: ceq          
+00C0: br           IL_00cd: stloc.s V_21
+00C5: ldloc.s      V_18
+00C7: ldc.i4.0     
+00C8: ceq          
+00CA: ldc.i4.0     
+00CB: ceq          
+00CD: stloc.s      V_21
+00CF: ldloc.s      V_20
+00D1: brfalse      IL_00e3: ldloc.s V_19
+00D6: ldloc.s      V_18
+00D8: ldc.i4.0     
+00D9: ceq          
+00DB: ldc.i4.0     
+00DC: ceq          
+00DE: br           IL_00eb: stloc.s V_22
+00E3: ldloc.s      V_19
+00E5: ldc.i4.0     
+00E6: ceq          
+00E8: ldc.i4.0     
+00E9: ceq          
+00EB: stloc.s      V_22
+00ED: ldloc.s      V_21
+00EF: brfalse      IL_0100: ldloc.s V_22
+00F4: ldloc.s      V_11
+00F6: ldc.i4.1     
+00F7: ldloc.s      V_16
+00F9: ldc.i4.s     31
+00FB: and          
+00FC: shl          
+00FD: or           
+00FE: stloc.s      V_11
+0100: ldloc.s      V_22
+0102: brfalse      IL_0119: ldarg.0
+0107: ldloc.s      V_12
+0109: ldc.i4.1     
+010A: ldloc.s      V_16
+010C: ldc.i4.s     31
+010E: and          
+010F: shl          
+0110: or           
+0111: stloc.s      V_12
+0113: ldloc.s      V_14
+0115: ldc.i4.1     
+0116: add          
+0117: stloc.s      V_14
+0119: ldarg.0      
+011A: ldloc.0      
+011B: ldfld        Array16`1<NetSegment> NetManager::m_segments
+0120: ldfld        T[] Array16`1<NetSegment>::m_buffer
+0125: ldloc.s      V_17
+0127: ldelema      NetSegment
+012C: ldloc.1      
+012D: ldc.i4       256
+0132: sub          
+0133: ldloca.s     V_23
+0135: ldloca.s     V_24
+0137: ldloca.s     V_25
+0139: ldloca.s     V_26
+013B: call         System.Void RoadBaseAI::GetTrafficLightState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState&,RoadBaseAI/TrafficLightState&,System.Boolean&,System.Boolean&)
+0140: ldloc.s      V_24
+0142: ldc.i4.2     
+0143: and          
+0144: brfalse      IL_0171: ldloc.s V_15
+0149: ldloc.s      V_26
+014B: brfalse      IL_0171: ldloc.s V_15
+0150: ldloc.s      V_8
+0152: ldc.i4.m1    
+0153: bne.un       IL_015c: ldloc.s V_10
+0158: ldloc.s      V_16
+015A: stloc.s      V_8
+015C: ldloc.s      V_10
+015E: ldc.i4.m1    
+015F: bne.un       IL_0171: ldloc.s V_15
+0164: ldloc.s      V_15
+0166: ldloc.s      V_4
+0168: blt          IL_0171: ldloc.s V_15
+016D: ldloc.s      V_16
+016F: stloc.s      V_10
+0171: ldloc.s      V_15
+0173: ldc.i4.1     
+0174: add          
+0175: stloc.s      V_15
+0177: ldloc.s      V_21
+0179: brtrue       IL_0185: ldloc.s V_23
+017E: ldloc.s      V_25
+0180: brfalse      IL_01cf: ldloc.s V_16
+0185: ldloc.s      V_23
+0187: ldc.i4.2     
+0188: and          
+0189: brtrue       IL_01a2: ldloc.s V_25
+018E: ldloc.s      V_16
+0190: stloc.s      V_6
+0192: ldloc.s      V_25
+0194: brfalse      IL_019d: br IL_01c9
+0199: ldloc.s      V_16
+019B: stloc.s      V_5
+019D: br           IL_01c9: ldloc.s V_13
+01A2: ldloc.s      V_25
+01A4: brfalse      IL_01c9: ldloc.s V_13
+01A9: ldloc.s      V_7
+01AB: ldc.i4.m1    
+01AC: bne.un       IL_01b5: ldloc.s V_9
+01B1: ldloc.s      V_16
+01B3: stloc.s      V_7
+01B5: ldloc.s      V_9
+01B7: ldc.i4.m1    
+01B8: bne.un       IL_01c9: ldloc.s V_13
+01BD: ldloc.s      V_13
+01BF: ldloc.3      
+01C0: blt          IL_01c9: ldloc.s V_13
+01C5: ldloc.s      V_16
+01C7: stloc.s      V_9
+01C9: ldloc.s      V_13
+01CB: ldc.i4.1     
+01CC: add          
+01CD: stloc.s      V_13
+01CF: ldloc.s      V_16
+01D1: ldc.i4.1     
+01D2: add          
+01D3: stloc.s      V_16
+01D5: ldloc.s      V_16
+01D7: ldc.i4.8     
+01D8: blt          IL_0058: ldarg.1
+01DD: ldloc.s      V_9
+01DF: ldc.i4.m1    
+01E0: bne.un       IL_01e9: ldloc.s V_10
+01E5: ldloc.s      V_7
+01E7: stloc.s      V_9
+01E9: ldloc.s      V_10
+01EB: ldc.i4.m1    
+01EC: bne.un       IL_01f5: ldloc.s V_6
+01F1: ldloc.s      V_8
+01F3: stloc.s      V_10
+01F5: ldloc.s      V_6
+01F7: ldc.i4.m1    
+01F8: beq          IL_0216: ldloc.s V_10
+01FD: ldloc.s      V_5
+01FF: ldc.i4.m1    
+0200: beq          IL_0216: ldloc.s V_10
+0205: ldloc.2      
+0206: ldc.i4.1     
+0207: bgt          IL_0216: ldloc.s V_10
+020C: ldc.i4.m1    
+020D: stloc.s      V_9
+020F: ldc.i4.m1    
+0210: stloc.s      V_10
+0212: ldloc.2      
+0213: ldc.i4.1     
+0214: add          
+0215: stloc.2      
+0216: ldloc.s      V_10
+0218: ldc.i4.m1    
+0219: beq          IL_023e: ldloc.s V_9
+021E: ldloc.s      V_9
+0220: ldc.i4.m1    
+0221: beq          IL_023e: ldloc.s V_9
+0226: call         !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+022B: ldflda       ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+0230: ldc.i4.3     
+0231: call         System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+0236: brfalse      IL_023e: ldloc.s V_9
+023B: ldc.i4.m1    
+023C: stloc.s      V_10
+023E: ldloc.s      V_9
+0240: ldc.i4.m1    
+0241: beq          IL_024a: ldloc.s V_10
+0246: ldloc.s      V_9
+0248: stloc.s      V_6
+024A: ldloc.s      V_10
+024C: ldloc.s      V_6
+024E: bne.un       IL_0256: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+0253: ldc.i4.m1    
+0254: stloc.s      V_6
+0256: call         UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+025B: stloc.s      V_27
+025D: ldloc.s      V_10
+025F: ldc.i4.m1    
+0260: beq          IL_0374: ldc.i4.m1
+0265: ldarg.1      
+0266: ldloc.s      V_10
+0268: call         System.UInt16 NetNode::GetSegment(System.Int32)
+026D: stloc.s      V_28
+026F: ldloc.0      
+0270: ldfld        Array16`1<NetSegment> NetManager::m_segments
+0275: ldfld        T[] Array16`1<NetSegment>::m_buffer
+027A: ldloc.s      V_28
+027C: ldelema      NetSegment
+0281: ldarg.0      
+0282: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+0287: stloc.s      V_27
+0289: ldloc.s      V_6
+028B: ldc.i4.m1    
+028C: beq          IL_02e1: ldloc.s V_6
+0291: ldarg.1      
+0292: ldloc.s      V_6
+0294: call         System.UInt16 NetNode::GetSegment(System.Int32)
+0299: stloc.s      V_28
+029B: ldloc.0      
+029C: ldfld        Array16`1<NetSegment> NetManager::m_segments
+02A1: ldfld        T[] Array16`1<NetSegment>::m_buffer
+02A6: ldloc.s      V_28
+02A8: ldelema      NetSegment
+02AD: ldarg.0      
+02AE: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+02B3: stloc.s      V_29
+02B5: ldloca.s     V_29
+02B7: ldfld        System.Single UnityEngine.Vector3::x
+02BC: ldloca.s     V_27
+02BE: ldfld        System.Single UnityEngine.Vector3::x
+02C3: mul          
+02C4: ldloca.s     V_29
+02C6: ldfld        System.Single UnityEngine.Vector3::z
+02CB: ldloca.s     V_27
+02CD: ldfld        System.Single UnityEngine.Vector3::z
+02D2: mul          
+02D3: add          
+02D4: ldc.r4       -0,5
+02D9: bge.un       IL_02e1: ldloc.s V_6
+02DE: ldc.i4.m1    
+02DF: stloc.s      V_6
+02E1: ldloc.s      V_6
+02E3: ldc.i4.m1    
+02E4: bne.un       IL_0374: ldc.i4.m1
+02E9: ldc.i4.0     
+02EA: stloc.s      V_30
+02EC: br           IL_036c: ldloc.s V_30
+02F1: ldloc.s      V_30
+02F3: ldloc.s      V_10
+02F5: beq          IL_0366: ldloc.s V_30
+02FA: ldloc.s      V_11
+02FC: ldc.i4.1     
+02FD: ldloc.s      V_30
+02FF: ldc.i4.s     31
+0301: and          
+0302: shl          
+0303: and          
+0304: brfalse      IL_0366: ldloc.s V_30
+0309: ldarg.1      
+030A: ldloc.s      V_30
+030C: call         System.UInt16 NetNode::GetSegment(System.Int32)
+0311: stloc.s      V_28
+0313: ldloc.s      V_28
+0315: brfalse      IL_0366: ldloc.s V_30
+031A: ldloc.0      
+031B: ldfld        Array16`1<NetSegment> NetManager::m_segments
+0320: ldfld        T[] Array16`1<NetSegment>::m_buffer
+0325: ldloc.s      V_28
+0327: ldelema      NetSegment
+032C: ldarg.0      
+032D: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+0332: stloc.s      V_31
+0334: ldloca.s     V_31
+0336: ldfld        System.Single UnityEngine.Vector3::x
+033B: ldloca.s     V_27
+033D: ldfld        System.Single UnityEngine.Vector3::x
+0342: mul          
+0343: ldloca.s     V_31
+0345: ldfld        System.Single UnityEngine.Vector3::z
+034A: ldloca.s     V_27
+034C: ldfld        System.Single UnityEngine.Vector3::z
+0351: mul          
+0352: add          
+0353: ldc.r4       -0,5
+0358: blt.un       IL_0366: ldloc.s V_30
+035D: ldloc.s      V_30
+035F: stloc.s      V_6
+0361: br           IL_0374: ldc.i4.m1
+0366: ldloc.s      V_30
+0368: ldc.i4.1     
+0369: add          
+036A: stloc.s      V_30
+036C: ldloc.s      V_30
+036E: ldc.i4.8     
+036F: blt          IL_02f1: ldloc.s V_30
+0374: ldc.i4.m1    
+0375: stloc.s      V_32
+0377: call         UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+037C: stloc.s      V_33
+037E: call         UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+0383: stloc.s      V_34
+0385: ldloc.s      V_6
+0387: ldc.i4.m1    
+0388: beq          IL_049c: ldc.i4.8
+038D: ldarg.1      
+038E: ldloc.s      V_6
+0390: call         System.UInt16 NetNode::GetSegment(System.Int32)
+0395: stloc.s      V_35
+0397: ldloc.0      
+0398: ldfld        Array16`1<NetSegment> NetManager::m_segments
+039D: ldfld        T[] Array16`1<NetSegment>::m_buffer
+03A2: ldloc.s      V_35
+03A4: ldelema      NetSegment
+03A9: ldarg.0      
+03AA: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+03AF: stloc.s      V_33
+03B1: ldloc.s      V_11
+03B3: ldloc.s      V_12
+03B5: and          
+03B6: ldc.i4.1     
+03B7: ldloc.s      V_6
+03B9: ldc.i4.s     31
+03BB: and          
+03BC: shl          
+03BD: and          
+03BE: brfalse      IL_049c: ldc.i4.8
+03C3: ldc.i4.0     
+03C4: stloc.s      V_36
+03C6: br           IL_0494: ldloc.s V_36
+03CB: ldloc.s      V_36
+03CD: ldloc.s      V_6
+03CF: beq          IL_048e: ldloc.s V_36
+03D4: ldloc.s      V_36
+03D6: ldloc.s      V_10
+03D8: beq          IL_048e: ldloc.s V_36
+03DD: ldloc.s      V_11
+03DF: ldloc.s      V_12
+03E1: and          
+03E2: ldc.i4.1     
+03E3: ldloc.s      V_36
+03E5: ldc.i4.s     31
+03E7: and          
+03E8: shl          
+03E9: and          
+03EA: brfalse      IL_048e: ldloc.s V_36
+03EF: ldarg.1      
+03F0: ldloc.s      V_36
+03F2: call         System.UInt16 NetNode::GetSegment(System.Int32)
+03F7: stloc.s      V_35
+03F9: ldloc.s      V_35
+03FB: brfalse      IL_048e: ldloc.s V_36
+0400: ldloc.0      
+0401: ldfld        Array16`1<NetSegment> NetManager::m_segments
+0406: ldfld        T[] Array16`1<NetSegment>::m_buffer
+040B: ldloc.s      V_35
+040D: ldelema      NetSegment
+0412: ldarg.0      
+0413: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+0418: stloc.s      V_34
+041A: ldloc.s      V_10
+041C: ldc.i4.m1    
+041D: beq          IL_044b: ldloc.s V_14
+0422: ldloca.s     V_34
+0424: ldfld        System.Single UnityEngine.Vector3::x
+0429: ldloca.s     V_27
+042B: ldfld        System.Single UnityEngine.Vector3::x
+0430: mul          
+0431: ldloca.s     V_34
+0433: ldfld        System.Single UnityEngine.Vector3::z
+0438: ldloca.s     V_27
+043A: ldfld        System.Single UnityEngine.Vector3::z
+043F: mul          
+0440: add          
+0441: ldc.r4       -0,5
+0446: blt.un       IL_048e: ldloc.s V_36
+044B: ldloc.s      V_14
+044D: ldc.i4.2     
+044E: bne.un       IL_045c: ldloca.s V_34
+0453: ldloc.s      V_36
+0455: stloc.s      V_32
+0457: br           IL_049c: ldc.i4.8
+045C: ldloca.s     V_34
+045E: ldfld        System.Single UnityEngine.Vector3::x
+0463: ldloca.s     V_33
+0465: ldfld        System.Single UnityEngine.Vector3::x
+046A: mul          
+046B: ldloca.s     V_34
+046D: ldfld        System.Single UnityEngine.Vector3::z
+0472: ldloca.s     V_33
+0474: ldfld        System.Single UnityEngine.Vector3::z
+0479: mul          
+047A: add          
+047B: ldc.r4       -0,9396926
+0480: bge.un       IL_048e: ldloc.s V_36
+0485: ldloc.s      V_36
+0487: stloc.s      V_32
+0489: br           IL_049c: ldc.i4.8
+048E: ldloc.s      V_36
+0490: ldc.i4.1     
+0491: add          
+0492: stloc.s      V_36
+0494: ldloc.s      V_36
+0496: ldc.i4.8     
+0497: blt          IL_03cb: ldloc.s V_36
+049C: ldc.i4.8     
+049D: newarr       System.Boolean
+04A2: stloc.s      V_37
+04A4: ldc.i4.0     
+04A5: stloc.s      V_38
+04A7: br           IL_062b: ldloc.s V_38
+04AC: ldarg.1      
+04AD: ldloc.s      V_38
+04AF: call         System.UInt16 NetNode::GetSegment(System.Int32)
+04B4: stloc.s      V_39
+04B6: ldloc.s      V_39
+04B8: brfalse      IL_0625: ldloc.s V_38
+04BD: ldarg.0      
+04BE: ldloc.0      
+04BF: ldfld        Array16`1<NetSegment> NetManager::m_segments
+04C4: ldfld        T[] Array16`1<NetSegment>::m_buffer
+04C9: ldloc.s      V_39
+04CB: ldelema      NetSegment
+04D0: ldloc.1      
+04D1: ldc.i4       256
+04D6: sub          
+04D7: ldloca.s     V_40
+04D9: ldloca.s     V_41
+04DB: ldloc.s      V_37
+04DD: ldloc.s      V_38
+04DF: ldelema      System.Boolean
+04E4: ldloca.s     V_42
+04E6: call         System.Void RoadBaseAI::GetTrafficLightState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState&,RoadBaseAI/TrafficLightState&,System.Boolean&,System.Boolean&)
+04EB: ldloc.s      V_40
+04ED: ldc.i4.s     -2
+04EF: and          
+04F0: stloc.s      V_40
+04F2: ldloc.s      V_41
+04F4: ldc.i4.s     -2
+04F6: and          
+04F7: stloc.s      V_41
+04F9: ldloc.s      V_6
+04FB: ldloc.s      V_38
+04FD: beq          IL_050b: ldloc.s V_40
+0502: ldloc.s      V_32
+0504: ldloc.s      V_38
+0506: bne.un       IL_0538: ldloc.s V_40
+050B: ldloc.s      V_40
+050D: ldc.i4.2     
+050E: and          
+050F: brfalse      IL_0527: ldloc.s V_41
+0514: ldc.i4.1     
+0515: stloc.s      V_40
+0517: ldc.i4.0     
+0518: stloc.2      
+0519: ldloc.3      
+051A: ldc.i4.1     
+051B: add          
+051C: dup          
+051D: stloc.3      
+051E: ldloc.s      V_13
+0520: blt          IL_0527: ldloc.s V_41
+0525: ldc.i4.0     
+0526: stloc.3      
+0527: ldloc.s      V_41
+0529: ldc.i4.2     
+052A: and          
+052B: brtrue       IL_0533: br IL_0606
+0530: ldc.i4.3     
+0531: stloc.s      V_41
+0533: br           IL_0606: ldarg.0
+0538: ldloc.s      V_40
+053A: ldc.i4.2     
+053B: and          
+053C: brtrue       IL_0544: ldloc.0
+0541: ldc.i4.3     
+0542: stloc.s      V_40
+0544: ldloc.0      
+0545: ldfld        Array16`1<NetSegment> NetManager::m_segments
+054A: ldfld        T[] Array16`1<NetSegment>::m_buffer
+054F: ldloc.s      V_39
+0551: ldelema      NetSegment
+0556: ldarg.0      
+0557: call         UnityEngine.Vector3 NetSegment::GetDirection(System.UInt16)
+055C: stloc.s      V_43
+055E: ldloc.s      V_12
+0560: ldc.i4.1     
+0561: ldloc.s      V_38
+0563: ldc.i4.s     31
+0565: and          
+0566: shl          
+0567: and          
+0568: brfalse      IL_05e9: ldloc.s V_41
+056D: ldloc.s      V_10
+056F: ldloc.s      V_38
+0571: beq          IL_05e9: ldloc.s V_41
+0576: ldloc.s      V_6
+0578: ldc.i4.m1    
+0579: beq          IL_05a7: ldloc.s V_32
+057E: ldloca.s     V_43
+0580: ldfld        System.Single UnityEngine.Vector3::x
+0585: ldloca.s     V_33
+0587: ldfld        System.Single UnityEngine.Vector3::x
+058C: mul          
+058D: ldloca.s     V_43
+058F: ldfld        System.Single UnityEngine.Vector3::z
+0594: ldloca.s     V_33
+0596: ldfld        System.Single UnityEngine.Vector3::z
+059B: mul          
+059C: add          
+059D: ldc.r4       -0,5
+05A2: blt          IL_05d8: ldloc.s V_41
+05A7: ldloc.s      V_32
+05A9: ldc.i4.m1    
+05AA: beq          IL_05e9: ldloc.s V_41
+05AF: ldloca.s     V_43
+05B1: ldfld        System.Single UnityEngine.Vector3::x
+05B6: ldloca.s     V_34
+05B8: ldfld        System.Single UnityEngine.Vector3::x
+05BD: mul          
+05BE: ldloca.s     V_43
+05C0: ldfld        System.Single UnityEngine.Vector3::z
+05C5: ldloca.s     V_34
+05C7: ldfld        System.Single UnityEngine.Vector3::z
+05CC: mul          
+05CD: add          
+05CE: ldc.r4       -0,5
+05D3: bge.un       IL_05e9: ldloc.s V_41
+05D8: ldloc.s      V_41
+05DA: ldc.i4.2     
+05DB: and          
+05DC: brtrue       IL_05e4: br IL_0606
+05E1: ldc.i4.3     
+05E2: stloc.s      V_41
+05E4: br           IL_0606: ldarg.0
+05E9: ldloc.s      V_41
+05EB: ldc.i4.2     
+05EC: and          
+05ED: brfalse      IL_0606: ldarg.0
+05F2: ldc.i4.1     
+05F3: stloc.s      V_41
+05F5: ldloc.s      V_4
+05F7: ldc.i4.1     
+05F8: add          
+05F9: dup          
+05FA: stloc.s      V_4
+05FC: ldloc.s      V_15
+05FE: blt          IL_0606: ldarg.0
+0603: ldc.i4.0     
+0604: stloc.s      V_4
+0606: ldarg.0      
+0607: ldloc.0      
+0608: ldfld        Array16`1<NetSegment> NetManager::m_segments
+060D: ldfld        T[] Array16`1<NetSegment>::m_buffer
+0612: ldloc.s      V_39
+0614: ldelema      NetSegment
+0619: ldloc.1      
+061A: ldloc.s      V_40
+061C: ldloc.s      V_41
+061E: ldc.i4.0     
+061F: ldc.i4.0     
+0620: call         System.Void RoadBaseAI::SetTrafficLightState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState,RoadBaseAI/TrafficLightState,System.Boolean,System.Boolean)
+0625: ldloc.s      V_38
+0627: ldc.i4.1     
+0628: add          
+0629: stloc.s      V_38
+062B: ldloc.s      V_38
+062D: ldc.i4.8     
+062E: blt          IL_04ac: ldarg.1
+0633: ldarg.1      
+0634: call         NetNode/FlagsLong NetNode::get_flags()
+0639: ldc.i8       4294967296
+0642: and          
+0643: ldc.i4.0     
+0644: conv.i8      
+0645: beq          IL_0653: ldarg.1
+064A: ldarg.0      
+064B: ldarg.1      
+064C: ldloc.s      V_37
+064E: call         System.Void PedestrianZoneRoadAI::BollardsSimulationStep(System.UInt16,NetNode&,System.Boolean[])
+0653: ldarg.1      
+0654: ldloc.s      V_4
+0656: ldc.i4.5     
+0657: shl          
+0658: ldloc.3      
+0659: ldc.i4.2     
+065A: shl          
+065B: or           
+065C: ldloc.2      
+065D: or           
+065E: conv.u1      
+065F: stfld        System.Byte NetNode::m_maxWaitTime
+0664: ret          

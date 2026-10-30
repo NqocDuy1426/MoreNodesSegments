@@ -1,0 +1,302 @@
+
+=== JunctionRestrictionsTool.RefreshCurrentRestrictedNodeIds ===
+  IL_0000: ldarg.1 
+  IL_0001: brtrue.s IL_0010: ldarg.0
+  IL_0003: ldarg.0 
+  IL_0004: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.JunctionRestrictionsTool::currentRestrictedNodeIds
+  IL_0009: callvirt System.Void System.Collections.Generic.HashSet`1<System.UInt16>::Clear()
+  IL_000E: br.s IL_001d: ldarg.1
+  IL_0010: ldarg.0 
+  IL_0011: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.JunctionRestrictionsTool::currentRestrictedNodeIds
+  IL_0016: ldarg.1 
+  IL_0017: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Remove(!0)
+  IL_001C: pop 
+  IL_001D: ldarg.1 
+  IL_001E: brfalse.s IL_0023: ldc.i4.1
+  IL_0020: ldarg.1 
+  IL_0021: br.s IL_0024: stloc.0
+  IL_0023: ldc.i4.1 
+  IL_0024: stloc.0 
+  IL_0025: br.s IL_0055: ldloc.0
+  IL_0027: ldloc.0 
+  IL_0028: conv.u2 
+  IL_0029: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_002E: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+  IL_0033: brfalse.s IL_0051: ldloc.0
+  IL_0035: call TrafficManager.Manager.Impl.JunctionRestrictionsManager TrafficManager.Manager.Impl.JunctionRestrictionsManager::get_Instance()
+  IL_003A: ldloc.0 
+  IL_003B: conv.u2 
+  IL_003C: callvirt System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::HasJunctionRestrictions(System.UInt16)
+  IL_0041: brfalse.s IL_0051: ldloc.0
+  IL_0043: ldarg.0 
+  IL_0044: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.JunctionRestrictionsTool::currentRestrictedNodeIds
+  IL_0049: ldloc.0 
+  IL_004A: conv.u2 
+  IL_004B: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Add(!0)
+  IL_0050: pop 
+  IL_0051: ldloc.0 
+  IL_0052: ldc.i4.1 
+  IL_0053: add 
+  IL_0054: stloc.0 
+  IL_0055: ldloc.0 
+  IL_0056: conv.u8 
+  IL_0057: ldarg.1 
+  IL_0058: brfalse.s IL_005d: ldc.i4 32767
+  IL_005A: ldarg.1 
+  IL_005B: br.s IL_0062: conv.i8
+  IL_005D: ldc.i4 32767
+  IL_0062: conv.i8 
+  IL_0063: ble.s IL_0027: ldloc.0
+  IL_0065: ret 
+
+=== LaneConnectorTool.RefreshCurrentNodeMarkers ===
+  IL_0000: ldarg.1 
+  IL_0001: brtrue.s IL_0010: ldarg.0
+  IL_0003: ldarg.0 
+  IL_0004: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>> TrafficManager.UI.SubTools.LaneConnectorTool::currentLaneEnds_
+  IL_0009: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>>::Clear()
+  IL_000E: br.s IL_001d: ldarg.1
+  IL_0010: ldarg.0 
+  IL_0011: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>> TrafficManager.UI.SubTools.LaneConnectorTool::currentLaneEnds_
+  IL_0016: ldarg.1 
+  IL_0017: callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>>::Remove(!0)
+  IL_001C: pop 
+  IL_001D: ldarg.1 
+  IL_001E: brfalse.s IL_0023: ldc.i4.1
+  IL_0020: ldarg.1 
+  IL_0021: br.s IL_0024: stloc.0
+  IL_0023: ldc.i4.1 
+  IL_0024: stloc.0 
+  IL_0025: br.s IL_006b: ldloc.0
+  IL_0027: ldloc.0 
+  IL_0028: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_002D: stloc.1 
+  IL_002E: ldloc.1 
+  IL_002F: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+  IL_0034: brfalse.s IL_0066: ldloc.0
+  IL_0036: ldloc.0 
+  IL_0037: ldarg.0 
+  IL_0038: call System.UInt16 TrafficManager.UI.LegacySubTool::get_SelectedNodeId()
+  IL_003D: beq.s IL_004c: ldloc.0
+  IL_003F: call TrafficManager.Manager.Impl.LaneConnection.LaneConnectionManager TrafficManager.Manager.Impl.LaneConnection.LaneConnectionManager::get_Instance()
+  IL_0044: ldloc.0 
+  IL_0045: callvirt System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionManager::HasNodeConnections(System.UInt16)
+  IL_004A: brfalse.s IL_0066: ldloc.0
+  IL_004C: ldloc.0 
+  IL_004D: ldloc.1 
+  IL_004E: ldloca.s V_3
+  IL_0050: call System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd> TrafficManager.UI.SubTools.LaneConnectorTool::GetLaneEnds(System.UInt16,NetNode&,TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup&)
+  IL_0055: stloc.2 
+  IL_0056: ldloc.2 
+  IL_0057: brfalse.s IL_0066: ldloc.0
+  IL_0059: ldarg.0 
+  IL_005A: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>> TrafficManager.UI.SubTools.LaneConnectorTool::currentLaneEnds_
+  IL_005F: ldloc.0 
+  IL_0060: ldloc.2 
+  IL_0061: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.Collections.Generic.List`1<TrafficManager.UI.SubTools.LaneConnectorTool/LaneEnd>>::set_Item(!0,!1)
+  IL_0066: ldloc.0 
+  IL_0067: ldc.i4.1 
+  IL_0068: add 
+  IL_0069: conv.u2 
+  IL_006A: stloc.0 
+  IL_006B: ldloc.0 
+  IL_006C: ldarg.1 
+  IL_006D: brfalse.s IL_0072: ldc.i4 32767
+  IL_006F: ldarg.1 
+  IL_0070: br.s IL_0077: ble.s IL_0027
+  IL_0072: ldc.i4 32767
+  IL_0077: ble.s IL_0027: ldloc.0
+  IL_0079: ret 
+
+=== VehicleRestrictionsTool.RefreshCurrentRestrictedSegmentIds ===
+  IL_0000: ldarg.1 
+  IL_0001: brtrue.s IL_0010: ldarg.0
+  IL_0003: ldarg.0 
+  IL_0004: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.VehicleRestrictionsTool::currentRestrictedSegmentIds
+  IL_0009: callvirt System.Void System.Collections.Generic.HashSet`1<System.UInt16>::Clear()
+  IL_000E: br.s IL_001d: ldarg.1
+  IL_0010: ldarg.0 
+  IL_0011: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.VehicleRestrictionsTool::currentRestrictedSegmentIds
+  IL_0016: ldarg.1 
+  IL_0017: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Remove(!0)
+  IL_001C: pop 
+  IL_001D: ldarg.1 
+  IL_001E: brfalse.s IL_0023: ldc.i4.1
+  IL_0020: ldarg.1 
+  IL_0021: br.s IL_0024: stloc.0
+  IL_0023: ldc.i4.1 
+  IL_0024: stloc.0 
+  IL_0025: br.s IL_005c: ldloc.0
+  IL_0027: ldloc.0 
+  IL_0028: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_002D: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsValid(NetSegment&)
+  IL_0032: brfalse.s IL_0057: ldloc.0
+  IL_0034: ldloc.0 
+  IL_0035: ldarg.0 
+  IL_0036: call System.UInt16 TrafficManager.UI.LegacySubTool::get_SelectedSegmentId()
+  IL_003B: beq.s IL_004a: ldarg.0
+  IL_003D: ldsfld TrafficManager.Manager.Impl.VehicleRestrictionsManager TrafficManager.Manager.Impl.VehicleRestrictionsManager::Instance
+  IL_0042: ldloc.0 
+  IL_0043: callvirt System.Boolean TrafficManager.Manager.Impl.VehicleRestrictionsManager::HasSegmentRestrictions(System.UInt16)
+  IL_0048: brfalse.s IL_0057: ldloc.0
+  IL_004A: ldarg.0 
+  IL_004B: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.VehicleRestrictionsTool::currentRestrictedSegmentIds
+  IL_0050: ldloc.0 
+  IL_0051: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Add(!0)
+  IL_0056: pop 
+  IL_0057: ldloc.0 
+  IL_0058: ldc.i4.1 
+  IL_0059: add 
+  IL_005A: conv.u2 
+  IL_005B: stloc.0 
+  IL_005C: ldloc.0 
+  IL_005D: ldarg.1 
+  IL_005E: brfalse.s IL_0063: ldc.i4 36863
+  IL_0060: ldarg.1 
+  IL_0061: br.s IL_0068: ble.s IL_0027
+  IL_0063: ldc.i4 36863
+  IL_0068: ble.s IL_0027: ldloc.0
+  IL_006A: ret 
+
+=== ToggleTrafficLightsTool.FilterVisibleNodes ===
+  IL_0000: ldc.i4.1 
+  IL_0001: stloc.0 
+  IL_0002: br.s IL_0066: ldloc.0
+  IL_0004: ldloc.0 
+  IL_0005: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_000A: stloc.1 
+  IL_000B: ldloc.1 
+  IL_000C: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+  IL_0011: brfalse.s IL_0061: ldloc.0
+  IL_0013: ldloc.0 
+  IL_0014: call System.Boolean TrafficManager.State.Flags::MayHaveTrafficLight(System.UInt16)
+  IL_0019: brfalse.s IL_0061: ldloc.0
+  IL_001B: ldloc.1 
+  IL_001C: call NetInfo NetNode::get_Info()
+  IL_0021: callvirt ItemClass NetInfo::GetConnectionClass()
+  IL_0026: stloc.2 
+  IL_0027: ldloc.2 
+  IL_0028: ldnull 
+  IL_0029: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+  IL_002E: brtrue.s IL_0061: ldloc.0
+  IL_0030: ldloc.2 
+  IL_0031: ldfld ItemClass/Service ItemClass::m_service
+  IL_0036: ldc.i4.s 9
+  IL_0038: bne.un.s IL_0061: ldloc.0
+  IL_003A: ldloc.1 
+  IL_003B: ldfld UnityEngine.Vector3 NetNode::m_position
+  IL_0040: ldarg.1 
+  IL_0041: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_0046: stloc.3 
+  IL_0047: ldloca.s V_3
+  IL_0049: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+  IL_004E: ldc.r4 360000
+  IL_0053: bgt.s IL_0061: ldloc.0
+  IL_0055: ldarg.0 
+  IL_0056: call TrafficManager.Util.Caching.GenericArrayCache`1<System.UInt16> TrafficManager.UI.SubTools.ToggleTrafficLightsTool::get_CachedVisibleNodeIds()
+  IL_005B: ldloc.0 
+  IL_005C: callvirt System.Void TrafficManager.Util.Caching.GenericArrayCache`1<System.UInt16>::Add(TValue)
+  IL_0061: ldloc.0 
+  IL_0062: ldc.i4.1 
+  IL_0063: add 
+  IL_0064: conv.u2 
+  IL_0065: stloc.0 
+  IL_0066: ldloc.0 
+  IL_0067: ldc.i4 32768
+  IL_006C: blt.s IL_0004: ldloc.0
+  IL_006E: ret 
+
+=== TimedTrafficLightsTool.RefreshCurrentTimedNodeIds ===
+  IL_0000: ldsfld TrafficManager.Manager.Impl.TrafficLightSimulationManager TrafficManager.Manager.Impl.TrafficLightSimulationManager::Instance
+  IL_0005: stloc.0 
+  IL_0006: ldarg.1 
+  IL_0007: brtrue.s IL_0016: ldarg.0
+  IL_0009: ldarg.0 
+  IL_000A: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.TTL.TimedTrafficLightsTool::currentTimedNodeIds
+  IL_000F: callvirt System.Void System.Collections.Generic.HashSet`1<System.UInt16>::Clear()
+  IL_0014: br.s IL_0023: ldarg.1
+  IL_0016: ldarg.0 
+  IL_0017: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.TTL.TimedTrafficLightsTool::currentTimedNodeIds
+  IL_001C: ldarg.1 
+  IL_001D: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Remove(!0)
+  IL_0022: pop 
+  IL_0023: ldarg.1 
+  IL_0024: brfalse.s IL_0029: ldc.i4.1
+  IL_0026: ldarg.1 
+  IL_0027: br.s IL_002a: stloc.1
+  IL_0029: ldc.i4.1 
+  IL_002A: stloc.1 
+  IL_002B: br.s IL_0057: ldloc.1
+  IL_002D: ldloc.1 
+  IL_002E: conv.u2 
+  IL_002F: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_0034: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+  IL_0039: brfalse.s IL_0053: ldloc.1
+  IL_003B: ldloc.0 
+  IL_003C: ldloc.1 
+  IL_003D: conv.u2 
+  IL_003E: callvirt System.Boolean TrafficManager.Manager.Impl.TrafficLightSimulationManager::HasTimedSimulation(System.UInt16)
+  IL_0043: brfalse.s IL_0053: ldloc.1
+  IL_0045: ldarg.0 
+  IL_0046: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.TTL.TimedTrafficLightsTool::currentTimedNodeIds
+  IL_004B: ldloc.1 
+  IL_004C: conv.u2 
+  IL_004D: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Add(!0)
+  IL_0052: pop 
+  IL_0053: ldloc.1 
+  IL_0054: ldc.i4.1 
+  IL_0055: add 
+  IL_0056: stloc.1 
+  IL_0057: ldloc.1 
+  IL_0058: conv.u8 
+  IL_0059: ldarg.1 
+  IL_005A: brfalse.s IL_005f: ldc.i4 32767
+  IL_005C: ldarg.1 
+  IL_005D: br.s IL_0064: conv.i8
+  IL_005F: ldc.i4 32767
+  IL_0064: conv.i8 
+  IL_0065: ble.s IL_002d: ldloc.1
+  IL_0067: ret 
+
+=== PrioritySignsTool.RefreshCurrentPriorityNodeIds ===
+  IL_0000: ldsfld TrafficManager.Manager.Impl.TrafficPriorityManager TrafficManager.Manager.Impl.TrafficPriorityManager::Instance
+  IL_0005: stloc.0 
+  IL_0006: ldarg.0 
+  IL_0007: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.PrioritySigns.PrioritySignsTool::currentPriorityNodeIds
+  IL_000C: callvirt System.Void System.Collections.Generic.HashSet`1<System.UInt16>::Clear()
+  IL_0011: ldc.i4.0 
+  IL_0012: stloc.1 
+  IL_0013: br.s IL_0052: ldloc.1
+  IL_0015: ldloc.1 
+  IL_0016: conv.u2 
+  IL_0017: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  IL_001C: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+  IL_0021: brfalse.s IL_004e: ldloc.1
+  IL_0023: ldloc.0 
+  IL_0024: ldloc.1 
+  IL_0025: conv.u2 
+  IL_0026: callvirt System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::MayNodeHavePrioritySigns(System.UInt16)
+  IL_002B: brfalse.s IL_004e: ldloc.1
+  IL_002D: ldloc.0 
+  IL_002E: ldloc.1 
+  IL_002F: conv.u2 
+  IL_0030: callvirt System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::HasNodePrioritySign(System.UInt16)
+  IL_0035: brtrue.s IL_0040: ldarg.0
+  IL_0037: ldloc.1 
+  IL_0038: ldarg.0 
+  IL_0039: call System.UInt16 TrafficManager.UI.LegacySubTool::get_SelectedNodeId()
+  IL_003E: bne.un.s IL_004e: ldloc.1
+  IL_0040: ldarg.0 
+  IL_0041: ldfld System.Collections.Generic.HashSet`1<System.UInt16> TrafficManager.UI.SubTools.PrioritySigns.PrioritySignsTool::currentPriorityNodeIds
+  IL_0046: ldloc.1 
+  IL_0047: conv.u2 
+  IL_0048: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.UInt16>::Add(!0)
+  IL_004D: pop 
+  IL_004E: ldloc.1 
+  IL_004F: ldc.i4.1 
+  IL_0050: add 
+  IL_0051: stloc.1 
+  IL_0052: ldloc.1 
+  IL_0053: ldc.i4 32768
+  IL_0058: blt.un.s IL_0015: ldloc.1
+  IL_005A: ret 

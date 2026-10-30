@@ -1,0 +1,384 @@
+=== System.Void PathManager/Data::Deserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "PathManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+  IL_001a: stloc.0
+  IL_001b: ldloc.0
+  IL_001c: callvirt System.Void PathManager::WaitForAllPaths()
+  IL_0021: ldloc.0
+  IL_0022: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+  IL_0027: ldfld T[] Array32`1<PathUnit>::m_buffer
+  IL_002c: stloc.1
+  IL_002d: ldloc.1
+  IL_002e: ldlen
+  IL_002f: conv.i4
+  IL_0030: stloc.2
+  IL_0031: ldloc.0
+  IL_0032: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+  IL_0037: callvirt System.Void Array32`1<PathUnit>::ClearUnused()
+  IL_003c: ldarg.1
+  IL_003d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0042: ldc.i4.s 123
+  IL_0044: bge.un IL_004f
+  IL_0049: ldc.i4 131072
+  IL_004e: stloc.2
+  IL_004f: ldarg.1
+  IL_0050: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0055: ldc.i4 121011
+  IL_005a: blt.un IL_009a
+  IL_005f: ldarg.1
+  IL_0060: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0065: stloc.3
+  IL_0066: ldc.i4.1
+  IL_0067: stloc.s V_4
+  IL_0069: br IL_0087
+  IL_006e: ldloc.1
+  IL_006f: ldloc.s V_4
+  IL_0071: ldelema PathUnit
+  IL_0076: ldloc.3
+  IL_0077: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_007c: stfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+  IL_0081: ldloc.s V_4
+  IL_0083: ldc.i4.1
+  IL_0084: add
+  IL_0085: stloc.s V_4
+  IL_0087: ldloc.s V_4
+  IL_0089: ldloc.2
+  IL_008a: blt IL_006e
+  IL_008f: ldloc.3
+  IL_0090: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_0095: br IL_0109
+  IL_009a: ldarg.1
+  IL_009b: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00a0: ldc.i4.s 46
+  IL_00a2: blt.un IL_00e5
+  IL_00a7: ldarg.1
+  IL_00a8: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_00ad: stloc.s V_5
+  IL_00af: ldc.i4.1
+  IL_00b0: stloc.s V_6
+  IL_00b2: br IL_00d1
+  IL_00b7: ldloc.1
+  IL_00b8: ldloc.s V_6
+  IL_00ba: ldelema PathUnit
+  IL_00bf: ldloc.s V_5
+  IL_00c1: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+  IL_00c6: stfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+  IL_00cb: ldloc.s V_6
+  IL_00cd: ldc.i4.1
+  IL_00ce: add
+  IL_00cf: stloc.s V_6
+  IL_00d1: ldloc.s V_6
+  IL_00d3: ldloc.2
+  IL_00d4: blt IL_00b7
+  IL_00d9: ldloc.s V_5
+  IL_00db: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+  IL_00e0: br IL_0109
+  IL_00e5: ldc.i4.1
+  IL_00e6: stloc.s V_7
+  IL_00e8: br IL_0101
+  IL_00ed: ldloc.1
+  IL_00ee: ldloc.s V_7
+  IL_00f0: ldelema PathUnit
+  IL_00f5: ldc.i4.0
+  IL_00f6: stfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+  IL_00fb: ldloc.s V_7
+  IL_00fd: ldc.i4.1
+  IL_00fe: add
+  IL_00ff: stloc.s V_7
+  IL_0101: ldloc.s V_7
+  IL_0103: ldloc.2
+  IL_0104: blt IL_00ed
+  IL_0109: ldc.i4.1
+  IL_010a: stloc.s V_8
+  IL_010c: br IL_037f
+  IL_0111: ldloc.1
+  IL_0112: ldloc.s V_8
+  IL_0114: ldelema PathUnit
+  IL_0119: ldc.i4.0
+  IL_011a: stfld System.Byte PathUnit::m_referenceCount
+  IL_011f: ldloc.1
+  IL_0120: ldloc.s V_8
+  IL_0122: ldelema PathUnit
+  IL_0127: ldfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+  IL_012c: brfalse IL_02e9
+  IL_0131: ldloc.1
+  IL_0132: ldloc.s V_8
+  IL_0134: ldelema PathUnit
+  IL_0139: ldarg.1
+  IL_013a: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_013f: conv.u1
+  IL_0140: stfld System.Byte PathUnit::m_pathFindFlags
+  IL_0145: ldarg.1
+  IL_0146: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_014b: ldc.i4.s 49
+  IL_014d: blt.un IL_016b
+  IL_0152: ldloc.1
+  IL_0153: ldloc.s V_8
+  IL_0155: ldelema PathUnit
+  IL_015a: ldarg.1
+  IL_015b: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_0160: conv.u1
+  IL_0161: stfld System.Byte PathUnit::m_laneTypes
+  IL_0166: br IL_0179
+  IL_016b: ldloc.1
+  IL_016c: ldloc.s V_8
+  IL_016e: ldelema PathUnit
+  IL_0173: ldc.i4.3
+  IL_0174: stfld System.Byte PathUnit::m_laneTypes
+  IL_0179: ldarg.1
+  IL_017a: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_017f: ldc.i4 113001
+  IL_0184: blt.un IL_01a1
+  IL_0189: ldloc.1
+  IL_018a: ldloc.s V_8
+  IL_018c: ldelema PathUnit
+  IL_0191: ldarg.1
+  IL_0192: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0197: stfld System.UInt32 PathUnit::m_vehicleTypes
+  IL_019c: br IL_01de
+  IL_01a1: ldarg.1
+  IL_01a2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01a7: ldc.i4 311
+  IL_01ac: blt.un IL_01ca
+  IL_01b1: ldloc.1
+  IL_01b2: ldloc.s V_8
+  IL_01b4: ldelema PathUnit
+  IL_01b9: ldarg.1
+  IL_01ba: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_01bf: conv.u2
+  IL_01c0: stfld System.UInt32 PathUnit::m_vehicleTypes
+  IL_01c5: br IL_01de
+  IL_01ca: ldloc.1
+  IL_01cb: ldloc.s V_8
+  IL_01cd: ldelema PathUnit
+  IL_01d2: ldarg.1
+  IL_01d3: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_01d8: conv.u1
+  IL_01d9: stfld System.UInt32 PathUnit::m_vehicleTypes
+  IL_01de: ldloc.1
+  IL_01df: ldloc.s V_8
+  IL_01e1: ldelema PathUnit
+  IL_01e6: ldarg.1
+  IL_01e7: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_01ec: conv.u1
+  IL_01ed: stfld System.Byte PathUnit::m_positionCount
+  IL_01f2: ldloc.1
+  IL_01f3: ldloc.s V_8
+  IL_01f5: ldelema PathUnit
+  IL_01fa: ldarg.1
+  IL_01fb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+  IL_0200: stfld System.UInt32 PathUnit::m_nextPathUnit
+  IL_0205: ldloc.1
+  IL_0206: ldloc.s V_8
+  IL_0208: ldelema PathUnit
+  IL_020d: ldarg.1
+  IL_020e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0213: stfld System.UInt32 PathUnit::m_buildIndex
+  IL_0218: ldloc.1
+  IL_0219: ldloc.s V_8
+  IL_021b: ldelema PathUnit
+  IL_0220: ldarg.1
+  IL_0221: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_0226: stfld System.Single PathUnit::m_length
+  IL_022b: ldarg.1
+  IL_022c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0231: ldc.i4 110026
+  IL_0236: blt.un IL_024b
+  IL_023b: ldarg.1
+  IL_023c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0241: ldc.i4 111000
+  IL_0246: blt.un IL_025b
+  IL_024b: ldarg.1
+  IL_024c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0251: ldc.i4 111012
+  IL_0256: blt.un IL_0274
+  IL_025b: ldloc.1
+  IL_025c: ldloc.s V_8
+  IL_025e: ldelema PathUnit
+  IL_0263: ldarg.1
+  IL_0264: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_0269: conv.u1
+  IL_026a: stfld System.Byte PathUnit::m_speed
+  IL_026f: br IL_0283
+  IL_0274: ldloc.1
+  IL_0275: ldloc.s V_8
+  IL_0277: ldelema PathUnit
+  IL_027c: ldc.i4.s 100
+  IL_027e: stfld System.Byte PathUnit::m_speed
+  IL_0283: ldloc.1
+  IL_0284: ldloc.s V_8
+  IL_0286: ldelema PathUnit
+  IL_028b: ldfld System.Byte PathUnit::m_positionCount
+  IL_0290: stloc.s V_9
+  IL_0292: ldc.i4.0
+  IL_0293: stloc.s V_10
+  IL_0295: br IL_02db
+  IL_029a: ldloca.s V_11
+  IL_029c: ldarg.1
+  IL_029d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_02a2: conv.u2
+  IL_02a3: stfld System.UInt16 PathUnit/Position::m_segment
+  IL_02a8: ldloca.s V_11
+  IL_02aa: ldarg.1
+  IL_02ab: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_02b0: conv.u1
+  IL_02b1: stfld System.Byte PathUnit/Position::m_offset
+  IL_02b6: ldloca.s V_11
+  IL_02b8: ldarg.1
+  IL_02b9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_02be: conv.u1
+  IL_02bf: stfld System.Byte PathUnit/Position::m_lane
+  IL_02c4: ldloc.1
+  IL_02c5: ldloc.s V_8
+  IL_02c7: ldelema PathUnit
+  IL_02cc: ldloc.s V_10
+  IL_02ce: ldloc.s V_11
+  IL_02d0: call System.Void PathUnit::SetPosition(System.Int32,PathUnit/Position)
+  IL_02d5: ldloc.s V_10
+  IL_02d7: ldc.i4.1
+  IL_02d8: add
+  IL_02d9: stloc.s V_10
+  IL_02db: ldloc.s V_10
+  IL_02dd: ldloc.s V_9
+  IL_02df: blt IL_029a
+  IL_02e4: br IL_0379
+  IL_02e9: ldloc.1
+  IL_02ea: ldloc.s V_8
+  IL_02ec: ldelema PathUnit
+  IL_02f1: ldc.i4.0
+  IL_02f2: stfld System.Byte PathUnit::m_pathFindFlags
+  IL_02f7: ldloc.1
+  IL_02f8: ldloc.s V_8
+  IL_02fa: ldelema PathUnit
+  IL_02ff: ldc.i4.0
+  IL_0300: stfld System.Byte PathUnit::m_laneTypes
+  IL_0305: ldloc.1
+  IL_0306: ldloc.s V_8
+  IL_0308: ldelema PathUnit
+  IL_030d: ldc.i4.0
+  IL_030e: stfld System.UInt32 PathUnit::m_vehicleTypes
+  IL_0313: ldloc.1
+  IL_0314: ldloc.s V_8
+  IL_0316: ldelema PathUnit
+  IL_031b: ldc.i4.0
+  IL_031c: conv.i8
+  IL_031d: stfld System.Int64 PathUnit::m_vehicleCategories
+  IL_0322: ldloc.1
+  IL_0323: ldloc.s V_8
+  IL_0325: ldelema PathUnit
+  IL_032a: ldc.i4.0
+  IL_032b: stfld System.Byte PathUnit::m_positionCount
+  IL_0330: ldloc.1
+  IL_0331: ldloc.s V_8
+  IL_0333: ldelema PathUnit
+  IL_0338: ldc.i4.0
+  IL_0339: stfld System.UInt32 PathUnit::m_nextPathUnit
+  IL_033e: ldloc.1
+  IL_033f: ldloc.s V_8
+  IL_0341: ldelema PathUnit
+  IL_0346: ldc.i4.0
+  IL_0347: stfld System.UInt32 PathUnit::m_buildIndex
+  IL_034c: ldloc.1
+  IL_034d: ldloc.s V_8
+  IL_034f: ldelema PathUnit
+  IL_0354: ldc.r4 0
+  IL_0359: stfld System.Single PathUnit::m_length
+  IL_035e: ldloc.1
+  IL_035f: ldloc.s V_8
+  IL_0361: ldelema PathUnit
+  IL_0366: ldc.i4.0
+  IL_0367: stfld System.Byte PathUnit::m_speed
+  IL_036c: ldloc.0
+  IL_036d: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+  IL_0372: ldloc.s V_8
+  IL_0374: callvirt System.Void Array32`1<PathUnit>::ReleaseItem(System.UInt32)
+  IL_0379: ldloc.s V_8
+  IL_037b: ldc.i4.1
+  IL_037c: add
+  IL_037d: stloc.s V_8
+  IL_037f: ldloc.s V_8
+  IL_0381: ldloc.2
+  IL_0382: blt IL_0111
+  IL_0387: ldarg.1
+  IL_0388: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_038d: ldc.i4.s 123
+  IL_038f: bge.un IL_044e
+  IL_0394: ldloc.1
+  IL_0395: ldlen
+  IL_0396: conv.i4
+  IL_0397: stloc.s V_12
+  IL_0399: ldloc.2
+  IL_039a: stloc.s V_13
+  IL_039c: br IL_0445
+  IL_03a1: ldloc.1
+  IL_03a2: ldloc.s V_13
+  IL_03a4: ldelema PathUnit
+  IL_03a9: ldc.i4.0
+  IL_03aa: stfld System.Byte PathUnit::m_referenceCount
+  IL_03af: ldloc.1
+  IL_03b0: ldloc.s V_13
+  IL_03b2: ldelema PathUnit
+  IL_03b7: ldc.i4.0
+  IL_03b8: stfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+  IL_03bd: ldloc.1
+  IL_03be: ldloc.s V_13
+  IL_03c0: ldelema PathUnit
+  IL_03c5: ldc.i4.0
+  IL_03c6: stfld System.Byte PathUnit::m_pathFindFlags
+  IL_03cb: ldloc.1
+  IL_03cc: ldloc.s V_13
+  IL_03ce: ldelema PathUnit
+  IL_03d3: ldc.i4.0
+  IL_03d4: stfld System.Byte PathUnit::m_laneTypes
+  IL_03d9: ldloc.1
+  IL_03da: ldloc.s V_13
+  IL_03dc: ldelema PathUnit
+  IL_03e1: ldc.i4.0
+  IL_03e2: stfld System.UInt32 PathUnit::m_vehicleTypes
+  IL_03e7: ldloc.1
+  IL_03e8: ldloc.s V_13
+  IL_03ea: ldelema PathUnit
+  IL_03ef: ldc.i4.0
+  IL_03f0: conv.i8
+  IL_03f1: stfld System.Int64 PathUnit::m_vehicleCategories
+  IL_03f6: ldloc.1
+  IL_03f7: ldloc.s V_13
+  IL_03f9: ldelema PathUnit
+  IL_03fe: ldc.i4.0
+  IL_03ff: stfld System.Byte PathUnit::m_positionCount
+  IL_0404: ldloc.1
+  IL_0405: ldloc.s V_13
+  IL_0407: ldelema PathUnit
+  IL_040c: ldc.i4.0
+  IL_040d: stfld System.UInt32 PathUnit::m_nextPathUnit
+  IL_0412: ldloc.1
+  IL_0413: ldloc.s V_13
+  IL_0415: ldelema PathUnit
+  IL_041a: ldc.i4.0
+  IL_041b: stfld System.UInt32 PathUnit::m_buildIndex
+  IL_0420: ldloc.1
+  IL_0421: ldloc.s V_13
+  IL_0423: ldelema PathUnit
+  IL_0428: ldc.r4 0
+  IL_042d: stfld System.Single PathUnit::m_length
+  IL_0432: ldloc.0
+  IL_0433: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+  IL_0438: ldloc.s V_13
+  IL_043a: callvirt System.Void Array32`1<PathUnit>::ReleaseItem(System.UInt32)
+  IL_043f: ldloc.s V_13
+  IL_0441: ldc.i4.1
+  IL_0442: add
+  IL_0443: stloc.s V_13
+  IL_0445: ldloc.s V_13
+  IL_0447: ldloc.s V_12
+  IL_0449: blt IL_03a1
+  IL_044e: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0453: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_0458: ldarg.1
+  IL_0459: ldstr "PathManager"
+  IL_045e: callvirt System.Void LoadingProfiler::EndDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0463: ret

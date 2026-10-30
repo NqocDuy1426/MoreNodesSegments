@@ -1,0 +1,400 @@
+Type: MorePathUnits.MetaData
+  Method: get_LoadingExtended
+    0000 call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    0005 dup 
+    0006 brtrue.s IL_000c: ldfld SimulationMetaData SimulationManager::m_metaData
+    0008 pop 
+    0009 ldnull 
+    000a br.s IL_001d: stloc.0
+    000c ldfld SimulationMetaData SimulationManager::m_metaData
+    0011 dup 
+    0012 brtrue.s IL_0018: ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    0014 pop 
+    0015 ldnull 
+    0016 br.s IL_001d: stloc.0
+    0018 ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    001d stloc.0 
+    001e ldloc.0 
+    001f brfalse.s IL_0048: ldc.i4.1
+    0021 ldloc.0 
+    0022 ldsfld System.String MorePathUnits.MetaData::MetadataKey
+    0027 ldloca.s V_1
+    0029 callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.String,System.Boolean>::TryGetValue(!0,!1&)
+    002e brfalse.s IL_005b: ldc.i4.1
+    0030 ldloc.1 
+    0031 brfalse.s IL_005b: ldc.i4.1
+    0033 ldc.i4.1 
+    0034 newarr System.Object
+    0039 dup 
+    003a ldc.i4.0 
+    003b ldstr deserializing using x2 unit count
+    0040 stelem.ref 
+    0041 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0046 ldc.i4.1 
+    0047 ret 
+    0048 ldc.i4.1 
+    0049 newarr System.Object
+    004e dup 
+    004f ldc.i4.0 
+    0050 ldstr no SimulationManager modOverride dictionary present
+    0055 stelem.ref 
+    0056 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    005b ldc.i4.1 
+    005c newarr System.Object
+    0061 dup 
+    0062 ldc.i4.0 
+    0063 ldstr deserializing using vanilla unit count
+    0068 stelem.ref 
+    0069 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    006e ldc.i4.0 
+    006f ret 
+  Method: SetMetaData
+    0000 ldc.i4.1 
+    0001 newarr System.Object
+    0006 dup 
+    0007 ldc.i4.0 
+    0008 ldstr setting simulation metadata
+    000d stelem.ref 
+    000e call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0013 call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    0018 ldfld SimulationMetaData SimulationManager::m_metaData
+    001d stloc.0 
+    001e ldloc.0 
+    001f stloc.1 
+    0020 ldloc.1 
+    0021 call System.Void System.Threading.Monitor::Enter(System.Object)
+    0026 ldloc.0 
+    0027 ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    002c brtrue.s IL_0039: ldloc.0
+    002e ldloc.0 
+    002f newobj System.Void System.Collections.Generic.Dictionary`2<System.String,System.Boolean>::.ctor()
+    0034 stfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    0039 ldloc.0 
+    003a ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    003f ldsfld System.String MorePathUnits.MetaData::MetadataKey
+    0044 callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.String,System.Boolean>::ContainsKey(!0)
+    0049 brfalse.s IL_005e: ldc.i4.1
+    004b ldloc.0 
+    004c ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    0051 ldsfld System.String MorePathUnits.MetaData::MetadataKey
+    0056 ldc.i4.1 
+    0057 callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Boolean>::set_Item(!0,!1)
+    005c leave.s IL_008b: ret
+    005e ldc.i4.1 
+    005f newarr System.Object
+    0064 dup 
+    0065 ldc.i4.0 
+    0066 ldstr adding new metadata dictionary entry
+    006b stelem.ref 
+    006c call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0071 ldloc.0 
+    0072 ldfld System.Collections.Generic.Dictionary`2<System.String,System.Boolean> SimulationMetaData::m_modOverride
+    0077 ldsfld System.String MorePathUnits.MetaData::MetadataKey
+    007c ldc.i4.1 
+    007d callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Boolean>::Add(!0,!1)
+    0082 leave.s IL_008b: ret
+    0084 ldloc.1 
+    0085 call System.Void System.Threading.Monitor::Exit(System.Object)
+    008a endfinally 
+    008b ret 
+  Method: .cctor
+    0000 ldstr User/More PathUnits x2
+    0005 stsfld System.String MorePathUnits.MetaData::MetadataKey
+    000a ret 
+Type: MorePathUnits.PathDeserialize
+  Method: get_DeserializeSize
+    0000 ldsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    0005 brtrue.s IL_000d: ldc.i4 524288
+    0007 ldc.i4 262144
+    000c ret 
+    000d ldc.i4 524288
+    0012 ret 
+  Method: get_DoubleLimit
+    0000 ldsfld System.Boolean MorePathUnits.PathDeserialize::<DoubleLimit>k__BackingField
+    0005 ret 
+  Method: set_DoubleLimit
+    0000 ldarg.0 
+    0001 stsfld System.Boolean MorePathUnits.PathDeserialize::<DoubleLimit>k__BackingField
+    0006 ret 
+  Method: Transpiler
+    0000 ldc.i4.s -2
+    0002 newobj System.Void MorePathUnits.PathDeserialize/<Transpiler>d__10::.ctor(System.Int32)
+    0007 dup 
+    0008 ldarg.0 
+    0009 stfld System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MorePathUnits.PathDeserialize/<Transpiler>d__10::<>3__instructions
+    000e ret 
+  Method: Prefix
+    0000 ldc.i4.1 
+    0001 newarr System.Object
+    0006 dup 
+    0007 ldc.i4.0 
+    0008 ldstr starting PathManager.Data.Deserialize Prefix
+    000d stelem.ref 
+    000e call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0013 call System.Boolean MorePathUnits.MetaData::get_LoadingExtended()
+    0018 stsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    001d ldsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    0022 brtrue.s IL_002e: ldc.i4.2
+    0024 call System.Boolean MorePathUnits.PathDeserialize::get_DoubleLimit()
+    0029 brfalse IL_01a3: ldc.i4.1
+    002e ldc.i4.2 
+    002f newarr System.Object
+    0034 dup 
+    0035 ldc.i4.0 
+    0036 ldstr expanding PathUnit buffer size to 
+    003b stelem.ref 
+    003c dup 
+    003d ldc.i4.1 
+    003e ldc.i4 524288
+    0043 box System.Int32
+    0048 stelem.ref 
+    0049 call System.Void AlgernonCommons.Logging::KeyMessage(System.Object[])
+    004e ldc.i4 524288
+    0053 newobj System.Void Array32`1<PathUnit>::.ctor(System.UInt32)
+    0058 stloc.0 
+    0059 ldsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    005e brtrue.s IL_0074: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    0060 ldloc.0 
+    0061 ldfld !0[] Array32`1<PathUnit>::m_buffer
+    0066 ldc.i4.0 
+    0067 ldloc.0 
+    0068 ldfld !0[] Array32`1<PathUnit>::m_buffer
+    006d ldlen 
+    006e conv.i4 
+    006f call System.Void System.Array::Clear(System.Array,System.Int32,System.Int32)
+    0074 call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    0079 ldloc.0 
+    007a stfld Array32`1<PathUnit> PathManager::m_pathUnits
+    007f ldstr TrafficManager.Custom.PathFinding.CustomPathManager,TrafficManager
+    0084 ldc.i4.0 
+    0085 call System.Type System.Type::GetType(System.String,System.Boolean)
+    008a stloc.1 
+    008b ldloc.1 
+    008c brfalse.s IL_0106: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    008e ldc.i4.1 
+    008f newarr System.Object
+    0094 dup 
+    0095 ldc.i4.0 
+    0096 ldstr found TM:PE CustomPathManager
+    009b stelem.ref 
+    009c call System.Void AlgernonCommons.Logging::KeyMessage(System.Object[])
+    00a1 ldloc.1 
+    00a2 ldstr _instance
+    00a7 call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+    00ac dup 
+    00ad brtrue.s IL_00b3: ldnull
+    00af pop 
+    00b0 ldnull 
+    00b1 br.s IL_00b9: stloc.s V_5
+    00b3 ldnull 
+    00b4 callvirt System.Object System.Reflection.FieldInfo::GetValue(System.Object)
+    00b9 stloc.s V_5
+    00bb ldloc.s V_5
+    00bd brtrue.s IL_00d4: ldc.i4.1
+    00bf ldc.i4.1 
+    00c0 newarr System.Object
+    00c5 dup 
+    00c6 ldc.i4.0 
+    00c7 ldstr TM:PE CustomPathManager instance was null; hopefully not an error
+    00cc stelem.ref 
+    00cd call System.Void AlgernonCommons.Logging::KeyMessage(System.Object[])
+    00d2 br.s IL_0106: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    00d4 ldc.i4.1 
+    00d5 newarr System.Object
+    00da dup 
+    00db ldc.i4.0 
+    00dc ldstr re-initializing TM:PE CustomPathManager
+    00e1 stelem.ref 
+    00e2 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    00e7 ldloc.1 
+    00e8 ldstr Reinitialize
+    00ed ldnull 
+    00ee ldnull 
+    00ef call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+    00f4 ldloc.s V_5
+    00f6 ldc.i4.1 
+    00f7 newarr System.Object
+    00fc dup 
+    00fd ldc.i4.0 
+    00fe ldloc.0 
+    00ff stelem.ref 
+    0100 callvirt System.Object System.Reflection.MethodBase::Invoke(System.Object,System.Object[])
+    0105 pop 
+    0106 call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    010b stloc.2 
+    010c ldtoken PathFind
+    0111 call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    0116 ldstr m_pathUnits
+    011b call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+    0120 stloc.3 
+    0121 ldtoken PathManager
+    0126 call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    012b ldstr m_pathfinds
+    0130 call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+    0135 dup 
+    0136 brtrue.s IL_013c: ldloc.2
+    0138 pop 
+    0139 ldnull 
+    013a br.s IL_0142: isinst PathFind[]
+    013c ldloc.2 
+    013d callvirt System.Object System.Reflection.FieldInfo::GetValue(System.Object)
+    0142 isinst PathFind[]
+    0147 stloc.s V_4
+    0149 ldloc.s V_4
+    014b brfalse.s IL_018e: ldc.i4.1
+    014d ldloc.3 
+    014e brfalse.s IL_018e: ldc.i4.1
+    0150 ldc.i4.0 
+    0151 stloc.s V_6
+    0153 br.s IL_0184: ldloc.s V_6
+    0155 ldc.i4.2 
+    0156 newarr System.Object
+    015b dup 
+    015c ldc.i4.0 
+    015d ldstr setting PathFind unit array reference for vanilla pathfinding thread 
+    0162 stelem.ref 
+    0163 dup 
+    0164 ldc.i4.1 
+    0165 ldloc.s V_6
+    0167 box System.Int32
+    016c stelem.ref 
+    016d call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0172 ldloc.3 
+    0173 ldloc.s V_4
+    0175 ldloc.s V_6
+    0177 ldelem.ref 
+    0178 ldloc.0 
+    0179 callvirt System.Void System.Reflection.FieldInfo::SetValue(System.Object,System.Object)
+    017e ldloc.s V_6
+    0180 ldc.i4.1 
+    0181 add 
+    0182 stloc.s V_6
+    0184 ldloc.s V_6
+    0186 ldloc.s V_4
+    0188 ldlen 
+    0189 conv.i4 
+    018a blt.s IL_0155: ldc.i4.2
+    018c br.s IL_01b6: ldc.i4.1
+    018e ldc.i4.1 
+    018f newarr System.Object
+    0194 dup 
+    0195 ldc.i4.0 
+    0196 ldstr couldn't find vanilla PathFinds
+    019b stelem.ref 
+    019c call System.Void AlgernonCommons.Logging::Error(System.Object[])
+    01a1 br.s IL_01b6: ldc.i4.1
+    01a3 ldc.i4.1 
+    01a4 newarr System.Object
+    01a9 dup 
+    01aa ldc.i4.0 
+    01ab ldstr preserving Vanilla buffer size
+    01b0 stelem.ref 
+    01b1 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    01b6 ldc.i4.1 
+    01b7 newarr System.Object
+    01bc dup 
+    01bd ldc.i4.0 
+    01be ldstr finished PathManager.Data.Deserialize Prefix
+    01c3 stelem.ref 
+    01c4 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    01c9 ret 
+  Method: Postfix
+    0000 call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    0005 ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+    000a stloc.0 
+    000b ldloc.0 
+    000c ldfld !0[] Array32`1<PathUnit>::m_buffer
+    0011 stloc.1 
+    0012 ldc.i4.1 
+    0013 newarr System.Object
+    0018 dup 
+    0019 ldc.i4.0 
+    001a ldstr starting PathManager.Data.Deserialize Postfix
+    001f stelem.ref 
+    0020 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0025 ldsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    002a brtrue.s IL_008e: ldc.i4.1
+    002c ldc.i4.1 
+    002d newarr System.Object
+    0032 dup 
+    0033 ldc.i4.0 
+    0034 ldstr resetting unused instances
+    0039 stelem.ref 
+    003a call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    003f ldloc.0 
+    0040 callvirt System.Void Array32`1<PathUnit>::ClearUnused()
+    0045 ldc.i4.0 
+    0046 stloc.2 
+    0047 ldc.i4.0 
+    0048 stloc.3 
+    0049 br.s IL_006a: ldloc.3
+    004b ldloc.1 
+    004c ldloc.3 
+    004d ldelema PathUnit
+    0052 ldfld PathUnit/SimulationFlags PathUnit::m_simulationFlags
+    0057 ldc.i4.1 
+    0058 and 
+    0059 brtrue.s IL_0066: ldloc.3
+    005b ldloc.0 
+    005c ldloc.3 
+    005d callvirt System.Void Array32`1<PathUnit>::ReleaseItem(System.UInt32)
+    0062 ldloc.2 
+    0063 ldc.i4.1 
+    0064 add 
+    0065 stloc.2 
+    0066 ldloc.3 
+    0067 ldc.i4.1 
+    0068 add 
+    0069 stloc.3 
+    006a ldloc.3 
+    006b conv.u8 
+    006c ldloc.1 
+    006d ldlen 
+    006e conv.i4 
+    006f conv.i8 
+    0070 blt.s IL_004b: ldloc.1
+    0072 ldc.i4.2 
+    0073 newarr System.Object
+    0078 dup 
+    0079 ldc.i4.0 
+    007a ldstr completed resetting unused instances; freed unit count was 
+    007f stelem.ref 
+    0080 dup 
+    0081 ldc.i4.1 
+    0082 ldloc.2 
+    0083 box System.UInt32
+    0088 stelem.ref 
+    0089 call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    008e ldc.i4.1 
+    008f newarr System.Object
+    0094 dup 
+    0095 ldc.i4.0 
+    0096 ldstr finished PathManager.Data.Deserialize Postfix
+    009b stelem.ref 
+    009c call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    00a1 ret 
+  Method: .cctor
+    0000 ldc.i4.0 
+    0001 stsfld System.Boolean MorePathUnits.PathDeserialize::s_loadingExpanded
+    0006 ldc.i4.1 
+    0007 stsfld System.Boolean MorePathUnits.PathDeserialize::<DoubleLimit>k__BackingField
+    000c ret 
+Type: MorePathUnits.PathManagerPatch
+  Method: Prefix
+    0000 ldc.i4.1 
+    0001 newarr System.Object
+    0006 dup 
+    0007 ldc.i4.0 
+    0008 ldstr patching mods
+    000d stelem.ref 
+    000e call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0013 call TPatcher AlgernonCommons.Patching.PatcherManager`1<MorePathUnits.Patcher>::get_Instance()
+    0018 callvirt System.Void MorePathUnits.Patcher::PatchMods()
+    001d ldc.i4.1 
+    001e newarr System.Object
+    0023 dup 
+    0024 ldc.i4.0 
+    0025 ldstr mod patching complete
+    002a stelem.ref 
+    002b call System.Void AlgernonCommons.Logging::Message(System.Object[])
+    0030 ret 

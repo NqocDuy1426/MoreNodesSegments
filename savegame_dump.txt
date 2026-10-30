@@ -1,0 +1,205 @@
+0      ldarg.0      
+1      ldfld        System.Int32 SavePanel/<SaveGame>c__Iterator1::$PC
+6      stloc.0      
+7      ldarg.0      
+8      ldc.i4.m1    
+9      stfld        System.Int32 SavePanel/<SaveGame>c__Iterator1::$PC
+14     ldloc.0      
+15     switch       Mono.Cecil.Cil.Instruction[]
+28     br           IL_02ec: ldc.i4.0
+33     ldarg.0      
+34     newobj       System.Void SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::.ctor()
+39     stfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+44     ldarg.0      
+45     ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+50     ldarg.0      
+51     stfld        SavePanel/<SaveGame>c__Iterator1 SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::<>f__ref$1
+56     ldarg.0      
+57     ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+62     ldarg.0      
+63     ldfld        System.String SavePanel/<SaveGame>c__Iterator1::saveName
+68     stfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::saveName
+73     ldarg.0      
+74     ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+79     ldarg.0      
+80     ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1::useCloud
+85     stfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::useCloud
+90     ldarg.0      
+91     ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+96     ldarg.0      
+97     ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1::quitAfterSaving
+102    stfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::quitAfterSaving
+107    call         ColossalFramework.UI.UIDynamicPanels ColossalFramework.UI.UIView::get_library()
+112    ldarg.0      
+113    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+118    call         System.Type System.Object::GetType()
+123    callvirt     System.String System.Reflection.MemberInfo::get_Name()
+128    ldc.i4.1     
+129    callvirt     ColossalFramework.UI.UIComponent ColossalFramework.UI.UIDynamicPanels::Hide(System.String,System.Int32)
+134    pop          
+135    call         System.Boolean ColossalFramework.Singleton`1<LoadingManager>::get_exists()
+140    brfalse      IL_02e5: ldarg.0
+145    call         !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+150    volatile.    
+152    ldfld        System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_currentlyLoading
+157    brtrue       IL_02e5: ldarg.0
+162    ldarg.0      
+163    newobj       System.Void SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::.ctor()
+168    stfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+173    ldarg.0      
+174    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+179    ldarg.0      
+180    stfld        SavePanel/<SaveGame>c__Iterator1 SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::<>f__ref$1
+185    ldarg.0      
+186    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+191    ldarg.0      
+192    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+197    stfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::<>f__ref$4
+202    ldc.i4.1     
+203    volatile.    
+205    stsfld       System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) SavePanel::m_IsSaving
+210    ldarg.0      
+211    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+216    call         System.String SavePanel::GetTempSavePath()
+221    stfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::savePath
+226    ldarg.0      
+227    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+232    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::savePath
+237    call         System.Boolean System.IO.Directory::Exists(System.String)
+242    brtrue       IL_0108: ldarg.0
+247    ldarg.0      
+248    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+253    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::savePath
+258    call         System.IO.DirectoryInfo System.IO.Directory::CreateDirectory(System.String)
+263    pop          
+264    ldarg.0      
+265    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+270    ldarg.0      
+271    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+276    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::savePath
+281    call         System.Guid System.Guid::NewGuid()
+286    stloc.1      
+287    ldloca.s     V_1
+289    constrained. System.Guid
+295    callvirt     System.String System.Object::ToString()
+300    call         System.String System.IO.Path::Combine(System.String,System.String)
+305    call         System.String SaveHelper::get_SaveExtension()
+310    call         System.String ColossalFramework.IO.PathUtils::AddExtension(System.String,System.String)
+315    stfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::filename
+320    ldarg.0      
+321    call         !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+326    ldarg.0      
+327    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+332    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::filename
+337    callvirt     UnityEngine.Coroutine LoadingManager::SaveLevel(System.String)
+342    stfld        System.Object SavePanel/<SaveGame>c__Iterator1::$current
+347    ldarg.0      
+348    ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1::$disposing
+353    brtrue.s     IL_016a: br IL_02ee
+355    ldarg.0      
+356    ldc.i4.1     
+357    stfld        System.Int32 SavePanel/<SaveGame>c__Iterator1::$PC
+362    br           IL_02ee: ldc.i4.1
+367    ldarg.0      
+368    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+373    ldfld        ColossalFramework.Threading.Task SavePanel::m_PackageSaveTask
+378    brfalse      IL_018f: ldarg.0
+383    ldarg.0      
+384    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+389    ldfld        ColossalFramework.Threading.Task SavePanel::m_PackageSaveTask
+394    callvirt     System.Void ColossalFramework.Threading.Task::Wait()
+399    ldarg.0      
+400    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+405    ldfld        ColossalFramework.Threading.Task SavePanel::m_SnapshotImageTask
+410    brfalse      IL_01af: ldarg.0
+415    ldarg.0      
+416    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+421    ldfld        ColossalFramework.Threading.Task SavePanel::m_SnapshotImageTask
+426    callvirt     System.Void ColossalFramework.Threading.Task::Wait()
+431    ldarg.0      
+432    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+437    ldarg.0      
+438    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+443    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::saveName
+448    ldarg.0      
+449    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+454    ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::useCloud
+459    call         System.String SavePanel::GetSavePathName(System.String,System.Boolean)
+464    stfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::packagePathName
+469    ldarg.0      
+470    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+475    ldc.i4.0     
+476    stfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::errorOnSaving
+481    ldarg.0      
+482    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+487    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::filename
+492    call         System.Boolean System.IO.File::Exists(System.String)
+497    brfalse      IL_02c4: ldarg.0
+502    call         ColossalFramework.PlatformServices.PlatformType ColossalFramework.PlatformServices.PlatformService::get_platformType()
+507    brtrue       IL_0276: ldarg.0
+512    ldarg.0      
+513    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+518    ldfld        SavePanel/LauncherContinueSaveData SavePanel::m_launcherContinueSaveData
+523    ldarg.0      
+524    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+529    ldfld        System.String SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::saveName
+534    stfld        System.String SavePanel/LauncherContinueSaveData::title
+539    ldarg.0      
+540    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+545    ldfld        SavePanel/LauncherContinueSaveData SavePanel::m_launcherContinueSaveData
+550    call         !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+555    ldfld        SimulationMetaData SimulationManager::m_metaData
+560    ldfld        System.String SimulationMetaData::m_CityName
+565    stfld        System.String SavePanel/LauncherContinueSaveData::desc
+570    ldarg.0      
+571    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+576    ldfld        SavePanel/LauncherContinueSaveData SavePanel::m_launcherContinueSaveData
+581    call         System.DateTime System.DateTime::get_Now()
+586    stloc.2      
+587    ldloca.s     V_2
+589    call         System.Globalization.CultureInfo ColossalFramework.Globalization.LocaleManager::get_cultureInfo()
+594    call         System.String System.DateTime::ToString(System.IFormatProvider)
+599    stfld        System.String SavePanel/LauncherContinueSaveData::date
+604    call         System.String SavePanel::get_continueSaveDataLocation()
+609    ldarg.0      
+610    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+615    ldfld        SavePanel/LauncherContinueSaveData SavePanel::m_launcherContinueSaveData
+620    call         System.String UnityEngine.JsonUtility::ToJson(System.Object)
+625    call         System.Void System.IO.File::WriteAllText(System.String,System.String)
+630    ldarg.0      
+631    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+636    ldarg.0      
+637    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+642    ldftn        System.Void SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::<>m__0()
+648    newobj       System.Void System.Action::.ctor(System.Object,System.IntPtr)
+653    call         ColossalFramework.Threading.Task ColossalFramework.Threading.Task::Create(System.Action)
+658    callvirt     ColossalFramework.Threading.Task ColossalFramework.Threading.Task::Run()
+663    stfld        ColossalFramework.Threading.Task SavePanel::m_PackageSaveTask
+668    ldstr        Packaging
+673    ldc.i4.1     
+674    newarr       ColossalFramework.Threading.Task
+679    dup          
+680    ldc.i4.0     
+681    ldarg.0      
+682    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+687    ldfld        ColossalFramework.Threading.Task SavePanel::m_PackageSaveTask
+692    stelem.ref   
+693    newobj       System.Void AsyncTaskWrapper::.ctor(System.String,ColossalFramework.Threading.Task[])
+698    call         System.Void LoadSaveStatus::set_activeTask(AsyncTaskBase)
+703    br           IL_02e5: ldarg.0
+708    ldarg.0      
+709    ldfld        SavePanel SavePanel/<SaveGame>c__Iterator1::$this
+714    ldarg.0      
+715    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4 SavePanel/<SaveGame>c__Iterator1::$locvar0
+720    ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey4::quitAfterSaving
+725    ldarg.0      
+726    ldfld        SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5 SavePanel/<SaveGame>c__Iterator1::$locvar1
+731    ldfld        System.Boolean SavePanel/<SaveGame>c__Iterator1/<SaveGame>c__AnonStorey5::errorOnSaving
+736    call         System.Void SavePanel::OnSavingComplete(System.Boolean,System.Boolean)
+741    ldarg.0      
+742    ldc.i4.m1    
+743    stfld        System.Int32 SavePanel/<SaveGame>c__Iterator1::$PC
+748    ldc.i4.0     
+749    ret          
+750    ldc.i4.1     
+751    ret          

@@ -1,0 +1,265 @@
+  0000: ldarg.s position
+  0002: ldfld System.UInt16 PathUnit/Position::m_segment
+  0007: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  000C: stloc.2 
+  000D: ldarg.s offset
+  000F: ldarg.s position
+  0011: ldfld System.Byte PathUnit/Position::m_offset
+  0016: bge.s IL_0028: ldloc.2
+  0018: ldloc.2 
+  0019: ldfld System.UInt16 NetSegment::m_startNode
+  001E: stloc.0 
+  001F: ldloc.2 
+  0020: ldfld System.UInt16 NetSegment::m_endNode
+  0025: stloc.1 
+  0026: br.s IL_0036: ldarg.s prevPos
+  0028: ldloc.2 
+  0029: ldfld System.UInt16 NetSegment::m_endNode
+  002E: stloc.0 
+  002F: ldloc.2 
+  0030: ldfld System.UInt16 NetSegment::m_startNode
+  0035: stloc.1 
+  0036: ldarg.s prevPos
+  0038: ldfld System.UInt16 PathUnit/Position::m_segment
+  003D: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  0042: stloc.3 
+  0043: ldarg.s prevOffset
+  0045: brfalse.s IL_004f: ldloc.3
+  0047: ldloc.3 
+  0048: ldfld System.UInt16 NetSegment::m_endNode
+  004D: br.s IL_0055: stloc.s V_4
+  004F: ldloc.3 
+  0050: ldfld System.UInt16 NetSegment::m_startNode
+  0055: stloc.s V_4
+  0057: ldarg.2 
+  0058: call Vehicle/Frame Vehicle::GetLastFrameData()
+  005D: stloc.s V_5
+  005F: ldloc.s V_5
+  0061: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+  0066: ldloca.s V_5
+  0068: ldflda UnityEngine.Vector3 Vehicle/Frame::m_velocity
+  006D: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+  0072: stloc.s V_6
+  0074: ldarg.s laneID
+  0076: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  007B: ldarg.s offset
+  007D: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+  0082: ldarg.s pos
+  0084: ldarg.s dir
+  0086: call System.Void NetLane::CalculatePositionAndDirection(System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+  008B: ldarg.0 
+  008C: ldfld VehicleInfo VehicleAI::m_info
+  0091: ldfld System.Single VehicleInfo::m_braking
+  0096: stloc.s V_7
+  0098: ldarg.2 
+  0099: ldfld Vehicle/Flags Vehicle::m_flags
+  009E: ldc.i4 128
+  00A3: and 
+  00A4: brfalse.s IL_00b0: ldarg.s prevLaneID
+  00A6: ldloc.s V_7
+  00A8: ldc.r4 2
+  00AD: mul 
+  00AE: stloc.s V_7
+  00B0: ldarg.s prevLaneID
+  00B2: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  00B7: ldarg.s prevOffset
+  00B9: call System.Single TrafficManager.Constants::ByteToFloat(System.Byte)
+  00BE: call UnityEngine.Vector3 NetLane::CalculatePosition(System.Single)
+  00C3: stloc.s V_8
+  00C5: ldc.r4 0,5
+  00CA: ldloc.s V_6
+  00CC: mul 
+  00CD: ldloc.s V_7
+  00CF: div 
+  00D0: ldarg.0 
+  00D1: ldfld VehicleInfo VehicleAI::m_info
+  00D6: ldfld VehicleInfoGen VehicleInfoBase::m_generatedInfo
+  00DB: ldflda UnityEngine.Vector3 VehicleInfoGen::m_size
+  00E0: ldfld System.Single UnityEngine.Vector3::z
+  00E5: ldc.r4 0,5
+  00EA: mul 
+  00EB: add 
+  00EC: stloc.s V_9
+  00EE: ldloc.s V_8
+  00F0: call System.Single UnityEngine.Vector3::Distance(UnityEngine.Vector3,UnityEngine.Vector3)
+  00F5: stloc.s V_10
+  00F7: ldloc.s V_10
+  00F9: ldloc.s V_9
+  00FB: ldc.r4 1
+  0100: sub 
+  0101: clt.un 
+  0103: ldc.i4.0 
+  0104: ceq 
+  0106: stloc.s V_11
+  0108: ldloc.0 
+  0109: ldloc.s V_4
+  010B: ceq 
+  010D: ldloc.s V_11
+  010F: and 
+  0110: brfalse IL_0263: ldloc.2
+  0115: ldloc.0 
+  0116: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+  011B: stloc.s V_13
+  011D: ldsfld TrafficManager.Manager.Impl.VehicleBehaviorManager TrafficManager.Manager.Impl.VehicleBehaviorManager::Instance
+  0122: ldarg.1 
+  0123: ldarg.2 
+  0124: ldloc.s V_6
+  0126: ldarga.s prevPos
+  0128: ldloc.3 
+  0129: ldloc.s V_4
+  012B: ldarg.s prevLaneID
+  012D: ldarga.s position
+  012F: ldloc.0 
+  0130: ldloc.s V_13
+  0132: ldarg.s laneID
+  0134: ldarga.s nextPosition
+  0136: ldloc.1 
+  0137: ldarg.s maxSpeed
+  0139: callvirt System.Boolean TrafficManager.Manager.Impl.VehicleBehaviorManager::MayChangeSegment(System.UInt16,Vehicle&,System.Single,PathUnit/Position&,NetSegment&,System.UInt16,System.UInt32,PathUnit/Position&,System.UInt16,NetNode&,System.UInt32,PathUnit/Position&,System.UInt16,System.Single&)
+  013E: brtrue.s IL_0142: ldloc.s V_13
+  0140: ldc.i4.0 
+  0141: ret 
+  0142: ldloc.s V_13
+  0144: call NetNode/FlagsLong NetNode::get_flags()
+  0149: stloc.s V_14
+  014B: ldloc.s V_14
+  014D: ldc.i8 4294967296
+  0156: and 
+  0157: ldc.i4.0 
+  0158: conv.i8 
+  0159: cgt.un 
+  015B: brfalse IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  0160: ldarg.s prevPos
+  0162: ldfld System.UInt16 PathUnit/Position::m_segment
+  0167: ldarg.s position
+  0169: ldfld System.UInt16 PathUnit/Position::m_segment
+  016E: beq IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  0173: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  0178: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  017D: stloc.s V_15
+  017F: ldloc.s V_4
+  0181: ldc.i4.8 
+  0182: shl 
+  0183: ldc.i4 32768
+  0188: div.un 
+  0189: stloc.s V_16
+  018B: ldloc.s V_15
+  018D: ldloc.s V_16
+  018F: sub 
+  0190: ldc.i4 255
+  0195: and 
+  0196: stloc.s V_17
+  0198: ldarg.s prevPos
+  019A: ldfld System.UInt16 PathUnit/Position::m_segment
+  019F: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  01A4: stloc.s V_18
+  01A6: ldloc.s V_4
+  01A8: ldloc.s V_18
+  01AA: ldloc.s V_15
+  01AC: ldloc.s V_16
+  01AE: sub 
+  01AF: ldloca.s V_19
+  01B1: ldloca.s V_20
+  01B3: ldloca.s V_21
+  01B5: ldloca.s V_22
+  01B7: call System.Void RoadBaseAI::GetBollardState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState&,RoadBaseAI/TrafficLightState&,System.Boolean&,System.Boolean&)
+  01BC: ldloc.s V_14
+  01BE: ldc.i4 8388608
+  01C3: conv.i8 
+  01C4: and 
+  01C5: ldc.i4.0 
+  01C6: conv.i8 
+  01C7: cgt.un 
+  01C9: stloc.s V_23
+  01CB: ldarg.2 
+  01CC: ldfld Vehicle/Flags Vehicle::m_flags
+  01D1: ldc.i4 128
+  01D6: and 
+  01D7: brtrue.s IL_01f9: ldloc.s V_22
+  01D9: ldloc.s V_23
+  01DB: brtrue.s IL_0216: ldloc.s V_20
+  01DD: ldloc.s V_5
+  01DF: ldfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+  01E4: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  01E9: call System.Boolean UnityEngine.Vector3::op_Equality(UnityEngine.Vector3,UnityEngine.Vector3)
+  01EE: brfalse.s IL_0216: ldloc.s V_20
+  01F0: ldloc.s V_10
+  01F2: ldc.r4 30
+  01F7: bgt.un.s IL_0216: ldloc.s V_20
+  01F9: ldloc.s V_22
+  01FB: brtrue.s IL_0216: ldloc.s V_20
+  01FD: ldc.i4.1 
+  01FE: stloc.s V_22
+  0200: ldloc.s V_4
+  0202: ldloc.s V_18
+  0204: ldloc.s V_15
+  0206: ldloc.s V_16
+  0208: sub 
+  0209: ldloc.s V_19
+  020B: ldloc.s V_20
+  020D: ldloc.s V_21
+  020F: ldloc.s V_22
+  0211: call System.Void RoadBaseAI::SetBollardState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState,RoadBaseAI/TrafficLightState,System.Boolean,System.Boolean)
+  0216: ldloc.s V_20
+  0218: ldc.i4.1 
+  0219: sub 
+  021A: switch Mono.Cecil.Cil.Instruction[]
+  022B: br.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  022D: ldloc.s V_17
+  022F: ldc.i4.s 60
+  0231: bge.un.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  0233: ldarg.s maxSpeed
+  0235: ldc.r4 0
+  023A: stind.r4 
+  023B: ldc.i4.0 
+  023C: ret 
+  023D: ldloc.s V_17
+  023F: ldc.i4.s 30
+  0241: blt.un.s IL_0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  0243: ldarg.s maxSpeed
+  0245: ldc.r4 0
+  024A: stind.r4 
+  024B: ldc.i4.0 
+  024C: ret 
+  024D: ldarg.s maxSpeed
+  024F: ldc.r4 0
+  0254: stind.r4 
+  0255: ldc.i4.0 
+  0256: ret 
+  0257: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  025C: ldarg.1 
+  025D: ldarg.2 
+  025E: callvirt System.Void TrafficManager.Manager.Impl.ExtVehicleManager::UpdateVehiclePosition(System.UInt16,Vehicle&)
+  0263: ldloc.2 
+  0264: call NetInfo NetSegment::get_Info()
+  0269: stloc.s V_12
+  026B: ldarg.0 
+  026C: ldarg.1 
+  026D: ldarg.2 
+  026E: ldarg.s position
+  0270: ldarg.s laneID
+  0272: ldloc.s V_12
+  0274: ldarg.s maxSpeed
+  0276: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateTargetSpeed(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,NetInfo,System.Single&)
+  027B: ldarg.s maxSpeed
+  027D: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  0282: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+  0287: ldarg.1 
+  0288: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  028D: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+  0292: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+  0297: ldarg.1 
+  0298: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+  029D: ldarg.0 
+  029E: ldfld VehicleInfo VehicleAI::m_info
+  02A3: ldarg.s position
+  02A5: ldloc.2 
+  02A6: ldarg.s pos
+  02A8: ldobj UnityEngine.Vector3
+  02AD: ldarg.s maxSpeed
+  02AF: ldind.r4 
+  02B0: ldc.i4.0 
+  02B1: callvirt System.Single TrafficManager.API.Manager.IVehicleBehaviorManager::CalcMaxSpeed(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo,PathUnit/Position,NetSegment&,UnityEngine.Vector3,System.Single,System.Boolean)
+  02B6: stind.r4 
+  02B7: ldc.i4.0 
+  02B8: ret 

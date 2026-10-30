@@ -1,0 +1,181 @@
+
+================== TransportLine.CreateSegment ==================
+Method: System.Boolean TransportLine::CreateSegment(System.UInt16&,System.UInt16,System.UInt16)
+IL_0000: ldarg.0 
+IL_0001: call TransportInfo TransportLine::get_Info()
+IL_0006: stloc.0 
+IL_0007: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_000c: stloc.1 
+IL_000d: ldloca.s V_2
+IL_000f: ldarg.2 
+IL_0010: ldarg.3 
+IL_0011: xor 
+IL_0012: call System.Void ColossalFramework.Math.Randomizer::.ctor(System.Int32)
+IL_0017: ldloc.1 
+IL_0018: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_001d: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0022: ldarg.2 
+IL_0023: ldelema NetNode
+IL_0028: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_002d: stloc.3 
+IL_002e: ldloc.1 
+IL_002f: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0034: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0039: ldarg.3 
+IL_003a: ldelema NetNode
+IL_003f: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0044: stloc.s V_4
+IL_0046: ldloc.s V_4
+IL_0048: ldloc.3 
+IL_0049: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_004e: stloc.s V_5
+IL_0050: ldloc.s V_5
+IL_0052: call UnityEngine.Vector3 ColossalFramework.Math.VectorUtils::NormalizeXZ(UnityEngine.Vector3)
+IL_0057: stloc.s V_5
+IL_0059: ldloc.1 
+IL_005a: ldarg.1 
+IL_005b: ldloca.s V_2
+IL_005d: ldloc.0 
+IL_005e: ldfld NetInfo TransportInfo::m_netInfo
+IL_0063: ldnull 
+IL_0064: ldarg.2 
+IL_0065: ldarg.3 
+IL_0066: ldloc.s V_5
+IL_0068: ldloc.s V_5
+IL_006a: call UnityEngine.Vector3 UnityEngine.Vector3::op_UnaryNegation(UnityEngine.Vector3)
+IL_006f: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0074: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_0079: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_007e: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_0083: ldc.i4.0 
+IL_0084: callvirt System.Boolean NetManager::CreateSegment(System.UInt16&,ColossalFramework.Math.Randomizer&,NetInfo,TreeInfo,System.UInt16,System.UInt16,UnityEngine.Vector3,UnityEngine.Vector3,System.UInt32,System.UInt32,System.Boolean)
+IL_0089: brfalse IL_00af
+IL_008e: ldarg.0 
+IL_008f: ldfld TransportLine/Flags TransportLine::m_flags
+IL_0094: ldc.i4.8 
+IL_0095: and 
+IL_0096: brtrue IL_00ad
+IL_009b: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_00a0: dup 
+IL_00a1: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_00a6: ldc.i4.2 
+IL_00a7: add 
+IL_00a8: stfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_00ad: ldc.i4.1 
+IL_00ae: ret 
+IL_00af: ldarg.1 
+IL_00b0: ldc.i4.0 
+IL_00b1: stind.i2 
+IL_00b2: ldc.i4.0 
+IL_00b3: ret 
+
+================== TransportLine.CreateNode ==================
+Method: System.Boolean TransportLine::CreateNode(System.UInt16,System.UInt16&,UnityEngine.Vector3,System.Boolean)
+IL_0000: ldarg.0 
+IL_0001: call TransportInfo TransportLine::get_Info()
+IL_0006: stloc.0 
+IL_0007: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_000c: stloc.1 
+IL_000d: ldloca.s V_2
+IL_000f: ldarg.1 
+IL_0010: call System.Void ColossalFramework.Math.Randomizer::.ctor(System.Int32)
+IL_0015: ldloc.1 
+IL_0016: ldarg.2 
+IL_0017: ldloca.s V_2
+IL_0019: ldloc.0 
+IL_001a: ldfld NetInfo TransportInfo::m_netInfo
+IL_001f: ldarg.3 
+IL_0020: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0025: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_002a: callvirt System.Boolean NetManager::CreateNode(System.UInt16&,ColossalFramework.Math.Randomizer&,NetInfo,UnityEngine.Vector3,System.UInt32)
+IL_002f: brfalse IL_0142
+IL_0034: ldloc.1 
+IL_0035: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_003a: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_003f: ldarg.2 
+IL_0040: ldind.u2 
+IL_0041: ldelema NetNode
+IL_0046: dup 
+IL_0047: ldfld NetNode/Flags NetNode::m_flags
+IL_004c: ldc.i4 512
+IL_0051: or 
+IL_0052: stfld NetNode/Flags NetNode::m_flags
+IL_0057: ldloc.1 
+IL_0058: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_005d: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0062: ldarg.2 
+IL_0063: ldind.u2 
+IL_0064: ldelema NetNode
+IL_0069: ldarg.1 
+IL_006a: stfld System.UInt16 NetNode::m_transportLine
+IL_006f: ldarg.s fixedPlatform
+IL_0071: brfalse IL_0099
+IL_0076: ldloc.1 
+IL_0077: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_007c: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0081: ldarg.2 
+IL_0082: ldind.u2 
+IL_0083: ldelema NetNode
+IL_0088: dup 
+IL_0089: ldfld NetNode/Flags NetNode::m_flags
+IL_008e: ldc.i4 8192
+IL_0093: or 
+IL_0094: stfld NetNode/Flags NetNode::m_flags
+IL_0099: ldarg.0 
+IL_009a: ldfld TransportLine/Flags TransportLine::m_flags
+IL_009f: ldc.i4.8 
+IL_00a0: and 
+IL_00a1: brfalse IL_00ce
+IL_00a6: ldloc.1 
+IL_00a7: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00ac: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00b1: ldarg.2 
+IL_00b2: ldind.u2 
+IL_00b3: ldelema NetNode
+IL_00b8: dup 
+IL_00b9: ldfld NetNode/Flags NetNode::m_flags
+IL_00be: ldc.i4 2048
+IL_00c3: or 
+IL_00c4: stfld NetNode/Flags NetNode::m_flags
+IL_00c9: br IL_00e0
+IL_00ce: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_00d3: dup 
+IL_00d4: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_00d9: ldc.i4.1 
+IL_00da: add 
+IL_00db: stfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_00e0: ldarg.0 
+IL_00e1: ldfld System.UInt16 TransportLine::m_building
+IL_00e6: brfalse IL_0140
+IL_00eb: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+IL_00f0: stloc.3 
+IL_00f1: ldloc.1 
+IL_00f2: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00f7: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00fc: ldarg.2 
+IL_00fd: ldind.u2 
+IL_00fe: ldelema NetNode
+IL_0103: ldloc.3 
+IL_0104: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_0109: ldfld T[] Array16`1<Building>::m_buffer
+IL_010e: ldarg.0 
+IL_010f: ldfld System.UInt16 TransportLine::m_building
+IL_0114: ldelema Building
+IL_0119: ldfld System.UInt16 Building::m_netNode
+IL_011e: stfld System.UInt16 NetNode::m_nextBuildingNode
+IL_0123: ldloc.3 
+IL_0124: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_0129: ldfld T[] Array16`1<Building>::m_buffer
+IL_012e: ldarg.0 
+IL_012f: ldfld System.UInt16 TransportLine::m_building
+IL_0134: ldelema Building
+IL_0139: ldarg.2 
+IL_013a: ldind.u2 
+IL_013b: stfld System.UInt16 Building::m_netNode
+IL_0140: ldc.i4.1 
+IL_0141: ret 
+IL_0142: ldarg.2 
+IL_0143: ldc.i4.0 
+IL_0144: stind.i2 
+IL_0145: ldc.i4.0 
+IL_0146: ret 

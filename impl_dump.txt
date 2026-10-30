@@ -1,0 +1,1239 @@
+=== Method: GetIncomeAndExpensesImpl ===
+  IL_0000: ldarg.1 
+  IL_0001: call System.Int32 ItemClass::GetPrivateServiceIndex(ItemClass/Service)
+  IL_0006: stloc.0 
+  IL_0007: ldarg.1 
+  IL_0008: brtrue IL_0043: ldloc.0
+  IL_000D: ldc.i4.0 
+  IL_000E: stloc.1 
+  IL_000F: br IL_0036: ldloc.1
+  IL_0014: ldarg.s income
+  IL_0016: ldarg.s income
+  IL_0018: ldind.i8 
+  IL_0019: ldarg.0 
+  IL_001A: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_001F: ldloc.1 
+  IL_0020: ldelem.i8 
+  IL_0021: add 
+  IL_0022: stind.i8 
+  IL_0023: ldarg.s expenses
+  IL_0025: ldarg.s expenses
+  IL_0027: ldind.i8 
+  IL_0028: ldarg.0 
+  IL_0029: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_002E: ldloc.1 
+  IL_002F: ldelem.i8 
+  IL_0030: add 
+  IL_0031: stind.i8 
+  IL_0032: ldloc.1 
+  IL_0033: ldc.i4.1 
+  IL_0034: add 
+  IL_0035: stloc.1 
+  IL_0036: ldloc.1 
+  IL_0037: ldc.i4.s 16
+  IL_0039: blt IL_0014: ldarg.s income
+  IL_003E: br IL_03c6: ret
+  IL_0043: ldloc.0 
+  IL_0044: ldc.i4.m1 
+  IL_0045: beq IL_0097: ldarg.1
+  IL_004A: ldarg.3 
+  IL_004B: ldc.i4.m1 
+  IL_004C: bne.un IL_0097: ldarg.1
+  IL_0051: ldarg.0 
+  IL_0052: ldarg.1 
+  IL_0053: ldarg.2 
+  IL_0054: ldc.i4.0 
+  IL_0055: ldarg.s income
+  IL_0057: ldarg.s expenses
+  IL_0059: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_005E: ldarg.0 
+  IL_005F: ldarg.1 
+  IL_0060: ldarg.2 
+  IL_0061: ldc.i4.1 
+  IL_0062: ldarg.s income
+  IL_0064: ldarg.s expenses
+  IL_0066: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_006B: ldarg.0 
+  IL_006C: ldarg.1 
+  IL_006D: ldarg.2 
+  IL_006E: ldc.i4.2 
+  IL_006F: ldarg.s income
+  IL_0071: ldarg.s expenses
+  IL_0073: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0078: ldarg.0 
+  IL_0079: ldarg.1 
+  IL_007A: ldarg.2 
+  IL_007B: ldc.i4.3 
+  IL_007C: ldarg.s income
+  IL_007E: ldarg.s expenses
+  IL_0080: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0085: ldarg.0 
+  IL_0086: ldarg.1 
+  IL_0087: ldarg.2 
+  IL_0088: ldc.i4.4 
+  IL_0089: ldarg.s income
+  IL_008B: ldarg.s expenses
+  IL_008D: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0092: br IL_03c6: ret
+  IL_0097: ldarg.1 
+  IL_0098: ldarg.2 
+  IL_0099: ldarg.3 
+  IL_009A: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_009F: stloc.2 
+  IL_00A0: ldloc.2 
+  IL_00A1: ldc.i4.m1 
+  IL_00A2: beq IL_03c6: ret
+  IL_00A7: ldc.i4.0 
+  IL_00A8: stloc.3 
+  IL_00A9: br IL_00da: ldloc.3
+  IL_00AE: ldarg.s income
+  IL_00B0: ldarg.s income
+  IL_00B2: ldind.i8 
+  IL_00B3: ldarg.0 
+  IL_00B4: ldfld System.Int64[] EconomyManager::m_income
+  IL_00B9: ldloc.2 
+  IL_00BA: ldc.i4.s 17
+  IL_00BC: mul 
+  IL_00BD: ldloc.3 
+  IL_00BE: add 
+  IL_00BF: ldelem.i8 
+  IL_00C0: add 
+  IL_00C1: stind.i8 
+  IL_00C2: ldarg.s expenses
+  IL_00C4: ldarg.s expenses
+  IL_00C6: ldind.i8 
+  IL_00C7: ldarg.0 
+  IL_00C8: ldfld System.Int64[] EconomyManager::m_expenses
+  IL_00CD: ldloc.2 
+  IL_00CE: ldc.i4.s 17
+  IL_00D0: mul 
+  IL_00D1: ldloc.3 
+  IL_00D2: add 
+  IL_00D3: ldelem.i8 
+  IL_00D4: add 
+  IL_00D5: stind.i8 
+  IL_00D6: ldloc.3 
+  IL_00D7: ldc.i4.1 
+  IL_00D8: add 
+  IL_00D9: stloc.3 
+  IL_00DA: ldloc.3 
+  IL_00DB: ldc.i4.s 16
+  IL_00DD: blt IL_00ae: ldarg.s income
+  IL_00E2: ldarg.2 
+  IL_00E3: brtrue IL_03c6: ret
+  IL_00E8: ldarg.1 
+  IL_00E9: ldc.i4.1 
+  IL_00EA: sub 
+  IL_00EB: switch Mono.Cecil.Cil.Instruction[]
+  IL_0110: ldarg.1 
+  IL_0111: ldc.i4.s 19
+  IL_0113: sub 
+  IL_0114: switch Mono.Cecil.Cil.Instruction[]
+  IL_0129: ldarg.1 
+  IL_012A: ldc.i4.s 12
+  IL_012C: sub 
+  IL_012D: switch Mono.Cecil.Cil.Instruction[]
+  IL_0142: br IL_03c6: ret
+  IL_0147: ldarg.0 
+  IL_0148: ldarg.1 
+  IL_0149: ldc.i4.1 
+  IL_014A: ldarg.3 
+  IL_014B: ldarg.s income
+  IL_014D: ldarg.s expenses
+  IL_014F: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0154: ldarg.0 
+  IL_0155: ldarg.1 
+  IL_0156: ldc.i4.2 
+  IL_0157: ldarg.3 
+  IL_0158: ldarg.s income
+  IL_015A: ldarg.s expenses
+  IL_015C: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0161: ldarg.0 
+  IL_0162: ldarg.1 
+  IL_0163: ldc.i4.s 25
+  IL_0165: ldarg.3 
+  IL_0166: ldarg.s income
+  IL_0168: ldarg.s expenses
+  IL_016A: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_016F: ldarg.0 
+  IL_0170: ldarg.1 
+  IL_0171: ldc.i4.s 26
+  IL_0173: ldarg.3 
+  IL_0174: ldarg.s income
+  IL_0176: ldarg.s expenses
+  IL_0178: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_017D: ldarg.0 
+  IL_017E: ldarg.1 
+  IL_017F: ldc.i4.s 38
+  IL_0181: ldarg.3 
+  IL_0182: ldarg.s income
+  IL_0184: ldarg.s expenses
+  IL_0186: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_018B: br IL_03c6: ret
+  IL_0190: ldarg.0 
+  IL_0191: ldarg.1 
+  IL_0192: ldc.i4.3 
+  IL_0193: ldarg.3 
+  IL_0194: ldarg.s income
+  IL_0196: ldarg.s expenses
+  IL_0198: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_019D: ldarg.0 
+  IL_019E: ldarg.1 
+  IL_019F: ldc.i4.4 
+  IL_01A0: ldarg.3 
+  IL_01A1: ldarg.s income
+  IL_01A3: ldarg.s expenses
+  IL_01A5: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01AA: ldarg.0 
+  IL_01AB: ldarg.1 
+  IL_01AC: ldc.i4.s 18
+  IL_01AE: ldarg.3 
+  IL_01AF: ldarg.s income
+  IL_01B1: ldarg.s expenses
+  IL_01B3: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01B8: ldarg.0 
+  IL_01B9: ldarg.1 
+  IL_01BA: ldc.i4.s 19
+  IL_01BC: ldarg.3 
+  IL_01BD: ldarg.s income
+  IL_01BF: ldarg.s expenses
+  IL_01C1: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01C6: ldarg.0 
+  IL_01C7: ldarg.1 
+  IL_01C8: ldc.i4.s 24
+  IL_01CA: ldarg.3 
+  IL_01CB: ldarg.s income
+  IL_01CD: ldarg.s expenses
+  IL_01CF: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01D4: ldarg.0 
+  IL_01D5: ldarg.1 
+  IL_01D6: ldc.i4.s 39
+  IL_01D8: ldarg.3 
+  IL_01D9: ldarg.s income
+  IL_01DB: ldarg.s expenses
+  IL_01DD: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01E2: br IL_03c6: ret
+  IL_01E7: ldarg.0 
+  IL_01E8: ldarg.1 
+  IL_01E9: ldc.i4.5 
+  IL_01EA: ldarg.3 
+  IL_01EB: ldarg.s income
+  IL_01ED: ldarg.s expenses
+  IL_01EF: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_01F4: ldarg.0 
+  IL_01F5: ldarg.1 
+  IL_01F6: ldc.i4.6 
+  IL_01F7: ldarg.3 
+  IL_01F8: ldarg.s income
+  IL_01FA: ldarg.s expenses
+  IL_01FC: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0201: ldarg.0 
+  IL_0202: ldarg.1 
+  IL_0203: ldc.i4.7 
+  IL_0204: ldarg.3 
+  IL_0205: ldarg.s income
+  IL_0207: ldarg.s expenses
+  IL_0209: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_020E: ldarg.0 
+  IL_020F: ldarg.1 
+  IL_0210: ldc.i4.8 
+  IL_0211: ldarg.3 
+  IL_0212: ldarg.s income
+  IL_0214: ldarg.s expenses
+  IL_0216: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_021B: ldarg.0 
+  IL_021C: ldarg.1 
+  IL_021D: ldc.i4.s 9
+  IL_021F: ldarg.3 
+  IL_0220: ldarg.s income
+  IL_0222: ldarg.s expenses
+  IL_0224: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0229: br IL_03c6: ret
+  IL_022E: ldarg.0 
+  IL_022F: ldarg.1 
+  IL_0230: ldc.i4.s 22
+  IL_0232: ldarg.3 
+  IL_0233: ldarg.s income
+  IL_0235: ldarg.s expenses
+  IL_0237: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_023C: ldarg.0 
+  IL_023D: ldarg.1 
+  IL_023E: ldc.i4.s 23
+  IL_0240: ldarg.3 
+  IL_0241: ldarg.s income
+  IL_0243: ldarg.s expenses
+  IL_0245: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_024A: ldarg.0 
+  IL_024B: ldarg.1 
+  IL_024C: ldc.i4.s 40
+  IL_024E: ldarg.3 
+  IL_024F: ldarg.s income
+  IL_0251: ldarg.s expenses
+  IL_0253: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0258: ldarg.0 
+  IL_0259: ldarg.1 
+  IL_025A: ldc.i4.s 42
+  IL_025C: ldarg.3 
+  IL_025D: ldarg.s income
+  IL_025F: ldarg.s expenses
+  IL_0261: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0266: br IL_03c6: ret
+  IL_026B: ldarg.0 
+  IL_026C: ldarg.1 
+  IL_026D: ldc.i4.s 10
+  IL_026F: ldarg.3 
+  IL_0270: ldarg.s income
+  IL_0272: ldarg.s expenses
+  IL_0274: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0279: ldarg.0 
+  IL_027A: ldarg.1 
+  IL_027B: ldc.i4.s 11
+  IL_027D: ldarg.3 
+  IL_027E: ldarg.s income
+  IL_0280: ldarg.s expenses
+  IL_0282: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0287: ldarg.0 
+  IL_0288: ldarg.1 
+  IL_0289: ldc.i4.s 12
+  IL_028B: ldarg.3 
+  IL_028C: ldarg.s income
+  IL_028E: ldarg.s expenses
+  IL_0290: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0295: ldarg.0 
+  IL_0296: ldarg.1 
+  IL_0297: ldc.i4.s 13
+  IL_0299: ldarg.3 
+  IL_029A: ldarg.s income
+  IL_029C: ldarg.s expenses
+  IL_029E: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02A3: ldarg.0 
+  IL_02A4: ldarg.1 
+  IL_02A5: ldc.i4.s 14
+  IL_02A7: ldarg.3 
+  IL_02A8: ldarg.s income
+  IL_02AA: ldarg.s expenses
+  IL_02AC: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02B1: ldarg.0 
+  IL_02B2: ldarg.1 
+  IL_02B3: ldc.i4.s 15
+  IL_02B5: ldarg.3 
+  IL_02B6: ldarg.s income
+  IL_02B8: ldarg.s expenses
+  IL_02BA: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02BF: ldarg.0 
+  IL_02C0: ldarg.1 
+  IL_02C1: ldc.i4.s 16
+  IL_02C3: ldarg.3 
+  IL_02C4: ldarg.s income
+  IL_02C6: ldarg.s expenses
+  IL_02C8: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02CD: ldarg.0 
+  IL_02CE: ldarg.1 
+  IL_02CF: ldc.i4.s 20
+  IL_02D1: ldarg.3 
+  IL_02D2: ldarg.s income
+  IL_02D4: ldarg.s expenses
+  IL_02D6: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02DB: ldarg.0 
+  IL_02DC: ldarg.1 
+  IL_02DD: ldc.i4.s 21
+  IL_02DF: ldarg.3 
+  IL_02E0: ldarg.s income
+  IL_02E2: ldarg.s expenses
+  IL_02E4: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02E9: ldarg.0 
+  IL_02EA: ldarg.1 
+  IL_02EB: ldc.i4.s 27
+  IL_02ED: ldarg.3 
+  IL_02EE: ldarg.s income
+  IL_02F0: ldarg.s expenses
+  IL_02F2: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_02F7: ldarg.0 
+  IL_02F8: ldarg.1 
+  IL_02F9: ldc.i4.s 28
+  IL_02FB: ldarg.3 
+  IL_02FC: ldarg.s income
+  IL_02FE: ldarg.s expenses
+  IL_0300: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0305: ldarg.0 
+  IL_0306: ldarg.1 
+  IL_0307: ldc.i4.s 36
+  IL_0309: ldarg.3 
+  IL_030A: ldarg.s income
+  IL_030C: ldarg.s expenses
+  IL_030E: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0313: br IL_03c6: ret
+  IL_0318: ldarg.0 
+  IL_0319: ldarg.1 
+  IL_031A: ldc.i4.s 17
+  IL_031C: ldarg.3 
+  IL_031D: ldarg.s income
+  IL_031F: ldarg.s expenses
+  IL_0321: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0326: ldarg.0 
+  IL_0327: ldc.i4.s 26
+  IL_0329: ldc.i4.0 
+  IL_032A: ldarg.3 
+  IL_032B: ldarg.s income
+  IL_032D: ldarg.s expenses
+  IL_032F: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0334: br IL_03c6: ret
+  IL_0339: ldarg.0 
+  IL_033A: ldarg.1 
+  IL_033B: ldc.i4.s 29
+  IL_033D: ldarg.3 
+  IL_033E: ldarg.s income
+  IL_0340: ldarg.s expenses
+  IL_0342: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0347: ldarg.0 
+  IL_0348: ldarg.1 
+  IL_0349: ldc.i4.s 30
+  IL_034B: ldarg.3 
+  IL_034C: ldarg.s income
+  IL_034E: ldarg.s expenses
+  IL_0350: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0355: ldarg.0 
+  IL_0356: ldarg.1 
+  IL_0357: ldc.i4.s 31
+  IL_0359: ldarg.3 
+  IL_035A: ldarg.s income
+  IL_035C: ldarg.s expenses
+  IL_035E: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0363: ldarg.0 
+  IL_0364: ldarg.1 
+  IL_0365: ldc.i4.s 32
+  IL_0367: ldarg.3 
+  IL_0368: ldarg.s income
+  IL_036A: ldarg.s expenses
+  IL_036C: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0371: ldarg.0 
+  IL_0372: ldc.i4.s 25
+  IL_0374: ldc.i4.0 
+  IL_0375: ldarg.3 
+  IL_0376: ldarg.s income
+  IL_0378: ldarg.s expenses
+  IL_037A: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_037F: br IL_03c6: ret
+  IL_0384: ldarg.0 
+  IL_0385: ldarg.1 
+  IL_0386: ldc.i4.s 34
+  IL_0388: ldarg.3 
+  IL_0389: ldarg.s income
+  IL_038B: ldarg.s expenses
+  IL_038D: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0392: ldarg.0 
+  IL_0393: ldarg.1 
+  IL_0394: ldc.i4.s 33
+  IL_0396: ldarg.3 
+  IL_0397: ldarg.s income
+  IL_0399: ldarg.s expenses
+  IL_039B: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_03A0: ldarg.0 
+  IL_03A1: ldarg.1 
+  IL_03A2: ldc.i4.s 35
+  IL_03A4: ldarg.3 
+  IL_03A5: ldarg.s income
+  IL_03A7: ldarg.s expenses
+  IL_03A9: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_03AE: br IL_03c6: ret
+  IL_03B3: ldarg.0 
+  IL_03B4: ldarg.1 
+  IL_03B5: ldc.i4.s 41
+  IL_03B7: ldarg.3 
+  IL_03B8: ldarg.s income
+  IL_03BA: ldarg.s expenses
+  IL_03BC: call System.Void EconomyManager::GetIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_03C1: br IL_03c6: ret
+  IL_03C6: ret 
+=== Method: SimulationStepImpl ===
+  IL_0000: ldarg.1 
+  IL_0001: brfalse IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0006: ldarg.1 
+  IL_0007: ldc.i4 1000
+  IL_000C: beq IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0011: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0016: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_001B: stloc.0 
+  IL_001C: ldloc.0 
+  IL_001D: ldc.i4.8 
+  IL_001E: shr.un 
+  IL_001F: ldc.i4.s 15
+  IL_0021: and 
+  IL_0022: stloc.1 
+  IL_0023: ldloc.0 
+  IL_0024: ldc.i4 255
+  IL_0029: and 
+  IL_002A: stloc.2 
+  IL_002B: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_0030: ldc.i4.s 52
+  IL_0032: callvirt System.Boolean UnlockManager::Unlocked(UnlockManager/Feature)
+  IL_0037: brfalse IL_0044: ldloc.2
+  IL_003C: ldarg.0 
+  IL_003D: ldloc.1 
+  IL_003E: ldloc.2 
+  IL_003F: call System.Void EconomyManager::SimulationStepInvestments(System.UInt32,System.UInt32)
+  IL_0044: ldloc.2 
+  IL_0045: ldc.i4 255
+  IL_004A: bne.un IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_004F: ldc.i4.0 
+  IL_0050: conv.i8 
+  IL_0051: stloc.3 
+  IL_0052: ldc.i4.0 
+  IL_0053: stloc.s V_4
+  IL_0055: br IL_01d4: ldloc.s V_4
+  IL_005A: ldarg.0 
+  IL_005B: ldfld EconomyManager/Loan[] EconomyManager::m_loans
+  IL_0060: ldloc.s V_4
+  IL_0062: ldelema EconomyManager/Loan
+  IL_0067: ldobj EconomyManager/Loan
+  IL_006C: stloc.s V_5
+  IL_006E: ldloca.s V_5
+  IL_0070: ldfld System.Int32 EconomyManager/Loan::m_length
+  IL_0075: brfalse IL_01ce: ldloc.s V_4
+  IL_007A: ldc.i4.0 
+  IL_007B: stloc.s V_6
+  IL_007D: ldloca.s V_5
+  IL_007F: ldfld System.Int32 EconomyManager/Loan::m_amountTaken
+  IL_0084: brfalse IL_00b4: ldloc.s V_6
+  IL_0089: ldloca.s V_5
+  IL_008B: ldfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_0090: conv.i8 
+  IL_0091: ldloca.s V_5
+  IL_0093: ldfld System.Int32 EconomyManager/Loan::m_length
+  IL_0098: ldc.i4.s 16
+  IL_009A: mul 
+  IL_009B: conv.i8 
+  IL_009C: mul 
+  IL_009D: ldloca.s V_5
+  IL_009F: ldfld System.Int32 EconomyManager/Loan::m_amountTaken
+  IL_00A4: ldc.i4.1 
+  IL_00A5: shr 
+  IL_00A6: conv.i8 
+  IL_00A7: add 
+  IL_00A8: ldloca.s V_5
+  IL_00AA: ldfld System.Int32 EconomyManager/Loan::m_amountTaken
+  IL_00AF: conv.i8 
+  IL_00B0: div 
+  IL_00B1: conv.i4 
+  IL_00B2: stloc.s V_6
+  IL_00B4: ldloc.s V_6
+  IL_00B6: brtrue IL_00be: ldloca.s V_5
+  IL_00BB: ldc.i4.1 
+  IL_00BC: stloc.s V_6
+  IL_00BE: ldloca.s V_5
+  IL_00C0: ldfld System.Int32 EconomyManager/Loan::m_amountTaken
+  IL_00C5: conv.i8 
+  IL_00C6: ldloca.s V_5
+  IL_00C8: ldfld System.Int32 EconomyManager/Loan::m_interestRate
+  IL_00CD: conv.i8 
+  IL_00CE: mul 
+  IL_00CF: ldc.i4 5000
+  IL_00D4: conv.i8 
+  IL_00D5: add 
+  IL_00D6: ldc.i4 10000
+  IL_00DB: conv.i8 
+  IL_00DC: div 
+  IL_00DD: conv.i4 
+  IL_00DE: stloc.s V_7
+  IL_00E0: ldloc.s V_7
+  IL_00E2: ldloca.s V_5
+  IL_00E4: ldfld System.Int32 EconomyManager/Loan::m_interestPaid
+  IL_00E9: sub 
+  IL_00EA: stloc.s V_8
+  IL_00EC: ldloc.s V_8
+  IL_00EE: ldc.i4.0 
+  IL_00EF: bge IL_00f7: ldloca.s V_5
+  IL_00F4: ldc.i4.0 
+  IL_00F5: stloc.s V_8
+  IL_00F7: ldloca.s V_5
+  IL_00F9: ldfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_00FE: ldloc.s V_8
+  IL_0100: add 
+  IL_0101: ldc.i4.0 
+  IL_0102: ldloc.s V_6
+  IL_0104: ldloc.1 
+  IL_0105: ldc.i4.1 
+  IL_0106: add 
+  IL_0107: mul 
+  IL_0108: ldc.i4.4 
+  IL_0109: shr 
+  IL_010A: ldc.i4.1 
+  IL_010B: sub 
+  IL_010C: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0111: add 
+  IL_0112: ldloc.s V_6
+  IL_0114: div 
+  IL_0115: stloc.s V_9
+  IL_0117: ldloc.s V_8
+  IL_0119: ldc.i4.0 
+  IL_011A: ldloc.s V_6
+  IL_011C: ldloc.1 
+  IL_011D: ldc.i4.1 
+  IL_011E: add 
+  IL_011F: mul 
+  IL_0120: ldc.i4.4 
+  IL_0121: shr 
+  IL_0122: ldc.i4.1 
+  IL_0123: sub 
+  IL_0124: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0129: add 
+  IL_012A: ldloc.s V_6
+  IL_012C: div 
+  IL_012D: stloc.s V_10
+  IL_012F: ldarg.0 
+  IL_0130: ldc.i4.3 
+  IL_0131: ldloc.s V_9
+  IL_0133: ldc.i4.0 
+  IL_0134: ldc.i4.0 
+  IL_0135: ldc.i4.0 
+  IL_0136: call System.Int32 EconomyManager::FetchResource(EconomyManager/Resource,System.Int32,ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_013B: stloc.s V_9
+  IL_013D: ldloc.s V_9
+  IL_013F: ldloc.s V_10
+  IL_0141: bge IL_014a: ldloc.s V_9
+  IL_0146: ldloc.s V_9
+  IL_0148: stloc.s V_10
+  IL_014A: ldloc.s V_9
+  IL_014C: ldloc.s V_10
+  IL_014E: sub 
+  IL_014F: stloc.s V_11
+  IL_0151: ldloc.s V_11
+  IL_0153: ldc.i4.0 
+  IL_0154: ble IL_0169: ldloc.s V_10
+  IL_0159: ldloca.s V_5
+  IL_015B: dup 
+  IL_015C: ldfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_0161: ldloc.s V_11
+  IL_0163: sub 
+  IL_0164: stfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_0169: ldloc.s V_10
+  IL_016B: ldc.i4.0 
+  IL_016C: ble IL_0181: ldloca.s V_5
+  IL_0171: ldloca.s V_5
+  IL_0173: dup 
+  IL_0174: ldfld System.Int32 EconomyManager/Loan::m_interestPaid
+  IL_0179: ldloc.s V_10
+  IL_017B: add 
+  IL_017C: stfld System.Int32 EconomyManager/Loan::m_interestPaid
+  IL_0181: ldloca.s V_5
+  IL_0183: ldfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_0188: ldc.i4.0 
+  IL_0189: ble IL_01b2: ldarg.0
+  IL_018E: ldloc.3 
+  IL_018F: ldloca.s V_5
+  IL_0191: ldfld System.Int32 EconomyManager/Loan::m_amountLeft
+  IL_0196: conv.i8 
+  IL_0197: add 
+  IL_0198: stloc.3 
+  IL_0199: ldarg.0 
+  IL_019A: ldfld EconomyManager/Loan[] EconomyManager::m_loans
+  IL_019F: ldloc.s V_4
+  IL_01A1: ldelema EconomyManager/Loan
+  IL_01A6: ldloc.s V_5
+  IL_01A8: stobj EconomyManager/Loan
+  IL_01AD: br IL_01ce: ldloc.s V_4
+  IL_01B2: ldarg.0 
+  IL_01B3: ldfld EconomyManager/Loan[] EconomyManager::m_loans
+  IL_01B8: ldloc.s V_4
+  IL_01BA: ldelema EconomyManager/Loan
+  IL_01BF: ldloca.s V_12
+  IL_01C1: initobj EconomyManager/Loan
+  IL_01C7: ldloc.s V_12
+  IL_01C9: stobj EconomyManager/Loan
+  IL_01CE: ldloc.s V_4
+  IL_01D0: ldc.i4.1 
+  IL_01D1: add 
+  IL_01D2: stloc.s V_4
+  IL_01D4: ldloc.s V_4
+  IL_01D6: ldc.i4.3 
+  IL_01D7: blt IL_005a: ldarg.0
+  IL_01DC: ldc.i4.6 
+  IL_01DD: ldc.i4.0 
+  IL_01DE: ldc.i4.0 
+  IL_01DF: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_01E4: stloc.s V_13
+  IL_01E6: ldc.i4.6 
+  IL_01E7: ldc.i4.0 
+  IL_01E8: ldc.i4.4 
+  IL_01E9: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_01EE: stloc.s V_14
+  IL_01F0: ldc.i4.7 
+  IL_01F1: ldc.i4.0 
+  IL_01F2: ldc.i4.0 
+  IL_01F3: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_01F8: stloc.s V_15
+  IL_01FA: ldc.i4.7 
+  IL_01FB: ldc.i4.0 
+  IL_01FC: ldc.i4.4 
+  IL_01FD: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_0202: stloc.s V_16
+  IL_0204: call !0 ColossalFramework.Singleton`1<StatisticsManager>::get_instance()
+  IL_0209: stloc.s V_17
+  IL_020B: ldloc.s V_17
+  IL_020D: ldc.i4.s 23
+  IL_020F: callvirt StatisticBase StatisticsManager::Acquire<StatisticArray>(StatisticType)
+  IL_0214: stloc.s V_18
+  IL_0216: ldloc.s V_17
+  IL_0218: ldc.i4.s 24
+  IL_021A: callvirt StatisticBase StatisticsManager::Acquire<StatisticArray>(StatisticType)
+  IL_021F: stloc.s V_19
+  IL_0221: ldc.i4.s 28
+  IL_0223: stloc.s V_20
+  IL_0225: ldc.i4.0 
+  IL_0226: stloc.s V_21
+  IL_0228: br IL_026f: ldloc.s V_21
+  IL_022D: ldc.i4.0 
+  IL_022E: conv.i8 
+  IL_022F: stloc.s V_22
+  IL_0231: ldc.i4.0 
+  IL_0232: conv.i8 
+  IL_0233: stloc.s V_23
+  IL_0235: ldarg.0 
+  IL_0236: ldloc.s V_21
+  IL_0238: ldc.i4.1 
+  IL_0239: add 
+  IL_023A: ldc.i4.0 
+  IL_023B: ldc.i4.m1 
+  IL_023C: ldloca.s V_22
+  IL_023E: ldloca.s V_23
+  IL_0240: call System.Void EconomyManager::GetCurrentIncomeAndExpensesImpl(ItemClass/Service,ItemClass/SubService,ItemClass/Level,System.Int64&,System.Int64&)
+  IL_0245: ldloc.s V_18
+  IL_0247: ldloc.s V_21
+  IL_0249: ldloc.s V_20
+  IL_024B: callvirt StatisticBase StatisticBase::Acquire<StatisticInt64>(System.Int32,System.Int32)
+  IL_0250: ldloc.s V_22
+  IL_0252: callvirt System.Void StatisticBase::Add(System.Int64)
+  IL_0257: ldloc.s V_19
+  IL_0259: ldloc.s V_21
+  IL_025B: ldloc.s V_20
+  IL_025D: callvirt StatisticBase StatisticBase::Acquire<StatisticInt64>(System.Int32,System.Int32)
+  IL_0262: ldloc.s V_23
+  IL_0264: callvirt System.Void StatisticBase::Add(System.Int64)
+  IL_0269: ldloc.s V_21
+  IL_026B: ldc.i4.1 
+  IL_026C: add 
+  IL_026D: stloc.s V_21
+  IL_026F: ldloc.s V_21
+  IL_0271: ldloc.s V_20
+  IL_0273: blt IL_022d: ldc.i4.0
+  IL_0278: ldc.i4.0 
+  IL_0279: stloc.s V_24
+  IL_027B: br IL_034c: ldloc.s V_24
+  IL_0280: ldloc.s V_24
+  IL_0282: ldloc.s V_13
+  IL_0284: blt IL_0292: ldloc.s V_24
+  IL_0289: ldloc.s V_24
+  IL_028B: ldloc.s V_14
+  IL_028D: ble IL_02e4: ldarg.0
+  IL_0292: ldloc.s V_24
+  IL_0294: ldloc.s V_15
+  IL_0296: blt IL_02a4: ldarg.0
+  IL_029B: ldloc.s V_24
+  IL_029D: ldloc.s V_16
+  IL_029F: ble IL_02e4: ldarg.0
+  IL_02A4: ldarg.0 
+  IL_02A5: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_02AA: ldc.i4.s 16
+  IL_02AC: ldelema System.Int64
+  IL_02B1: dup 
+  IL_02B2: ldind.i8 
+  IL_02B3: ldarg.0 
+  IL_02B4: ldfld System.Int64[] EconomyManager::m_income
+  IL_02B9: ldloc.s V_24
+  IL_02BB: ldc.i4.s 17
+  IL_02BD: mul 
+  IL_02BE: ldc.i4.s 16
+  IL_02C0: add 
+  IL_02C1: ldelem.i8 
+  IL_02C2: add 
+  IL_02C3: stind.i8 
+  IL_02C4: ldarg.0 
+  IL_02C5: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_02CA: ldc.i4.s 16
+  IL_02CC: ldelema System.Int64
+  IL_02D1: dup 
+  IL_02D2: ldind.i8 
+  IL_02D3: ldarg.0 
+  IL_02D4: ldfld System.Int64[] EconomyManager::m_expenses
+  IL_02D9: ldloc.s V_24
+  IL_02DB: ldc.i4.s 17
+  IL_02DD: mul 
+  IL_02DE: ldc.i4.s 16
+  IL_02E0: add 
+  IL_02E1: ldelem.i8 
+  IL_02E2: add 
+  IL_02E3: stind.i8 
+  IL_02E4: ldarg.0 
+  IL_02E5: ldfld System.Int64[] EconomyManager::m_income
+  IL_02EA: ldloc.s V_24
+  IL_02EC: ldc.i4.s 17
+  IL_02EE: mul 
+  IL_02EF: conv.i8 
+  IL_02F0: ldloc.1 
+  IL_02F1: conv.u8 
+  IL_02F2: add 
+  IL_02F3: conv.ovf.i 
+  IL_02F4: ldarg.0 
+  IL_02F5: ldfld System.Int64[] EconomyManager::m_income
+  IL_02FA: ldloc.s V_24
+  IL_02FC: ldc.i4.s 17
+  IL_02FE: mul 
+  IL_02FF: ldc.i4.s 16
+  IL_0301: add 
+  IL_0302: ldelem.i8 
+  IL_0303: stelem.i8 
+  IL_0304: ldarg.0 
+  IL_0305: ldfld System.Int64[] EconomyManager::m_income
+  IL_030A: ldloc.s V_24
+  IL_030C: ldc.i4.s 17
+  IL_030E: mul 
+  IL_030F: ldc.i4.s 16
+  IL_0311: add 
+  IL_0312: ldc.i4.0 
+  IL_0313: conv.i8 
+  IL_0314: stelem.i8 
+  IL_0315: ldarg.0 
+  IL_0316: ldfld System.Int64[] EconomyManager::m_expenses
+  IL_031B: ldloc.s V_24
+  IL_031D: ldc.i4.s 17
+  IL_031F: mul 
+  IL_0320: conv.i8 
+  IL_0321: ldloc.1 
+  IL_0322: conv.u8 
+  IL_0323: add 
+  IL_0324: conv.ovf.i 
+  IL_0325: ldarg.0 
+  IL_0326: ldfld System.Int64[] EconomyManager::m_expenses
+  IL_032B: ldloc.s V_24
+  IL_032D: ldc.i4.s 17
+  IL_032F: mul 
+  IL_0330: ldc.i4.s 16
+  IL_0332: add 
+  IL_0333: ldelem.i8 
+  IL_0334: stelem.i8 
+  IL_0335: ldarg.0 
+  IL_0336: ldfld System.Int64[] EconomyManager::m_expenses
+  IL_033B: ldloc.s V_24
+  IL_033D: ldc.i4.s 17
+  IL_033F: mul 
+  IL_0340: ldc.i4.s 16
+  IL_0342: add 
+  IL_0343: ldc.i4.0 
+  IL_0344: conv.i8 
+  IL_0345: stelem.i8 
+  IL_0346: ldloc.s V_24
+  IL_0348: ldc.i4.1 
+  IL_0349: add 
+  IL_034A: stloc.s V_24
+  IL_034C: ldloc.s V_24
+  IL_034E: ldc.i4 182
+  IL_0353: blt IL_0280: ldloc.s V_24
+  IL_0358: ldarg.0 
+  IL_0359: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_035E: ldc.i4.s 16
+  IL_0360: ldelema System.Int64
+  IL_0365: dup 
+  IL_0366: ldind.i8 
+  IL_0367: ldarg.0 
+  IL_0368: ldfld System.Int64[] EconomyManager::m_loanExpenses
+  IL_036D: ldc.i4.s 16
+  IL_036F: ldelem.i8 
+  IL_0370: add 
+  IL_0371: stind.i8 
+  IL_0372: ldarg.0 
+  IL_0373: ldfld System.Int64[] EconomyManager::m_loanExpenses
+  IL_0378: ldloc.1 
+  IL_0379: conv.u 
+  IL_037A: ldarg.0 
+  IL_037B: ldfld System.Int64[] EconomyManager::m_loanExpenses
+  IL_0380: ldc.i4.s 16
+  IL_0382: ldelem.i8 
+  IL_0383: stelem.i8 
+  IL_0384: ldarg.0 
+  IL_0385: ldfld System.Int64[] EconomyManager::m_loanExpenses
+  IL_038A: ldc.i4.s 16
+  IL_038C: ldc.i4.0 
+  IL_038D: conv.i8 
+  IL_038E: stelem.i8 
+  IL_038F: ldarg.0 
+  IL_0390: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_0395: ldc.i4.s 16
+  IL_0397: ldelema System.Int64
+  IL_039C: dup 
+  IL_039D: ldind.i8 
+  IL_039E: ldarg.0 
+  IL_039F: ldfld System.Int64[] EconomyManager::m_policyExpenses
+  IL_03A4: ldc.i4.s 16
+  IL_03A6: ldelem.i8 
+  IL_03A7: add 
+  IL_03A8: stind.i8 
+  IL_03A9: ldarg.0 
+  IL_03AA: ldfld System.Int64[] EconomyManager::m_policyExpenses
+  IL_03AF: ldloc.1 
+  IL_03B0: conv.u 
+  IL_03B1: ldarg.0 
+  IL_03B2: ldfld System.Int64[] EconomyManager::m_policyExpenses
+  IL_03B7: ldc.i4.s 16
+  IL_03B9: ldelem.i8 
+  IL_03BA: stelem.i8 
+  IL_03BB: ldarg.0 
+  IL_03BC: ldfld System.Int64[] EconomyManager::m_policyExpenses
+  IL_03C1: ldc.i4.s 16
+  IL_03C3: ldc.i4.0 
+  IL_03C4: conv.i8 
+  IL_03C5: stelem.i8 
+  IL_03C6: ldarg.0 
+  IL_03C7: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_03CC: ldloc.1 
+  IL_03CD: conv.u 
+  IL_03CE: ldarg.0 
+  IL_03CF: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_03D4: ldc.i4.s 16
+  IL_03D6: ldelem.i8 
+  IL_03D7: stelem.i8 
+  IL_03D8: ldarg.0 
+  IL_03D9: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_03DE: ldc.i4.s 16
+  IL_03E0: ldc.i4.0 
+  IL_03E1: conv.i8 
+  IL_03E2: stelem.i8 
+  IL_03E3: ldarg.0 
+  IL_03E4: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_03E9: ldloc.1 
+  IL_03EA: conv.u 
+  IL_03EB: ldarg.0 
+  IL_03EC: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_03F1: ldc.i4.s 16
+  IL_03F3: ldelem.i8 
+  IL_03F4: stelem.i8 
+  IL_03F5: ldarg.0 
+  IL_03F6: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_03FB: ldc.i4.s 16
+  IL_03FD: ldc.i4.0 
+  IL_03FE: conv.i8 
+  IL_03FF: stelem.i8 
+  IL_0400: ldc.i4.0 
+  IL_0401: conv.i8 
+  IL_0402: stloc.s V_25
+  IL_0404: ldc.i4.0 
+  IL_0405: conv.i8 
+  IL_0406: stloc.s V_26
+  IL_0408: ldc.i4.0 
+  IL_0409: stloc.s V_27
+  IL_040B: br IL_0432: ldloc.s V_27
+  IL_0410: ldloc.s V_25
+  IL_0412: ldarg.0 
+  IL_0413: ldfld System.Int64[] EconomyManager::m_totalIncome
+  IL_0418: ldloc.s V_27
+  IL_041A: ldelem.i8 
+  IL_041B: add 
+  IL_041C: stloc.s V_25
+  IL_041E: ldloc.s V_26
+  IL_0420: ldarg.0 
+  IL_0421: ldfld System.Int64[] EconomyManager::m_totalExpenses
+  IL_0426: ldloc.s V_27
+  IL_0428: ldelem.i8 
+  IL_0429: add 
+  IL_042A: stloc.s V_26
+  IL_042C: ldloc.s V_27
+  IL_042E: ldc.i4.1 
+  IL_042F: add 
+  IL_0430: stloc.s V_27
+  IL_0432: ldloc.s V_27
+  IL_0434: ldc.i4.s 16
+  IL_0436: blt IL_0410: ldloc.s V_25
+  IL_043B: ldarg.0 
+  IL_043C: ldarg.0 
+  IL_043D: ldfld EconomyWrapper EconomyManager::m_EconomyWrapper
+  IL_0442: ldarg.0 
+  IL_0443: ldfld System.Int64 EconomyManager::m_cashAmount
+  IL_0448: callvirt System.Int64 EconomyWrapper::OnUpdateMoneyAmount(System.Int64)
+  IL_044D: stfld System.Int64 EconomyManager::m_lastCashAmount
+  IL_0452: ldarg.0 
+  IL_0453: ldloc.s V_25
+  IL_0455: ldloc.s V_26
+  IL_0457: sub 
+  IL_0458: stfld System.Int64 EconomyManager::m_lastCashDelta
+  IL_045D: ldarg.0 
+  IL_045E: ldc.i4.0 
+  IL_045F: conv.i8 
+  IL_0460: stfld System.Int64 EconomyManager::m_cashDelta
+  IL_0465: ldloc.s V_26
+  IL_0467: ldc.i4.0 
+  IL_0468: conv.i8 
+  IL_0469: beq IL_057d: ldc.i4 10000
+  IL_046E: ldc.i4 200000
+  IL_0473: conv.i8 
+  IL_0474: stloc.s V_29
+  IL_0476: ldarg.0 
+  IL_0477: ldfld System.Int64 EconomyManager::m_lastCashDelta
+  IL_047C: ldloc.s V_29
+  IL_047E: sub 
+  IL_047F: ldc.i4 20000
+  IL_0484: conv.i8 
+  IL_0485: mul 
+  IL_0486: ldloc.s V_26
+  IL_0488: div 
+  IL_0489: stloc.s V_30
+  IL_048B: ldloc.s V_30
+  IL_048D: ldc.i4.0 
+  IL_048E: conv.i8 
+  IL_048F: ble IL_04b2: ldloc.s V_30
+  IL_0494: ldc.i4 5000
+  IL_0499: conv.i8 
+  IL_049A: ldc.i4 50000000
+  IL_049F: conv.i8 
+  IL_04A0: ldloc.s V_30
+  IL_04A2: ldc.i4 10000
+  IL_04A7: conv.i8 
+  IL_04A8: add 
+  IL_04A9: div 
+  IL_04AA: add 
+  IL_04AB: stloc.s V_28
+  IL_04AD: br IL_04e1: ldarg.0
+  IL_04B2: ldloc.s V_30
+  IL_04B4: ldc.i4.0 
+  IL_04B5: conv.i8 
+  IL_04B6: bge IL_04d9: ldc.i4 10000
+  IL_04BB: ldc.i4 20000
+  IL_04C0: conv.i8 
+  IL_04C1: ldc.i4 200000000
+  IL_04C6: conv.i8 
+  IL_04C7: ldloc.s V_30
+  IL_04C9: ldc.i4 20000
+  IL_04CE: conv.i8 
+  IL_04CF: sub 
+  IL_04D0: div 
+  IL_04D1: add 
+  IL_04D2: stloc.s V_28
+  IL_04D4: br IL_04e1: ldarg.0
+  IL_04D9: ldc.i4 10000
+  IL_04DE: conv.i8 
+  IL_04DF: stloc.s V_28
+  IL_04E1: ldarg.0 
+  IL_04E2: ldfld System.Int64 EconomyManager::m_cashAmount
+  IL_04E7: stloc.s V_31
+  IL_04E9: call !0 ColossalFramework.Singleton`1<DistrictManager>::get_instance()
+  IL_04EE: ldfld Array8`1<District> DistrictManager::m_districts
+  IL_04F3: ldfld T[] Array8`1<District>::m_buffer
+  IL_04F8: ldc.i4.0 
+  IL_04F9: ldelema District
+  IL_04FE: ldflda DistrictPopulationData District::m_populationData
+  IL_0503: ldfld System.UInt32 DistrictPopulationData::m_finalCount
+  IL_0508: conv.i8 
+  IL_0509: stloc.s V_32
+  IL_050B: ldloc.s V_31
+  IL_050D: ldc.i4.0 
+  IL_050E: conv.i8 
+  IL_050F: bge IL_0518: ldloc.s V_32
+  IL_0514: ldc.i4.0 
+  IL_0515: conv.i8 
+  IL_0516: stloc.s V_31
+  IL_0518: ldloc.s V_32
+  IL_051A: ldc.i4.0 
+  IL_051B: conv.i8 
+  IL_051C: bge IL_0525: ldloc.s V_28
+  IL_0521: ldc.i4.0 
+  IL_0522: conv.i8 
+  IL_0523: stloc.s V_32
+  IL_0525: ldloc.s V_28
+  IL_0527: ldc.i4 1000000000
+  IL_052C: conv.i8 
+  IL_052D: mul 
+  IL_052E: ldc.i4 1000000000
+  IL_0533: conv.i8 
+  IL_0534: ldloc.s V_31
+  IL_0536: add 
+  IL_0537: div 
+  IL_0538: stloc.s V_28
+  IL_053A: ldloc.s V_28
+  IL_053C: ldc.i4 1000000
+  IL_0541: conv.i8 
+  IL_0542: mul 
+  IL_0543: ldc.i4 1000000
+  IL_0548: conv.i8 
+  IL_0549: ldloc.s V_32
+  IL_054B: add 
+  IL_054C: div 
+  IL_054D: stloc.s V_28
+  IL_054F: ldloc.s V_28
+  IL_0551: ldc.i4.s 100
+  IL_0553: conv.i8 
+  IL_0554: bge IL_0563: ldloc.s V_28
+  IL_0559: ldc.i4.s 100
+  IL_055B: conv.i8 
+  IL_055C: stloc.s V_28
+  IL_055E: br IL_0578: br IL_0585
+  IL_0563: ldloc.s V_28
+  IL_0565: ldc.i4 30000
+  IL_056A: conv.i8 
+  IL_056B: ble IL_0578: br IL_0585
+  IL_0570: ldc.i4 30000
+  IL_0575: conv.i8 
+  IL_0576: stloc.s V_28
+  IL_0578: br IL_0585: ldarg.0
+  IL_057D: ldc.i4 10000
+  IL_0582: conv.i8 
+  IL_0583: stloc.s V_28
+  IL_0585: ldarg.0 
+  IL_0586: ldfld System.Int32 EconomyManager::m_taxMultiplier
+  IL_058B: conv.i8 
+  IL_058C: ldc.i4.s 99
+  IL_058E: conv.i8 
+  IL_058F: mul 
+  IL_0590: ldloc.s V_28
+  IL_0592: add 
+  IL_0593: ldc.i4.s 100
+  IL_0595: conv.i8 
+  IL_0596: div 
+  IL_0597: stloc.s V_28
+  IL_0599: ldarg.0 
+  IL_059A: ldloc.s V_28
+  IL_059C: conv.i4 
+  IL_059D: stfld System.Int32 EconomyManager::m_taxMultiplier
+  IL_05A2: ldloc.s V_17
+  IL_05A4: ldc.i4.3 
+  IL_05A5: callvirt StatisticBase StatisticsManager::Acquire<StatisticInt64>(StatisticType)
+  IL_05AA: stloc.s V_33
+  IL_05AC: ldloc.s V_33
+  IL_05AE: ldarg.0 
+  IL_05AF: ldfld System.Int64 EconomyManager::m_lastCashAmount
+  IL_05B4: callvirt System.Void StatisticBase::Set(System.Int64)
+  IL_05B9: ldloc.s V_17
+  IL_05BB: ldc.i4.s 22
+  IL_05BD: callvirt StatisticBase StatisticsManager::Acquire<StatisticInt64>(StatisticType)
+  IL_05C2: stloc.s V_34
+  IL_05C4: ldloc.s V_34
+  IL_05C6: ldloc.3 
+  IL_05C7: callvirt System.Void StatisticBase::Set(System.Int64)
+  IL_05CC: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+  IL_05D1: ldfld Properties SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+  IL_05D6: ldfld ItemClass/Availability ToolController::m_mode
+  IL_05DB: ldc.i4.1 
+  IL_05DC: and 
+  IL_05DD: brfalse IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_05E2: ldarg.0 
+  IL_05E3: ldfld System.Int64 EconomyManager::m_lastCashAmount
+  IL_05E8: ldarg.0 
+  IL_05E9: ldfld Properties SimulationManagerBase`2<EconomyManager,EconomyProperties>::m_properties
+  IL_05EE: ldfld System.Int32 EconomyProperties::m_bailoutLimit
+  IL_05F3: conv.i8 
+  IL_05F4: bgt IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_05F9: ldloc.s V_25
+  IL_05FB: ldloc.s V_26
+  IL_05FD: bge IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0602: ldarg.0 
+  IL_0603: ldfld System.Int32 EconomyManager::m_bailoutAccepted
+  IL_0608: ldarg.0 
+  IL_0609: ldfld Properties SimulationManagerBase`2<EconomyManager,EconomyProperties>::m_properties
+  IL_060E: ldfld System.Int32 EconomyProperties::m_maxBailoutCount
+  IL_0613: bge IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0618: ldarg.0 
+  IL_0619: ldfld System.Boolean EconomyManager::m_bailoutShowing
+  IL_061E: brtrue IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0623: ldarg.0 
+  IL_0624: ldfld System.UInt32 EconomyManager::m_lastBailoutFrame
+  IL_0629: conv.u8 
+  IL_062A: ldarg.0 
+  IL_062B: ldfld Properties SimulationManagerBase`2<EconomyManager,EconomyProperties>::m_properties
+  IL_0630: ldfld System.Int32 EconomyProperties::m_bailoutRepeatWeeks
+  IL_0635: ldc.i4.s 12
+  IL_0637: shl 
+  IL_0638: conv.i8 
+  IL_0639: add 
+  IL_063A: ldloc.0 
+  IL_063B: conv.u8 
+  IL_063C: bge IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_0641: ldarg.0 
+  IL_0642: ldloc.0 
+  IL_0643: stfld System.UInt32 EconomyManager::m_lastBailoutFrame
+  IL_0648: ldarg.0 
+  IL_0649: ldc.i4.1 
+  IL_064A: stfld System.Boolean EconomyManager::m_bailoutShowing
+  IL_064F: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_0654: ldarg.0 
+  IL_0655: ldftn System.Void EconomyManager::<SimulationStepImpl>m__1()
+  IL_065B: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_0660: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_0665: pop 
+  IL_0666: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+  IL_066B: ldfld Properties SimulationManagerBase`2<GuideManager,GuideController>::m_properties
+  IL_0670: stloc.s V_35
+  IL_0672: ldarg.1 
+  IL_0673: ldc.i4.1 
+  IL_0674: bgt IL_0777: ret
+  IL_0679: ldloc.s V_35
+  IL_067B: brfalse IL_0777: ret
+  IL_0680: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0685: ldfld System.UInt32 SimulationManager::m_currentTickIndex
+  IL_068A: ldc.i4 255
+  IL_068F: and 
+  IL_0690: stloc.s V_36
+  IL_0692: ldloc.s V_36
+  IL_0694: ldc.i4 130
+  IL_0699: beq IL_06af: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_069E: ldloc.s V_36
+  IL_06A0: ldc.i4 236
+  IL_06A5: beq IL_06d6: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_06AA: br IL_0777: ret
+  IL_06AF: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_06B4: ldc.i4.3 
+  IL_06B5: callvirt System.Boolean UnlockManager::Unlocked(UnlockManager/Feature)
+  IL_06BA: brfalse IL_06d1: br IL_0777
+  IL_06BF: ldarg.0 
+  IL_06C0: ldfld GenericGuide EconomyManager::m_economyNotUsedGuide
+  IL_06C5: ldloc.s V_35
+  IL_06C7: ldfld GuideInfo GuideController::m_economyNotUsed
+  IL_06CC: callvirt System.Void GenericGuide::Activate(GuideInfo)
+  IL_06D1: br IL_0777: ret
+  IL_06D6: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_06DB: ldc.i4.6 
+  IL_06DC: callvirt System.Boolean UnlockManager::Unlocked(UnlockManager/Feature)
+  IL_06E1: brfalse IL_0772: br IL_0777
+  IL_06E6: ldarg.0 
+  IL_06E7: ldfld System.Int64 EconomyManager::m_lastCashAmount
+  IL_06EC: ldc.i4 -100000
+  IL_06F1: conv.i8 
+  IL_06F2: cgt 
+  IL_06F4: ldc.i4.0 
+  IL_06F5: ceq 
+  IL_06F7: stloc.s V_37
+  IL_06F9: ldloc.s V_37
+  IL_06FB: brfalse IL_0749: ldloc.s V_37
+  IL_0700: ldarg.0 
+  IL_0701: call System.Int32 EconomyManager::CountLoans()
+  IL_0706: stloc.s V_38
+  IL_0708: ldloc.s V_38
+  IL_070A: ldc.i4.3 
+  IL_070B: blt IL_0718: ldloc.s V_38
+  IL_0710: ldc.i4.0 
+  IL_0711: stloc.s V_37
+  IL_0713: br IL_0749: ldloc.s V_37
+  IL_0718: ldloc.s V_38
+  IL_071A: ldc.i4.2 
+  IL_071B: bne.un IL_0733: ldloc.s V_38
+  IL_0720: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_0725: ldc.i4.s 13
+  IL_0727: callvirt System.Boolean UnlockManager::Unlocked(UnlockManager/Feature)
+  IL_072C: stloc.s V_37
+  IL_072E: br IL_0749: ldloc.s V_37
+  IL_0733: ldloc.s V_38
+  IL_0735: ldc.i4.1 
+  IL_0736: bne.un IL_0749: ldloc.s V_37
+  IL_073B: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+  IL_0740: ldc.i4.s 12
+  IL_0742: callvirt System.Boolean UnlockManager::Unlocked(UnlockManager/Feature)
+  IL_0747: stloc.s V_37
+  IL_0749: ldloc.s V_37
+  IL_074B: brfalse IL_0767: ldarg.0
+  IL_0750: ldarg.0 
+  IL_0751: ldfld GenericGuide EconomyManager::m_loanNeededGuide
+  IL_0756: ldloc.s V_35
+  IL_0758: ldfld GuideInfo GuideController::m_loanNeededGuide
+  IL_075D: callvirt System.Void GenericGuide::Activate(GuideInfo)
+  IL_0762: br IL_0772: br IL_0777
+  IL_0767: ldarg.0 
+  IL_0768: ldfld GenericGuide EconomyManager::m_loanNeededGuide
+  IL_076D: callvirt System.Void GuideTriggerBase::Deactivate()
+  IL_0772: br IL_0777: ret
+  IL_0777: ret 

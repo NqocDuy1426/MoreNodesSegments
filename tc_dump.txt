@@ -1,0 +1,601 @@
+=== FIELDS ===
+  ToolController/EditPrefabChanged eventEditPrefabChanged
+  ItemClass/Availability m_mode
+  PrefabInfo m_editPrefabInfo
+  UnityEngine.Material m_brushMaterial
+  UnityEngine.Texture2D[] m_brushes
+  UnityEngine.Color m_validColor
+  UnityEngine.Color m_warningColor
+  UnityEngine.Color m_errorColor
+  UnityEngine.Color m_validColorInfo
+  UnityEngine.Color m_warningColorInfo
+  UnityEngine.Color m_errorColorInfo
+  System.Boolean m_enableDevUI
+  PrefabInfo m_prevPrefabInfo
+  UnityEngine.Vector3[] m_prefabVertices
+  System.Int32[] m_prefabTriangles
+  DeveloperUI m_developerUI
+  PrefabInfo m_templatePrefabInfo
+  System.Boolean m_disablePropCollisions
+  ToolBase m_currentTool
+  ToolBase m_nextTool
+  UnityEngine.Texture2D m_brush
+  UnityEngine.Vector3 m_brushPosition
+  System.Single m_brushSize
+  System.Single[] m_brushData
+  ToolBase[] m_tools
+  UnityEngine.Material m_brushMaterial2
+  System.Int32 ID_BrushTex
+  System.Int32 ID_BrushWS
+  System.Boolean m_isInsideUI
+  System.Boolean m_hasInputFocus
+  System.UInt64[] m_collidingSegments1
+  System.UInt64[] m_collidingSegments2
+  System.UInt64[] m_collidingBuildings1
+  System.UInt64[] m_collidingBuildings2
+  System.Int32 m_collidingDepth
+  ColossalFramework.CursorInfo m_toolCursor
+  ColossalFramework.CursorInfo m_wasToolCursor
+  ColossalFramework.SavedInputKey m_Screenshot
+  ColossalFramework.SavedInputKey m_HiresScreenshot
+  ColossalFramework.SavedFloat m_MouseLightIntensity
+  System.String m_ScreenshotPath
+
+=== METHODS ===
+
+--- Awake ---
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerMain
+  IL_000a: ldstr "ToolController"
+  IL_000f: callvirt System.Void LoadingProfiler::BeginLoading(System.String)
+  IL_0014: ldarg.0
+  IL_0015: ldc.i4 4096
+  IL_001a: newarr System.Single
+  IL_001f: stfld System.Single[] ToolController::m_brushData
+  IL_0024: ldarg.0
+  IL_0025: ldarg.0
+  IL_0026: call !!0[] UnityEngine.Component::GetComponents<ToolBase>()
+  IL_002b: stfld ToolBase[] ToolController::m_tools
+  IL_0030: ldarg.0
+  IL_0031: ldarg.0
+  IL_0032: ldfld UnityEngine.Material ToolController::m_brushMaterial
+  IL_0037: newobj System.Void UnityEngine.Material::.ctor(UnityEngine.Material)
+  IL_003c: stfld UnityEngine.Material ToolController::m_brushMaterial2
+  IL_0041: ldarg.0
+  IL_0042: ldstr "_BrushTex"
+  IL_0047: call System.Int32 UnityEngine.Shader::PropertyToID(System.String)
+  IL_004c: stfld System.Int32 ToolController::ID_BrushTex
+  IL_0051: ldarg.0
+  IL_0052: ldstr "_BrushWS"
+  IL_0057: call System.Int32 UnityEngine.Shader::PropertyToID(System.String)
+  IL_005c: stfld System.Int32 ToolController::ID_BrushWS
+  IL_0061: ldarg.0
+  IL_0062: ldc.i4 576
+  IL_0067: newarr System.UInt64
+  IL_006c: stfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0071: ldarg.0
+  IL_0072: ldc.i4 576
+  IL_0077: newarr System.UInt64
+  IL_007c: stfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_0081: ldarg.0
+  IL_0082: ldc.i4 768
+  IL_0087: newarr System.UInt64
+  IL_008c: stfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_0091: ldarg.0
+  IL_0092: ldc.i4 768
+  IL_0097: newarr System.UInt64
+  IL_009c: stfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_00a1: ldarg.0
+  IL_00a2: ldc.i4.0
+  IL_00a3: stfld System.Int32 ToolController::m_collidingDepth
+  IL_00a8: ldarg.0
+  IL_00a9: ldarg.0
+  IL_00aa: call !!0 UnityEngine.Component::GetComponent<DefaultTool>()
+  IL_00af: call System.Void ToolController::set_CurrentTool(ToolBase)
+  IL_00b4: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+  IL_00b9: ldarg.0
+  IL_00ba: callvirt System.Void SimulationManagerBase`2<ToolManager,ToolController>::InitializeProperties(Properties)
+  IL_00bf: call System.Void ColossalFramework.UI.UIView::PopAllModal()
+  IL_00c4: ldarg.0
+  IL_00c5: call System.Boolean UnityEngine.Application::get_isEditor()
+  IL_00ca: stfld System.Boolean ToolController::m_enableDevUI
+  IL_00cf: ldarg.0
+  IL_00d0: ldfld System.Boolean ToolController::m_enableDevUI
+  IL_00d5: brtrue IL_012e
+  IL_00da: ldstr "dev"
+  IL_00df: call System.Boolean System.IO.File::Exists(System.String)
+  IL_00e4: brfalse IL_00f0
+  IL_00e9: ldarg.0
+  IL_00ea: ldc.i4.1
+  IL_00eb: stfld System.Boolean ToolController::m_enableDevUI
+  IL_00f0: ldsfld System.String[] ColossalFramework.CommandLine::arguments
+  IL_00f5: stloc.0
+  IL_00f6: ldloc.0
+  IL_00f7: brfalse IL_012e
+  IL_00fc: ldc.i4.0
+  IL_00fd: stloc.1
+  IL_00fe: br IL_0125
+  IL_0103: ldloc.0
+  IL_0104: ldloc.1
+  IL_0105: ldelem.ref
+  IL_0106: ldstr "--enable-dev-ui"
+  IL_010b: call System.Boolean System.String::op_Equality(System.String,System.String)
+  IL_0110: brfalse IL_0121
+  IL_0115: ldarg.0
+  IL_0116: ldc.i4.1
+  IL_0117: stfld System.Boolean ToolController::m_enableDevUI
+  IL_011c: br IL_012e
+  IL_0121: ldloc.1
+  IL_0122: ldc.i4.1
+  IL_0123: add
+  IL_0124: stloc.1
+  IL_0125: ldloc.1
+  IL_0126: ldloc.0
+  IL_0127: ldlen
+  IL_0128: conv.i4
+  IL_0129: blt IL_0103
+  IL_012e: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0133: ldarg.0
+  IL_0134: ldftn System.Void ToolController::ResetTool()
+  IL_013a: newobj System.Void LoadingManager/LevelPreLoadedHandler::.ctor(System.Object,System.IntPtr)
+  IL_013f: callvirt System.Void LoadingManager::add_m_levelPreLoaded(LoadingManager/LevelPreLoadedHandler)
+  IL_0144: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0149: ldfld LoadingProfiler LoadingManager::m_loadingProfilerMain
+  IL_014e: callvirt System.Void LoadingProfiler::EndLoading()
+  IL_0153: ret
+
+--- RenderCollidingNotifications ---
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0005: stloc.0
+  IL_0006: ldarg.0
+  IL_0007: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_000c: ldlen
+  IL_000d: conv.i4
+  IL_000e: stloc.1
+  IL_000f: ldc.i4.0
+  IL_0010: stloc.2
+  IL_0011: br IL_007b
+  IL_0016: ldarg.0
+  IL_0017: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_001c: ldloc.2
+  IL_001d: ldelem.i8
+  IL_001e: stloc.3
+  IL_001f: ldloc.3
+  IL_0020: ldc.i4.0
+  IL_0021: conv.i8
+  IL_0022: beq IL_0077
+  IL_0027: ldc.i4.0
+  IL_0028: stloc.s V_4
+  IL_002a: br IL_006e
+  IL_002f: ldloc.3
+  IL_0030: ldc.i4.1
+  IL_0031: conv.i8
+  IL_0032: ldloc.s V_4
+  IL_0034: ldc.i4.s 63
+  IL_0036: and
+  IL_0037: shl
+  IL_0038: and
+  IL_0039: ldc.i4.0
+  IL_003a: conv.i8
+  IL_003b: beq IL_0068
+  IL_0040: ldloc.2
+  IL_0041: ldc.i4.6
+  IL_0042: shl
+  IL_0043: ldloc.s V_4
+  IL_0045: or
+  IL_0046: stloc.s V_5
+  IL_0048: ldloc.s V_5
+  IL_004a: ldarg.2
+  IL_004b: beq IL_0068
+  IL_0050: ldarg.1
+  IL_0051: ldloc.0
+  IL_0052: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0057: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_005c: ldloc.s V_5
+  IL_005e: ldelema NetSegment
+  IL_0063: call System.Void NetTool::RenderBulldozeNotification(RenderManager/CameraInfo,NetSegment&)
+  IL_0068: ldloc.s V_4
+  IL_006a: ldc.i4.1
+  IL_006b: add
+  IL_006c: stloc.s V_4
+  IL_006e: ldloc.s V_4
+  IL_0070: ldc.i4.s 64
+  IL_0072: blt IL_002f
+  IL_0077: ldloc.2
+  IL_0078: ldc.i4.1
+  IL_0079: add
+  IL_007a: stloc.2
+  IL_007b: ldloc.2
+  IL_007c: ldloc.1
+  IL_007d: blt IL_0016
+  IL_0082: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+  IL_0087: stloc.s V_6
+  IL_0089: ldarg.0
+  IL_008a: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_008f: ldlen
+  IL_0090: conv.i4
+  IL_0091: stloc.1
+  IL_0092: ldc.i4.0
+  IL_0093: stloc.s V_7
+  IL_0095: br IL_0107
+  IL_009a: ldarg.0
+  IL_009b: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_00a0: ldloc.s V_7
+  IL_00a2: ldelem.i8
+  IL_00a3: stloc.s V_8
+  IL_00a5: ldloc.s V_8
+  IL_00a7: ldc.i4.0
+  IL_00a8: conv.i8
+  IL_00a9: beq IL_0101
+  IL_00ae: ldc.i4.0
+  IL_00af: stloc.s V_9
+  IL_00b1: br IL_00f8
+  IL_00b6: ldloc.s V_8
+  IL_00b8: ldc.i4.1
+  IL_00b9: conv.i8
+  IL_00ba: ldloc.s V_9
+  IL_00bc: ldc.i4.s 63
+  IL_00be: and
+  IL_00bf: shl
+  IL_00c0: and
+  IL_00c1: ldc.i4.0
+  IL_00c2: conv.i8
+  IL_00c3: beq IL_00f2
+  IL_00c8: ldloc.s V_7
+  IL_00ca: ldc.i4.6
+  IL_00cb: shl
+  IL_00cc: ldloc.s V_9
+  IL_00ce: or
+  IL_00cf: stloc.s V_10
+  IL_00d1: ldloc.s V_10
+  IL_00d3: ldarg.3
+  IL_00d4: beq IL_00f2
+  IL_00d9: ldarg.1
+  IL_00da: ldloc.s V_6
+  IL_00dc: ldfld Array16`1<Building> BuildingManager::m_buildings
+  IL_00e1: ldfld T[] Array16`1<Building>::m_buffer
+  IL_00e6: ldloc.s V_10
+  IL_00e8: ldelema Building
+  IL_00ed: call System.Void BuildingTool::RenderBulldozeNotification(RenderManager/CameraInfo,Building&)
+  IL_00f2: ldloc.s V_9
+  IL_00f4: ldc.i4.1
+  IL_00f5: add
+  IL_00f6: stloc.s V_9
+  IL_00f8: ldloc.s V_9
+  IL_00fa: ldc.i4.s 64
+  IL_00fc: blt IL_00b6
+  IL_0101: ldloc.s V_7
+  IL_0103: ldc.i4.1
+  IL_0104: add
+  IL_0105: stloc.s V_7
+  IL_0107: ldloc.s V_7
+  IL_0109: ldloc.1
+  IL_010a: blt IL_009a
+  IL_010f: ret
+
+--- RenderColliding ---
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0005: stloc.0
+  IL_0006: ldarg.0
+  IL_0007: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_000c: ldlen
+  IL_000d: conv.i4
+  IL_000e: stloc.1
+  IL_000f: ldc.i4.0
+  IL_0010: stloc.2
+  IL_0011: ldarg.s ignoreSegment
+  IL_0013: brfalse IL_0020
+  IL_0018: ldarg.s ignoreSegment
+  IL_001a: call System.UInt16 DefaultTool::FindSecondarySegment(System.UInt16)
+  IL_001f: stloc.2
+  IL_0020: ldc.i4.0
+  IL_0021: stloc.3
+  IL_0022: br IL_009a
+  IL_0027: ldarg.0
+  IL_0028: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_002d: ldloc.3
+  IL_002e: ldelem.i8
+  IL_002f: stloc.s V_4
+  IL_0031: ldloc.s V_4
+  IL_0033: ldc.i4.0
+  IL_0034: conv.i8
+  IL_0035: beq IL_0096
+  IL_003a: ldc.i4.0
+  IL_003b: stloc.s V_5
+  IL_003d: br IL_008d
+  IL_0042: ldloc.s V_4
+  IL_0044: ldc.i4.1
+  IL_0045: conv.i8
+  IL_0046: ldloc.s V_5
+  IL_0048: ldc.i4.s 63
+  IL_004a: and
+  IL_004b: shl
+  IL_004c: and
+  IL_004d: ldc.i4.0
+  IL_004e: conv.i8
+  IL_004f: beq IL_0087
+  IL_0054: ldloc.3
+  IL_0055: ldc.i4.6
+  IL_0056: shl
+  IL_0057: ldloc.s V_5
+  IL_0059: or
+  IL_005a: stloc.s V_6
+  IL_005c: ldloc.s V_6
+  IL_005e: ldarg.s ignoreSegment
+  IL_0060: beq IL_0087
+  IL_0065: ldloc.s V_6
+  IL_0067: ldloc.2
+  IL_0068: beq IL_0087
+  IL_006d: ldarg.1
+  IL_006e: ldloc.0
+  IL_006f: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0074: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0079: ldloc.s V_6
+  IL_007b: ldelema NetSegment
+  IL_0080: ldarg.2
+  IL_0081: ldarg.3
+  IL_0082: call System.Void NetTool::RenderOverlay(RenderManager/CameraInfo,NetSegment&,UnityEngine.Color,UnityEngine.Color)
+  IL_0087: ldloc.s V_5
+  IL_0089: ldc.i4.1
+  IL_008a: add
+  IL_008b: stloc.s V_5
+  IL_008d: ldloc.s V_5
+  IL_008f: ldc.i4.s 64
+  IL_0091: blt IL_0042
+  IL_0096: ldloc.3
+  IL_0097: ldc.i4.1
+  IL_0098: add
+  IL_0099: stloc.3
+  IL_009a: ldloc.3
+  IL_009b: ldloc.1
+  IL_009c: blt IL_0027
+  IL_00a1: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+  IL_00a6: stloc.s V_7
+  IL_00a8: ldarg.0
+  IL_00a9: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_00ae: ldlen
+  IL_00af: conv.i4
+  IL_00b0: stloc.1
+  IL_00b1: ldc.i4.0
+  IL_00b2: stloc.s V_8
+  IL_00b4: br IL_012b
+  IL_00b9: ldarg.0
+  IL_00ba: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_00bf: ldloc.s V_8
+  IL_00c1: ldelem.i8
+  IL_00c2: stloc.s V_9
+  IL_00c4: ldloc.s V_9
+  IL_00c6: ldc.i4.0
+  IL_00c7: conv.i8
+  IL_00c8: beq IL_0125
+  IL_00cd: ldc.i4.0
+  IL_00ce: stloc.s V_10
+  IL_00d0: br IL_011c
+  IL_00d5: ldloc.s V_9
+  IL_00d7: ldc.i4.1
+  IL_00d8: conv.i8
+  IL_00d9: ldloc.s V_10
+  IL_00db: ldc.i4.s 63
+  IL_00dd: and
+  IL_00de: shl
+  IL_00df: and
+  IL_00e0: ldc.i4.0
+  IL_00e1: conv.i8
+  IL_00e2: beq IL_0116
+  IL_00e7: ldloc.s V_8
+  IL_00e9: ldc.i4.6
+  IL_00ea: shl
+  IL_00eb: ldloc.s V_10
+  IL_00ed: or
+  IL_00ee: stloc.s V_11
+  IL_00f0: ldloc.s V_11
+  IL_00f2: ldarg.s ignoreBuilding
+  IL_00f4: beq IL_0116
+  IL_00f9: ldarg.1
+  IL_00fa: ldloc.s V_7
+  IL_00fc: ldfld Array16`1<Building> BuildingManager::m_buildings
+  IL_0101: ldfld T[] Array16`1<Building>::m_buffer
+  IL_0106: ldloc.s V_11
+  IL_0108: ldelema Building
+  IL_010d: ldarg.s importantBuildingColor
+  IL_010f: ldarg.s nonImportantBuildingColor
+  IL_0111: call System.Void BuildingTool::RenderOverlay(RenderManager/CameraInfo,Building&,UnityEngine.Color,UnityEngine.Color)
+  IL_0116: ldloc.s V_10
+  IL_0118: ldc.i4.1
+  IL_0119: add
+  IL_011a: stloc.s V_10
+  IL_011c: ldloc.s V_10
+  IL_011e: ldc.i4.s 64
+  IL_0120: blt IL_00d5
+  IL_0125: ldloc.s V_8
+  IL_0127: ldc.i4.1
+  IL_0128: add
+  IL_0129: stloc.s V_8
+  IL_012b: ldloc.s V_8
+  IL_012d: ldloc.1
+  IL_012e: blt IL_00b9
+  IL_0133: ret
+
+--- BeginColliding ---
+  IL_0000: ldarg.0
+  IL_0001: dup
+  IL_0002: ldfld System.Int32 ToolController::m_collidingDepth
+  IL_0007: dup
+  IL_0008: stloc.0
+  IL_0009: ldc.i4.1
+  IL_000a: add
+  IL_000b: stfld System.Int32 ToolController::m_collidingDepth
+  IL_0010: ldloc.0
+  IL_0011: brtrue IL_001c
+  IL_0016: ldarg.0
+  IL_0017: call System.Void ToolController::ResetColliding()
+  IL_001c: ldarg.1
+  IL_001d: ldarg.0
+  IL_001e: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0023: stind.ref
+  IL_0024: ldarg.2
+  IL_0025: ldarg.0
+  IL_0026: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_002b: stind.ref
+  IL_002c: ret
+
+--- ResetColliding ---
+  IL_0000: ldarg.0
+  IL_0001: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0006: ldlen
+  IL_0007: conv.i4
+  IL_0008: stloc.0
+  IL_0009: ldc.i4.0
+  IL_000a: stloc.1
+  IL_000b: br IL_001e
+  IL_0010: ldarg.0
+  IL_0011: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0016: ldloc.1
+  IL_0017: ldc.i4.0
+  IL_0018: conv.i8
+  IL_0019: stelem.i8
+  IL_001a: ldloc.1
+  IL_001b: ldc.i4.1
+  IL_001c: add
+  IL_001d: stloc.1
+  IL_001e: ldloc.1
+  IL_001f: ldloc.0
+  IL_0020: blt IL_0010
+  IL_0025: ldarg.0
+  IL_0026: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_002b: ldlen
+  IL_002c: conv.i4
+  IL_002d: stloc.0
+  IL_002e: ldc.i4.0
+  IL_002f: stloc.2
+  IL_0030: br IL_0043
+  IL_0035: ldarg.0
+  IL_0036: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_003b: ldloc.2
+  IL_003c: ldc.i4.0
+  IL_003d: conv.i8
+  IL_003e: stelem.i8
+  IL_003f: ldloc.2
+  IL_0040: ldc.i4.1
+  IL_0041: add
+  IL_0042: stloc.2
+  IL_0043: ldloc.2
+  IL_0044: ldloc.0
+  IL_0045: blt IL_0035
+  IL_004a: ret
+
+--- EndColliding ---
+  IL_0000: ldarg.0
+  IL_0001: dup
+  IL_0002: ldfld System.Int32 ToolController::m_collidingDepth
+  IL_0007: ldc.i4.1
+  IL_0008: sub
+  IL_0009: dup
+  IL_000a: stloc.0
+  IL_000b: stfld System.Int32 ToolController::m_collidingDepth
+  IL_0010: ldloc.0
+  IL_0011: brtrue IL_006c
+  IL_0016: ldarg.0
+  IL_0017: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_001c: ldlen
+  IL_001d: conv.i4
+  IL_001e: stloc.1
+  IL_001f: ldc.i4.0
+  IL_0020: stloc.2
+  IL_0021: br IL_003a
+  IL_0026: ldarg.0
+  IL_0027: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_002c: ldloc.2
+  IL_002d: ldarg.0
+  IL_002e: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0033: ldloc.2
+  IL_0034: ldelem.i8
+  IL_0035: stelem.i8
+  IL_0036: ldloc.2
+  IL_0037: ldc.i4.1
+  IL_0038: add
+  IL_0039: stloc.2
+  IL_003a: ldloc.2
+  IL_003b: ldloc.1
+  IL_003c: blt IL_0026
+  IL_0041: ldarg.0
+  IL_0042: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_0047: ldlen
+  IL_0048: conv.i4
+  IL_0049: stloc.1
+  IL_004a: ldc.i4.0
+  IL_004b: stloc.3
+  IL_004c: br IL_0065
+  IL_0051: ldarg.0
+  IL_0052: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_0057: ldloc.3
+  IL_0058: ldarg.0
+  IL_0059: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_005e: ldloc.3
+  IL_005f: ldelem.i8
+  IL_0060: stelem.i8
+  IL_0061: ldloc.3
+  IL_0062: ldc.i4.1
+  IL_0063: add
+  IL_0064: stloc.3
+  IL_0065: ldloc.3
+  IL_0066: ldloc.1
+  IL_0067: blt IL_0051
+  IL_006c: ret
+
+--- ClearColliding ---
+  IL_0000: ldarg.0
+  IL_0001: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0006: ldlen
+  IL_0007: conv.i4
+  IL_0008: stloc.0
+  IL_0009: ldc.i4.0
+  IL_000a: stloc.1
+  IL_000b: br IL_0028
+  IL_0010: ldarg.0
+  IL_0011: ldfld System.UInt64[] ToolController::m_collidingSegments1
+  IL_0016: ldloc.1
+  IL_0017: ldc.i4.0
+  IL_0018: conv.i8
+  IL_0019: stelem.i8
+  IL_001a: ldarg.0
+  IL_001b: ldfld System.UInt64[] ToolController::m_collidingSegments2
+  IL_0020: ldloc.1
+  IL_0021: ldc.i4.0
+  IL_0022: conv.i8
+  IL_0023: stelem.i8
+  IL_0024: ldloc.1
+  IL_0025: ldc.i4.1
+  IL_0026: add
+  IL_0027: stloc.1
+  IL_0028: ldloc.1
+  IL_0029: ldloc.0
+  IL_002a: blt IL_0010
+  IL_002f: ldarg.0
+  IL_0030: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_0035: ldlen
+  IL_0036: conv.i4
+  IL_0037: stloc.0
+  IL_0038: ldc.i4.0
+  IL_0039: stloc.2
+  IL_003a: br IL_0057
+  IL_003f: ldarg.0
+  IL_0040: ldfld System.UInt64[] ToolController::m_collidingBuildings1
+  IL_0045: ldloc.2
+  IL_0046: ldc.i4.0
+  IL_0047: conv.i8
+  IL_0048: stelem.i8
+  IL_0049: ldarg.0
+  IL_004a: ldfld System.UInt64[] ToolController::m_collidingBuildings2
+  IL_004f: ldloc.2
+  IL_0050: ldc.i4.0
+  IL_0051: conv.i8
+  IL_0052: stelem.i8
+  IL_0053: ldloc.2
+  IL_0054: ldc.i4.1
+  IL_0055: add
+  IL_0056: stloc.2
+  IL_0057: ldloc.2
+  IL_0058: ldloc.0
+  IL_0059: blt IL_003f
+  IL_005e: ret

@@ -1,0 +1,239 @@
+IL_0000: ldarg.1 
+IL_0001: ldfld System.UInt32 NetSegment::m_path
+IL_0006: brtrue IL_001b: ldarg.1
+IL_000B: ldarg.0 
+IL_000C: ldarg.1 
+IL_000D: ldarg.2 
+IL_000E: ldarg.3 
+IL_000F: ldarg.s vehicleType
+IL_0011: ldarg.s vehicleCategory
+IL_0013: ldarg.s skipQueue
+IL_0015: call System.Boolean TransportLineAI::StartPathFind(System.UInt16,NetSegment&,ItemClass/Service,ItemClass/Service,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Boolean)
+IL_001A: ret 
+IL_001B: ldarg.1 
+IL_001C: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0021: ldc.i4 256
+IL_0026: and 
+IL_0027: brfalse IL_02c9: ldc.i4.1
+IL_002C: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_0031: stloc.0 
+IL_0032: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0037: stloc.1 
+IL_0038: ldloc.0 
+IL_0039: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_003E: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_0043: ldarg.1 
+IL_0044: ldfld System.UInt32 NetSegment::m_path
+IL_0049: conv.u 
+IL_004A: ldelema PathUnit
+IL_004F: ldfld System.Byte PathUnit::m_pathFindFlags
+IL_0054: stloc.2 
+IL_0055: ldloc.2 
+IL_0056: ldc.i4.4 
+IL_0057: and 
+IL_0058: brfalse IL_01f6: ldloc.2
+IL_005D: ldc.r4 1
+IL_0062: stloc.3 
+IL_0063: ldloc.0 
+IL_0064: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0069: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_006E: ldarg.1 
+IL_006F: ldfld System.UInt32 NetSegment::m_path
+IL_0074: conv.u 
+IL_0075: ldelema PathUnit
+IL_007A: ldc.i4.0 
+IL_007B: ldloca.s V_4
+IL_007D: call System.Boolean PathUnit::GetPosition(System.Int32,PathUnit/Position&)
+IL_0082: brfalse IL_00a0: ldloc.0
+IL_0087: ldarg.1 
+IL_0088: ldfld System.UInt16 NetSegment::m_startNode
+IL_008D: ldloc.s V_4
+IL_008F: call UnityEngine.Vector3 TransportLineAI::CheckNodePosition(System.UInt16,PathUnit/Position)
+IL_0094: stloc.s V_5
+IL_0096: ldarg.s vehicleType
+IL_0098: ldloc.s V_5
+IL_009A: call System.Single TransportLineAI::GetCostMultiplier(VehicleInfo/VehicleType,UnityEngine.Vector3)
+IL_009F: stloc.3 
+IL_00A0: ldloc.0 
+IL_00A1: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_00A6: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_00AB: ldarg.1 
+IL_00AC: ldfld System.UInt32 NetSegment::m_path
+IL_00B1: conv.u 
+IL_00B2: ldelema PathUnit
+IL_00B7: ldloca.s V_4
+IL_00B9: call System.Boolean PathUnit::GetLastPosition(PathUnit/Position&)
+IL_00BE: brfalse IL_00d1: ldloc.0
+IL_00C3: ldarg.1 
+IL_00C4: ldfld System.UInt16 NetSegment::m_endNode
+IL_00C9: ldloc.s V_4
+IL_00CB: call UnityEngine.Vector3 TransportLineAI::CheckNodePosition(System.UInt16,PathUnit/Position)
+IL_00D0: pop 
+IL_00D1: ldloc.0 
+IL_00D2: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_00D7: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_00DC: ldarg.1 
+IL_00DD: ldfld System.UInt32 NetSegment::m_path
+IL_00E2: conv.u 
+IL_00E3: ldelema PathUnit
+IL_00E8: ldfld System.Single PathUnit::m_length
+IL_00ED: stloc.s V_6
+IL_00EF: ldloc.s V_6
+IL_00F1: ldarg.1 
+IL_00F2: ldfld System.Single NetSegment::m_averageLength
+IL_00F7: beq IL_0134: ldarg.1
+IL_00FC: ldarg.1 
+IL_00FD: ldloc.s V_6
+IL_00FF: stfld System.Single NetSegment::m_averageLength
+IL_0104: ldloc.1 
+IL_0105: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_010A: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_010F: ldarg.1 
+IL_0110: ldfld System.UInt16 NetSegment::m_startNode
+IL_0115: ldelema NetNode
+IL_011A: ldfld System.UInt16 NetNode::m_transportLine
+IL_011F: stloc.s V_7
+IL_0121: ldloc.s V_7
+IL_0123: brfalse IL_0134: ldarg.1
+IL_0128: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_012D: ldloc.s V_7
+IL_012F: callvirt System.Void TransportManager::UpdateLine(System.UInt16)
+IL_0134: ldarg.1 
+IL_0135: ldfld System.UInt32 NetSegment::m_lanes
+IL_013A: brfalse IL_01b7: ldarg.1
+IL_013F: ldloc.3 
+IL_0140: ldc.r4 100
+IL_0145: ldc.i4.1 
+IL_0146: ldloc.0 
+IL_0147: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_014C: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_0151: ldarg.1 
+IL_0152: ldfld System.UInt32 NetSegment::m_path
+IL_0157: conv.u 
+IL_0158: ldelema PathUnit
+IL_015D: ldfld System.Byte PathUnit::m_speed
+IL_0162: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+IL_0167: conv.r4 
+IL_0168: div 
+IL_0169: mul 
+IL_016A: stloc.3 
+IL_016B: ldarg.s vehicleType
+IL_016D: ldc.i4.s 16
+IL_016F: bne.un IL_0193: ldloc.1
+IL_0174: ldloc.3 
+IL_0175: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_017A: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+IL_017F: ldc.i4.1 
+IL_0180: ldc.i4 500
+IL_0185: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.Int32,System.Int32)
+IL_018A: conv.r4 
+IL_018B: ldc.r4 100
+IL_0190: div 
+IL_0191: mul 
+IL_0192: stloc.3 
+IL_0193: ldloc.1 
+IL_0194: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0199: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_019E: ldarg.1 
+IL_019F: ldfld System.UInt32 NetSegment::m_lanes
+IL_01A4: conv.u 
+IL_01A5: ldelema NetLane
+IL_01AA: ldarg.1 
+IL_01AB: ldfld System.Single NetSegment::m_averageLength
+IL_01B0: ldloc.3 
+IL_01B1: mul 
+IL_01B2: stfld System.Single NetLane::m_length
+IL_01B7: ldarg.1 
+IL_01B8: dup 
+IL_01B9: ldfld NetSegment/Flags NetSegment::m_flags
+IL_01BE: ldc.i4 -257
+IL_01C3: and 
+IL_01C4: stfld NetSegment/Flags NetSegment::m_flags
+IL_01C9: ldarg.1 
+IL_01CA: dup 
+IL_01CB: ldfld NetSegment/Flags NetSegment::m_flags
+IL_01D0: ldc.i4 -513
+IL_01D5: and 
+IL_01D6: stfld NetSegment/Flags NetSegment::m_flags
+IL_01DB: ldarg.1 
+IL_01DC: dup 
+IL_01DD: ldfld NetSegment/Flags NetSegment::m_flags
+IL_01E2: ldc.i4 1024
+IL_01E7: or 
+IL_01E8: stfld NetSegment/Flags NetSegment::m_flags
+IL_01ED: ldarg.0 
+IL_01EE: ldarg.1 
+IL_01EF: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_01F4: ldc.i4.1 
+IL_01F5: ret 
+IL_01F6: ldloc.2 
+IL_01F7: ldc.i4.8 
+IL_01F8: and 
+IL_01F9: brfalse IL_02c7: ldc.i4.0
+IL_01FE: ldloc.1 
+IL_01FF: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0204: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0209: ldarg.1 
+IL_020A: ldfld System.UInt16 NetSegment::m_startNode
+IL_020F: ldelema NetNode
+IL_0214: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0219: stloc.s V_8
+IL_021B: ldloc.1 
+IL_021C: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0221: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0226: ldarg.1 
+IL_0227: ldfld System.UInt16 NetSegment::m_endNode
+IL_022C: ldelema NetNode
+IL_0231: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0236: stloc.s V_9
+IL_0238: ldloc.s V_8
+IL_023A: ldloc.s V_9
+IL_023C: call System.Single UnityEngine.Vector3::Distance(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0241: stloc.s V_10
+IL_0243: ldloc.s V_10
+IL_0245: ldarg.1 
+IL_0246: ldfld System.Single NetSegment::m_averageLength
+IL_024B: beq IL_0288: ldarg.1
+IL_0250: ldarg.1 
+IL_0251: ldloc.s V_10
+IL_0253: stfld System.Single NetSegment::m_averageLength
+IL_0258: ldloc.1 
+IL_0259: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_025E: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0263: ldarg.1 
+IL_0264: ldfld System.UInt16 NetSegment::m_startNode
+IL_0269: ldelema NetNode
+IL_026E: ldfld System.UInt16 NetNode::m_transportLine
+IL_0273: stloc.s V_11
+IL_0275: ldloc.s V_11
+IL_0277: brfalse IL_0288: ldarg.1
+IL_027C: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_0281: ldloc.s V_11
+IL_0283: callvirt System.Void TransportManager::UpdateLine(System.UInt16)
+IL_0288: ldarg.1 
+IL_0289: dup 
+IL_028A: ldfld NetSegment/Flags NetSegment::m_flags
+IL_028F: ldc.i4 -257
+IL_0294: and 
+IL_0295: stfld NetSegment/Flags NetSegment::m_flags
+IL_029A: ldarg.1 
+IL_029B: dup 
+IL_029C: ldfld NetSegment/Flags NetSegment::m_flags
+IL_02A1: ldc.i4 512
+IL_02A6: or 
+IL_02A7: stfld NetSegment/Flags NetSegment::m_flags
+IL_02AC: ldarg.1 
+IL_02AD: dup 
+IL_02AE: ldfld NetSegment/Flags NetSegment::m_flags
+IL_02B3: ldc.i4 1024
+IL_02B8: or 
+IL_02B9: stfld NetSegment/Flags NetSegment::m_flags
+IL_02BE: ldarg.0 
+IL_02BF: ldarg.1 
+IL_02C0: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_02C5: ldc.i4.1 
+IL_02C6: ret 
+IL_02C7: ldc.i4.0 
+IL_02C8: ret 
+IL_02C9: ldc.i4.1 
+IL_02CA: ret 

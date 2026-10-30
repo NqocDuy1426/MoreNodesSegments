@@ -1,0 +1,700 @@
+=== NetManager.UpdateColorMap (1 params) ===
+Texture2D colorMap, 
+  IL_0000: ldarg.0 
+  IL_0001: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_0006: ldfld System.Int32 FastList`1<InstanceID>::m_size
+  IL_000B: brfalse IL_0085: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_0010: br IL_0015: ldarg.0
+  IL_0015: ldarg.0 
+  IL_0016: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_001B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0020: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0025: brfalse IL_0015: ldarg.0
+  IL_002A: ldc.i4.0 
+  IL_002B: stloc.0 
+  IL_002C: br IL_0057: ldloc.0
+  IL_0031: ldarg.0 
+  IL_0032: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_0037: ldarg.0 
+  IL_0038: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_003D: ldfld T[] FastList`1<InstanceID>::m_buffer
+  IL_0042: ldloc.0 
+  IL_0043: ldelema InstanceID
+  IL_0048: ldobj InstanceID
+  IL_004D: callvirt System.Boolean System.Collections.Generic.HashSet`1<InstanceID>::Add(!0)
+  IL_0052: pop 
+  IL_0053: ldloc.0 
+  IL_0054: ldc.i4.1 
+  IL_0055: add 
+  IL_0056: stloc.0 
+  IL_0057: ldloc.0 
+  IL_0058: ldarg.0 
+  IL_0059: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_005E: ldfld System.Int32 FastList`1<InstanceID>::m_size
+  IL_0063: blt IL_0031: ldarg.0
+  IL_0068: ldarg.0 
+  IL_0069: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_006E: ldc.i4.0 
+  IL_006F: stfld System.Int32 FastList`1<InstanceID>::m_size
+  IL_0074: leave IL_0085: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_0079: ldarg.0 
+  IL_007A: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_007F: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0084: endfinally 
+  IL_0085: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_008A: callvirt InfoManager/InfoMode InfoManager::get_CurrentMode()
+  IL_008F: stloc.1 
+  IL_0090: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_0095: callvirt InfoManager/SubInfoMode InfoManager::get_CurrentSubMode()
+  IL_009A: stloc.2 
+  IL_009B: ldloc.1 
+  IL_009C: brfalse IL_00ac: ldarg.0
+  IL_00A1: ldarg.0 
+  IL_00A2: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_00A7: callvirt System.Void System.Collections.Generic.HashSet`1<InstanceID>::Clear()
+  IL_00AC: ldarg.0 
+  IL_00AD: ldfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_00B2: ldarg.0 
+  IL_00B3: ldfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_00B8: bge IL_00de: call !0 ColossalFramework.Singleton`1<CoverageManager>::get_instance()
+  IL_00BD: ldarg.0 
+  IL_00BE: ldfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_00C3: ldarg.0 
+  IL_00C4: ldfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_00C9: bge IL_00de: call !0 ColossalFramework.Singleton`1<CoverageManager>::get_instance()
+  IL_00CE: ldarg.0 
+  IL_00CF: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_00D4: callvirt System.Int32 System.Collections.Generic.HashSet`1<InstanceID>::get_Count()
+  IL_00D9: brfalse IL_0716: ldc.i4.0
+  IL_00DE: call !0 ColossalFramework.Singleton`1<CoverageManager>::get_instance()
+  IL_00E3: callvirt System.Boolean CoverageManager::WaitingForIt()
+  IL_00E8: brfalse IL_00ef: br IL_00f4
+  IL_00ED: ldc.i4.0 
+  IL_00EE: ret 
+  IL_00EF: br IL_00f4: ldarg.0
+  IL_00F4: ldarg.0 
+  IL_00F5: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_00FA: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_00FF: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0104: brfalse IL_00f4: ldarg.0
+  IL_0109: ldarg.0 
+  IL_010A: ldfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_010F: stloc.3 
+  IL_0110: ldarg.0 
+  IL_0111: ldfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_0116: stloc.s V_4
+  IL_0118: ldarg.0 
+  IL_0119: ldfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_011E: stloc.s V_5
+  IL_0120: ldarg.0 
+  IL_0121: ldfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_0126: stloc.s V_6
+  IL_0128: ldarg.0 
+  IL_0129: ldc.i4 36864
+  IL_012E: stfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_0133: ldarg.0 
+  IL_0134: ldc.i4.m1 
+  IL_0135: stfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_013A: ldarg.0 
+  IL_013B: ldc.i4 32768
+  IL_0140: stfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_0145: ldarg.0 
+  IL_0146: ldc.i4.m1 
+  IL_0147: stfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_014C: leave IL_015d: ldloc.3
+  IL_0151: ldarg.0 
+  IL_0152: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_0157: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_015C: endfinally 
+  IL_015D: ldloc.3 
+  IL_015E: stloc.s V_7
+  IL_0160: br IL_0218: ldloc.s V_7
+  IL_0165: ldarg.0 
+  IL_0166: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_016B: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0170: ldloc.s V_7
+  IL_0172: ldelema NetSegment
+  IL_0177: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_017C: brfalse IL_0212: ldloc.s V_7
+  IL_0181: ldsfld InstanceID InstanceID::Empty
+  IL_0186: stloc.s V_8
+  IL_0188: ldloca.s V_8
+  IL_018A: ldloc.s V_7
+  IL_018C: conv.u2 
+  IL_018D: call System.Void InstanceID::set_NetSegment(System.UInt16)
+  IL_0192: ldarg.0 
+  IL_0193: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_0198: ldloc.s V_8
+  IL_019A: callvirt System.Boolean System.Collections.Generic.HashSet`1<InstanceID>::Contains(!0)
+  IL_019F: brtrue IL_0212: ldloc.s V_7
+  IL_01A4: ldc.i4 49152
+  IL_01A9: ldloc.s V_7
+  IL_01AB: add 
+  IL_01AC: ldloca.s V_9
+  IL_01AE: ldloca.s V_10
+  IL_01B0: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_01B5: ldarg.0 
+  IL_01B6: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_01BB: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_01C0: ldloc.s V_7
+  IL_01C2: ldelema NetSegment
+  IL_01C7: call NetInfo NetSegment::get_Info()
+  IL_01CC: stloc.s V_11
+  IL_01CE: ldloc.s V_11
+  IL_01D0: brfalse IL_0212: ldloc.s V_7
+  IL_01D5: ldloc.s V_11
+  IL_01D7: ldfld NetAI NetInfo::m_netAI
+  IL_01DC: brfalse IL_0212: ldloc.s V_7
+  IL_01E1: ldloc.s V_11
+  IL_01E3: ldfld NetAI NetInfo::m_netAI
+  IL_01E8: ldloc.s V_7
+  IL_01EA: conv.u2 
+  IL_01EB: ldarg.0 
+  IL_01EC: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_01F1: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_01F6: ldloc.s V_7
+  IL_01F8: ldelema NetSegment
+  IL_01FD: ldloc.1 
+  IL_01FE: ldloc.2 
+  IL_01FF: callvirt UnityEngine.Color NetAI::GetColor(System.UInt16,NetSegment&,InfoManager/InfoMode,InfoManager/SubInfoMode)
+  IL_0204: stloc.s V_12
+  IL_0206: ldarg.1 
+  IL_0207: ldloc.s V_9
+  IL_0209: ldloc.s V_10
+  IL_020B: ldloc.s V_12
+  IL_020D: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_0212: ldloc.s V_7
+  IL_0214: ldc.i4.1 
+  IL_0215: add 
+  IL_0216: stloc.s V_7
+  IL_0218: ldloc.s V_7
+  IL_021A: ldloc.s V_4
+  IL_021C: ble IL_0165: ldarg.0
+  IL_0221: ldloc.s V_5
+  IL_0223: stloc.s V_13
+  IL_0225: br IL_02dd: ldloc.s V_13
+  IL_022A: ldarg.0 
+  IL_022B: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0230: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0235: ldloc.s V_13
+  IL_0237: ldelema NetNode
+  IL_023C: ldfld NetNode/Flags NetNode::m_flags
+  IL_0241: brfalse IL_02d7: ldloc.s V_13
+  IL_0246: ldsfld InstanceID InstanceID::Empty
+  IL_024B: stloc.s V_14
+  IL_024D: ldloca.s V_14
+  IL_024F: ldloc.s V_13
+  IL_0251: conv.u2 
+  IL_0252: call System.Void InstanceID::set_NetNode(System.UInt16)
+  IL_0257: ldarg.0 
+  IL_0258: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_025D: ldloc.s V_14
+  IL_025F: callvirt System.Boolean System.Collections.Generic.HashSet`1<InstanceID>::Contains(!0)
+  IL_0264: brtrue IL_02d7: ldloc.s V_13
+  IL_0269: ldc.i4 86016
+  IL_026E: ldloc.s V_13
+  IL_0270: add 
+  IL_0271: ldloca.s V_15
+  IL_0273: ldloca.s V_16
+  IL_0275: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_027A: ldarg.0 
+  IL_027B: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0280: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0285: ldloc.s V_13
+  IL_0287: ldelema NetNode
+  IL_028C: call NetInfo NetNode::get_Info()
+  IL_0291: stloc.s V_17
+  IL_0293: ldloc.s V_17
+  IL_0295: brfalse IL_02d7: ldloc.s V_13
+  IL_029A: ldloc.s V_17
+  IL_029C: ldfld NetAI NetInfo::m_netAI
+  IL_02A1: brfalse IL_02d7: ldloc.s V_13
+  IL_02A6: ldloc.s V_17
+  IL_02A8: ldfld NetAI NetInfo::m_netAI
+  IL_02AD: ldloc.s V_13
+  IL_02AF: conv.u2 
+  IL_02B0: ldarg.0 
+  IL_02B1: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_02B6: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_02BB: ldloc.s V_13
+  IL_02BD: ldelema NetNode
+  IL_02C2: ldloc.1 
+  IL_02C3: ldloc.2 
+  IL_02C4: callvirt UnityEngine.Color NetAI::GetColor(System.UInt16,NetNode&,InfoManager/InfoMode,InfoManager/SubInfoMode)
+  IL_02C9: stloc.s V_18
+  IL_02CB: ldarg.1 
+  IL_02CC: ldloc.s V_15
+  IL_02CE: ldloc.s V_16
+  IL_02D0: ldloc.s V_18
+  IL_02D2: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_02D7: ldloc.s V_13
+  IL_02D9: ldc.i4.1 
+  IL_02DA: add 
+  IL_02DB: stloc.s V_13
+  IL_02DD: ldloc.s V_13
+  IL_02DF: ldloc.s V_6
+  IL_02E1: ble IL_022a: ldarg.0
+  IL_02E6: ldloc.3 
+  IL_02E7: brtrue IL_032d: ldloc.s V_5
+  IL_02EC: ldc.i4 49152
+  IL_02F1: ldloca.s V_19
+  IL_02F3: ldloca.s V_20
+  IL_02F5: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_02FA: ldloc.1 
+  IL_02FB: brfalse IL_031e: ldarg.1
+  IL_0300: ldarg.1 
+  IL_0301: ldloc.s V_19
+  IL_0303: ldloc.s V_20
+  IL_0305: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_030A: ldfld Properties SimulationManagerBase`2<InfoManager,InfoProperties>::m_properties
+  IL_030F: ldfld UnityEngine.Color InfoProperties::m_neutralColor
+  IL_0314: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_0319: br IL_032d: ldloc.s V_5
+  IL_031E: ldarg.1 
+  IL_031F: ldloc.s V_19
+  IL_0321: ldloc.s V_20
+  IL_0323: call UnityEngine.Color UnityEngine.Color::get_white()
+  IL_0328: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_032D: ldloc.s V_5
+  IL_032F: brtrue IL_0375: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0334: ldc.i4 86016
+  IL_0339: ldloca.s V_21
+  IL_033B: ldloca.s V_22
+  IL_033D: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_0342: ldloc.1 
+  IL_0343: brfalse IL_0366: ldarg.1
+  IL_0348: ldarg.1 
+  IL_0349: ldloc.s V_21
+  IL_034B: ldloc.s V_22
+  IL_034D: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+  IL_0352: ldfld Properties SimulationManagerBase`2<InfoManager,InfoProperties>::m_properties
+  IL_0357: ldfld UnityEngine.Color InfoProperties::m_neutralColor
+  IL_035C: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_0361: br IL_0375: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0366: ldarg.1 
+  IL_0367: ldloc.s V_21
+  IL_0369: ldloc.s V_22
+  IL_036B: call UnityEngine.Color UnityEngine.Color::get_white()
+  IL_0370: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_0375: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_037A: ldfld System.Single SimulationManager::m_simulationTimeDelta
+  IL_037F: stloc.s V_23
+  IL_0381: ldarg.0 
+  IL_0382: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_0387: callvirt System.Int32 System.Collections.Generic.HashSet`1<InstanceID>::get_Count()
+  IL_038C: brfalse IL_0714: ldc.i4.1
+  IL_0391: ldloc.s V_23
+  IL_0393: ldc.r4 0
+  IL_0398: ble.un IL_0714: ldc.i4.1
+  IL_039D: ldc.r4 1
+  IL_03A2: ldc.r4 0,5
+  IL_03A7: ldloc.s V_23
+  IL_03A9: call System.Single UnityEngine.Mathf::Pow(System.Single,System.Single)
+  IL_03AE: sub 
+  IL_03AF: stloc.s V_24
+  IL_03B1: ldarg.0 
+  IL_03B2: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_03B7: callvirt System.Collections.Generic.HashSet`1/Enumerator<!0> System.Collections.Generic.HashSet`1<InstanceID>::GetEnumerator()
+  IL_03BC: stloc.s V_26
+  IL_03BE: br IL_06a6: ldloca.s V_26
+  IL_03C3: ldloca.s V_26
+  IL_03C5: call !0 System.Collections.Generic.HashSet`1/Enumerator<InstanceID>::get_Current()
+  IL_03CA: stloc.s V_25
+  IL_03CC: call UnityEngine.Color UnityEngine.Color::get_white()
+  IL_03D1: stloc.s V_29
+  IL_03D3: ldloca.s V_25
+  IL_03D5: call System.UInt16 InstanceID::get_NetNode()
+  IL_03DA: brfalse IL_0459: ldc.i4 49152
+  IL_03DF: ldc.i4 86016
+  IL_03E4: ldloca.s V_25
+  IL_03E6: call System.UInt16 InstanceID::get_NetNode()
+  IL_03EB: add 
+  IL_03EC: ldloca.s V_27
+  IL_03EE: ldloca.s V_28
+  IL_03F0: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_03F5: ldarg.0 
+  IL_03F6: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_03FB: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0400: ldloca.s V_25
+  IL_0402: call System.UInt16 InstanceID::get_NetNode()
+  IL_0407: ldelema NetNode
+  IL_040C: call NetInfo NetNode::get_Info()
+  IL_0411: stloc.s V_30
+  IL_0413: ldloc.s V_30
+  IL_0415: brfalse IL_0454: br IL_04ce
+  IL_041A: ldloc.s V_30
+  IL_041C: ldfld NetAI NetInfo::m_netAI
+  IL_0421: brfalse IL_0454: br IL_04ce
+  IL_0426: ldloc.s V_30
+  IL_0428: ldfld NetAI NetInfo::m_netAI
+  IL_042D: ldloca.s V_25
+  IL_042F: call System.UInt16 InstanceID::get_NetNode()
+  IL_0434: ldarg.0 
+  IL_0435: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_043A: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_043F: ldloca.s V_25
+  IL_0441: call System.UInt16 InstanceID::get_NetNode()
+  IL_0446: ldelema NetNode
+  IL_044B: ldloc.1 
+  IL_044C: ldloc.2 
+  IL_044D: callvirt UnityEngine.Color NetAI::GetColor(System.UInt16,NetNode&,InfoManager/InfoMode,InfoManager/SubInfoMode)
+  IL_0452: stloc.s V_29
+  IL_0454: br IL_04ce: ldarg.1
+  IL_0459: ldc.i4 49152
+  IL_045E: ldloca.s V_25
+  IL_0460: call System.UInt16 InstanceID::get_NetSegment()
+  IL_0465: add 
+  IL_0466: ldloca.s V_27
+  IL_0468: ldloca.s V_28
+  IL_046A: call System.Void RenderManager::GetColorLocation(System.UInt32,System.Int32&,System.Int32&)
+  IL_046F: ldarg.0 
+  IL_0470: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0475: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_047A: ldloca.s V_25
+  IL_047C: call System.UInt16 InstanceID::get_NetSegment()
+  IL_0481: ldelema NetSegment
+  IL_0486: call NetInfo NetSegment::get_Info()
+  IL_048B: stloc.s V_31
+  IL_048D: ldloc.s V_31
+  IL_048F: brfalse IL_04ce: ldarg.1
+  IL_0494: ldloc.s V_31
+  IL_0496: ldfld NetAI NetInfo::m_netAI
+  IL_049B: brfalse IL_04ce: ldarg.1
+  IL_04A0: ldloc.s V_31
+  IL_04A2: ldfld NetAI NetInfo::m_netAI
+  IL_04A7: ldloca.s V_25
+  IL_04A9: call System.UInt16 InstanceID::get_NetSegment()
+  IL_04AE: ldarg.0 
+  IL_04AF: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_04B4: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_04B9: ldloca.s V_25
+  IL_04BB: call System.UInt16 InstanceID::get_NetSegment()
+  IL_04C0: ldelema NetSegment
+  IL_04C5: ldloc.1 
+  IL_04C6: ldloc.2 
+  IL_04C7: callvirt UnityEngine.Color NetAI::GetColor(System.UInt16,NetSegment&,InfoManager/InfoMode,InfoManager/SubInfoMode)
+  IL_04CC: stloc.s V_29
+  IL_04CE: ldarg.1 
+  IL_04CF: ldloc.s V_27
+  IL_04D1: ldloc.s V_28
+  IL_04D3: callvirt UnityEngine.Color UnityEngine.Texture2D::GetPixel(System.Int32,System.Int32)
+  IL_04D8: stloc.s V_32
+  IL_04DA: ldloca.s V_29
+  IL_04DC: ldfld System.Single UnityEngine.Color::r
+  IL_04E1: ldloca.s V_32
+  IL_04E3: ldfld System.Single UnityEngine.Color::r
+  IL_04E8: sub 
+  IL_04E9: stloc.s V_33
+  IL_04EB: ldloca.s V_29
+  IL_04ED: ldfld System.Single UnityEngine.Color::g
+  IL_04F2: ldloca.s V_32
+  IL_04F4: ldfld System.Single UnityEngine.Color::g
+  IL_04F9: sub 
+  IL_04FA: stloc.s V_34
+  IL_04FC: ldloca.s V_29
+  IL_04FE: ldfld System.Single UnityEngine.Color::b
+  IL_0503: ldloca.s V_32
+  IL_0505: ldfld System.Single UnityEngine.Color::b
+  IL_050A: sub 
+  IL_050B: stloc.s V_35
+  IL_050D: ldloca.s V_29
+  IL_050F: ldfld System.Single UnityEngine.Color::a
+  IL_0514: ldloca.s V_32
+  IL_0516: ldfld System.Single UnityEngine.Color::a
+  IL_051B: sub 
+  IL_051C: stloc.s V_36
+  IL_051E: ldc.i4.1 
+  IL_051F: stloc.s V_37
+  IL_0521: ldloc.s V_33
+  IL_0523: ldc.r4 -0,005
+  IL_0528: bge.un IL_0546: ldloc.s V_33
+  IL_052D: ldc.r4 -0,005
+  IL_0532: ldloc.s V_33
+  IL_0534: ldloc.s V_24
+  IL_0536: mul 
+  IL_0537: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_053C: stloc.s V_33
+  IL_053E: ldc.i4.0 
+  IL_053F: stloc.s V_37
+  IL_0541: br IL_0566: ldloc.s V_34
+  IL_0546: ldloc.s V_33
+  IL_0548: ldc.r4 0,005
+  IL_054D: ble.un IL_0566: ldloc.s V_34
+  IL_0552: ldc.r4 0,005
+  IL_0557: ldloc.s V_33
+  IL_0559: ldloc.s V_24
+  IL_055B: mul 
+  IL_055C: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_0561: stloc.s V_33
+  IL_0563: ldc.i4.0 
+  IL_0564: stloc.s V_37
+  IL_0566: ldloc.s V_34
+  IL_0568: ldc.r4 -0,005
+  IL_056D: bge.un IL_058b: ldloc.s V_34
+  IL_0572: ldc.r4 -0,005
+  IL_0577: ldloc.s V_34
+  IL_0579: ldloc.s V_24
+  IL_057B: mul 
+  IL_057C: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_0581: stloc.s V_34
+  IL_0583: ldc.i4.0 
+  IL_0584: stloc.s V_37
+  IL_0586: br IL_05ab: ldloc.s V_35
+  IL_058B: ldloc.s V_34
+  IL_058D: ldc.r4 0,005
+  IL_0592: ble.un IL_05ab: ldloc.s V_35
+  IL_0597: ldc.r4 0,005
+  IL_059C: ldloc.s V_34
+  IL_059E: ldloc.s V_24
+  IL_05A0: mul 
+  IL_05A1: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_05A6: stloc.s V_34
+  IL_05A8: ldc.i4.0 
+  IL_05A9: stloc.s V_37
+  IL_05AB: ldloc.s V_35
+  IL_05AD: ldc.r4 -0,005
+  IL_05B2: bge.un IL_05d0: ldloc.s V_35
+  IL_05B7: ldc.r4 -0,005
+  IL_05BC: ldloc.s V_35
+  IL_05BE: ldloc.s V_24
+  IL_05C0: mul 
+  IL_05C1: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_05C6: stloc.s V_35
+  IL_05C8: ldc.i4.0 
+  IL_05C9: stloc.s V_37
+  IL_05CB: br IL_05f0: ldloc.s V_36
+  IL_05D0: ldloc.s V_35
+  IL_05D2: ldc.r4 0,005
+  IL_05D7: ble.un IL_05f0: ldloc.s V_36
+  IL_05DC: ldc.r4 0,005
+  IL_05E1: ldloc.s V_35
+  IL_05E3: ldloc.s V_24
+  IL_05E5: mul 
+  IL_05E6: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_05EB: stloc.s V_35
+  IL_05ED: ldc.i4.0 
+  IL_05EE: stloc.s V_37
+  IL_05F0: ldloc.s V_36
+  IL_05F2: ldc.r4 -0,005
+  IL_05F7: bge.un IL_0615: ldloc.s V_36
+  IL_05FC: ldc.r4 -0,005
+  IL_0601: ldloc.s V_36
+  IL_0603: ldloc.s V_24
+  IL_0605: mul 
+  IL_0606: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_060B: stloc.s V_36
+  IL_060D: ldc.i4.0 
+  IL_060E: stloc.s V_37
+  IL_0610: br IL_0635: ldloc.s V_37
+  IL_0615: ldloc.s V_36
+  IL_0617: ldc.r4 0,005
+  IL_061C: ble.un IL_0635: ldloc.s V_37
+  IL_0621: ldc.r4 0,005
+  IL_0626: ldloc.s V_36
+  IL_0628: ldloc.s V_24
+  IL_062A: mul 
+  IL_062B: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_0630: stloc.s V_36
+  IL_0632: ldc.i4.0 
+  IL_0633: stloc.s V_37
+  IL_0635: ldloc.s V_37
+  IL_0637: brfalse IL_065a: ldloca.s V_32
+  IL_063C: ldarg.1 
+  IL_063D: ldloc.s V_27
+  IL_063F: ldloc.s V_28
+  IL_0641: ldloc.s V_29
+  IL_0643: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_0648: ldarg.0 
+  IL_0649: ldfld FastList`1<InstanceID> NetManager::m_removeSmoothColors
+  IL_064E: ldloc.s V_25
+  IL_0650: callvirt System.Void FastList`1<InstanceID>::Add(T)
+  IL_0655: br IL_06a6: ldloca.s V_26
+  IL_065A: ldloca.s V_32
+  IL_065C: dup 
+  IL_065D: ldfld System.Single UnityEngine.Color::r
+  IL_0662: ldloc.s V_33
+  IL_0664: add 
+  IL_0665: stfld System.Single UnityEngine.Color::r
+  IL_066A: ldloca.s V_32
+  IL_066C: dup 
+  IL_066D: ldfld System.Single UnityEngine.Color::g
+  IL_0672: ldloc.s V_34
+  IL_0674: add 
+  IL_0675: stfld System.Single UnityEngine.Color::g
+  IL_067A: ldloca.s V_32
+  IL_067C: dup 
+  IL_067D: ldfld System.Single UnityEngine.Color::b
+  IL_0682: ldloc.s V_35
+  IL_0684: add 
+  IL_0685: stfld System.Single UnityEngine.Color::b
+  IL_068A: ldloca.s V_32
+  IL_068C: dup 
+  IL_068D: ldfld System.Single UnityEngine.Color::a
+  IL_0692: ldloc.s V_36
+  IL_0694: add 
+  IL_0695: stfld System.Single UnityEngine.Color::a
+  IL_069A: ldarg.1 
+  IL_069B: ldloc.s V_27
+  IL_069D: ldloc.s V_28
+  IL_069F: ldloc.s V_32
+  IL_06A1: callvirt System.Void UnityEngine.Texture2D::SetPixel(System.Int32,System.Int32,UnityEngine.Color)
+  IL_06A6: ldloca.s V_26
+  IL_06A8: call System.Boolean System.Collections.Generic.HashSet`1/Enumerator<InstanceID>::MoveNext()
+  IL_06AD: brtrue IL_03c3: ldloca.s V_26
+  IL_06B2: leave IL_06c5: ldc.i4.0
+  IL_06B7: ldloca.s V_26
+  IL_06B9: constrained. System.Collections.Generic.HashSet`1/Enumerator<InstanceID>
+  IL_06BF: callvirt System.Void System.IDisposable::Dispose()
+  IL_06C4: endfinally 
+  IL_06C5: ldc.i4.0 
+  IL_06C6: stloc.s V_38
+  IL_06C8: br IL_06f6: ldloc.s V_38
+  IL_06CD: ldarg.0 
+  IL_06CE: ldfld System.Collections.Generic.HashSet`1<InstanceID> NetManager::m_smoothColors
+  IL_06D3: ldarg.0 
+  IL_06D4: ldfld FastList`1<InstanceID> NetManager::m_removeSmoothColors
+  IL_06D9: ldfld T[] FastList`1<InstanceID>::m_buffer
+  IL_06DE: ldloc.s V_38
+  IL_06E0: ldelema InstanceID
+  IL_06E5: ldobj InstanceID
+  IL_06EA: callvirt System.Boolean System.Collections.Generic.HashSet`1<InstanceID>::Remove(!0)
+  IL_06EF: pop 
+  IL_06F0: ldloc.s V_38
+  IL_06F2: ldc.i4.1 
+  IL_06F3: add 
+  IL_06F4: stloc.s V_38
+  IL_06F6: ldloc.s V_38
+  IL_06F8: ldarg.0 
+  IL_06F9: ldfld FastList`1<InstanceID> NetManager::m_removeSmoothColors
+  IL_06FE: ldfld System.Int32 FastList`1<InstanceID>::m_size
+  IL_0703: blt IL_06cd: ldarg.0
+  IL_0708: ldarg.0 
+  IL_0709: ldfld FastList`1<InstanceID> NetManager::m_removeSmoothColors
+  IL_070E: ldc.i4.0 
+  IL_070F: stfld System.Int32 FastList`1<InstanceID>::m_size
+  IL_0714: ldc.i4.1 
+  IL_0715: ret 
+  IL_0716: ldc.i4.0 
+  IL_0717: ret 
+=== NetManager.UpdateSegmentColors (1 params) ===
+UInt16 segment, 
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldarg.0 
+  IL_001C: ldfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_0021: ldarg.1 
+  IL_0022: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+  IL_0027: stfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_002C: ldarg.0 
+  IL_002D: ldarg.0 
+  IL_002E: ldfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_0033: ldarg.1 
+  IL_0034: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0039: stfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_003E: leave IL_004f: ret
+  IL_0043: ldarg.0 
+  IL_0044: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_0049: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_004E: endfinally 
+  IL_004F: ret 
+=== NetManager.UpdateSegmentColors (2 params) ===
+UInt16 min, UInt16 max, 
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldarg.0 
+  IL_001C: ldfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_0021: ldarg.1 
+  IL_0022: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+  IL_0027: stfld System.Int32 NetManager::m_colorUpdateMinSegment
+  IL_002C: ldarg.0 
+  IL_002D: ldarg.0 
+  IL_002E: ldfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_0033: ldarg.2 
+  IL_0034: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0039: stfld System.Int32 NetManager::m_colorUpdateMaxSegment
+  IL_003E: leave IL_004f: ret
+  IL_0043: ldarg.0 
+  IL_0044: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_0049: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_004E: endfinally 
+  IL_004F: ret 
+=== NetManager.UpdateNodeColors (1 params) ===
+UInt16 node, 
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldarg.0 
+  IL_001C: ldfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_0021: ldarg.1 
+  IL_0022: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+  IL_0027: stfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_002C: ldarg.0 
+  IL_002D: ldarg.0 
+  IL_002E: ldfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_0033: ldarg.1 
+  IL_0034: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0039: stfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_003E: leave IL_004f: ret
+  IL_0043: ldarg.0 
+  IL_0044: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_0049: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_004E: endfinally 
+  IL_004F: ret 
+=== NetManager.UpdateNodeColors (2 params) ===
+UInt16 min, UInt16 max, 
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldarg.0 
+  IL_001C: ldfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_0021: ldarg.1 
+  IL_0022: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+  IL_0027: stfld System.Int32 NetManager::m_colorUpdateMinNode
+  IL_002C: ldarg.0 
+  IL_002D: ldarg.0 
+  IL_002E: ldfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_0033: ldarg.2 
+  IL_0034: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0039: stfld System.Int32 NetManager::m_colorUpdateMaxNode
+  IL_003E: leave IL_004f: ret
+  IL_0043: ldarg.0 
+  IL_0044: ldfld System.Object NetManager::m_colorUpdateLock
+  IL_0049: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_004E: endfinally 
+  IL_004F: ret 
+=== NetManager.AddSmoothColor (1 params) ===
+InstanceID id, 
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_0020: ldarg.1 
+  IL_0021: callvirt System.Void FastList`1<InstanceID>::Add(T)
+  IL_0026: leave IL_0037: ret
+  IL_002B: ldarg.0 
+  IL_002C: ldfld FastList`1<InstanceID> NetManager::m_newSmoothColors
+  IL_0031: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0036: endfinally 
+  IL_0037: ret 

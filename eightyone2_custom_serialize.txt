@@ -1,0 +1,774 @@
+=== EightyOne2.Patches.DistrictManagerDataPatches.CustomSerialize ===
+Return: System.Void
+Parameters: ColossalFramework.IO.EncodedArray/Byte encodedArray, DistrictManager/Cell[] districtCellArray
+  0      nop          
+  1      ldc.i4.0     
+  2      stloc.0      
+  3      br.s         IL_004a: ldloc.0
+  5      nop          
+  6      ldc.i4.0     
+  7      stloc.1      
+  8      br.s         IL_0039: ldloc.1
+  10     nop          
+  11     ldloc.0      
+  12     ldc.i4       194
+  17     add          
+  18     ldc.i4       900
+  23     mul          
+  24     ldloc.1      
+  25     add          
+  26     ldc.i4       194
+  31     add          
+  32     stloc.2      
+  33     ldarg.0      
+  34     ldarg.1      
+  35     ldloc.2      
+  36     ldelema      DistrictManager/Cell
+  41     ldfld        System.Byte DistrictManager/Cell::m_district1
+  46     callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  51     nop          
+  52     nop          
+  53     ldloc.1      
+  54     ldc.i4.1     
+  55     add          
+  56     stloc.1      
+  57     ldloc.1      
+  58     ldc.i4       512
+  63     clt          
+  65     stloc.3      
+  66     ldloc.3      
+  67     brtrue.s     IL_000a: nop
+  69     nop          
+  70     ldloc.0      
+  71     ldc.i4.1     
+  72     add          
+  73     stloc.0      
+  74     ldloc.0      
+  75     ldc.i4       512
+  80     clt          
+  82     stloc.s      V_4
+  84     ldloc.s      V_4
+  86     brtrue.s     IL_0005: nop
+  88     ldc.i4.0     
+  89     stloc.s      V_5
+  91     br.s         IL_00ae: ldloc.s V_5
+  93     nop          
+  94     ldc.i4.0     
+  95     stloc.s      V_6
+  97     br.s         IL_0098: ldloc.s V_6
+  99     nop          
+  100    ldloc.s      V_5
+  102    ldc.i4       194
+  107    add          
+  108    ldc.i4       900
+  113    mul          
+  114    ldloc.s      V_6
+  116    add          
+  117    ldc.i4       194
+  122    add          
+  123    stloc.s      V_7
+  125    ldarg.0      
+  126    ldarg.1      
+  127    ldloc.s      V_7
+  129    ldelema      DistrictManager/Cell
+  134    ldfld        System.Byte DistrictManager/Cell::m_district2
+  139    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  144    nop          
+  145    nop          
+  146    ldloc.s      V_6
+  148    ldc.i4.1     
+  149    add          
+  150    stloc.s      V_6
+  152    ldloc.s      V_6
+  154    ldc.i4       512
+  159    clt          
+  161    stloc.s      V_8
+  163    ldloc.s      V_8
+  165    brtrue.s     IL_0063: nop
+  167    nop          
+  168    ldloc.s      V_5
+  170    ldc.i4.1     
+  171    add          
+  172    stloc.s      V_5
+  174    ldloc.s      V_5
+  176    ldc.i4       512
+  181    clt          
+  183    stloc.s      V_9
+  185    ldloc.s      V_9
+  187    brtrue.s     IL_005d: nop
+  189    ldc.i4.0     
+  190    stloc.s      V_10
+  192    br.s         IL_0113: ldloc.s V_10
+  194    nop          
+  195    ldc.i4.0     
+  196    stloc.s      V_11
+  198    br.s         IL_00fd: ldloc.s V_11
+  200    nop          
+  201    ldloc.s      V_10
+  203    ldc.i4       194
+  208    add          
+  209    ldc.i4       900
+  214    mul          
+  215    ldloc.s      V_11
+  217    add          
+  218    ldc.i4       194
+  223    add          
+  224    stloc.s      V_12
+  226    ldarg.0      
+  227    ldarg.1      
+  228    ldloc.s      V_12
+  230    ldelema      DistrictManager/Cell
+  235    ldfld        System.Byte DistrictManager/Cell::m_district3
+  240    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  245    nop          
+  246    nop          
+  247    ldloc.s      V_11
+  249    ldc.i4.1     
+  250    add          
+  251    stloc.s      V_11
+  253    ldloc.s      V_11
+  255    ldc.i4       512
+  260    clt          
+  262    stloc.s      V_13
+  264    ldloc.s      V_13
+  266    brtrue.s     IL_00c8: nop
+  268    nop          
+  269    ldloc.s      V_10
+  271    ldc.i4.1     
+  272    add          
+  273    stloc.s      V_10
+  275    ldloc.s      V_10
+  277    ldc.i4       512
+  282    clt          
+  284    stloc.s      V_14
+  286    ldloc.s      V_14
+  288    brtrue.s     IL_00c2: nop
+  290    ldc.i4.0     
+  291    stloc.s      V_15
+  293    br.s         IL_0178: ldloc.s V_15
+  295    nop          
+  296    ldc.i4.0     
+  297    stloc.s      V_16
+  299    br.s         IL_0162: ldloc.s V_16
+  301    nop          
+  302    ldloc.s      V_15
+  304    ldc.i4       194
+  309    add          
+  310    ldc.i4       900
+  315    mul          
+  316    ldloc.s      V_16
+  318    add          
+  319    ldc.i4       194
+  324    add          
+  325    stloc.s      V_17
+  327    ldarg.0      
+  328    ldarg.1      
+  329    ldloc.s      V_17
+  331    ldelema      DistrictManager/Cell
+  336    ldfld        System.Byte DistrictManager/Cell::m_district4
+  341    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  346    nop          
+  347    nop          
+  348    ldloc.s      V_16
+  350    ldc.i4.1     
+  351    add          
+  352    stloc.s      V_16
+  354    ldloc.s      V_16
+  356    ldc.i4       512
+  361    clt          
+  363    stloc.s      V_18
+  365    ldloc.s      V_18
+  367    brtrue.s     IL_012d: nop
+  369    nop          
+  370    ldloc.s      V_15
+  372    ldc.i4.1     
+  373    add          
+  374    stloc.s      V_15
+  376    ldloc.s      V_15
+  378    ldc.i4       512
+  383    clt          
+  385    stloc.s      V_19
+  387    ldloc.s      V_19
+  389    brtrue.s     IL_0127: nop
+  391    ldc.i4.0     
+  392    stloc.s      V_20
+  394    br.s         IL_01dd: ldloc.s V_20
+  396    nop          
+  397    ldc.i4.0     
+  398    stloc.s      V_21
+  400    br.s         IL_01c7: ldloc.s V_21
+  402    nop          
+  403    ldloc.s      V_20
+  405    ldc.i4       194
+  410    add          
+  411    ldc.i4       900
+  416    mul          
+  417    ldloc.s      V_21
+  419    add          
+  420    ldc.i4       194
+  425    add          
+  426    stloc.s      V_22
+  428    ldarg.0      
+  429    ldarg.1      
+  430    ldloc.s      V_22
+  432    ldelema      DistrictManager/Cell
+  437    ldfld        System.Byte DistrictManager/Cell::m_alpha1
+  442    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  447    nop          
+  448    nop          
+  449    ldloc.s      V_21
+  451    ldc.i4.1     
+  452    add          
+  453    stloc.s      V_21
+  455    ldloc.s      V_21
+  457    ldc.i4       512
+  462    clt          
+  464    stloc.s      V_23
+  466    ldloc.s      V_23
+  468    brtrue.s     IL_0192: nop
+  470    nop          
+  471    ldloc.s      V_20
+  473    ldc.i4.1     
+  474    add          
+  475    stloc.s      V_20
+  477    ldloc.s      V_20
+  479    ldc.i4       512
+  484    clt          
+  486    stloc.s      V_24
+  488    ldloc.s      V_24
+  490    brtrue.s     IL_018c: nop
+  492    ldc.i4.0     
+  493    stloc.s      V_25
+  495    br.s         IL_0242: ldloc.s V_25
+  497    nop          
+  498    ldc.i4.0     
+  499    stloc.s      V_26
+  501    br.s         IL_022c: ldloc.s V_26
+  503    nop          
+  504    ldloc.s      V_25
+  506    ldc.i4       194
+  511    add          
+  512    ldc.i4       900
+  517    mul          
+  518    ldloc.s      V_26
+  520    add          
+  521    ldc.i4       194
+  526    add          
+  527    stloc.s      V_27
+  529    ldarg.0      
+  530    ldarg.1      
+  531    ldloc.s      V_27
+  533    ldelema      DistrictManager/Cell
+  538    ldfld        System.Byte DistrictManager/Cell::m_alpha2
+  543    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  548    nop          
+  549    nop          
+  550    ldloc.s      V_26
+  552    ldc.i4.1     
+  553    add          
+  554    stloc.s      V_26
+  556    ldloc.s      V_26
+  558    ldc.i4       512
+  563    clt          
+  565    stloc.s      V_28
+  567    ldloc.s      V_28
+  569    brtrue.s     IL_01f7: nop
+  571    nop          
+  572    ldloc.s      V_25
+  574    ldc.i4.1     
+  575    add          
+  576    stloc.s      V_25
+  578    ldloc.s      V_25
+  580    ldc.i4       512
+  585    clt          
+  587    stloc.s      V_29
+  589    ldloc.s      V_29
+  591    brtrue.s     IL_01f1: nop
+  593    ldc.i4.0     
+  594    stloc.s      V_30
+  596    br.s         IL_02a7: ldloc.s V_30
+  598    nop          
+  599    ldc.i4.0     
+  600    stloc.s      V_31
+  602    br.s         IL_0291: ldloc.s V_31
+  604    nop          
+  605    ldloc.s      V_30
+  607    ldc.i4       194
+  612    add          
+  613    ldc.i4       900
+  618    mul          
+  619    ldloc.s      V_31
+  621    add          
+  622    ldc.i4       194
+  627    add          
+  628    stloc.s      V_32
+  630    ldarg.0      
+  631    ldarg.1      
+  632    ldloc.s      V_32
+  634    ldelema      DistrictManager/Cell
+  639    ldfld        System.Byte DistrictManager/Cell::m_alpha3
+  644    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  649    nop          
+  650    nop          
+  651    ldloc.s      V_31
+  653    ldc.i4.1     
+  654    add          
+  655    stloc.s      V_31
+  657    ldloc.s      V_31
+  659    ldc.i4       512
+  664    clt          
+  666    stloc.s      V_33
+  668    ldloc.s      V_33
+  670    brtrue.s     IL_025c: nop
+  672    nop          
+  673    ldloc.s      V_30
+  675    ldc.i4.1     
+  676    add          
+  677    stloc.s      V_30
+  679    ldloc.s      V_30
+  681    ldc.i4       512
+  686    clt          
+  688    stloc.s      V_34
+  690    ldloc.s      V_34
+  692    brtrue.s     IL_0256: nop
+  694    ldc.i4.0     
+  695    stloc.s      V_35
+  697    br.s         IL_030c: ldloc.s V_35
+  699    nop          
+  700    ldc.i4.0     
+  701    stloc.s      V_36
+  703    br.s         IL_02f6: ldloc.s V_36
+  705    nop          
+  706    ldloc.s      V_35
+  708    ldc.i4       194
+  713    add          
+  714    ldc.i4       900
+  719    mul          
+  720    ldloc.s      V_36
+  722    add          
+  723    ldc.i4       194
+  728    add          
+  729    stloc.s      V_37
+  731    ldarg.0      
+  732    ldarg.1      
+  733    ldloc.s      V_37
+  735    ldelema      DistrictManager/Cell
+  740    ldfld        System.Byte DistrictManager/Cell::m_alpha4
+  745    callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  750    nop          
+  751    nop          
+  752    ldloc.s      V_36
+  754    ldc.i4.1     
+  755    add          
+  756    stloc.s      V_36
+  758    ldloc.s      V_36
+  760    ldc.i4       512
+  765    clt          
+  767    stloc.s      V_38
+  769    ldloc.s      V_38
+  771    brtrue.s     IL_02c1: nop
+  773    nop          
+  774    ldloc.s      V_35
+  776    ldc.i4.1     
+  777    add          
+  778    stloc.s      V_35
+  780    ldloc.s      V_35
+  782    ldc.i4       512
+  787    clt          
+  789    stloc.s      V_39
+  791    ldloc.s      V_39
+  793    brtrue.s     IL_02bb: nop
+  795    ret          
+=== EightyOne2.Patches.ElectricityManagerDataPatches.CustomSerialize ===
+Return: ElectricityManager/Cell[]
+Parameters: ElectricityManager/Cell[] electricityGrid, ElectricityManager/PulseGroup[] pulseGroups, ElectricityManager/PulseUnit[] pulseUnits
+  0      nop          
+  1      ldc.i4       65536
+  6      newarr       ElectricityManager/Cell
+  11     stloc.0      
+  12     ldc.i4.0     
+  13     stloc.3      
+  14     br.s         IL_0060: ldloc.3
+  16     nop          
+  17     ldc.i4.0     
+  18     stloc.s      V_4
+  20     br.s         IL_004c: ldloc.s V_4
+  22     nop          
+  23     ldloc.3      
+  24     ldc.i4       256
+  29     mul          
+  30     ldloc.s      V_4
+  32     add          
+  33     stloc.s      V_5
+  35     ldloc.3      
+  36     ldc.i4.s     103
+  38     add          
+  39     ldc.i4       462
+  44     mul          
+  45     ldloc.s      V_4
+  47     add          
+  48     ldc.i4.s     103
+  50     add          
+  51     stloc.s      V_6
+  53     ldloc.0      
+  54     ldloc.s      V_5
+  56     ldarg.0      
+  57     ldloc.s      V_6
+  59     ldelem.any   ElectricityManager/Cell
+  64     stelem.any   ElectricityManager/Cell
+  69     nop          
+  70     ldloc.s      V_4
+  72     ldc.i4.1     
+  73     add          
+  74     stloc.s      V_4
+  76     ldloc.s      V_4
+  78     ldc.i4       256
+  83     clt          
+  85     stloc.s      V_7
+  87     ldloc.s      V_7
+  89     brtrue.s     IL_0016: nop
+  91     nop          
+  92     ldloc.3      
+  93     ldc.i4.1     
+  94     add          
+  95     stloc.3      
+  96     ldloc.3      
+  97     ldc.i4       256
+  102    clt          
+  104    stloc.s      V_8
+  106    ldloc.s      V_8
+  108    brtrue.s     IL_0010: nop
+  110    call         EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup[] EightyOne2.Patches.ExpandedElectricityManager::get_PulseGroups()
+  115    stloc.1      
+  116    nop          
+  117    ldc.i4.0     
+  118    stloc.s      V_9
+  120    br           IL_0127: ldloc.s V_9
+  125    nop          
+  126    ldarg.1      
+  127    ldloc.s      V_9
+  129    ldloca.s     V_10
+  131    initobj      ElectricityManager/PulseGroup
+  137    ldloca.s     V_10
+  139    ldloc.1      
+  140    ldloc.s      V_9
+  142    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  147    ldfld        System.UInt32 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_origCharge
+  152    stfld        System.UInt32 ElectricityManager/PulseGroup::m_origCharge
+  157    ldloca.s     V_10
+  159    ldloc.1      
+  160    ldloc.s      V_9
+  162    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  167    ldfld        System.UInt32 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_curCharge
+  172    stfld        System.UInt32 ElectricityManager/PulseGroup::m_curCharge
+  177    ldloca.s     V_10
+  179    ldloc.1      
+  180    ldloc.s      V_9
+  182    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  187    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_mergeIndex
+  192    stfld        System.UInt16 ElectricityManager/PulseGroup::m_mergeIndex
+  197    ldloca.s     V_10
+  199    ldloc.1      
+  200    ldloc.s      V_9
+  202    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  207    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_mergeCount
+  212    stfld        System.UInt16 ElectricityManager/PulseGroup::m_mergeCount
+  217    ldloca.s     V_10
+  219    ldloc.1      
+  220    ldloc.s      V_9
+  222    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  227    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_x
+  232    ldc.i4.0     
+  233    ldc.i4       255
+  238    call         System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+  243    conv.u1      
+  244    stfld        System.Byte ElectricityManager/PulseGroup::m_x
+  249    ldloca.s     V_10
+  251    ldloc.1      
+  252    ldloc.s      V_9
+  254    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup
+  259    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseGroup::m_z
+  264    ldc.i4.0     
+  265    ldc.i4       255
+  270    call         System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+  275    conv.u1      
+  276    stfld        System.Byte ElectricityManager/PulseGroup::m_z
+  281    ldloc.s      V_10
+  283    stelem.any   ElectricityManager/PulseGroup
+  288    nop          
+  289    ldloc.s      V_9
+  291    ldc.i4.1     
+  292    add          
+  293    stloc.s      V_9
+  295    ldloc.s      V_9
+  297    ldarg.1      
+  298    ldlen        
+  299    conv.i4      
+  300    clt          
+  302    stloc.s      V_11
+  304    ldloc.s      V_11
+  306    brtrue       IL_007d: nop
+  311    nop          
+  312    call         EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseUnit[] EightyOne2.Patches.ExpandedElectricityManager::get_PulseUnits()
+  317    stloc.2      
+  318    nop          
+  319    ldc.i4.0     
+  320    stloc.s      V_12
+  322    br           IL_01c9: ldloc.s V_12
+  327    nop          
+  328    ldarg.2      
+  329    ldloc.s      V_12
+  331    ldloca.s     V_13
+  333    initobj      ElectricityManager/PulseUnit
+  339    ldloca.s     V_13
+  341    ldarg.2      
+  342    ldloc.s      V_12
+  344    ldelema      ElectricityManager/PulseUnit
+  349    ldfld        System.UInt16 ElectricityManager/PulseUnit::m_group
+  354    stfld        System.UInt16 ElectricityManager/PulseUnit::m_group
+  359    ldloca.s     V_13
+  361    ldarg.2      
+  362    ldloc.s      V_12
+  364    ldelema      ElectricityManager/PulseUnit
+  369    ldfld        System.UInt16 ElectricityManager/PulseUnit::m_node
+  374    stfld        System.UInt16 ElectricityManager/PulseUnit::m_node
+  379    ldloca.s     V_13
+  381    ldloc.2      
+  382    ldloc.s      V_12
+  384    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseUnit
+  389    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseUnit::m_x
+  394    ldc.i4.0     
+  395    ldc.i4       255
+  400    call         System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+  405    conv.u1      
+  406    stfld        System.Byte ElectricityManager/PulseUnit::m_x
+  411    ldloca.s     V_13
+  413    ldloc.2      
+  414    ldloc.s      V_12
+  416    ldelema      EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseUnit
+  421    ldfld        System.UInt16 EightyOne2.Patches.ExpandedElectricityManager/ExpandedPulseUnit::m_z
+  426    ldc.i4.0     
+  427    ldc.i4       255
+  432    call         System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+  437    conv.u1      
+  438    stfld        System.Byte ElectricityManager/PulseUnit::m_z
+  443    ldloc.s      V_13
+  445    stelem.any   ElectricityManager/PulseUnit
+  450    nop          
+  451    ldloc.s      V_12
+  453    ldc.i4.1     
+  454    add          
+  455    stloc.s      V_12
+  457    ldloc.s      V_12
+  459    ldarg.2      
+  460    ldlen        
+  461    conv.i4      
+  462    clt          
+  464    stloc.s      V_14
+  466    ldloc.s      V_14
+  468    brtrue       IL_0147: nop
+  473    nop          
+  474    ldloc.0      
+  475    stloc.s      V_15
+  477    br.s         IL_01df: ldloc.s V_15
+  479    ldloc.s      V_15
+  481    ret          
+=== EightyOne2.Patches.GameAreaManagerDataPatches.CustomSerialize ===
+Return: System.Void
+Parameters: ColossalFramework.IO.EncodedArray/Byte encodedArray, GameAreaManager instance
+  0      nop          
+  1      ldc.i4.0     
+  2      stloc.0      
+  3      br.s         IL_0038: ldloc.0
+  5      nop          
+  6      ldc.i4.0     
+  7      stloc.1      
+  8      br.s         IL_002b: ldloc.1
+  10     nop          
+  11     ldloc.0      
+  12     ldc.i4.2     
+  13     add          
+  14     ldc.i4.s     9
+  16     mul          
+  17     ldloc.1      
+  18     add          
+  19     ldc.i4.2     
+  20     add          
+  21     stloc.2      
+  22     ldarg.0      
+  23     ldarg.1      
+  24     ldfld        System.Int32[] GameAreaManager::m_areaGrid
+  29     ldloc.2      
+  30     ldelem.i4    
+  31     conv.u1      
+  32     callvirt     System.Void ColossalFramework.IO.EncodedArray/Byte::Write(System.Byte)
+  37     nop          
+  38     nop          
+  39     ldloc.1      
+  40     ldc.i4.1     
+  41     add          
+  42     stloc.1      
+  43     ldloc.1      
+  44     ldc.i4.5     
+  45     clt          
+  47     stloc.3      
+  48     ldloc.3      
+  49     brtrue.s     IL_000a: nop
+  51     nop          
+  52     ldloc.0      
+  53     ldc.i4.1     
+  54     add          
+  55     stloc.0      
+  56     ldloc.0      
+  57     ldc.i4.5     
+  58     clt          
+  60     stloc.s      V_4
+  62     ldloc.s      V_4
+  64     brtrue.s     IL_0005: nop
+  66     ret          
+=== EightyOne2.Patches.ImmaterialResourceManagerDataPatches.CustomSerialize ===
+Return: System.Void
+Parameters: ColossalFramework.IO.EncodedArray/UShort encodedArray, System.UInt16[] localResourceArray
+  0      nop          
+  1      ldc.i4.0     
+  2      stloc.0      
+  3      br.s         IL_0057: ldloc.0
+  5      nop          
+  6      ldc.i4.0     
+  7      stloc.1      
+  8      br.s         IL_0044: ldloc.1
+  10     nop          
+  11     ldloc.0      
+  12     ldc.i4.s     97
+  14     add          
+  15     ldc.i4       450
+  20     mul          
+  21     ldloc.1      
+  22     add          
+  23     ldc.i4.s     97
+  25     add          
+  26     ldc.i4.s     35
+  28     mul          
+  29     stloc.2      
+  30     ldc.i4.0     
+  31     stloc.3      
+  32     br.s         IL_0034: ldloc.3
+  34     nop          
+  35     ldarg.0      
+  36     ldarg.1      
+  37     ldloc.2      
+  38     ldloc.3      
+  39     add          
+  40     ldelem.u2    
+  41     callvirt     System.Void ColossalFramework.IO.EncodedArray/UShort::Write(System.UInt16)
+  46     nop          
+  47     nop          
+  48     ldloc.3      
+  49     ldc.i4.1     
+  50     add          
+  51     stloc.3      
+  52     ldloc.3      
+  53     ldc.i4.s     35
+  55     clt          
+  57     stloc.s      V_4
+  59     ldloc.s      V_4
+  61     brtrue.s     IL_0022: nop
+  63     nop          
+  64     ldloc.1      
+  65     ldc.i4.1     
+  66     add          
+  67     stloc.1      
+  68     ldloc.1      
+  69     ldc.i4       256
+  74     clt          
+  76     stloc.s      V_5
+  78     ldloc.s      V_5
+  80     brtrue.s     IL_000a: nop
+  82     nop          
+  83     ldloc.0      
+  84     ldc.i4.1     
+  85     add          
+  86     stloc.0      
+  87     ldloc.0      
+  88     ldc.i4       256
+  93     clt          
+  95     stloc.s      V_6
+  97     ldloc.s      V_6
+  99     brtrue.s     IL_0005: nop
+  101    ret          
+=== EightyOne2.Patches.WaterManagerDataPatches.CustomSerialize ===
+Return: WaterManager/Cell[]
+Parameters: WaterManager/Cell[] waterGrid, WaterManager/PulseUnit[] waterPulseUnits, WaterManager/PulseUnit[] sewagePulseUnits, WaterManager/PulseUnit[] heatingPulseUnits
+  0      nop          
+  1      ldc.i4       65536
+  6      newarr       WaterManager/Cell
+  11     stloc.0      
+  12     ldc.i4.0     
+  13     stloc.1      
+  14     br.s         IL_0058: ldloc.1
+  16     nop          
+  17     ldc.i4.0     
+  18     stloc.2      
+  19     br.s         IL_0045: ldloc.2
+  21     nop          
+  22     ldloc.1      
+  23     ldc.i4       256
+  28     mul          
+  29     ldloc.2      
+  30     add          
+  31     stloc.3      
+  32     ldloc.1      
+  33     ldc.i4.s     103
+  35     add          
+  36     ldc.i4       462
+  41     mul          
+  42     ldloc.2      
+  43     add          
+  44     ldc.i4.s     103
+  46     add          
+  47     stloc.s      V_4
+  49     ldloc.0      
+  50     ldloc.3      
+  51     ldarg.0      
+  52     ldloc.s      V_4
+  54     ldelem.any   WaterManager/Cell
+  59     stelem.any   WaterManager/Cell
+  64     nop          
+  65     ldloc.2      
+  66     ldc.i4.1     
+  67     add          
+  68     stloc.2      
+  69     ldloc.2      
+  70     ldc.i4       256
+  75     clt          
+  77     stloc.s      V_5
+  79     ldloc.s      V_5
+  81     brtrue.s     IL_0015: nop
+  83     nop          
+  84     ldloc.1      
+  85     ldc.i4.1     
+  86     add          
+  87     stloc.1      
+  88     ldloc.1      
+  89     ldc.i4       256
+  94     clt          
+  96     stloc.s      V_6
+  98     ldloc.s      V_6
+  100    brtrue.s     IL_0010: nop
+  102    call         EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[] EightyOne2.Patches.ExpandedWaterManager::get_WaterPulseUnits()
+  107    ldarg.1      
+  108    call         System.Void EightyOne2.Patches.WaterManagerDataPatches::ConvertExpandedPulseUnits(EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[],WaterManager/PulseUnit[])
+  113    nop          
+  114    call         EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[] EightyOne2.Patches.ExpandedWaterManager::get_SewagePulseUnits()
+  119    ldarg.2      
+  120    call         System.Void EightyOne2.Patches.WaterManagerDataPatches::ConvertExpandedPulseUnits(EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[],WaterManager/PulseUnit[])
+  125    nop          
+  126    call         EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[] EightyOne2.Patches.ExpandedWaterManager::get_HeatingPulseUnits()
+  131    ldarg.3      
+  132    call         System.Void EightyOne2.Patches.WaterManagerDataPatches::ConvertExpandedPulseUnits(EightyOne2.Patches.ExpandedWaterManager/ExpandedPulseUnit[],WaterManager/PulseUnit[])
+  137    nop          
+  138    ldloc.0      
+  139    stloc.s      V_7
+  141    br.s         IL_008f: ldloc.s V_7
+  143    ldloc.s      V_7
+  145    ret          

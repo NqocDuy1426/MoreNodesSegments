@@ -1,0 +1,1024 @@
+=== Method: System.Void TransportManager/Data::Deserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "TransportManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  IL_001a: stloc.0
+  IL_001b: ldloc.0
+  IL_001c: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_0021: ldfld T[] Array16`1<TransportLine>::m_buffer
+  IL_0026: stloc.1
+  IL_0027: ldloc.1
+  IL_0028: ldlen
+  IL_0029: conv.i4
+  IL_002a: stloc.2
+  IL_002b: ldloc.0
+  IL_002c: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_0031: callvirt System.Void Array16`1<TransportLine>::ClearUnused()
+  IL_0036: ldarg.1
+  IL_0037: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_003c: ldc.i4.s 52
+  IL_003e: blt.un IL_007e
+  IL_0043: ldarg.1
+  IL_0044: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0049: stloc.3
+  IL_004a: ldc.i4.1
+  IL_004b: stloc.s V_4
+  IL_004d: br IL_006b
+  IL_0052: ldloc.1
+  IL_0053: ldloc.s V_4
+  IL_0055: ldelema TransportLine
+  IL_005a: ldloc.3
+  IL_005b: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+  IL_0060: stfld TransportLine/Flags TransportLine::m_flags
+  IL_0065: ldloc.s V_4
+  IL_0067: ldc.i4.1
+  IL_0068: add
+  IL_0069: stloc.s V_4
+  IL_006b: ldloc.s V_4
+  IL_006d: ldloc.2
+  IL_006e: blt IL_0052
+  IL_0073: ldloc.3
+  IL_0074: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+  IL_0079: br IL_00a2
+  IL_007e: ldc.i4.1
+  IL_007f: stloc.s V_5
+  IL_0081: br IL_009a
+  IL_0086: ldloc.1
+  IL_0087: ldloc.s V_5
+  IL_0089: ldelema TransportLine
+  IL_008e: ldc.i4.0
+  IL_008f: stfld TransportLine/Flags TransportLine::m_flags
+  IL_0094: ldloc.s V_5
+  IL_0096: ldc.i4.1
+  IL_0097: add
+  IL_0098: stloc.s V_5
+  IL_009a: ldloc.s V_5
+  IL_009c: ldloc.2
+  IL_009d: blt IL_0086
+  IL_00a2: ldc.i4.0
+  IL_00a3: stloc.s V_6
+  IL_00a5: ldarg.1
+  IL_00a6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00ab: ldc.i4 151
+  IL_00b0: blt.un IL_00d9
+  IL_00b5: ldarg.1
+  IL_00b6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_00bb: stloc.s V_6
+  IL_00bd: ldarg.0
+  IL_00be: ldloc.s V_6
+  IL_00c0: conv.u
+  IL_00c1: newarr System.UInt32
+  IL_00c6: stfld System.UInt32[] TransportManager/Data::m_milestoneInfoIndex
+  IL_00cb: ldarg.0
+  IL_00cc: ldloc.s V_6
+  IL_00ce: conv.u
+  IL_00cf: newarr MilestoneInfo/Data
+  IL_00d4: stfld MilestoneInfo/Data[] TransportManager/Data::m_UnlockMilestones
+  IL_00d9: ldarg.1
+  IL_00da: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_00df: ldc.i4.s 52
+  IL_00e1: blt.un IL_0155
+  IL_00e6: ldarg.1
+  IL_00e7: call System.Void PrefabCollection`1<TransportInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_00ec: ldc.i4.1
+  IL_00ed: stloc.s V_7
+  IL_00ef: br IL_0120
+  IL_00f4: ldloc.1
+  IL_00f5: ldloc.s V_7
+  IL_00f7: ldelema TransportLine
+  IL_00fc: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0101: brfalse IL_011a
+  IL_0106: ldloc.1
+  IL_0107: ldloc.s V_7
+  IL_0109: ldelema TransportLine
+  IL_010e: ldc.i4.1
+  IL_010f: call System.UInt32 PrefabCollection`1<TransportInfo>::Deserialize(System.Boolean)
+  IL_0114: conv.u2
+  IL_0115: stfld System.UInt16 TransportLine::m_infoIndex
+  IL_011a: ldloc.s V_7
+  IL_011c: ldc.i4.1
+  IL_011d: add
+  IL_011e: stloc.s V_7
+  IL_0120: ldloc.s V_7
+  IL_0122: ldloc.2
+  IL_0123: blt IL_00f4
+  IL_0128: ldc.i4.0
+  IL_0129: stloc.s V_8
+  IL_012b: br IL_0146
+  IL_0130: ldarg.0
+  IL_0131: ldfld System.UInt32[] TransportManager/Data::m_milestoneInfoIndex
+  IL_0136: ldloc.s V_8
+  IL_0138: conv.u
+  IL_0139: ldc.i4.0
+  IL_013a: call System.UInt32 PrefabCollection`1<TransportInfo>::Deserialize(System.Boolean)
+  IL_013f: stelem.i4
+  IL_0140: ldloc.s V_8
+  IL_0142: ldc.i4.1
+  IL_0143: add
+  IL_0144: stloc.s V_8
+  IL_0146: ldloc.s V_8
+  IL_0148: ldloc.s V_6
+  IL_014a: blt.un IL_0130
+  IL_014f: ldarg.1
+  IL_0150: call System.Void PrefabCollection`1<TransportInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_0155: ldc.i4.0
+  IL_0156: stloc.s V_9
+  IL_0158: br IL_0173
+  IL_015d: ldarg.0
+  IL_015e: ldfld MilestoneInfo/Data[] TransportManager/Data::m_UnlockMilestones
+  IL_0163: ldloc.s V_9
+  IL_0165: conv.u
+  IL_0166: ldarg.1
+  IL_0167: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<MilestoneInfo/Data>()
+  IL_016c: stelem.ref
+  IL_016d: ldloc.s V_9
+  IL_016f: ldc.i4.1
+  IL_0170: add
+  IL_0171: stloc.s V_9
+  IL_0173: ldloc.s V_9
+  IL_0175: ldloc.s V_6
+  IL_0177: blt.un IL_015d
+  IL_017c: ldc.i4.s 17
+  IL_017e: stloc.s V_10
+  IL_0180: ldarg.1
+  IL_0181: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0186: ldc.i4.s 122
+  IL_0188: bge.un IL_0195
+  IL_018d: ldc.i4.0
+  IL_018e: stloc.s V_10
+  IL_0190: br IL_023d
+  IL_0195: ldarg.1
+  IL_0196: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_019b: ldc.i4 211
+  IL_01a0: bge.un IL_01ad
+  IL_01a5: ldc.i4.5
+  IL_01a6: stloc.s V_10
+  IL_01a8: br IL_023d
+  IL_01ad: ldarg.1
+  IL_01ae: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01b3: ldc.i4 310
+  IL_01b8: bge.un IL_01c5
+  IL_01bd: ldc.i4.8
+  IL_01be: stloc.s V_10
+  IL_01c0: br IL_023d
+  IL_01c5: ldarg.1
+  IL_01c6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01cb: ldc.i4 110000
+  IL_01d0: bge.un IL_01de
+  IL_01d5: ldc.i4.s 10
+  IL_01d7: stloc.s V_10
+  IL_01d9: br IL_023d
+  IL_01de: ldarg.1
+  IL_01df: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01e4: ldc.i4 110021
+  IL_01e9: bge.un IL_01f7
+  IL_01ee: ldc.i4.s 12
+  IL_01f0: stloc.s V_10
+  IL_01f2: br IL_023d
+  IL_01f7: ldarg.1
+  IL_01f8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01fd: ldc.i4 111006
+  IL_0202: bge.un IL_0210
+  IL_0207: ldc.i4.s 13
+  IL_0209: stloc.s V_10
+  IL_020b: br IL_023d
+  IL_0210: ldarg.1
+  IL_0211: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0216: ldc.i4 113000
+  IL_021b: bge.un IL_0229
+  IL_0220: ldc.i4.s 14
+  IL_0222: stloc.s V_10
+  IL_0224: br IL_023d
+  IL_0229: ldarg.1
+  IL_022a: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_022f: ldc.i4 113008
+  IL_0234: bge.un IL_023d
+  IL_0239: ldc.i4.s 16
+  IL_023b: stloc.s V_10
+  IL_023d: ldarg.1
+  IL_023e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0243: ldc.i4 153
+  IL_0248: blt.un IL_0254
+  IL_024d: ldloc.s V_10
+  IL_024f: br IL_0255
+  IL_0254: ldc.i4.0
+  IL_0255: stloc.s V_11
+  IL_0257: ldc.i4.0
+  IL_0258: stloc.s V_12
+  IL_025a: br IL_0275
+  IL_025f: ldloc.0
+  IL_0260: ldfld System.UInt16[] TransportManager::m_lineNumber
+  IL_0265: ldloc.s V_12
+  IL_0267: ldarg.1
+  IL_0268: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_026d: conv.u2
+  IL_026e: stelem.i2
+  IL_026f: ldloc.s V_12
+  IL_0271: ldc.i4.1
+  IL_0272: add
+  IL_0273: stloc.s V_12
+  IL_0275: ldloc.s V_12
+  IL_0277: ldloc.s V_11
+  IL_0279: blt IL_025f
+  IL_027e: ldloc.s V_11
+  IL_0280: stloc.s V_13
+  IL_0282: br IL_0297
+  IL_0287: ldloc.0
+  IL_0288: ldfld System.UInt16[] TransportManager::m_lineNumber
+  IL_028d: ldloc.s V_13
+  IL_028f: ldc.i4.0
+  IL_0290: stelem.i2
+  IL_0291: ldloc.s V_13
+  IL_0293: ldc.i4.1
+  IL_0294: add
+  IL_0295: stloc.s V_13
+  IL_0297: ldloc.s V_13
+  IL_0299: ldc.i4.s 17
+  IL_029b: blt IL_0287
+  IL_02a0: ldc.i4.1
+  IL_02a1: stloc.s V_14
+  IL_02a3: br IL_06b2
+  IL_02a8: ldloc.1
+  IL_02a9: ldloc.s V_14
+  IL_02ab: ldelema TransportLine
+  IL_02b0: ldc.i4.0
+  IL_02b1: stfld System.UInt16 TransportLine::m_vehicles
+  IL_02b6: ldloc.1
+  IL_02b7: ldloc.s V_14
+  IL_02b9: ldelema TransportLine
+  IL_02be: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_02c3: brfalse IL_060a
+  IL_02c8: ldloc.1
+  IL_02c9: ldloc.s V_14
+  IL_02cb: ldelema TransportLine
+  IL_02d0: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_02d5: ldc.i4.8
+  IL_02d6: and
+  IL_02d7: brfalse IL_02f7
+  IL_02dc: ldloc.1
+  IL_02dd: ldloc.s V_14
+  IL_02df: ldelema TransportLine
+  IL_02e4: dup
+  IL_02e5: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_02ea: ldc.i4.s 16
+  IL_02ec: or
+  IL_02ed: stfld TransportLine/Flags TransportLine::m_flags
+  IL_02f2: br IL_030d
+  IL_02f7: ldloc.1
+  IL_02f8: ldloc.s V_14
+  IL_02fa: ldelema TransportLine
+  IL_02ff: dup
+  IL_0300: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0305: ldc.i4.s -49
+  IL_0307: and
+  IL_0308: stfld TransportLine/Flags TransportLine::m_flags
+  IL_030d: ldloc.1
+  IL_030e: ldloc.s V_14
+  IL_0310: ldelema TransportLine
+  IL_0315: dup
+  IL_0316: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_031b: ldc.i4 -65537
+  IL_0320: and
+  IL_0321: stfld TransportLine/Flags TransportLine::m_flags
+  IL_0326: ldarg.1
+  IL_0327: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_032c: ldc.i4 153
+  IL_0331: blt.un IL_034f
+  IL_0336: ldloc.1
+  IL_0337: ldloc.s V_14
+  IL_0339: ldelema TransportLine
+  IL_033e: ldarg.1
+  IL_033f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0344: conv.u2
+  IL_0345: stfld System.UInt16 TransportLine::m_lineNumber
+  IL_034a: br IL_03a6
+  IL_034f: ldloc.1
+  IL_0350: ldloc.s V_14
+  IL_0352: ldelema TransportLine
+  IL_0357: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_035c: ldc.i4.8
+  IL_035d: and
+  IL_035e: brfalse IL_0376
+  IL_0363: ldloc.1
+  IL_0364: ldloc.s V_14
+  IL_0366: ldelema TransportLine
+  IL_036b: ldc.i4.0
+  IL_036c: stfld System.UInt16 TransportLine::m_lineNumber
+  IL_0371: br IL_03a6
+  IL_0376: ldloc.1
+  IL_0377: ldloc.s V_14
+  IL_0379: ldelema TransportLine
+  IL_037e: ldloc.0
+  IL_037f: ldfld System.UInt16[] TransportManager::m_lineNumber
+  IL_0384: ldloc.1
+  IL_0385: ldloc.s V_14
+  IL_0387: ldelema TransportLine
+  IL_038c: ldfld System.UInt16 TransportLine::m_infoIndex
+  IL_0391: ldelema System.UInt16
+  IL_0396: dup
+  IL_0397: ldind.u2
+  IL_0398: ldc.i4.1
+  IL_0399: add
+  IL_039a: conv.u2
+  IL_039b: dup
+  IL_039c: stloc.s V_15
+  IL_039e: stind.i2
+  IL_039f: ldloc.s V_15
+  IL_03a1: stfld System.UInt16 TransportLine::m_lineNumber
+  IL_03a6: ldloc.1
+  IL_03a7: ldloc.s V_14
+  IL_03a9: ldelema TransportLine
+  IL_03ae: ldarg.1
+  IL_03af: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_03b4: conv.u2
+  IL_03b5: stfld System.UInt16 TransportLine::m_stops
+  IL_03ba: ldarg.1
+  IL_03bb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_03c0: ldc.i4.s 121
+  IL_03c2: blt.un IL_042e
+  IL_03c7: ldloc.1
+  IL_03c8: ldloc.s V_14
+  IL_03ca: ldelema TransportLine
+  IL_03cf: ldflda UnityEngine.Color32 TransportLine::m_color
+  IL_03d4: ldarg.1
+  IL_03d5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_03da: conv.u1
+  IL_03db: stfld System.Byte UnityEngine.Color32::r
+  IL_03e0: ldloc.1
+  IL_03e1: ldloc.s V_14
+  IL_03e3: ldelema TransportLine
+  IL_03e8: ldflda UnityEngine.Color32 TransportLine::m_color
+  IL_03ed: ldarg.1
+  IL_03ee: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_03f3: conv.u1
+  IL_03f4: stfld System.Byte UnityEngine.Color32::g
+  IL_03f9: ldloc.1
+  IL_03fa: ldloc.s V_14
+  IL_03fc: ldelema TransportLine
+  IL_0401: ldflda UnityEngine.Color32 TransportLine::m_color
+  IL_0406: ldarg.1
+  IL_0407: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_040c: conv.u1
+  IL_040d: stfld System.Byte UnityEngine.Color32::b
+  IL_0412: ldloc.1
+  IL_0413: ldloc.s V_14
+  IL_0415: ldelema TransportLine
+  IL_041a: ldflda UnityEngine.Color32 TransportLine::m_color
+  IL_041f: ldc.i4 255
+  IL_0424: stfld System.Byte UnityEngine.Color32::a
+  IL_0429: br IL_0445
+  IL_042e: ldloc.1
+  IL_042f: ldloc.s V_14
+  IL_0431: ldelema TransportLine
+  IL_0436: ldloca.s V_16
+  IL_0438: initobj UnityEngine.Color32
+  IL_043e: ldloc.s V_16
+  IL_0440: stfld UnityEngine.Color32 TransportLine::m_color
+  IL_0445: ldarg.1
+  IL_0446: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_044b: ldc.i4 288
+  IL_0450: blt.un IL_046e
+  IL_0455: ldloc.1
+  IL_0456: ldloc.s V_14
+  IL_0458: ldelema TransportLine
+  IL_045d: ldarg.1
+  IL_045e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0463: conv.u2
+  IL_0464: stfld System.UInt16 TransportLine::m_building
+  IL_0469: br IL_047c
+  IL_046e: ldloc.1
+  IL_046f: ldloc.s V_14
+  IL_0471: ldelema TransportLine
+  IL_0476: ldc.i4.0
+  IL_0477: stfld System.UInt16 TransportLine::m_building
+  IL_047c: ldarg.1
+  IL_047d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0482: ldc.i4 314
+  IL_0487: blt.un IL_04b8
+  IL_048c: ldloc.1
+  IL_048d: ldloc.s V_14
+  IL_048f: ldelema TransportLine
+  IL_0494: ldarg.1
+  IL_0495: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_049a: conv.u2
+  IL_049b: stfld System.UInt16 TransportLine::m_budget
+  IL_04a0: ldloc.1
+  IL_04a1: ldloc.s V_14
+  IL_04a3: ldelema TransportLine
+  IL_04a8: ldarg.1
+  IL_04a9: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_04ae: stfld System.Single TransportLine::m_totalLength
+  IL_04b3: br IL_04d9
+  IL_04b8: ldloc.1
+  IL_04b9: ldloc.s V_14
+  IL_04bb: ldelema TransportLine
+  IL_04c0: ldc.i4.s 100
+  IL_04c2: stfld System.UInt16 TransportLine::m_budget
+  IL_04c7: ldloc.1
+  IL_04c8: ldloc.s V_14
+  IL_04ca: ldelema TransportLine
+  IL_04cf: ldc.r4 0
+  IL_04d4: stfld System.Single TransportLine::m_totalLength
+  IL_04d9: ldarg.1
+  IL_04da: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_04df: ldc.i4 320
+  IL_04e4: blt.un IL_0502
+  IL_04e9: ldloc.1
+  IL_04ea: ldloc.s V_14
+  IL_04ec: ldelema TransportLine
+  IL_04f1: ldarg.1
+  IL_04f2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_04f7: conv.u1
+  IL_04f8: stfld System.Byte TransportLine::m_averageInterval
+  IL_04fd: br IL_0510
+  IL_0502: ldloc.1
+  IL_0503: ldloc.s V_14
+  IL_0505: ldelema TransportLine
+  IL_050a: ldc.i4.0
+  IL_050b: stfld System.Byte TransportLine::m_averageInterval
+  IL_0510: ldarg.1
+  IL_0511: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0516: ldc.i4 110023
+  IL_051b: blt.un IL_0539
+  IL_0520: ldloc.1
+  IL_0521: ldloc.s V_14
+  IL_0523: ldelema TransportLine
+  IL_0528: ldarg.1
+  IL_0529: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_052e: conv.u2
+  IL_052f: stfld System.UInt16 TransportLine::m_ticketPrice
+  IL_0534: br IL_0547
+  IL_0539: ldloc.1
+  IL_053a: ldloc.s V_14
+  IL_053c: ldelema TransportLine
+  IL_0541: ldc.i4.0
+  IL_0542: stfld System.UInt16 TransportLine::m_ticketPrice
+  IL_0547: ldarg.1
+  IL_0548: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_054d: ldc.i4.s 122
+  IL_054f: blt.un IL_056c
+  IL_0554: ldloc.1
+  IL_0555: ldloc.s V_14
+  IL_0557: ldelema TransportLine
+  IL_055c: ldflda TransportPassengerData TransportLine::m_passengers
+  IL_0561: ldarg.1
+  IL_0562: call System.Void TransportPassengerData::Deserialize(ColossalFramework.IO.DataSerializer)
+  IL_0567: br IL_0583
+  IL_056c: ldloc.1
+  IL_056d: ldloc.s V_14
+  IL_056f: ldelema TransportLine
+  IL_0574: ldloca.s V_17
+  IL_0576: initobj TransportPassengerData
+  IL_057c: ldloc.s V_17
+  IL_057e: stfld TransportPassengerData TransportLine::m_passengers
+  IL_0583: ldarg.1
+  IL_0584: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0589: ldc.i4 112004
+  IL_058e: blt.un IL_05aa
+  IL_0593: ldarg.1
+  IL_0594: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0599: ldc.i4 112022
+  IL_059e: bge.un IL_05aa
+  IL_05a3: ldarg.1
+  IL_05a4: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_05a9: pop
+  IL_05aa: ldarg.1
+  IL_05ab: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_05b0: ldc.i4 112022
+  IL_05b5: blt.un IL_05e2
+  IL_05ba: ldarg.1
+  IL_05bb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_05c0: ldc.i4 114001
+  IL_05c5: bge.un IL_05e2
+  IL_05ca: ldarg.1
+  IL_05cb: callvirt System.String ColossalFramework.IO.DataSerializer::ReadUniqueString()
+  IL_05d0: stloc.s V_18
+  IL_05d2: ldloc.0
+  IL_05d3: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.String> TransportManager::m_transportLineVehicleSelection
+  IL_05d8: ldloc.s V_14
+  IL_05da: conv.u2
+  IL_05db: ldloc.s V_18
+  IL_05dd: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.String>::set_Item(!0,!1)
+  IL_05e2: ldarg.1
+  IL_05e3: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_05e8: ldc.i4 112022
+  IL_05ed: bge.un IL_0605
+  IL_05f2: ldloc.0
+  IL_05f3: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.String> TransportManager::m_transportLineVehicleSelection
+  IL_05f8: ldloc.s V_14
+  IL_05fa: conv.u2
+  IL_05fb: ldstr "#DEFAULT#"
+  IL_0600: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.String>::set_Item(!0,!1)
+  IL_0605: br IL_06ac
+  IL_060a: ldloc.1
+  IL_060b: ldloc.s V_14
+  IL_060d: ldelema TransportLine
+  IL_0612: ldc.i4.0
+  IL_0613: stfld System.UInt16 TransportLine::m_lineNumber
+  IL_0618: ldloc.1
+  IL_0619: ldloc.s V_14
+  IL_061b: ldelema TransportLine
+  IL_0620: ldc.i4.0
+  IL_0621: stfld System.UInt16 TransportLine::m_stops
+  IL_0626: ldloc.1
+  IL_0627: ldloc.s V_14
+  IL_0629: ldelema TransportLine
+  IL_062e: ldc.i4.0
+  IL_062f: stfld System.UInt16 TransportLine::m_building
+  IL_0634: ldloc.1
+  IL_0635: ldloc.s V_14
+  IL_0637: ldelema TransportLine
+  IL_063c: ldc.i4.0
+  IL_063d: stfld System.UInt16 TransportLine::m_budget
+  IL_0642: ldloc.1
+  IL_0643: ldloc.s V_14
+  IL_0645: ldelema TransportLine
+  IL_064a: ldc.r4 0
+  IL_064f: stfld System.Single TransportLine::m_totalLength
+  IL_0654: ldloc.1
+  IL_0655: ldloc.s V_14
+  IL_0657: ldelema TransportLine
+  IL_065c: ldc.i4.0
+  IL_065d: stfld System.Byte TransportLine::m_averageInterval
+  IL_0662: ldloc.1
+  IL_0663: ldloc.s V_14
+  IL_0665: ldelema TransportLine
+  IL_066a: ldc.i4.0
+  IL_066b: stfld System.UInt16 TransportLine::m_ticketPrice
+  IL_0670: ldloc.1
+  IL_0671: ldloc.s V_14
+  IL_0673: ldelema TransportLine
+  IL_0678: ldloca.s V_19
+  IL_067a: initobj UnityEngine.Color32
+  IL_0680: ldloc.s V_19
+  IL_0682: stfld UnityEngine.Color32 TransportLine::m_color
+  IL_0687: ldloc.1
+  IL_0688: ldloc.s V_14
+  IL_068a: ldelema TransportLine
+  IL_068f: ldloca.s V_20
+  IL_0691: initobj TransportPassengerData
+  IL_0697: ldloc.s V_20
+  IL_0699: stfld TransportPassengerData TransportLine::m_passengers
+  IL_069e: ldloc.0
+  IL_069f: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_06a4: ldloc.s V_14
+  IL_06a6: conv.u2
+  IL_06a7: callvirt System.Void Array16`1<TransportLine>::ReleaseItem(System.UInt16)
+  IL_06ac: ldloc.s V_14
+  IL_06ae: ldc.i4.1
+  IL_06af: add
+  IL_06b0: stloc.s V_14
+  IL_06b2: ldloc.s V_14
+  IL_06b4: ldloc.2
+  IL_06b5: blt IL_02a8
+  IL_06ba: ldc.i4.0
+  IL_06bb: stloc.s V_21
+  IL_06bd: br IL_06db
+  IL_06c2: ldloc.0
+  IL_06c3: ldfld TransportPassengerData[] TransportManager::m_passengers
+  IL_06c8: ldloc.s V_21
+  IL_06ca: ldelema TransportPassengerData
+  IL_06cf: ldarg.1
+  IL_06d0: call System.Void TransportPassengerData::Deserialize(ColossalFramework.IO.DataSerializer)
+  IL_06d5: ldloc.s V_21
+  IL_06d7: ldc.i4.1
+  IL_06d8: add
+  IL_06d9: stloc.s V_21
+  IL_06db: ldloc.s V_21
+  IL_06dd: ldloc.s V_10
+  IL_06df: blt IL_06c2
+  IL_06e4: ldloc.s V_10
+  IL_06e6: stloc.s V_22
+  IL_06e8: br IL_070f
+  IL_06ed: ldloc.0
+  IL_06ee: ldfld TransportPassengerData[] TransportManager::m_passengers
+  IL_06f3: ldloc.s V_22
+  IL_06f5: ldelema TransportPassengerData
+  IL_06fa: ldloca.s V_23
+  IL_06fc: initobj TransportPassengerData
+  IL_0702: ldloc.s V_23
+  IL_0704: stobj TransportPassengerData
+  IL_0709: ldloc.s V_22
+  IL_070b: ldc.i4.1
+  IL_070c: add
+  IL_070d: stloc.s V_22
+  IL_070f: ldloc.s V_22
+  IL_0711: ldc.i4.s 17
+  IL_0713: blt IL_06ed
+  IL_0718: ldarg.1
+  IL_0719: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_071e: ldc.i4 316
+  IL_0723: blt.un IL_0745
+  IL_0728: ldloc.0
+  IL_0729: ldarg.1
+  IL_072a: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_072f: stfld GenericGuide TransportManager::m_monorailLine
+  IL_0734: ldloc.0
+  IL_0735: ldarg.1
+  IL_0736: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<BuildingInstanceGuide>()
+  IL_073b: stfld BuildingInstanceGuide TransportManager::m_endOfLineStation
+  IL_0740: br IL_0753
+  IL_0745: ldloc.0
+  IL_0746: ldnull
+  IL_0747: stfld GenericGuide TransportManager::m_monorailLine
+  IL_074c: ldloc.0
+  IL_074d: ldnull
+  IL_074e: stfld BuildingInstanceGuide TransportManager::m_endOfLineStation
+  IL_0753: ldarg.1
+  IL_0754: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0759: ldc.i4 317
+  IL_075e: blt.un IL_0774
+  IL_0763: ldloc.0
+  IL_0764: ldarg.1
+  IL_0765: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<BuildingInstanceGuide>()
+  IL_076a: stfld BuildingInstanceGuide TransportManager::m_ferryBusHub
+  IL_076f: br IL_077b
+  IL_0774: ldloc.0
+  IL_0775: ldnull
+  IL_0776: stfld BuildingInstanceGuide TransportManager::m_ferryBusHub
+  IL_077b: ldarg.1
+  IL_077c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0781: ldc.i4 318
+  IL_0786: blt.un IL_07c0
+  IL_078b: ldloc.0
+  IL_078c: ldarg.1
+  IL_078d: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_0792: stfld GenericGuide TransportManager::m_ferryLine
+  IL_0797: ldloc.0
+  IL_0798: ldarg.1
+  IL_0799: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_079e: stfld GenericGuide TransportManager::m_ferryDepot
+  IL_07a3: ldloc.0
+  IL_07a4: ldarg.1
+  IL_07a5: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_07aa: stfld GenericGuide TransportManager::m_blimpLine
+  IL_07af: ldloc.0
+  IL_07b0: ldarg.1
+  IL_07b1: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+  IL_07b6: stfld GenericGuide TransportManager::m_blimpDepot
+  IL_07bb: br IL_07dc
+  IL_07c0: ldloc.0
+  IL_07c1: ldnull
+  IL_07c2: stfld GenericGuide TransportManager::m_ferryLine
+  IL_07c7: ldloc.0
+  IL_07c8: ldnull
+  IL_07c9: stfld GenericGuide TransportManager::m_ferryDepot
+  IL_07ce: ldloc.0
+  IL_07cf: ldnull
+  IL_07d0: stfld GenericGuide TransportManager::m_blimpLine
+  IL_07d5: ldloc.0
+  IL_07d6: ldnull
+  IL_07d7: stfld GenericGuide TransportManager::m_blimpDepot
+  IL_07dc: ldarg.1
+  IL_07dd: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_07e2: ldc.i4 114001
+  IL_07e7: blt.un IL_082b
+  IL_07ec: ldarg.1
+  IL_07ed: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_07f2: stloc.s V_24
+  IL_07f4: ldc.i4.0
+  IL_07f5: stloc.s V_25
+  IL_07f7: br IL_0822
+  IL_07fc: ldarg.1
+  IL_07fd: callvirt System.Int32 ColossalFramework.IO.DataSerializer::ReadInt16()
+  IL_0802: conv.u2
+  IL_0803: stloc.s V_26
+  IL_0805: ldarg.1
+  IL_0806: callvirt System.String ColossalFramework.IO.DataSerializer::ReadSharedString()
+  IL_080b: stloc.s V_27
+  IL_080d: ldloc.0
+  IL_080e: ldfld System.Collections.Generic.Dictionary`2<System.UInt16,System.String> TransportManager::m_transportLineVehicleSelection
+  IL_0813: ldloc.s V_26
+  IL_0815: ldloc.s V_27
+  IL_0817: callvirt System.Void System.Collections.Generic.Dictionary`2<System.UInt16,System.String>::set_Item(!0,!1)
+  IL_081c: ldloc.s V_25
+  IL_081e: ldc.i4.1
+  IL_081f: add
+  IL_0820: stloc.s V_25
+  IL_0822: ldloc.s V_25
+  IL_0824: ldloc.s V_24
+  IL_0826: blt IL_07fc
+  IL_082b: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0830: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_0835: ldarg.1
+  IL_0836: ldstr "TransportManager"
+  IL_083b: callvirt System.Void LoadingProfiler::EndDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0840: ret
+=== Method: System.Void TransportManager/Data::AfterDeserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "TransportManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_001a: callvirt System.Void LoadingManager::WaitUntilEssentialScenesLoaded()
+  IL_001f: call System.Void PrefabCollection`1<TransportInfo>::BindPrefabs()
+  IL_0024: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  IL_0029: stloc.0
+  IL_002a: ldloc.0
+  IL_002b: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_0030: ldfld T[] Array16`1<TransportLine>::m_buffer
+  IL_0035: stloc.1
+  IL_0036: ldloc.1
+  IL_0037: ldlen
+  IL_0038: conv.i4
+  IL_0039: stloc.2
+  IL_003a: ldc.i4.1
+  IL_003b: stloc.3
+  IL_003c: br IL_026c
+  IL_0041: ldloc.1
+  IL_0042: ldloc.3
+  IL_0043: ldelema TransportLine
+  IL_0048: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_004d: brfalse IL_0268
+  IL_0052: ldloc.1
+  IL_0053: ldloc.3
+  IL_0054: ldelema TransportLine
+  IL_0059: call TransportInfo TransportLine::get_Info()
+  IL_005e: stloc.s V_4
+  IL_0060: ldc.i4.m1
+  IL_0061: stloc.s V_5
+  IL_0063: ldloc.s V_4
+  IL_0065: brfalse IL_00b0
+  IL_006a: ldloc.1
+  IL_006b: ldloc.3
+  IL_006c: ldelema TransportLine
+  IL_0071: ldloc.s V_4
+  IL_0073: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_0078: conv.u2
+  IL_0079: stfld System.UInt16 TransportLine::m_infoIndex
+  IL_007e: ldloc.s V_4
+  IL_0080: ldfld NetInfo TransportInfo::m_netInfo
+  IL_0085: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_008a: stloc.s V_5
+  IL_008c: ldarg.1
+  IL_008d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0092: ldc.i4 110023
+  IL_0097: bge.un IL_00b0
+  IL_009c: ldloc.1
+  IL_009d: ldloc.3
+  IL_009e: ldelema TransportLine
+  IL_00a3: ldloc.s V_4
+  IL_00a5: ldfld System.Int32 TransportInfo::m_ticketPrice
+  IL_00aa: conv.u2
+  IL_00ab: stfld System.UInt16 TransportLine::m_ticketPrice
+  IL_00b0: ldloc.1
+  IL_00b1: ldloc.3
+  IL_00b2: ldelema TransportLine
+  IL_00b7: ldfld System.UInt16 TransportLine::m_stops
+  IL_00bc: stloc.s V_6
+  IL_00be: ldloc.s V_6
+  IL_00c0: stloc.s V_7
+  IL_00c2: ldc.i4.0
+  IL_00c3: stloc.s V_8
+  IL_00c5: br IL_0261
+  IL_00ca: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_00cf: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_00d4: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_00d9: ldloc.s V_7
+  IL_00db: ldelema NetNode
+  IL_00e0: ldfld System.UInt16 NetNode::m_transportLine
+  IL_00e5: ldloc.3
+  IL_00e6: conv.u2
+  IL_00e7: bne.un IL_011b
+  IL_00ec: ldc.i4.1
+  IL_00ed: ldstr "Invalid transport line loop!
+"
+  IL_00f2: call System.String System.Environment::get_StackTrace()
+  IL_00f7: call System.String System.String::Concat(System.String,System.String)
+  IL_00fc: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0101: ldloc.1
+  IL_0102: ldloc.3
+  IL_0103: ldelema TransportLine
+  IL_0108: dup
+  IL_0109: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_010e: ldc.i4.s 64
+  IL_0110: or
+  IL_0111: stfld TransportLine/Flags TransportLine::m_flags
+  IL_0116: br IL_0268
+  IL_011b: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0120: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0125: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_012a: ldloc.s V_7
+  IL_012c: ldelema NetNode
+  IL_0131: ldfld NetNode/Flags NetNode::m_flags
+  IL_0136: brfalse IL_015b
+  IL_013b: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0140: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0145: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_014a: ldloc.s V_7
+  IL_014c: ldelema NetNode
+  IL_0151: ldfld System.UInt16 NetNode::m_transportLine
+  IL_0156: brfalse IL_018a
+  IL_015b: ldc.i4.1
+  IL_015c: ldstr "Invalid transport line node!
+"
+  IL_0161: call System.String System.Environment::get_StackTrace()
+  IL_0166: call System.String System.String::Concat(System.String,System.String)
+  IL_016b: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0170: ldloc.1
+  IL_0171: ldloc.3
+  IL_0172: ldelema TransportLine
+  IL_0177: dup
+  IL_0178: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_017d: ldc.i4.s 64
+  IL_017f: or
+  IL_0180: stfld TransportLine/Flags TransportLine::m_flags
+  IL_0185: br IL_0268
+  IL_018a: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_018f: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0194: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0199: ldloc.s V_7
+  IL_019b: ldelema NetNode
+  IL_01a0: ldloc.3
+  IL_01a1: conv.u2
+  IL_01a2: stfld System.UInt16 NetNode::m_transportLine
+  IL_01a7: ldloc.s V_5
+  IL_01a9: ldc.i4.m1
+  IL_01aa: beq IL_01cd
+  IL_01af: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_01b4: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_01b9: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_01be: ldloc.s V_7
+  IL_01c0: ldelema NetNode
+  IL_01c5: ldloc.s V_5
+  IL_01c7: conv.u2
+  IL_01c8: stfld System.UInt16 NetNode::m_infoIndex
+  IL_01cd: ldloc.s V_7
+  IL_01cf: call System.UInt16 TransportLine::GetNextSegment(System.UInt16)
+  IL_01d4: stloc.s V_9
+  IL_01d6: ldloc.s V_9
+  IL_01d8: brfalse IL_0225
+  IL_01dd: ldloc.s V_5
+  IL_01df: ldc.i4.m1
+  IL_01e0: beq IL_0203
+  IL_01e5: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_01ea: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_01ef: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_01f4: ldloc.s V_9
+  IL_01f6: ldelema NetSegment
+  IL_01fb: ldloc.s V_5
+  IL_01fd: conv.u2
+  IL_01fe: stfld System.UInt16 NetSegment::m_infoIndex
+  IL_0203: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0208: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_020d: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0212: ldloc.s V_9
+  IL_0214: ldelema NetSegment
+  IL_0219: ldfld System.UInt16 NetSegment::m_endNode
+  IL_021e: stloc.s V_7
+  IL_0220: br IL_0228
+  IL_0225: ldc.i4.0
+  IL_0226: stloc.s V_7
+  IL_0228: ldloc.s V_7
+  IL_022a: ldloc.s V_6
+  IL_022c: bne.un IL_0236
+  IL_0231: br IL_0268
+  IL_0236: ldloc.s V_8
+  IL_0238: ldc.i4.1
+  IL_0239: add
+  IL_023a: dup
+  IL_023b: stloc.s V_8
+  IL_023d: ldc.i4 32768
+  IL_0242: blt IL_0261
+  IL_0247: ldc.i4.1
+  IL_0248: ldstr "Invalid list detected!
+"
+  IL_024d: call System.String System.Environment::get_StackTrace()
+  IL_0252: call System.String System.String::Concat(System.String,System.String)
+  IL_0257: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_025c: br IL_0268
+  IL_0261: ldloc.s V_7
+  IL_0263: brtrue IL_00ca
+  IL_0268: ldloc.3
+  IL_0269: ldc.i4.1
+  IL_026a: add
+  IL_026b: stloc.3
+  IL_026c: ldloc.3
+  IL_026d: ldloc.2
+  IL_026e: blt IL_0041
+  IL_0273: ldarg.0
+  IL_0274: ldfld System.UInt32[] TransportManager/Data::m_milestoneInfoIndex
+  IL_0279: brfalse IL_02d6
+  IL_027e: ldarg.0
+  IL_027f: ldfld System.UInt32[] TransportManager/Data::m_milestoneInfoIndex
+  IL_0284: ldlen
+  IL_0285: conv.i4
+  IL_0286: stloc.s V_10
+  IL_0288: ldc.i4.0
+  IL_0289: stloc.s V_11
+  IL_028b: br IL_02cd
+  IL_0290: ldarg.0
+  IL_0291: ldfld System.UInt32[] TransportManager/Data::m_milestoneInfoIndex
+  IL_0296: ldloc.s V_11
+  IL_0298: ldelem.u4
+  IL_0299: call T PrefabCollection`1<TransportInfo>::GetPrefab(System.UInt32)
+  IL_029e: stloc.s V_12
+  IL_02a0: ldloc.s V_12
+  IL_02a2: brfalse IL_02c7
+  IL_02a7: ldloc.s V_12
+  IL_02a9: ldfld MilestoneInfo TransportInfo::m_UnlockMilestone
+  IL_02ae: stloc.s V_13
+  IL_02b0: ldloc.s V_13
+  IL_02b2: brfalse IL_02c7
+  IL_02b7: ldloc.s V_13
+  IL_02b9: ldarg.0
+  IL_02ba: ldfld MilestoneInfo/Data[] TransportManager/Data::m_UnlockMilestones
+  IL_02bf: ldloc.s V_11
+  IL_02c1: ldelem.ref
+  IL_02c2: callvirt System.Void MilestoneInfo::SetData(MilestoneInfo/Data)
+  IL_02c7: ldloc.s V_11
+  IL_02c9: ldc.i4.1
+  IL_02ca: add
+  IL_02cb: stloc.s V_11
+  IL_02cd: ldloc.s V_11
+  IL_02cf: ldloc.s V_10
+  IL_02d1: blt IL_0290
+  IL_02d6: ldloc.0
+  IL_02d7: ldc.i4.1
+  IL_02d8: stfld System.Boolean TransportManager::m_linesUpdated
+  IL_02dd: ldloc.0
+  IL_02de: ldfld System.UInt64[] TransportManager::m_updatedLines
+  IL_02e3: ldlen
+  IL_02e4: conv.i4
+  IL_02e5: stloc.s V_14
+  IL_02e7: ldc.i4.0
+  IL_02e8: stloc.s V_15
+  IL_02ea: br IL_0300
+  IL_02ef: ldloc.0
+  IL_02f0: ldfld System.UInt64[] TransportManager::m_updatedLines
+  IL_02f5: ldloc.s V_15
+  IL_02f7: ldc.i4.m1
+  IL_02f8: conv.i8
+  IL_02f9: stelem.i8
+  IL_02fa: ldloc.s V_15
+  IL_02fc: ldc.i4.1
+  IL_02fd: add
+  IL_02fe: stloc.s V_15
+  IL_0300: ldloc.s V_15
+  IL_0302: ldloc.s V_14
+  IL_0304: blt IL_02ef
+  IL_0309: ldloc.0
+  IL_030a: ldfld TransportPatch[] TransportManager::m_patches
+  IL_030f: ldlen
+  IL_0310: conv.i4
+  IL_0311: stloc.s V_16
+  IL_0313: ldc.i4.0
+  IL_0314: stloc.s V_17
+  IL_0316: br IL_0374
+  IL_031b: ldloc.0
+  IL_031c: ldfld TransportPatch[] TransportManager::m_patches
+  IL_0321: ldloc.s V_17
+  IL_0323: ldelem.ref
+  IL_0324: stloc.s V_18
+  IL_0326: ldc.i4.0
+  IL_0327: stloc.s V_19
+  IL_0329: br IL_0367
+  IL_032e: ldloc.s V_18
+  IL_0330: ldc.i4.1
+  IL_0331: stfld System.Boolean TransportPatch::m_isDirty
+  IL_0336: ldloc.s V_18
+  IL_0338: ldfld TransportPatch TransportPatch::m_nextPatch
+  IL_033d: stloc.s V_18
+  IL_033f: ldloc.s V_19
+  IL_0341: ldc.i4.1
+  IL_0342: add
+  IL_0343: dup
+  IL_0344: stloc.s V_19
+  IL_0346: ldc.i4.s 100
+  IL_0348: blt IL_0367
+  IL_034d: ldc.i4.1
+  IL_034e: ldstr "Invalid list detected!
+"
+  IL_0353: call System.String System.Environment::get_StackTrace()
+  IL_0358: call System.String System.String::Concat(System.String,System.String)
+  IL_035d: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0362: br IL_036e
+  IL_0367: ldloc.s V_18
+  IL_0369: brtrue IL_032e
+  IL_036e: ldloc.s V_17
+  IL_0370: ldc.i4.1
+  IL_0371: add
+  IL_0372: stloc.s V_17
+  IL_0374: ldloc.s V_17
+  IL_0376: ldloc.s V_16
+  IL_0378: blt IL_031b
+  IL_037d: ldloc.0
+  IL_037e: ldc.i4.1
+  IL_037f: stfld System.Boolean TransportManager::m_patchesDirty
+  IL_0384: ldloc.0
+  IL_0385: ldloc.0
+  IL_0386: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_038b: callvirt System.UInt32 Array16`1<TransportLine>::ItemCount()
+  IL_0390: ldc.i4.1
+  IL_0391: sub
+  IL_0392: stfld System.Int32 TransportManager::m_lineCount
+  IL_0397: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_039c: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_03a1: ldarg.1
+  IL_03a2: ldstr "TransportManager"
+  IL_03a7: callvirt System.Void LoadingProfiler::EndAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_03ac: ret

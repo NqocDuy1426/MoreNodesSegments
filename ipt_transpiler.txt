@@ -1,0 +1,77 @@
+Method: HarmonyLib.CodeInstruction ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher::GetLDArg(System.Reflection.MethodBase,System.String)
+  IL_0000: newobj System.Void ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<>c__DisplayClass0_0::.ctor()
+  IL_0005: stloc.0 
+  IL_0006: ldloc.0 
+  IL_0007: ldarg.1 
+  IL_0008: stfld System.String ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<>c__DisplayClass0_0::argName
+  IL_000d: ldarg.0 
+  IL_000e: callvirt System.Reflection.ParameterInfo[] System.Reflection.MethodBase::GetParameters()
+  IL_0013: ldloc.0 
+  IL_0014: ldftn System.Boolean ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<>c__DisplayClass0_0::<GetLDArg>b__0(System.Reflection.ParameterInfo)
+  IL_001a: newobj System.Void System.Predicate`1<System.Reflection.ParameterInfo>::.ctor(System.Object,System.IntPtr)
+  IL_001f: call System.Int32 System.Array::FindIndex<System.Reflection.ParameterInfo>(!!0[],System.Predicate`1<!!0>)
+  IL_0024: stloc.1 
+  IL_0025: ldloc.1 
+  IL_0026: ldc.i4.m1 
+  IL_0027: bne.un.s IL_002b
+  IL_0029: ldnull 
+  IL_002a: ret 
+  IL_002b: ldarg.0 
+  IL_002c: callvirt System.Boolean System.Reflection.MethodBase::get_IsStatic()
+  IL_0031: brtrue.s IL_0037
+  IL_0033: ldloc.1 
+  IL_0034: ldc.i4.1 
+  IL_0035: add 
+  IL_0036: stloc.1 
+  IL_0037: ldloc.1 
+  IL_0038: switch Mono.Cecil.Cil.Instruction[]
+  IL_004d: br.s IL_0087
+  IL_004f: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldarg_0
+  IL_0054: ldnull 
+  IL_0055: newobj System.Void HarmonyLib.CodeInstruction::.ctor(System.Reflection.Emit.OpCode,System.Object)
+  IL_005a: stloc.2 
+  IL_005b: br.s IL_0098
+  IL_005d: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldarg_1
+  IL_0062: ldnull 
+  IL_0063: newobj System.Void HarmonyLib.CodeInstruction::.ctor(System.Reflection.Emit.OpCode,System.Object)
+  IL_0068: stloc.2 
+  IL_0069: br.s IL_0098
+  IL_006b: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldarg_2
+  IL_0070: ldnull 
+  IL_0071: newobj System.Void HarmonyLib.CodeInstruction::.ctor(System.Reflection.Emit.OpCode,System.Object)
+  IL_0076: stloc.2 
+  IL_0077: br.s IL_0098
+  IL_0079: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldarg_3
+  IL_007e: ldnull 
+  IL_007f: newobj System.Void HarmonyLib.CodeInstruction::.ctor(System.Reflection.Emit.OpCode,System.Object)
+  IL_0084: stloc.2 
+  IL_0085: br.s IL_0098
+  IL_0087: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldarg_S
+  IL_008c: ldloc.1 
+  IL_008d: box System.Int32
+  IL_0092: newobj System.Void HarmonyLib.CodeInstruction::.ctor(System.Reflection.Emit.OpCode,System.Object)
+  IL_0097: stloc.2 
+  IL_0098: ldloc.2 
+  IL_0099: ret 
+Method: System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher::TransportToolGetStopPositionTranspiler(System.Reflection.Emit.ILGenerator,System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>,System.Reflection.MethodBase)
+  IL_0000: ldc.i4.s -2
+  IL_0002: newobj System.Void ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<TransportToolGetStopPositionTranspiler>d__1::.ctor(System.Int32)
+  IL_0007: dup 
+  IL_0008: ldarg.0 
+  IL_0009: stfld System.Reflection.Emit.ILGenerator ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<TransportToolGetStopPositionTranspiler>d__1::<>3__generator
+  IL_000e: dup 
+  IL_000f: ldarg.1 
+  IL_0010: stfld System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<TransportToolGetStopPositionTranspiler>d__1::<>3__instructions
+  IL_0015: dup 
+  IL_0016: ldarg.2 
+  IL_0017: stfld System.Reflection.MethodBase ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher/<TransportToolGetStopPositionTranspiler>d__1::<>3__original
+  IL_001c: ret 
+Method: System.Boolean ImprovedPublicTransport.Integration.AdvancedStopSelection.Patcher::GetAlternateMode()
+  IL_0000: ldc.i4 304
+  IL_0005: call System.Boolean UnityEngine.Input::GetKey(UnityEngine.KeyCode)
+  IL_000a: brtrue.s IL_0017
+  IL_000c: ldc.i4 303
+  IL_0011: call System.Boolean UnityEngine.Input::GetKey(UnityEngine.KeyCode)
+  IL_0016: ret 
+  IL_0017: ldc.i4.1 
+  IL_0018: ret 

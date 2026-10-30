@@ -1,0 +1,65 @@
+=== EnterVehicle ===
+  IL_0000: ldarg.2 
+  IL_0001: dup 
+  IL_0002: ldfld CitizenInstance/Flags CitizenInstance::m_flags
+  IL_0007: ldc.i4 -2049
+  IL_000C: and 
+  IL_000D: stfld CitizenInstance/Flags CitizenInstance::m_flags
+  IL_0012: ldarg.2 
+  IL_0013: ldarg.1 
+  IL_0014: call System.Void CitizenInstance::Unspawn(System.UInt16)
+  IL_0019: ldarg.2 
+  IL_001A: ldfld System.UInt32 CitizenInstance::m_citizen
+  IL_001F: stloc.0 
+  IL_0020: ldloc.0 
+  IL_0021: brfalse IL_00bd: ldc.i4.0
+  IL_0026: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_002B: stloc.1 
+  IL_002C: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+  IL_0031: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+  IL_0036: ldfld T[] Array32`1<Citizen>::m_buffer
+  IL_003B: ldloc.0 
+  IL_003C: conv.u 
+  IL_003D: ldelema Citizen
+  IL_0042: ldfld System.UInt16 Citizen::m_vehicle
+  IL_0047: stloc.2 
+  IL_0048: ldloc.2 
+  IL_0049: brfalse IL_0066: ldloc.2
+  IL_004E: ldloc.1 
+  IL_004F: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0054: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0059: ldloc.2 
+  IL_005A: ldelema Vehicle
+  IL_005F: ldloc.2 
+  IL_0060: call System.UInt16 Vehicle::GetFirstVehicle(System.UInt16)
+  IL_0065: stloc.2 
+  IL_0066: ldloc.2 
+  IL_0067: brfalse IL_00bd: ldc.i4.0
+  IL_006C: ldloc.1 
+  IL_006D: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0072: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0077: ldloc.2 
+  IL_0078: ldelema Vehicle
+  IL_007D: call VehicleInfo Vehicle::get_Info()
+  IL_0082: stloc.3 
+  IL_0083: ldloc.3 
+  IL_0084: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0089: ldloc.2 
+  IL_008A: ldloc.1 
+  IL_008B: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0090: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0095: ldloc.2 
+  IL_0096: ldelema Vehicle
+  IL_009B: callvirt System.Int32 VehicleAI::GetTicketPrice(System.UInt16,Vehicle&)
+  IL_00A0: stloc.s V_4
+  IL_00A2: ldloc.s V_4
+  IL_00A4: brfalse IL_00bd: ldc.i4.0
+  IL_00A9: call !0 ColossalFramework.Singleton`1<EconomyManager>::get_instance()
+  IL_00AE: ldc.i4.7 
+  IL_00AF: ldloc.s V_4
+  IL_00B1: ldloc.3 
+  IL_00B2: ldfld ItemClass VehicleInfo::m_class
+  IL_00B7: callvirt System.Int32 EconomyManager::AddResource(EconomyManager/Resource,System.Int32,ItemClass)
+  IL_00BC: pop 
+  IL_00BD: ldc.i4.0 
+  IL_00BE: ret 

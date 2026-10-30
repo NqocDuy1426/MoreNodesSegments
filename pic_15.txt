@@ -1,0 +1,26 @@
+METHOD: System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_0000: ldarg.0    
+IL_0001: ldarg.1    
+IL_0002: ldarg.2    
+IL_0003: ldarg.3    
+IL_0004: ldarg.s    prevMaxSpeed
+IL_0006: ldarg.s    prevLaneSpeed
+IL_0008: ldc.i4.0   
+IL_0009: ldc.r4     0
+IL_000E: ldarg.s    nextNodeId
+IL_0010: ldarg.s    nextNode
+IL_0012: ldarg.s    isMiddle
+IL_0014: ldarg.s    nextSegmentId
+IL_0016: ldarg.s    nextSegment
+IL_0018: ldc.r4     1
+IL_001D: ldc.r4     1
+IL_0022: ldloca.s   V_0
+IL_0024: initobj    System.Nullable`1<TrafficManager.API.Manager.LaneTransitionData>
+IL_002A: ldloc.0    
+IL_002B: ldarg.s    laneIndexFromInner
+IL_002D: ldarg.s    connectOffset
+IL_002F: ldarg.s    enableVehicle
+IL_0031: ldarg.s    enablePedestrian
+IL_0033: ldarg.s    simulationFlags
+IL_0035: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.Boolean,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Single,System.Single,System.Nullable`1<TrafficManager.API.Manager.LaneTransitionData>,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_003A: ret        

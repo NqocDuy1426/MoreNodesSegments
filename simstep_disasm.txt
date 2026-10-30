@@ -1,0 +1,362 @@
+================ METHOD: FixedUpdate ================
+  IL_0000: br IL_0005: ldarg.0
+  IL_0005: ldarg.0 
+  IL_0006: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_000B: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0010: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0015: brfalse IL_0005: ldarg.0
+  IL_001A: ldarg.0 
+  IL_001B: ldfld System.Int32 SimulationManager::m_updateCounter
+  IL_0020: ldarg.0 
+  IL_0021: ldfld System.Int32 SimulationManager::m_maxFramesBehind
+  IL_0026: bge IL_0044: leave IL_0055
+  IL_002B: ldarg.0 
+  IL_002C: dup 
+  IL_002D: ldfld System.Int32 SimulationManager::m_updateCounter
+  IL_0032: ldc.i4.1 
+  IL_0033: add 
+  IL_0034: stfld System.Int32 SimulationManager::m_updateCounter
+  IL_0039: ldarg.0 
+  IL_003A: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_003F: call System.Void System.Threading.Monitor::Pulse(System.Object)
+  IL_0044: leave IL_0055: ret
+  IL_0049: ldarg.0 
+  IL_004A: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_004F: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0054: endfinally 
+  IL_0055: ret 
+================ METHOD: get_FinalSimulationSpeed ================
+  IL_0000: ldarg.0 
+  IL_0001: ldfld System.Boolean SimulationManager::m_simulationPaused
+  IL_0006: brtrue IL_0074: ldc.i4.0
+  IL_000B: ldarg.0 
+  IL_000C: ldfld System.Boolean SimulationManager::m_forcedSimulationPause
+  IL_0011: brtrue IL_0074: ldc.i4.0
+  IL_0016: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_001B: volatile. 
+  IL_001D: ldfld System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_loadingComplete
+  IL_0022: brfalse IL_0074: ldc.i4.0
+  IL_0027: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+  IL_002C: ldfld Properties SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+  IL_0031: ldfld ItemClass/Availability ToolController::m_mode
+  IL_0036: ldc.i4.2 
+  IL_0037: and 
+  IL_0038: brfalse IL_005f: ldarg.0
+  IL_003D: ldarg.0 
+  IL_003E: ldfld System.Int32 SimulationManager::m_simulationSpeed
+  IL_0043: ldc.i4.2 
+  IL_0044: bne.un IL_004b: ldarg.0
+  IL_0049: ldc.i4.3 
+  IL_004A: ret 
+  IL_004B: ldarg.0 
+  IL_004C: ldfld System.Int32 SimulationManager::m_simulationSpeed
+  IL_0051: ldc.i4.3 
+  IL_0052: bne.un IL_005a: br IL_006d
+  IL_0057: ldc.i4.s 9
+  IL_0059: ret 
+  IL_005A: br IL_006d: ldarg.0
+  IL_005F: ldarg.0 
+  IL_0060: ldfld System.Int32 SimulationManager::m_simulationSpeed
+  IL_0065: ldc.i4.3 
+  IL_0066: bne.un IL_006d: ldarg.0
+  IL_006B: ldc.i4.4 
+  IL_006C: ret 
+  IL_006D: ldarg.0 
+  IL_006E: ldfld System.Int32 SimulationManager::m_simulationSpeed
+  IL_0073: ret 
+  IL_0074: ldc.i4.0 
+  IL_0075: ret 
+================ METHOD: SimulationThread ================
+  IL_0000: ldc.i4.1 
+  IL_0001: ldstr Simulation started
+  IL_0006: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Log(!0,System.String)
+  IL_000B: br IL_0010: ldarg.0
+  IL_0010: ldarg.0 
+  IL_0011: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_0016: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_001B: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_0020: brfalse IL_0010: ldarg.0
+  IL_0025: ldarg.0 
+  IL_0026: ldc.i4.0 
+  IL_0027: stfld System.Boolean SimulationManager::m_inSimulationStep
+  IL_002C: ldarg.0 
+  IL_002D: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_0032: call System.Void System.Threading.Monitor::Pulse(System.Object)
+  IL_0037: br IL_0049: ldarg.0
+  IL_003C: ldarg.0 
+  IL_003D: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_0042: ldc.i4.1 
+  IL_0043: call System.Boolean System.Threading.Monitor::Wait(System.Object,System.Int32)
+  IL_0048: pop 
+  IL_0049: ldarg.0 
+  IL_004A: ldfld System.Int32 SimulationManager::m_updateCounter
+  IL_004F: brfalse IL_003c: ldarg.0
+  IL_0054: ldarg.0 
+  IL_0055: call System.Boolean SimulationManager::get_Terminated()
+  IL_005A: brfalse IL_0064: ldarg.0
+  IL_005F: leave IL_00e3: ldc.i4.1
+  IL_0064: ldarg.0 
+  IL_0065: dup 
+  IL_0066: ldfld System.Int32 SimulationManager::m_updateCounter
+  IL_006B: ldc.i4.1 
+  IL_006C: sub 
+  IL_006D: stfld System.Int32 SimulationManager::m_updateCounter
+  IL_0072: ldarg.0 
+  IL_0073: ldc.i4.1 
+  IL_0074: stfld System.Boolean SimulationManager::m_inSimulationStep
+  IL_0079: leave IL_008a: ldarg.0
+  IL_007E: ldarg.0 
+  IL_007F: ldfld System.Object SimulationManager::m_simulationFrameLock
+  IL_0084: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0089: endfinally 
+  IL_008A: ldarg.0 
+  IL_008B: ldfld ThreadProfiler SimulationManager::m_simulationProfiler
+  IL_0090: callvirt System.Void ThreadProfiler::BeginStep()
+  IL_0095: ldarg.0 
+  IL_0096: call System.Void SimulationManager::SimulationStep()
+  IL_009B: leave IL_00ac: leave IL_00de
+  IL_00A0: ldarg.0 
+  IL_00A1: ldfld ThreadProfiler SimulationManager::m_simulationProfiler
+  IL_00A6: callvirt System.Void ThreadProfiler::EndStep()
+  IL_00AB: endfinally 
+  IL_00AC: leave IL_00de: br IL_000b
+  IL_00B1: stloc.0 
+  IL_00B2: ldloc.0 
+  IL_00B3: call System.Void ColossalFramework.UI.UIView::ForwardException(System.Exception)
+  IL_00B8: ldc.i4.1 
+  IL_00B9: ldstr Simulation error: 
+  IL_00BE: ldloc.0 
+  IL_00BF: callvirt System.String System.Exception::get_Message()
+  IL_00C4: ldstr 
+
+  IL_00C9: ldloc.0 
+  IL_00CA: callvirt System.String System.Exception::get_StackTrace()
+  IL_00CF: call System.String System.String::Concat(System.String,System.String,System.String,System.String)
+  IL_00D4: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_00D9: leave IL_00de: br IL_000b
+  IL_00DE: br IL_000b: br IL_0010
+  IL_00E3: ldc.i4.1 
+  IL_00E4: ldstr Simulation terminated
+  IL_00E9: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Log(!0,System.String)
+  IL_00EE: ret 
+================ METHOD: SimulationStep ================
+  IL_0000: call System.Void TerrainModify::BeginUpdateArea()
+  IL_0005: br IL_005e: ldarg.0
+  IL_000A: br IL_000f: ldarg.0
+  IL_000F: ldarg.0 
+  IL_0010: ldfld System.Collections.Generic.Queue`1<AsyncTaskBase> SimulationManager::m_simulationActions
+  IL_0015: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_001A: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_001F: brfalse IL_000f: ldarg.0
+  IL_0024: ldarg.0 
+  IL_0025: ldfld System.Collections.Generic.Queue`1<AsyncTaskBase> SimulationManager::m_simulationActions
+  IL_002A: callvirt !0 System.Collections.Generic.Queue`1<AsyncTaskBase>::Dequeue()
+  IL_002F: stloc.0 
+  IL_0030: ldarg.0 
+  IL_0031: ldarg.0 
+  IL_0032: ldfld System.Collections.Generic.Queue`1<AsyncTaskBase> SimulationManager::m_simulationActions
+  IL_0037: callvirt System.Int32 System.Collections.Generic.Queue`1<AsyncTaskBase>::get_Count()
+  IL_003C: ldc.i4.0 
+  IL_003D: ceq 
+  IL_003F: ldc.i4.0 
+  IL_0040: ceq 
+  IL_0042: stfld System.Boolean SimulationManager::m_hasActions
+  IL_0047: leave IL_0058: ldloc.0
+  IL_004C: ldarg.0 
+  IL_004D: ldfld System.Collections.Generic.Queue`1<AsyncTaskBase> SimulationManager::m_simulationActions
+  IL_0052: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0057: endfinally 
+  IL_0058: ldloc.0 
+  IL_0059: callvirt System.Void AsyncTaskBase::Execute()
+  IL_005E: ldarg.0 
+  IL_005F: ldfld System.Boolean SimulationManager::m_hasActions
+  IL_0064: brtrue IL_000a: br IL_000f
+  IL_0069: br IL_006e: ldarg.0
+  IL_006E: ldarg.0 
+  IL_006F: ldfld System.Object SimulationManager::m_viewLock
+  IL_0074: ldsfld System.Int32 SimulationManager::SYNCHRONIZE_TIMEOUT
+  IL_0079: call System.Boolean System.Threading.Monitor::TryEnter(System.Object,System.Int32)
+  IL_007E: brfalse IL_006e: ldarg.0
+  IL_0083: ldarg.0 
+  IL_0084: ldarg.0 
+  IL_0085: ldfld SimulationManager/ViewData SimulationManager::m_tempView
+  IL_008A: stfld SimulationManager/ViewData SimulationManager::m_simulationView
+  IL_008F: leave IL_00a0: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0094: ldarg.0 
+  IL_0095: ldfld System.Object SimulationManager::m_viewLock
+  IL_009A: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_009F: endfinally 
+  IL_00A0: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_00A5: volatile. 
+  IL_00A7: ldfld System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_simulationDataLoaded
+  IL_00AC: brfalse IL_0291: leave IL_029c
+  IL_00B1: ldarg.0 
+  IL_00B2: call System.Int32 SimulationManager::get_FinalSimulationSpeed()
+  IL_00B7: stloc.1 
+  IL_00B8: ldarg.0 
+  IL_00B9: ldfld ThreadingWrapper SimulationManager::m_ThreadingWrapper
+  IL_00BE: callvirt System.Void ThreadingWrapper::OnBeforeSimulationTick()
+  IL_00C3: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_00C8: volatile. 
+  IL_00CA: ldfld System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_loadingComplete
+  IL_00CF: brfalse IL_00e2: ldloc.1
+  IL_00D4: ldarg.0 
+  IL_00D5: dup 
+  IL_00D6: ldfld System.UInt32 SimulationManager::m_currentTickIndex
+  IL_00DB: ldc.i4.1 
+  IL_00DC: add 
+  IL_00DD: stfld System.UInt32 SimulationManager::m_currentTickIndex
+  IL_00E2: ldloc.1 
+  IL_00E3: brtrue IL_00ee: ldc.i4.1
+  IL_00E8: ldc.i4.0 
+  IL_00E9: br IL_00ef: stloc.2
+  IL_00EE: ldc.i4.1 
+  IL_00EF: stloc.2 
+  IL_00F0: ldloc.2 
+  IL_00F1: stloc.3 
+  IL_00F2: br IL_027f: ldloc.3
+  IL_00F7: ldloc.3 
+  IL_00F8: brfalse IL_0238: ldc.i4.0
+  IL_00FD: ldarg.0 
+  IL_00FE: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0103: ldc.i4 255
+  IL_0108: and 
+  IL_0109: ldc.i4 255
+  IL_010E: bne.un IL_012c: ldarg.0
+  IL_0113: ldarg.0 
+  IL_0114: ldfld System.UInt32[] SimulationManager::m_buildIndexHistory
+  IL_0119: ldarg.0 
+  IL_011A: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_011F: ldc.i4.8 
+  IL_0120: shr.un 
+  IL_0121: ldc.i4.s 31
+  IL_0123: and 
+  IL_0124: conv.u 
+  IL_0125: ldarg.0 
+  IL_0126: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+  IL_012B: stelem.i4 
+  IL_012C: ldarg.0 
+  IL_012D: ldfld ThreadingWrapper SimulationManager::m_ThreadingWrapper
+  IL_0132: callvirt System.Void ThreadingWrapper::OnBeforeSimulationFrame()
+  IL_0137: ldarg.0 
+  IL_0138: dup 
+  IL_0139: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_013E: ldc.i4.1 
+  IL_013F: add 
+  IL_0140: stfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0145: ldarg.0 
+  IL_0146: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_014B: dup 
+  IL_014C: ldfld System.DateTime SimulationMetaData::m_currentDateTime
+  IL_0151: ldarg.0 
+  IL_0152: ldfld System.TimeSpan SimulationManager::m_timePerFrame
+  IL_0157: call System.DateTime System.DateTime::op_Addition(System.DateTime,System.TimeSpan)
+  IL_015C: stfld System.DateTime SimulationMetaData::m_currentDateTime
+  IL_0161: ldarg.0 
+  IL_0162: ldfld System.Boolean SimulationManager::m_enableDayNight
+  IL_0167: brtrue IL_019e: ldarg.0
+  IL_016C: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+  IL_0171: ldfld Properties SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+  IL_0176: ldfld ItemClass/Availability ToolController::m_mode
+  IL_017B: ldc.i4.1 
+  IL_017C: and 
+  IL_017D: brfalse IL_019e: ldarg.0
+  IL_0182: ldarg.0 
+  IL_0183: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_0188: ldc.i4.1 
+  IL_0189: shr.un 
+  IL_018A: ldarg.0 
+  IL_018B: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0190: sub 
+  IL_0191: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_0196: ldc.i4.1 
+  IL_0197: sub 
+  IL_0198: and 
+  IL_0199: stfld System.UInt32 SimulationManager::m_dayTimeOffsetFrames
+  IL_019E: ldarg.0 
+  IL_019F: ldarg.0 
+  IL_01A0: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_01A5: ldarg.0 
+  IL_01A6: ldfld System.UInt32 SimulationManager::m_dayTimeOffsetFrames
+  IL_01AB: add 
+  IL_01AC: ldsfld System.UInt32 SimulationManager::DAYTIME_FRAMES
+  IL_01B1: ldc.i4.1 
+  IL_01B2: sub 
+  IL_01B3: and 
+  IL_01B4: stfld System.UInt32 SimulationManager::m_dayTimeFrame
+  IL_01B9: ldarg.0 
+  IL_01BA: ldfld System.UInt32 SimulationManager::m_dayTimeFrame
+  IL_01BF: conv.r.un 
+  IL_01C0: conv.r4 
+  IL_01C1: ldsfld System.Single SimulationManager::DAYTIME_FRAME_TO_HOUR
+  IL_01C6: mul 
+  IL_01C7: stloc.s V_4
+  IL_01C9: ldarg.0 
+  IL_01CA: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_01CF: ldloc.s V_4
+  IL_01D1: stfld System.Single SimulationMetaData::m_currentDayHour
+  IL_01D6: ldloc.s V_4
+  IL_01D8: ldsfld System.Single SimulationManager::SUNRISE_HOUR
+  IL_01DD: blt IL_01ed: ldc.i4.1
+  IL_01E2: ldloc.s V_4
+  IL_01E4: ldsfld System.Single SimulationManager::SUNSET_HOUR
+  IL_01E9: cgt 
+  IL_01EB: br.s IL_01ee: stloc.s V_5
+  IL_01ED: ldc.i4.1 
+  IL_01EE: stloc.s V_5
+  IL_01F0: ldloc.s V_5
+  IL_01F2: ldarg.0 
+  IL_01F3: ldfld System.Boolean SimulationManager::m_isNightTime
+  IL_01F8: beq IL_0238: ldc.i4.0
+  IL_01FD: ldarg.0 
+  IL_01FE: ldloc.s V_5
+  IL_0200: stfld System.Boolean SimulationManager::m_isNightTime
+  IL_0205: ldloc.s V_5
+  IL_0207: brtrue IL_0238: ldc.i4.0
+  IL_020C: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0211: ldfld SimulationMetaData SimulationManager::m_metaData
+  IL_0216: ldfld SimulationMetaData/MetaBool SimulationMetaData::m_disableAchievements
+  IL_021B: ldc.i4.2 
+  IL_021C: beq IL_0238: ldc.i4.0
+  IL_0221: call ColossalFramework.Threading.Dispatcher ColossalFramework.Threading.ThreadHelper::get_dispatcher()
+  IL_0226: ldarg.0 
+  IL_0227: ldftn System.Void SimulationManager::<SimulationStep>m__0()
+  IL_022D: newobj System.Void System.Action::.ctor(System.Object,System.IntPtr)
+  IL_0232: callvirt ColossalFramework.Threading.Task ColossalFramework.Threading.DispatcherBase::Dispatch(System.Action)
+  IL_0237: pop 
+  IL_0238: ldc.i4.0 
+  IL_0239: stloc.s V_6
+  IL_023B: br IL_0259: ldloc.s V_6
+  IL_0240: ldsfld FastList`1<ISimulationManager> SimulationManager::m_managers
+  IL_0245: ldfld T[] FastList`1<ISimulationManager>::m_buffer
+  IL_024A: ldloc.s V_6
+  IL_024C: ldelem.ref 
+  IL_024D: ldloc.3 
+  IL_024E: callvirt System.Void ISimulationManager::SimulationStep(System.Int32)
+  IL_0253: ldloc.s V_6
+  IL_0255: ldc.i4.1 
+  IL_0256: add 
+  IL_0257: stloc.s V_6
+  IL_0259: ldloc.s V_6
+  IL_025B: ldsfld FastList`1<ISimulationManager> SimulationManager::m_managers
+  IL_0260: ldfld System.Int32 FastList`1<ISimulationManager>::m_size
+  IL_0265: blt IL_0240: ldsfld FastList`1<ISimulationManager> SimulationManager::m_managers
+  IL_026A: ldloc.3 
+  IL_026B: brfalse IL_027b: ldloc.3
+  IL_0270: ldarg.0 
+  IL_0271: ldfld ThreadingWrapper SimulationManager::m_ThreadingWrapper
+  IL_0276: callvirt System.Void ThreadingWrapper::OnAfterSimulationFrame()
+  IL_027B: ldloc.3 
+  IL_027C: ldc.i4.1 
+  IL_027D: add 
+  IL_027E: stloc.3 
+  IL_027F: ldloc.3 
+  IL_0280: ldloc.1 
+  IL_0281: ble IL_00f7: ldloc.3
+  IL_0286: ldarg.0 
+  IL_0287: ldfld ThreadingWrapper SimulationManager::m_ThreadingWrapper
+  IL_028C: callvirt System.Void ThreadingWrapper::OnAfterSimulationTick()
+  IL_0291: leave IL_029c: ret
+  IL_0296: call System.Void TerrainModify::EndUpdateArea()
+  IL_029B: endfinally 
+  IL_029C: ret 

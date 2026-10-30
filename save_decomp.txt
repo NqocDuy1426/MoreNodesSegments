@@ -1,0 +1,359 @@
+=== SavePanel.<SaveGame>c__Iterator1::MoveNext ===
+IL_0001: 0x7B field <SaveGame>c__Iterator1::$PC
+IL_0008: 0x15 loc
+IL_000B: 0x2B -> IL_000D
+IL_001C: 0x38 -> IL_FFFFFFE9
+IL_0024: 0x30 -> IL_0026
+IL_0029: 0x2B -> IL_002B
+IL_002D: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_0035: 0x2B -> IL_0037
+IL_0039: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_003F: 0x7B field <SaveGame>c__Iterator1::saveName
+IL_0046: 0x2B -> IL_0048
+IL_004A: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_0050: 0x7B field <SaveGame>c__Iterator1::useCloud
+IL_0057: 0x2B -> IL_0059
+IL_005B: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_0061: 0x7B field <SaveGame>c__Iterator1::quitAfterSaving
+IL_0068: 0x2B -> IL_006A
+IL_006B: 0x28 call UIView::get_library
+IL_0071: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0076: 0x28 call Object::GetType
+IL_007B: 0x6F callvirt MemberInfo::get_Name
+IL_0080: 0x17 loc
+IL_0081: 0x6F callvirt UIDynamicPanels::Hide
+IL_0087: 0x28 call Singleton`1::get_exists
+IL_008C: 0x39 -> IL_00E2
+IL_0091: 0x28 call Singleton`1::get_instance
+IL_0098: 0x7B field LoadingManager::m_currentlyLoading
+IL_009D: 0x3A -> IL_00E2
+IL_00A5: 0x30 -> IL_00A7
+IL_00AA: 0x2B -> IL_00AC
+IL_00AE: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_00B6: 0x2B -> IL_00B8
+IL_00BA: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_00C0: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_00C7: 0x2B -> IL_00C9
+IL_00CA: 0x17 loc
+IL_00CD: 0x80 field SavePanel::m_IsSaving
+IL_00D3: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_00D8: 0x28 call SavePanel::GetTempSavePath
+IL_00DF: 0x2B -> IL_00E1
+IL_00E3: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_00E8: 0x7B field <SaveGame>c__AnonStorey5::savePath
+IL_00ED: 0x28 call Directory::Exists
+IL_00F2: 0x3A -> IL_0105
+IL_00F8: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_00FD: 0x7B field <SaveGame>c__AnonStorey5::savePath
+IL_0102: 0x28 call Directory::CreateDirectory
+IL_0109: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_010F: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_0114: 0x7B field <SaveGame>c__AnonStorey5::savePath
+IL_0119: 0x28 call Guid::NewGuid
+IL_0127: 0x6F callvirt Object::ToString
+IL_012C: 0x28 call Path::Combine
+IL_0131: 0x28 call SaveHelper::get_SaveExtension
+IL_0136: 0x28 call PathUtils::AddExtension
+IL_013D: 0x2B -> IL_013F
+IL_0141: 0x28 call Singleton`1::get_instance
+IL_0147: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_014C: 0x7B field <SaveGame>c__AnonStorey5::filename
+IL_0151: 0x6F callvirt LoadingManager::SaveLevel
+IL_0158: 0x2B -> IL_015A
+IL_015C: 0x7B field <SaveGame>c__Iterator1::$disposing
+IL_0161: 0x2D -> IL_016A
+IL_0164: 0x17 loc
+IL_0167: 0x2B -> IL_0169
+IL_016A: 0x38 -> IL_01EB
+IL_0170: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0175: 0x7B field SavePanel::m_PackageSaveTask
+IL_017A: 0x39 -> IL_018C
+IL_0180: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0185: 0x7B field SavePanel::m_PackageSaveTask
+IL_018A: 0x6F callvirt Task::Wait
+IL_0190: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0195: 0x7B field SavePanel::m_SnapshotImageTask
+IL_019A: 0x39 -> IL_01AC
+IL_01A0: 0x7B field <SaveGame>c__Iterator1::$this
+IL_01A5: 0x7B field SavePanel::m_SnapshotImageTask
+IL_01AA: 0x6F callvirt Task::Wait
+IL_01B0: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_01B6: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_01BB: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_01C1: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_01C6: 0x7B field <SaveGame>c__AnonStorey4::useCloud
+IL_01CB: 0x28 call SavePanel::GetSavePathName
+IL_01D2: 0x2B -> IL_01D4
+IL_01D6: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_01DB: 0x16 loc
+IL_01DE: 0x2B -> IL_01E0
+IL_01E2: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_01E7: 0x7B field <SaveGame>c__AnonStorey5::filename
+IL_01EC: 0x28 call File::Exists
+IL_01F1: 0x39 -> IL_01C1
+IL_01F6: 0x28 call PlatformService::get_platformType
+IL_01FB: 0x3A -> IL_0273
+IL_0201: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0206: 0x7B field SavePanel::m_launcherContinueSaveData
+IL_020C: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_0211: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_0218: 0x2B -> IL_021A
+IL_021C: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0221: 0x7B field SavePanel::m_launcherContinueSaveData
+IL_0226: 0x28 call Singleton`1::get_instance
+IL_022B: 0x7B field SimulationManager::m_metaData
+IL_0230: 0x7B field SimulationMetaData::m_CityName
+IL_0237: 0x2B -> IL_0239
+IL_023B: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0240: 0x7B field SavePanel::m_launcherContinueSaveData
+IL_0245: 0x28 call DateTime::get_Now
+IL_024D: 0x28 call LocaleManager::get_cultureInfo
+IL_0252: 0x28 call DateTime::ToString
+IL_0259: 0x2B -> IL_025B
+IL_025C: 0x28 call SavePanel::get_continueSaveDataLocation
+IL_0262: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0267: 0x7B field SavePanel::m_launcherContinueSaveData
+IL_026C: 0x28 call JsonUtility::ToJson
+IL_0271: 0x28 call File::WriteAllText
+IL_0277: 0x7B field <SaveGame>c__Iterator1::$this
+IL_027D: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_0285: 0x30 -> IL_0287
+IL_028D: 0x28 call Task::Create
+IL_0292: 0x6F callvirt Task::Run
+IL_0299: 0x2B -> IL_029B
+IL_029C: 0x72 "Packaging"
+IL_02A1: 0x17 loc
+IL_02A8: 0x16 loc
+IL_02AA: 0x7B field <SaveGame>c__Iterator1::$this
+IL_02AF: 0x7B field SavePanel::m_PackageSaveTask
+IL_02BA: 0x28 call LoadSaveStatus::set_activeTask
+IL_02BF: 0x38 -> IL_02E2
+IL_02C5: 0x7B field <SaveGame>c__Iterator1::$this
+IL_02CB: 0x7B field <SaveGame>c__Iterator1::$locvar0
+IL_02D0: 0x7B field <SaveGame>c__AnonStorey4::quitAfterSaving
+IL_02D6: 0x7B field <SaveGame>c__Iterator1::$locvar1
+IL_02DB: 0x7B field <SaveGame>c__AnonStorey5::errorOnSaving
+IL_02E0: 0x28 call SavePanel::OnSavingComplete
+IL_02E6: 0x15 loc
+IL_02E9: 0x2B -> IL_02EB
+IL_02EC: 0x16 loc
+IL_02EE: 0x17 loc
+
+=== <SaveGame>c__AnonStorey5::< >m__0 ===
+IL_0001: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_0006: 0x7B field <SaveGame>c__Iterator1::$this
+IL_000B: 0x7B field SavePanel::m_ImagesLock
+IL_0012: 0x28 call Monitor::Enter
+IL_0018: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_001D: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_002A: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_002F: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_0034: 0x6F callvirt Package::set_packageMainAsset
+IL_0041: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_0046: 0x7B field <SaveGame>c__Iterator1::$this
+IL_004B: 0x28 call LoadSavePanelBase`1::EmbedModInfo
+IL_0057: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_005C: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0061: 0x28 call LoadSavePanelBase`1::EmbedAssetInfo
+IL_006C: 0x28 call DateTime::get_Now
+IL_0076: 0x28 call Singleton`1::get_instance
+IL_007B: 0x7B field SimulationManager::m_metaData
+IL_0080: 0x7B field SimulationMetaData::m_MapThemeMetaData
+IL_0085: 0x39 -> IL_00A1
+IL_008B: 0x28 call Singleton`1::get_instance
+IL_0090: 0x7B field SimulationManager::m_metaData
+IL_0095: 0x7B field SimulationMetaData::m_MapThemeMetaData
+IL_009A: 0x7B field MapThemeMetaData::mapThemeRef
+IL_00A5: 0x28 call Singleton`1::get_instance
+IL_00AA: 0x7B field SimulationManager::m_metaData
+IL_00AF: 0x7B field SimulationMetaData::m_CityName
+IL_00BA: 0x28 call Singleton`1::get_instance
+IL_00BF: 0x7B field SimulationManager::m_metaData
+IL_00C4: 0x7B field SimulationMetaData::m_environment
+IL_00CE: 0x15 loc
+IL_00D1: 0x37 -> IL_00D3
+IL_00D6: 0x28 call Singleton`1::get_instance
+IL_00DB: 0x7B field DistrictManager::m_districts
+IL_00E0: 0x7B field Array8`1::m_buffer
+IL_00E5: 0x16 loc
+IL_00EB: 0x7C field District::m_populationData
+IL_00F0: 0x7B field DistrictPopulationData::m_finalCount
+IL_00F5: 0x6F callvirt UIWrapper`1::Check
+IL_00FC: 0x6F callvirt UIWrapper`1::get_result
+IL_0106: 0x16 loc
+IL_010A: 0x37 -> IL_010C
+IL_0111: 0x28 call Singleton`1::get_instance
+IL_0116: 0x6F callvirt EconomyManager::get_LastCashAmount
+IL_011B: 0x6F callvirt UIWrapper`1::Check
+IL_0123: 0x6F callvirt UIWrapper`1::get_result
+IL_012E: 0x28 call Singleton`1::get_instance
+IL_0133: 0x7B field SimulationManager::m_metaData
+IL_0138: 0x7B field SimulationMetaData::m_disableAchievements
+IL_013D: 0x18 loc
+IL_0148: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_014D: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_0152: 0x72 "_Data"
+IL_0157: 0x28 call String::Concat
+IL_015D: 0x7B field <SaveGame>c__AnonStorey5::filename
+IL_0162: 0x7E field AssetType::Data
+IL_0167: 0x16 loc
+IL_0168: 0x6F callvirt Package::AddFileAsset
+IL_0175: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_017A: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_017F: 0x72 "_SteamPreview"
+IL_0184: 0x28 call String::Concat
+IL_018A: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_018F: 0x7B field <SaveGame>c__Iterator1::$this
+IL_0194: 0x7B field SavePanel::m_SnapshotSteamImage
+IL_0199: 0x16 loc
+IL_019A: 0x16 loc
+IL_019B: 0x16 loc
+IL_019C: 0x16 loc
+IL_019D: 0x6F callvirt Package::AddAsset
+IL_01AA: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_01AF: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_01B4: 0x72 "_Snapshot"
+IL_01B9: 0x28 call String::Concat
+IL_01BF: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_01C4: 0x7B field <SaveGame>c__Iterator1::$this
+IL_01C9: 0x7B field SavePanel::m_SnapshotImage
+IL_01CE: 0x16 loc
+IL_01CF: 0x16 loc
+IL_01D0: 0x16 loc
+IL_01D1: 0x16 loc
+IL_01D2: 0x6F callvirt Package::AddAsset
+IL_01DE: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_01E3: 0x7B field <SaveGame>c__AnonStorey4::saveName
+IL_01E9: 0x7E field UserAssetType::SaveGameMetaData
+IL_01EE: 0x16 loc
+IL_01EF: 0x6F callvirt Package::AddAsset
+IL_01F6: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_01FB: 0x7B field <SaveGame>c__AnonStorey4::useCloud
+IL_0200: 0x39 -> IL_0214
+IL_0207: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_020C: 0x16 loc
+IL_020D: 0x6F callvirt Package::SaveToCloud
+IL_0212: 0x38 -> IL_0221
+IL_0219: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_021E: 0x16 loc
+IL_021F: 0x6F callvirt Package::Save
+IL_0225: 0x7B field <SaveGame>c__AnonStorey5::filename
+IL_022A: 0x28 call File::Delete
+IL_0230: 0x7B field <SaveGame>c__AnonStorey5::savePath
+IL_0235: 0x28 call Directory::Exists
+IL_023A: 0x39 -> IL_0247
+IL_0240: 0x7B field <SaveGame>c__AnonStorey5::savePath
+IL_0245: 0x28 call DirectoryUtils::DeleteDirectory
+IL_0251: 0x17 loc
+IL_0259: 0x16 loc
+IL_025A: 0x72 "Failed to delete temporary file
+"
+IL_0261: 0x17 loc
+IL_0264: 0x6F callvirt Exception::GetType
+IL_026B: 0x18 loc
+IL_026C: 0x72 " "
+IL_0273: 0x19 loc
+IL_0276: 0x6F callvirt Exception::get_Message
+IL_027E: 0x72 " "
+IL_0288: 0x6F callvirt Exception::get_StackTrace
+IL_028E: 0x28 call String::Concat
+IL_0293: 0x28 call CODebugBase`1::Error
+IL_02A3: 0x28 call Monitor::Exit
+IL_02AA: 0x19 loc
+IL_02B1: 0x17 loc
+IL_02B4: 0x2B -> IL_02B6
+IL_02B8: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_02BD: 0x7B field <SaveGame>c__AnonStorey4::useCloud
+IL_02C2: 0x39 -> IL_02EE
+IL_02C7: 0x28 call PlatformService::get_cloud
+IL_02CD: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_02D2: 0x6F callvirt Cloud::Exists
+IL_02D7: 0x39 -> IL_02E9
+IL_02DC: 0x28 call PlatformService::get_cloud
+IL_02E2: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_02E7: 0x6F callvirt Cloud::Delete
+IL_02EC: 0x38 -> IL_0309
+IL_02F2: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_02F7: 0x28 call File::Exists
+IL_02FC: 0x39 -> IL_0309
+IL_0302: 0x7B field <SaveGame>c__AnonStorey5::packagePathName
+IL_0307: 0x28 call File::Delete
+IL_030E: 0x28 call DiskUtils::IsFull
+IL_0313: 0x39 -> IL_037C
+IL_0318: 0x72 "The disk is full."
+IL_031D: 0x28 call Environment::get_NewLine
+IL_0322: 0x72 "Please free some space before saving."
+IL_0327: 0x28 call String::Concat
+IL_032E: 0x17 loc
+IL_0336: 0x16 loc
+IL_033B: 0x17 loc
+IL_033C: 0x72 "
+"
+IL_0343: 0x18 loc
+IL_0346: 0x6F callvirt Exception::GetType
+IL_034D: 0x19 loc
+IL_034E: 0x72 " "
+IL_0358: 0x6F callvirt Exception::get_Message
+IL_0360: 0x72 " "
+IL_036A: 0x6F callvirt Exception::get_StackTrace
+IL_0370: 0x28 call String::Concat
+IL_0375: 0x28 call CODebugBase`1::Error
+IL_037A: 0x38 -> IL_0385
+IL_0386: 0x39 -> IL_0403
+IL_038B: 0x28 call PlatformService::get_cloud
+IL_0390: 0x6F callvirt Cloud::get_availableQuota
+IL_0395: 0x20 20000000
+IL_039A: 0x3C -> IL_0403
+IL_039F: 0x72 "The Steam cloud is full."
+IL_03A4: 0x28 call Environment::get_NewLine
+IL_03A9: 0x72 "Please delete save games from the Content Manager before saving."
+IL_03AE: 0x28 call String::Concat
+IL_03B5: 0x17 loc
+IL_03BD: 0x16 loc
+IL_03C2: 0x17 loc
+IL_03C3: 0x72 "
+"
+IL_03CA: 0x18 loc
+IL_03CD: 0x6F callvirt Exception::GetType
+IL_03D4: 0x19 loc
+IL_03D5: 0x72 " "
+IL_03DF: 0x6F callvirt Exception::get_Message
+IL_03E7: 0x72 " "
+IL_03F1: 0x6F callvirt Exception::get_StackTrace
+IL_03F7: 0x28 call String::Concat
+IL_03FC: 0x28 call CODebugBase`1::Error
+IL_0401: 0x38 -> IL_0385
+IL_040D: 0x16 loc
+IL_040E: 0x72 "An error occurred while packaging to the save file. "
+IL_0415: 0x17 loc
+IL_0416: 0x28 call Environment::get_NewLine
+IL_041D: 0x18 loc
+IL_041E: 0x72 "A backup was created at "
+IL_0425: 0x19 loc
+IL_0427: 0x7B field <SaveGame>c__AnonStorey5::filename
+IL_042F: 0x72 " and should still be loadable."
+IL_0435: 0x28 call String::Concat
+IL_043C: 0x17 loc
+IL_0444: 0x16 loc
+IL_0449: 0x17 loc
+IL_044A: 0x72 "
+"
+IL_0451: 0x18 loc
+IL_0454: 0x6F callvirt Exception::GetType
+IL_045B: 0x19 loc
+IL_045C: 0x72 " "
+IL_0466: 0x6F callvirt Exception::get_Message
+IL_046E: 0x72 " "
+IL_0478: 0x6F callvirt Exception::get_StackTrace
+IL_047E: 0x28 call String::Concat
+IL_0483: 0x28 call CODebugBase`1::Error
+IL_0491: 0x28 call UIView::ForwardException
+IL_0497: 0x2C -> IL_0499
+IL_049B: 0x20 1000
+IL_04A0: 0x28 call Thread::Sleep
+IL_04A6: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$1
+IL_04AB: 0x7B field <SaveGame>c__Iterator1::$this
+IL_04B1: 0x7B field <SaveGame>c__AnonStorey5::<>f__ref$4
+IL_04B6: 0x7B field <SaveGame>c__AnonStorey4::quitAfterSaving
+IL_04BC: 0x7B field <SaveGame>c__AnonStorey5::errorOnSaving
+IL_04C1: 0x28 call SavePanel::OnSavingComplete

@@ -1,0 +1,907 @@
+IL_0000: ldarg.0
+IL_0001: ldfld System.Boolean NetManager::m_nodesUpdated
+IL_0006: brtrue IL_0016
+IL_000b: ldarg.0
+IL_000c: ldfld System.Boolean NetManager::m_segmentsUpdated
+IL_0011: brfalse IL_0466
+IL_0016: ldarg.0
+IL_0017: ldfld System.Boolean NetManager::m_nodesUpdated
+IL_001c: stloc.0
+IL_001d: ldarg.0
+IL_001e: ldfld System.Boolean NetManager::m_segmentsUpdated
+IL_0023: stloc.1
+IL_0024: ldarg.0
+IL_0025: ldc.i4.0
+IL_0026: stfld System.Boolean NetManager::m_nodesUpdated
+IL_002b: ldarg.0
+IL_002c: ldc.i4.0
+IL_002d: stfld System.Boolean NetManager::m_segmentsUpdated
+IL_0032: ldc.i4.0
+IL_0033: stloc.2
+IL_0034: br IL_02cd
+IL_0039: ldloc.0
+IL_003a: brfalse IL_00be
+IL_003f: ldarg.0
+IL_0040: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_0045: ldlen
+IL_0046: conv.i4
+IL_0047: stloc.3
+IL_0048: ldc.i4.0
+IL_0049: stloc.s V_4
+IL_004b: br IL_00b6
+IL_0050: ldarg.0
+IL_0051: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_0056: ldloc.s V_4
+IL_0058: ldelem.i8
+IL_0059: stloc.s V_5
+IL_005b: ldloc.s V_5
+IL_005d: ldc.i4.0
+IL_005e: conv.i8
+IL_005f: beq IL_00b0
+IL_0064: ldc.i4.0
+IL_0065: stloc.s V_6
+IL_0067: br IL_00a7
+IL_006c: ldloc.s V_5
+IL_006e: ldc.i4.1
+IL_006f: conv.i8
+IL_0070: ldloc.s V_6
+IL_0072: ldc.i4.s 63
+IL_0074: and
+IL_0075: shl
+IL_0076: and
+IL_0077: ldc.i4.0
+IL_0078: conv.i8
+IL_0079: beq IL_00a1
+IL_007e: ldloc.s V_4
+IL_0080: ldc.i4.6
+IL_0081: shl
+IL_0082: ldloc.s V_6
+IL_0084: or
+IL_0085: conv.u2
+IL_0086: stloc.s V_7
+IL_0088: ldarg.0
+IL_0089: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_008e: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0093: ldloc.s V_7
+IL_0095: ldelema NetNode
+IL_009a: ldloc.s V_7
+IL_009c: call System.Void NetNode::CalculateNode(System.UInt16)
+IL_00a1: ldloc.s V_6
+IL_00a3: ldc.i4.1
+IL_00a4: add
+IL_00a5: stloc.s V_6
+IL_00a7: ldloc.s V_6
+IL_00a9: ldc.i4.s 64
+IL_00ab: blt IL_006c
+IL_00b0: ldloc.s V_4
+IL_00b2: ldc.i4.1
+IL_00b3: add
+IL_00b4: stloc.s V_4
+IL_00b6: ldloc.s V_4
+IL_00b8: ldloc.3
+IL_00b9: blt IL_0050
+IL_00be: ldloc.1
+IL_00bf: brfalse IL_0145
+IL_00c4: ldarg.0
+IL_00c5: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_00ca: ldlen
+IL_00cb: conv.i4
+IL_00cc: stloc.s V_8
+IL_00ce: ldc.i4.0
+IL_00cf: stloc.s V_9
+IL_00d1: br IL_013c
+IL_00d6: ldarg.0
+IL_00d7: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_00dc: ldloc.s V_9
+IL_00de: ldelem.i8
+IL_00df: stloc.s V_10
+IL_00e1: ldloc.s V_10
+IL_00e3: ldc.i4.0
+IL_00e4: conv.i8
+IL_00e5: beq IL_0136
+IL_00ea: ldc.i4.0
+IL_00eb: stloc.s V_11
+IL_00ed: br IL_012d
+IL_00f2: ldloc.s V_10
+IL_00f4: ldc.i4.1
+IL_00f5: conv.i8
+IL_00f6: ldloc.s V_11
+IL_00f8: ldc.i4.s 63
+IL_00fa: and
+IL_00fb: shl
+IL_00fc: and
+IL_00fd: ldc.i4.0
+IL_00fe: conv.i8
+IL_00ff: beq IL_0127
+IL_0104: ldloc.s V_9
+IL_0106: ldc.i4.6
+IL_0107: shl
+IL_0108: ldloc.s V_11
+IL_010a: or
+IL_010b: conv.u2
+IL_010c: stloc.s V_12
+IL_010e: ldarg.0
+IL_010f: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0114: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0119: ldloc.s V_12
+IL_011b: ldelema NetSegment
+IL_0120: ldloc.s V_12
+IL_0122: call System.Void NetSegment::CalculateSegment(System.UInt16)
+IL_0127: ldloc.s V_11
+IL_0129: ldc.i4.1
+IL_012a: add
+IL_012b: stloc.s V_11
+IL_012d: ldloc.s V_11
+IL_012f: ldc.i4.s 64
+IL_0131: blt IL_00f2
+IL_0136: ldloc.s V_9
+IL_0138: ldc.i4.1
+IL_0139: add
+IL_013a: stloc.s V_9
+IL_013c: ldloc.s V_9
+IL_013e: ldloc.s V_8
+IL_0140: blt IL_00d6
+IL_0145: ldloc.1
+IL_0146: brfalse IL_01e6
+IL_014b: ldarg.0
+IL_014c: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_0151: ldlen
+IL_0152: conv.i4
+IL_0153: stloc.s V_13
+IL_0155: ldc.i4.0
+IL_0156: stloc.s V_14
+IL_0158: br IL_01dd
+IL_015d: ldarg.0
+IL_015e: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_0163: ldloc.s V_14
+IL_0165: ldelem.i8
+IL_0166: stloc.s V_15
+IL_0168: ldloc.s V_15
+IL_016a: ldc.i4.0
+IL_016b: conv.i8
+IL_016c: beq IL_01d7
+IL_0171: ldc.i4.0
+IL_0172: stloc.s V_16
+IL_0174: br IL_01ce
+IL_0179: ldloc.s V_15
+IL_017b: ldc.i4.1
+IL_017c: conv.i8
+IL_017d: ldloc.s V_16
+IL_017f: ldc.i4.s 63
+IL_0181: and
+IL_0182: shl
+IL_0183: and
+IL_0184: ldc.i4.0
+IL_0185: conv.i8
+IL_0186: beq IL_01c8
+IL_018b: ldloc.s V_14
+IL_018d: ldc.i4.6
+IL_018e: shl
+IL_018f: ldloc.s V_16
+IL_0191: or
+IL_0192: conv.u2
+IL_0193: stloc.s V_17
+IL_0195: ldarg.0
+IL_0196: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_019b: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_01a0: ldloc.s V_17
+IL_01a2: ldelema NetSegment
+IL_01a7: ldloc.s V_17
+IL_01a9: call System.Void NetSegment::UpdateBounds(System.UInt16)
+IL_01ae: ldarg.0
+IL_01af: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_01b4: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_01b9: ldloc.s V_17
+IL_01bb: ldelema NetSegment
+IL_01c0: ldloc.s V_17
+IL_01c2: ldc.i4.0
+IL_01c3: call System.Void NetSegment::UpdateLanes(System.UInt16,System.Boolean)
+IL_01c8: ldloc.s V_16
+IL_01ca: ldc.i4.1
+IL_01cb: add
+IL_01cc: stloc.s V_16
+IL_01ce: ldloc.s V_16
+IL_01d0: ldc.i4.s 64
+IL_01d2: blt IL_0179
+IL_01d7: ldloc.s V_14
+IL_01d9: ldc.i4.1
+IL_01da: add
+IL_01db: stloc.s V_14
+IL_01dd: ldloc.s V_14
+IL_01df: ldloc.s V_13
+IL_01e1: blt IL_015d
+IL_01e6: ldloc.0
+IL_01e7: brfalse IL_0286
+IL_01ec: ldarg.0
+IL_01ed: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_01f2: ldlen
+IL_01f3: conv.i4
+IL_01f4: stloc.s V_18
+IL_01f6: ldc.i4.0
+IL_01f7: stloc.s V_19
+IL_01f9: br IL_027d
+IL_01fe: ldarg.0
+IL_01ff: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_0204: ldloc.s V_19
+IL_0206: ldelem.i8
+IL_0207: stloc.s V_20
+IL_0209: ldloc.s V_20
+IL_020b: ldc.i4.0
+IL_020c: conv.i8
+IL_020d: beq IL_0277
+IL_0212: ldc.i4.0
+IL_0213: stloc.s V_21
+IL_0215: br IL_026e
+IL_021a: ldloc.s V_20
+IL_021c: ldc.i4.1
+IL_021d: conv.i8
+IL_021e: ldloc.s V_21
+IL_0220: ldc.i4.s 63
+IL_0222: and
+IL_0223: shl
+IL_0224: and
+IL_0225: ldc.i4.0
+IL_0226: conv.i8
+IL_0227: beq IL_0268
+IL_022c: ldloc.s V_19
+IL_022e: ldc.i4.6
+IL_022f: shl
+IL_0230: ldloc.s V_21
+IL_0232: or
+IL_0233: conv.u2
+IL_0234: stloc.s V_22
+IL_0236: ldarg.0
+IL_0237: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_023c: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0241: ldloc.s V_22
+IL_0243: ldelema NetNode
+IL_0248: ldloc.s V_22
+IL_024a: call System.Void NetNode::UpdateBounds(System.UInt16)
+IL_024f: ldarg.0
+IL_0250: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0255: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_025a: ldloc.s V_22
+IL_025c: ldelema NetNode
+IL_0261: ldloc.s V_22
+IL_0263: call System.Void NetNode::UpdateLaneConnection(System.UInt16)
+IL_0268: ldloc.s V_21
+IL_026a: ldc.i4.1
+IL_026b: add
+IL_026c: stloc.s V_21
+IL_026e: ldloc.s V_21
+IL_0270: ldc.i4.s 64
+IL_0272: blt IL_021a
+IL_0277: ldloc.s V_19
+IL_0279: ldc.i4.1
+IL_027a: add
+IL_027b: stloc.s V_19
+IL_027d: ldloc.s V_19
+IL_027f: ldloc.s V_18
+IL_0281: blt IL_01fe
+IL_0286: ldarg.0
+IL_0287: ldfld System.Boolean NetManager::m_nodesUpdated
+IL_028c: brtrue IL_02a1
+IL_0291: ldarg.0
+IL_0292: ldfld System.Boolean NetManager::m_segmentsUpdated
+IL_0297: brtrue IL_02a1
+IL_029c: br IL_02d4
+IL_02a1: ldarg.0
+IL_02a2: ldfld System.Boolean NetManager::m_nodesUpdated
+IL_02a7: brfalse IL_02b5
+IL_02ac: ldc.i4.1
+IL_02ad: stloc.0
+IL_02ae: ldarg.0
+IL_02af: ldc.i4.0
+IL_02b0: stfld System.Boolean NetManager::m_nodesUpdated
+IL_02b5: ldarg.0
+IL_02b6: ldfld System.Boolean NetManager::m_segmentsUpdated
+IL_02bb: brfalse IL_02c9
+IL_02c0: ldc.i4.1
+IL_02c1: stloc.1
+IL_02c2: ldarg.0
+IL_02c3: ldc.i4.0
+IL_02c4: stfld System.Boolean NetManager::m_segmentsUpdated
+IL_02c9: ldloc.2
+IL_02ca: ldc.i4.1
+IL_02cb: add
+IL_02cc: stloc.2
+IL_02cd: ldloc.2
+IL_02ce: ldc.i4.3
+IL_02cf: blt IL_0039
+IL_02d4: ldloc.0
+IL_02d5: brfalse IL_03c3
+IL_02da: ldarg.0
+IL_02db: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_02e0: ldlen
+IL_02e1: conv.i4
+IL_02e2: stloc.s V_23
+IL_02e4: ldc.i4.0
+IL_02e5: stloc.s V_24
+IL_02e7: br IL_03ba
+IL_02ec: ldarg.0
+IL_02ed: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_02f2: ldloc.s V_24
+IL_02f4: ldelem.i8
+IL_02f5: stloc.s V_25
+IL_02f7: ldloc.s V_25
+IL_02f9: ldc.i4.0
+IL_02fa: conv.i8
+IL_02fb: beq IL_03b4
+IL_0300: ldarg.0
+IL_0301: ldfld System.UInt64[] NetManager::m_updatedNodes
+IL_0306: ldloc.s V_24
+IL_0308: ldc.i4.0
+IL_0309: conv.i8
+IL_030a: stelem.i8
+IL_030b: ldc.i4.0
+IL_030c: stloc.s V_26
+IL_030e: br IL_03ab
+IL_0313: ldloc.s V_25
+IL_0315: ldc.i4.1
+IL_0316: conv.i8
+IL_0317: ldloc.s V_26
+IL_0319: ldc.i4.s 63
+IL_031b: and
+IL_031c: shl
+IL_031d: and
+IL_031e: ldc.i4.0
+IL_031f: conv.i8
+IL_0320: beq IL_03a5
+IL_0325: ldloc.s V_24
+IL_0327: ldc.i4.6
+IL_0328: shl
+IL_0329: ldloc.s V_26
+IL_032b: or
+IL_032c: conv.u2
+IL_032d: stloc.s V_27
+IL_032f: ldarg.0
+IL_0330: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0335: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_033a: ldloc.s V_27
+IL_033c: ldelema NetNode
+IL_0341: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_0346: stloc.s V_28
+IL_0348: ldarg.0
+IL_0349: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_034e: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0353: ldloc.s V_27
+IL_0355: ldelema NetNode
+IL_035a: ldloc.s V_27
+IL_035c: call System.Void NetNode::UpdateNode(System.UInt16)
+IL_0361: ldarg.0
+IL_0362: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0367: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_036c: ldloc.s V_27
+IL_036e: ldelema NetNode
+IL_0373: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_0378: stloc.s V_29
+IL_037a: ldloc.s V_29
+IL_037c: ldloc.s V_28
+IL_037e: call System.Boolean Notification/ProblemStruct::op_Inequality(Notification/ProblemStruct,Notification/ProblemStruct)
+IL_0383: brfalse IL_0394
+IL_0388: ldarg.0
+IL_0389: ldloc.s V_27
+IL_038b: ldloc.s V_28
+IL_038d: ldloc.s V_29
+IL_038f: call System.Void NetManager::UpdateNodeNotifications(System.UInt16,Notification/ProblemStruct,Notification/ProblemStruct)
+IL_0394: ldarg.0
+IL_0395: ldloc.s V_27
+IL_0397: call System.Void NetManager::UpdateNodeFlags(System.UInt16)
+IL_039c: ldarg.0
+IL_039d: ldloc.s V_27
+IL_039f: ldc.i4.1
+IL_03a0: call System.Void NetManager::UpdateNodeRenderer(System.UInt16,System.Boolean)
+IL_03a5: ldloc.s V_26
+IL_03a7: ldc.i4.1
+IL_03a8: add
+IL_03a9: stloc.s V_26
+IL_03ab: ldloc.s V_26
+IL_03ad: ldc.i4.s 64
+IL_03af: blt IL_0313
+IL_03b4: ldloc.s V_24
+IL_03b6: ldc.i4.1
+IL_03b7: add
+IL_03b8: stloc.s V_24
+IL_03ba: ldloc.s V_24
+IL_03bc: ldloc.s V_23
+IL_03be: blt IL_02ec
+IL_03c3: ldloc.1
+IL_03c4: brfalse IL_0466
+IL_03c9: ldarg.0
+IL_03ca: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_03cf: ldlen
+IL_03d0: conv.i4
+IL_03d1: stloc.s V_30
+IL_03d3: ldc.i4.0
+IL_03d4: stloc.s V_31
+IL_03d6: br IL_045d
+IL_03db: ldarg.0
+IL_03dc: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_03e1: ldloc.s V_31
+IL_03e3: ldelem.i8
+IL_03e4: stloc.s V_32
+IL_03e6: ldloc.s V_32
+IL_03e8: ldc.i4.0
+IL_03e9: conv.i8
+IL_03ea: beq IL_0457
+IL_03ef: ldarg.0
+IL_03f0: ldfld System.UInt64[] NetManager::m_updatedSegments
+IL_03f5: ldloc.s V_31
+IL_03f7: ldc.i4.0
+IL_03f8: conv.i8
+IL_03f9: stelem.i8
+IL_03fa: ldc.i4.0
+IL_03fb: stloc.s V_33
+IL_03fd: br IL_044e
+IL_0402: ldloc.s V_32
+IL_0404: ldc.i4.1
+IL_0405: conv.i8
+IL_0406: ldloc.s V_33
+IL_0408: ldc.i4.s 63
+IL_040a: and
+IL_040b: shl
+IL_040c: and
+IL_040d: ldc.i4.0
+IL_040e: conv.i8
+IL_040f: beq IL_0448
+IL_0414: ldloc.s V_31
+IL_0416: ldc.i4.6
+IL_0417: shl
+IL_0418: ldloc.s V_33
+IL_041a: or
+IL_041b: conv.u2
+IL_041c: stloc.s V_34
+IL_041e: ldarg.0
+IL_041f: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0424: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0429: ldloc.s V_34
+IL_042b: ldelema NetSegment
+IL_0430: ldloc.s V_34
+IL_0432: call System.Void NetSegment::UpdateSegment(System.UInt16)
+IL_0437: ldarg.0
+IL_0438: ldloc.s V_34
+IL_043a: call System.Void NetManager::UpdateSegmentFlags(System.UInt16)
+IL_043f: ldarg.0
+IL_0440: ldloc.s V_34
+IL_0442: ldc.i4.1
+IL_0443: call System.Void NetManager::UpdateSegmentRenderer(System.UInt16,System.Boolean)
+IL_0448: ldloc.s V_33
+IL_044a: ldc.i4.1
+IL_044b: add
+IL_044c: stloc.s V_33
+IL_044e: ldloc.s V_33
+IL_0450: ldc.i4.s 64
+IL_0452: blt IL_0402
+IL_0457: ldloc.s V_31
+IL_0459: ldc.i4.1
+IL_045a: add
+IL_045b: stloc.s V_31
+IL_045d: ldloc.s V_31
+IL_045f: ldloc.s V_30
+IL_0461: blt IL_03db
+IL_0466: ldarg.0
+IL_0467: ldfld System.Collections.Generic.HashSet`1<System.UInt16> NetManager::m_updateNameVisibility
+IL_046c: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.UInt16>::get_Count()
+IL_0471: brfalse IL_047c
+IL_0476: ldarg.0
+IL_0477: call System.Void NetManager::UpdateNameVisibilities()
+IL_047c: ldarg.1
+IL_047d: brfalse IL_0679
+IL_0482: ldc.i4.0
+IL_0483: stloc.s V_35
+IL_0485: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_048a: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+IL_048f: ldc.i4 255
+IL_0494: and
+IL_0495: stloc.s V_36
+IL_0497: ldloc.s V_36
+IL_0499: ldc.i4 144
+IL_049e: mul
+IL_049f: stloc.s V_37
+IL_04a1: ldloc.s V_36
+IL_04a3: ldc.i4.1
+IL_04a4: add
+IL_04a5: ldc.i4 144
+IL_04aa: mul
+IL_04ab: ldc.i4.1
+IL_04ac: sub
+IL_04ad: stloc.s V_38
+IL_04af: ldc.i4.0
+IL_04b0: stloc.s V_39
+IL_04b2: ldloc.s V_37
+IL_04b4: stloc.s V_40
+IL_04b6: br IL_05a4
+IL_04bb: ldarg.0
+IL_04bc: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04c1: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04c6: ldloc.s V_40
+IL_04c8: ldelema NetSegment
+IL_04cd: ldfld NetSegment/Flags NetSegment::m_flags
+IL_04d2: ldc.i4.1
+IL_04d3: and
+IL_04d4: brfalse IL_059b
+IL_04d9: ldarg.0
+IL_04da: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04df: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04e4: ldloc.s V_40
+IL_04e6: ldelema NetSegment
+IL_04eb: call NetInfo NetSegment::get_Info()
+IL_04f0: stloc.s V_41
+IL_04f2: ldarg.0
+IL_04f3: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04f8: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04fd: ldloc.s V_40
+IL_04ff: conv.u2
+IL_0500: ldelema NetSegment
+IL_0505: ldfld Notification/ProblemStruct NetSegment::m_problems
+IL_050a: stloc.s V_42
+IL_050c: ldloc.s V_41
+IL_050e: brfalse IL_0540
+IL_0513: ldloc.s V_41
+IL_0515: ldfld NetAI NetInfo::m_netAI
+IL_051a: brfalse IL_0540
+IL_051f: ldloc.s V_41
+IL_0521: ldfld NetAI NetInfo::m_netAI
+IL_0526: ldloc.s V_40
+IL_0528: conv.u2
+IL_0529: ldarg.0
+IL_052a: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_052f: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0534: ldloc.s V_40
+IL_0536: ldelema NetSegment
+IL_053b: callvirt System.Void NetAI::SimulationStep(System.UInt16,NetSegment&)
+IL_0540: ldarg.0
+IL_0541: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0546: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_054b: ldloc.s V_40
+IL_054d: ldelema NetSegment
+IL_0552: ldfld System.Byte NetSegment::m_wetness
+IL_0557: stloc.s V_43
+IL_0559: ldloc.s V_43
+IL_055b: ldloc.s V_39
+IL_055d: ble IL_0566
+IL_0562: ldloc.s V_43
+IL_0564: stloc.s V_39
+IL_0566: ldarg.0
+IL_0567: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_056c: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0571: ldloc.s V_40
+IL_0573: conv.u2
+IL_0574: ldelema NetSegment
+IL_0579: ldfld Notification/ProblemStruct NetSegment::m_problems
+IL_057e: stloc.s V_44
+IL_0580: ldloc.s V_44
+IL_0582: ldloc.s V_42
+IL_0584: call System.Boolean Notification/ProblemStruct::op_Inequality(Notification/ProblemStruct,Notification/ProblemStruct)
+IL_0589: brfalse IL_059b
+IL_058e: ldarg.0
+IL_058f: ldloc.s V_40
+IL_0591: conv.u2
+IL_0592: ldloc.s V_42
+IL_0594: ldloc.s V_44
+IL_0596: call System.Void NetManager::UpdateSegmentNotifications(System.UInt16,Notification/ProblemStruct,Notification/ProblemStruct)
+IL_059b: ldc.i4.1
+IL_059c: stloc.s V_35
+IL_059e: ldloc.s V_40
+IL_05a0: ldc.i4.1
+IL_05a1: add
+IL_05a2: stloc.s V_40
+IL_05a4: ldloc.s V_40
+IL_05a6: ldloc.s V_38
+IL_05a8: ble IL_04bb
+IL_05ad: ldloc.s V_35
+IL_05af: brfalse IL_0640
+IL_05b4: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+IL_05b9: callvirt InfoManager/InfoMode InfoManager::get_CurrentMode()
+IL_05be: stloc.s V_45
+IL_05c0: ldloc.s V_45
+IL_05c2: switch IL_0624,IL_0613,IL_0613,IL_05ef,IL_05ef,IL_05ef,IL_05ef,IL_0613,IL_05ef,IL_0613
+IL_05ef: ldloc.s V_45
+IL_05f1: ldc.i4.s 22
+IL_05f3: sub
+IL_05f4: switch IL_0613,IL_0613,IL_0613
+IL_0605: ldloc.s V_45
+IL_0607: ldc.i4.s 14
+IL_0609: beq IL_0613
+IL_060e: br IL_0640
+IL_0613: ldarg.0
+IL_0614: ldloc.s V_37
+IL_0616: conv.u2
+IL_0617: ldloc.s V_38
+IL_0619: conv.u2
+IL_061a: call System.Void NetManager::UpdateSegmentColors(System.UInt16,System.UInt16)
+IL_061f: br IL_0640
+IL_0624: ldarg.0
+IL_0625: ldfld System.Int32 NetManager::m_wetnessChanged
+IL_062a: brfalse IL_063b
+IL_062f: ldarg.0
+IL_0630: ldloc.s V_37
+IL_0632: conv.u2
+IL_0633: ldloc.s V_38
+IL_0635: conv.u2
+IL_0636: call System.Void NetManager::UpdateSegmentColors(System.UInt16,System.UInt16)
+IL_063b: br IL_0640
+IL_0640: ldloc.s V_36
+IL_0642: ldc.i4 255
+IL_0647: bne.un IL_0664
+IL_064c: ldarg.0
+IL_064d: ldarg.0
+IL_064e: ldfld System.Int32 NetManager::m_currentMaxWetness
+IL_0653: stfld System.Int32 NetManager::m_lastMaxWetness
+IL_0658: ldarg.0
+IL_0659: ldc.i4.0
+IL_065a: stfld System.Int32 NetManager::m_currentMaxWetness
+IL_065f: br IL_0679
+IL_0664: ldloc.s V_39
+IL_0666: ldarg.0
+IL_0667: ldfld System.Int32 NetManager::m_currentMaxWetness
+IL_066c: ble IL_0679
+IL_0671: ldarg.0
+IL_0672: ldloc.s V_39
+IL_0674: stfld System.Int32 NetManager::m_currentMaxWetness
+IL_0679: ldarg.1
+IL_067a: brfalse IL_080b
+IL_067f: ldc.i4.0
+IL_0680: stloc.s V_46
+IL_0682: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0687: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+IL_068c: ldc.i4 255
+IL_0691: and
+IL_0692: stloc.s V_47
+IL_0694: ldloc.s V_47
+IL_0696: ldc.i4 128
+IL_069b: mul
+IL_069c: stloc.s V_48
+IL_069e: ldloc.s V_47
+IL_06a0: ldc.i4.1
+IL_06a1: add
+IL_06a2: ldc.i4 128
+IL_06a7: mul
+IL_06a8: ldc.i4.1
+IL_06a9: sub
+IL_06aa: stloc.s V_49
+IL_06ac: ldloc.s V_48
+IL_06ae: stloc.s V_50
+IL_06b0: br IL_0776
+IL_06b5: ldarg.0
+IL_06b6: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_06bb: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_06c0: ldloc.s V_50
+IL_06c2: ldelema NetNode
+IL_06c7: ldfld NetNode/Flags NetNode::m_flags
+IL_06cc: ldc.i4.1
+IL_06cd: and
+IL_06ce: brfalse IL_076d
+IL_06d3: ldarg.0
+IL_06d4: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_06d9: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_06de: ldloc.s V_50
+IL_06e0: ldelema NetNode
+IL_06e5: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_06ea: stloc.s V_51
+IL_06ec: ldarg.0
+IL_06ed: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_06f2: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_06f7: ldloc.s V_50
+IL_06f9: ldelema NetNode
+IL_06fe: call NetInfo NetNode::get_Info()
+IL_0703: stloc.s V_52
+IL_0705: ldloc.s V_52
+IL_0707: brfalse IL_0739
+IL_070c: ldloc.s V_52
+IL_070e: ldfld NetAI NetInfo::m_netAI
+IL_0713: brfalse IL_0739
+IL_0718: ldloc.s V_52
+IL_071a: ldfld NetAI NetInfo::m_netAI
+IL_071f: ldloc.s V_50
+IL_0721: conv.u2
+IL_0722: ldarg.0
+IL_0723: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0728: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_072d: ldloc.s V_50
+IL_072f: ldelema NetNode
+IL_0734: callvirt System.Void NetAI::SimulationStep(System.UInt16,NetNode&)
+IL_0739: ldarg.0
+IL_073a: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_073f: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0744: ldloc.s V_50
+IL_0746: ldelema NetNode
+IL_074b: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_0750: stloc.s V_53
+IL_0752: ldloc.s V_53
+IL_0754: ldloc.s V_51
+IL_0756: call System.Boolean Notification/ProblemStruct::op_Inequality(Notification/ProblemStruct,Notification/ProblemStruct)
+IL_075b: brfalse IL_076d
+IL_0760: ldarg.0
+IL_0761: ldloc.s V_50
+IL_0763: conv.u2
+IL_0764: ldloc.s V_51
+IL_0766: ldloc.s V_53
+IL_0768: call System.Void NetManager::UpdateNodeNotifications(System.UInt16,Notification/ProblemStruct,Notification/ProblemStruct)
+IL_076d: ldc.i4.1
+IL_076e: stloc.s V_46
+IL_0770: ldloc.s V_50
+IL_0772: ldc.i4.1
+IL_0773: add
+IL_0774: stloc.s V_50
+IL_0776: ldloc.s V_50
+IL_0778: ldloc.s V_49
+IL_077a: ble IL_06b5
+IL_077f: ldloc.s V_46
+IL_0781: brfalse IL_080b
+IL_0786: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+IL_078b: callvirt InfoManager/InfoMode InfoManager::get_CurrentMode()
+IL_0790: stloc.s V_54
+IL_0792: ldloc.s V_54
+IL_0794: ldc.i4.s 22
+IL_0796: sub
+IL_0797: switch IL_07de,IL_07de,IL_07de
+IL_07a8: ldloc.s V_54
+IL_07aa: switch IL_07ef,IL_07bb,IL_07de
+IL_07bb: ldloc.s V_54
+IL_07bd: ldc.i4.7
+IL_07be: sub
+IL_07bf: switch IL_07de,IL_07d0,IL_07de
+IL_07d0: ldloc.s V_54
+IL_07d2: ldc.i4.s 14
+IL_07d4: beq IL_07de
+IL_07d9: br IL_080b
+IL_07de: ldarg.0
+IL_07df: ldloc.s V_48
+IL_07e1: conv.u2
+IL_07e2: ldloc.s V_49
+IL_07e4: conv.u2
+IL_07e5: call System.Void NetManager::UpdateNodeColors(System.UInt16,System.UInt16)
+IL_07ea: br IL_080b
+IL_07ef: ldarg.0
+IL_07f0: ldfld System.Int32 NetManager::m_wetnessChanged
+IL_07f5: brfalse IL_0806
+IL_07fa: ldarg.0
+IL_07fb: ldloc.s V_48
+IL_07fd: conv.u2
+IL_07fe: ldloc.s V_49
+IL_0800: conv.u2
+IL_0801: call System.Void NetManager::UpdateNodeColors(System.UInt16,System.UInt16)
+IL_0806: br IL_080b
+IL_080b: ldarg.0
+IL_080c: ldfld System.Int32 NetManager::m_wetnessChanged
+IL_0811: brfalse IL_0824
+IL_0816: ldarg.0
+IL_0817: dup
+IL_0818: ldfld System.Int32 NetManager::m_wetnessChanged
+IL_081d: ldc.i4.1
+IL_081e: sub
+IL_081f: stfld System.Int32 NetManager::m_wetnessChanged
+IL_0824: ldarg.0
+IL_0825: ldfld PathVisualizer NetManager::m_pathVisualizer
+IL_082a: ldarg.1
+IL_082b: callvirt System.Void PathVisualizer::SimulationStep(System.Int32)
+IL_0830: ldarg.0
+IL_0831: ldfld NetAdjust NetManager::m_netAdjust
+IL_0836: ldarg.1
+IL_0837: callvirt System.Void NetAdjust::SimulationStep(System.Int32)
+IL_083c: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+IL_0841: ldfld Properties SimulationManagerBase`2<GuideManager,GuideController>::m_properties
+IL_0846: stloc.s V_55
+IL_0848: ldarg.1
+IL_0849: ldc.i4.1
+IL_084a: bgt IL_0913
+IL_084f: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0854: ldfld System.UInt32 SimulationManager::m_currentTickIndex
+IL_0859: ldc.i4 1023
+IL_085e: and
+IL_085f: stloc.s V_56
+IL_0861: ldloc.s V_56
+IL_0863: call System.Int32 PrefabCollection`1<NetInfo>::PrefabCount()
+IL_0868: mul
+IL_0869: ldc.i4.s 10
+IL_086b: shr
+IL_086c: stloc.s V_57
+IL_086e: ldloc.s V_56
+IL_0870: ldc.i4.1
+IL_0871: add
+IL_0872: call System.Int32 PrefabCollection`1<NetInfo>::PrefabCount()
+IL_0877: mul
+IL_0878: ldc.i4.s 10
+IL_087a: shr
+IL_087b: ldc.i4.1
+IL_087c: sub
+IL_087d: stloc.s V_58
+IL_087f: ldloc.s V_57
+IL_0881: stloc.s V_59
+IL_0883: br IL_090a
+IL_0888: ldloc.s V_59
+IL_088a: call T PrefabCollection`1<NetInfo>::GetPrefab(System.UInt32)
+IL_088f: stloc.s V_60
+IL_0891: ldloc.s V_60
+IL_0893: brfalse IL_0904
+IL_0898: ldloc.s V_60
+IL_089a: ldfld MilestoneInfo NetInfo::m_UnlockMilestone
+IL_089f: stloc.s V_61
+IL_08a1: ldloc.s V_61
+IL_08a3: brfalse IL_08b7
+IL_08a8: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+IL_08ad: ldloc.s V_61
+IL_08af: ldc.i4.0
+IL_08b0: ldc.i4.0
+IL_08b1: callvirt System.Int32 UnlockManager::CheckMilestone(MilestoneInfo,System.Boolean,System.Boolean)
+IL_08b6: pop
+IL_08b7: ldloc.s V_55
+IL_08b9: brfalse IL_0904
+IL_08be: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+IL_08c3: ldloc.s V_60
+IL_08c5: ldfld ItemClass NetInfo::m_class
+IL_08ca: ldfld ItemClass/Service ItemClass::m_service
+IL_08cf: callvirt System.Boolean UnlockManager::Unlocked(ItemClass/Service)
+IL_08d4: brfalse IL_0904
+IL_08d9: call !0 ColossalFramework.Singleton`1<UnlockManager>::get_instance()
+IL_08de: ldloc.s V_60
+IL_08e0: ldfld MilestoneInfo NetInfo::m_UnlockMilestone
+IL_08e5: callvirt System.Boolean UnlockManager::Unlocked(MilestoneInfo)
+IL_08ea: brfalse IL_0904
+IL_08ef: ldloc.s V_55
+IL_08f1: brfalse IL_0904
+IL_08f6: ldloc.s V_60
+IL_08f8: ldfld NetAI NetInfo::m_netAI
+IL_08fd: ldloc.s V_55
+IL_08ff: callvirt System.Void NetAI::UpdateGuide(GuideController)
+IL_0904: ldloc.s V_59
+IL_0906: ldc.i4.1
+IL_0907: add
+IL_0908: stloc.s V_59
+IL_090a: ldloc.s V_59
+IL_090c: ldloc.s V_58
+IL_090e: ble IL_0888
+IL_0913: ldarg.1
+IL_0914: ldc.i4.1
+IL_0915: bgt IL_09c4
+IL_091a: ldloc.s V_55
+IL_091c: brfalse IL_09c4
+IL_0921: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0926: ldfld System.UInt32 SimulationManager::m_currentTickIndex
+IL_092b: ldc.i4 255
+IL_0930: and
+IL_0931: stloc.s V_62
+IL_0933: ldloc.s V_62
+IL_0935: ldc.i4 189
+IL_093a: beq IL_0959
+IL_093f: ldloc.s V_62
+IL_0941: ldc.i4 217
+IL_0946: beq IL_0970
+IL_094b: ldloc.s V_62
+IL_094d: ldc.i4.s 75
+IL_094f: beq IL_0999
+IL_0954: br IL_09c4
+IL_0959: ldarg.0
+IL_095a: ldfld GenericGuide NetManager::m_roadsNotUsed
+IL_095f: ldloc.s V_55
+IL_0961: ldfld GuideInfo GuideController::m_roadsNotUsed
+IL_0966: callvirt System.Void GenericGuide::Activate(GuideInfo)
+IL_096b: br IL_09c4
+IL_0970: ldarg.0
+IL_0971: ldfld System.UInt16 NetManager::m_lastVisibleRoadNameSegment
+IL_0976: brfalse IL_0994
+IL_097b: ldarg.0
+IL_097c: ldfld NetSegmentInstanceGuide NetManager::m_roadNames
+IL_0981: ldloc.s V_55
+IL_0983: ldfld GuideInfo GuideController::m_roadNames
+IL_0988: ldarg.0
+IL_0989: ldfld System.UInt16 NetManager::m_lastVisibleRoadNameSegment
+IL_098e: ldc.i4.1
+IL_098f: callvirt System.Void NetSegmentInstanceGuide::Activate(GuideInfo,System.UInt16,System.Boolean)
+IL_0994: br IL_09c4
+IL_0999: ldarg.0
+IL_099a: ldfld System.UInt16 NetManager::m_lastVisibleTrafficLightNode
+IL_099f: brfalse IL_09bf
+IL_09a4: ldarg.0
+IL_09a5: ldfld NetNodeInstanceGuide NetManager::m_yieldLights
+IL_09aa: ldloc.s V_55
+IL_09ac: ldfld GuideInfo GuideController::m_yieldLights
+IL_09b1: ldarg.0
+IL_09b2: ldfld System.UInt16 NetManager::m_lastVisibleTrafficLightNode
+IL_09b7: ldc.i4.0
+IL_09b8: conv.i8
+IL_09b9: ldc.i4.1
+IL_09ba: callvirt System.Void NetNodeInstanceGuide::Activate(GuideInfo,System.UInt16,Notification/Problem1,System.Boolean)
+IL_09bf: br IL_09c4
+IL_09c4: ret

@@ -1,0 +1,173 @@
+Method: T ColossalFramework.IO.DataSerializer::ReadObject()
+  0000 ldarg.0 
+  0001 ldnull 
+  0002 call T ColossalFramework.IO.DataSerializer::ReadObject<T>(ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  0007 ret 
+Method: T ColossalFramework.IO.DataSerializer::ReadObject(ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  0000 ldarg.0 
+  0001 ldfld System.IO.Stream ColossalFramework.IO.DataSerializer::m_stream
+  0006 callvirt System.Int32 System.IO.Stream::ReadByte()
+  000b ldc.i4 255
+  0010 and 
+  0011 stloc.0 
+  0012 ldloc.0 
+  0013 ldc.i4 255
+  0018 bne.un.s IL_0024: ldloc.0
+  001a ldloca.s V_1
+  001c initobj T
+  0022 ldloc.1 
+  0023 ret 
+  0024 ldloc.0 
+  0025 ldc.i4 254
+  002a bne.un.s IL_0051: ldloc.0
+  002c ldarg.0 
+  002d ldarg.1 
+  002e call System.Type ColossalFramework.IO.DataSerializer::ReadSharedType(ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  0033 call System.Object System.Runtime.Serialization.FormatterServices::GetUninitializedObject(System.Type)
+  0038 unbox.any T
+  003d stloc.2 
+  003e ldarg.0 
+  003f ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  0044 ldloc.2 
+  0045 box T
+  004a callvirt System.Void System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::Add(!0)
+  004f ldloc.2 
+  0050 ret 
+  0051 ldloc.0 
+  0052 ldc.i4.s 16
+  0054 shl 
+  0055 stloc.0 
+  0056 ldloc.0 
+  0057 ldarg.0 
+  0058 ldfld System.IO.Stream ColossalFramework.IO.DataSerializer::m_stream
+  005d callvirt System.Int32 System.IO.Stream::ReadByte()
+  0062 ldc.i4 255
+  0067 and 
+  0068 ldc.i4.8 
+  0069 shl 
+  006a or 
+  006b stloc.0 
+  006c ldloc.0 
+  006d ldarg.0 
+  006e ldfld System.IO.Stream ColossalFramework.IO.DataSerializer::m_stream
+  0073 callvirt System.Int32 System.IO.Stream::ReadByte()
+  0078 ldc.i4 255
+  007d and 
+  007e or 
+  007f stloc.0 
+  0080 ldloc.0 
+  0081 conv.u8 
+  0082 ldarg.0 
+  0083 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  0088 callvirt System.Int32 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Count()
+  008d conv.i8 
+  008e blt.s IL_0101: ldarg.0
+  0090 ldc.i4 1024
+  0095 ldc.i4.7 
+  0096 newarr System.String
+  009b dup 
+  009c ldc.i4.0 
+  009d ldstr Index for 
+  00a2 stelem.ref 
+  00a3 dup 
+  00a4 ldc.i4.1 
+  00a5 ldtoken T
+  00aa call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  00af callvirt System.String System.Object::ToString()
+  00b4 stelem.ref 
+  00b5 dup 
+  00b6 ldc.i4.2 
+  00b7 ldstr  is out of bounds: 
+  00bc stelem.ref 
+  00bd dup 
+  00be ldc.i4.3 
+  00bf ldloca.s V_0
+  00c1 call System.String System.UInt32::ToString()
+  00c6 stelem.ref 
+  00c7 dup 
+  00c8 ldc.i4.4 
+  00c9 ldstr  >= 
+  00ce stelem.ref 
+  00cf dup 
+  00d0 ldc.i4.5 
+  00d1 ldarg.0 
+  00d2 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  00d7 callvirt System.Int32 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Count()
+  00dc stloc.3 
+  00dd ldloca.s V_3
+  00df call System.String System.Int32::ToString()
+  00e4 stelem.ref 
+  00e5 dup 
+  00e6 ldc.i4.6 
+  00e7 ldstr 
+
+  00ec stelem.ref 
+  00ed call System.String System.String::Concat(System.String[])
+  00f2 call System.Void ColossalFramework.CODebugBase`1<ColossalFramework.InternalLogChannel>::Warn(T,System.String)
+  00f7 ldloca.s V_1
+  00f9 initobj T
+  00ff ldloc.1 
+  0100 ret 
+  0101 ldarg.0 
+  0102 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  0107 ldloc.0 
+  0108 callvirt !0 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Item(System.Int32)
+  010d isinst T
+  0112 brtrue.s IL_018f: ldarg.0
+  0114 ldc.i4 1024
+  0119 ldc.i4.7 
+  011a newarr System.String
+  011f dup 
+  0120 ldc.i4.0 
+  0121 ldstr Cannot convert to 
+  0126 stelem.ref 
+  0127 dup 
+  0128 ldc.i4.1 
+  0129 ldtoken T
+  012e call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  0133 callvirt System.String System.Object::ToString()
+  0138 stelem.ref 
+  0139 dup 
+  013a ldc.i4.2 
+  013b ldstr  from 
+  0140 stelem.ref 
+  0141 dup 
+  0142 ldc.i4.3 
+  0143 ldarg.0 
+  0144 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  0149 ldloc.0 
+  014a callvirt !0 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Item(System.Int32)
+  014f callvirt System.Type System.Object::GetType()
+  0154 dup 
+  0155 brtrue.s IL_015b: callvirt System.String System.Object::ToString()
+  0157 pop 
+  0158 ldnull 
+  0159 br.s IL_0160: stelem.ref
+  015b callvirt System.String System.Object::ToString()
+  0160 stelem.ref 
+  0161 dup 
+  0162 ldc.i4.4 
+  0163 ldstr  at index: 
+  0168 stelem.ref 
+  0169 dup 
+  016a ldc.i4.5 
+  016b ldloca.s V_0
+  016d call System.String System.UInt32::ToString()
+  0172 stelem.ref 
+  0173 dup 
+  0174 ldc.i4.6 
+  0175 ldstr 
+
+  017a stelem.ref 
+  017b call System.String System.String::Concat(System.String[])
+  0180 call System.Void ColossalFramework.CODebugBase`1<ColossalFramework.InternalLogChannel>::Warn(T,System.String)
+  0185 ldloca.s V_1
+  0187 initobj T
+  018d ldloc.1 
+  018e ret 
+  018f ldarg.0 
+  0190 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  0195 ldloc.0 
+  0196 callvirt !0 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Item(System.Int32)
+  019b unbox.any T
+  01a0 ret 

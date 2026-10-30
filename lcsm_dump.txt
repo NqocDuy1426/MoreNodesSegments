@@ -1,0 +1,1348 @@
+Type: TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager
+
+--- Method: .ctor (1 params) returns System.Void ---
+IL_0000: ldarg.0 
+IL_0001: call System.Void TrafficManager.Manager.AbstractCustomManager::.ctor()
+IL_0006: ldarg.0 
+IL_0007: ldarg.1 
+IL_0008: stfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_000D: ldarg.0 
+IL_000E: ldc.i4.0 
+IL_000F: stfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_0014: ldarg.0 
+IL_0015: ldc.i4.0 
+IL_0016: stfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_001B: ldarg.0 
+IL_001C: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_0021: ldc.i4.1 
+IL_0022: bne.un.s IL_0045: ldarg.0
+IL_0024: ldarg.0 
+IL_0025: ldarg.0 
+IL_0026: ldfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_002B: ldc.i4.s 33
+IL_002D: or 
+IL_002E: stfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_0033: ldarg.0 
+IL_0034: ldarg.0 
+IL_0035: ldfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_003A: ldc.i4 65537
+IL_003F: or 
+IL_0040: stfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_0045: ldarg.0 
+IL_0046: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_004B: ldc.i4.2 
+IL_004C: bne.un.s IL_006f: call TrafficManager.Patch.NetManagerEvents TrafficManager.Patch.NetManagerEvents::get_Instance()
+IL_004E: ldarg.0 
+IL_004F: ldarg.0 
+IL_0050: ldfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_0055: ldc.i4.s 33
+IL_0057: or 
+IL_0058: stfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_005D: ldarg.0 
+IL_005E: ldarg.0 
+IL_005F: ldfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_0064: ldc.i4 2118
+IL_0069: or 
+IL_006A: stfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_006F: call TrafficManager.Patch.NetManagerEvents TrafficManager.Patch.NetManagerEvents::get_Instance()
+IL_0074: ldarg.0 
+IL_0075: ldftn System.Void TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ReleasingSegment(System.UInt16,NetSegment&)
+IL_007B: newobj System.Void TrafficManager.Patch.NetManagerEvents/ReleasingSegmentEventHandler::.ctor(System.Object,System.IntPtr)
+IL_0080: callvirt System.Void TrafficManager.Patch.NetManagerEvents::add_ReleasingSegment(TrafficManager.Patch.NetManagerEvents/ReleasingSegmentEventHandler)
+IL_0085: ret 
+
+--- Method: get_LaneTypes (0 params) returns NetInfo/LaneType ---
+IL_0000: ldarg.0 
+IL_0001: ldfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_0006: ret 
+
+--- Method: get_VehicleTypes (0 params) returns VehicleInfo/VehicleType ---
+IL_0000: ldarg.0 
+IL_0001: ldfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_0006: ret 
+
+--- Method: Supports (1 params) returns System.Boolean ---
+IL_0000: ldarg.1 
+IL_0001: ldarg.0 
+IL_0002: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_0007: and 
+IL_0008: ldc.i4.0 
+IL_0009: cgt.un 
+IL_000B: ret 
+
+--- Method: Supports (1 params) returns System.Boolean ---
+IL_0000: ldarg.1 
+IL_0001: ldarg.0 
+IL_0002: ldfld NetInfo/LaneType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::laneTypes_
+IL_0007: ldarg.0 
+IL_0008: ldfld VehicleInfo/VehicleType TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::vehicleTypes_
+IL_000D: call System.Boolean TrafficManager.Util.TrackUtils::Matches(NetInfo/Lane,NetInfo/LaneType,VehicleInfo/VehicleType)
+IL_0012: ret 
+
+--- Method: OnBeforeLoadData (0 params) returns System.Void ---
+IL_0000: ldarg.0 
+IL_0001: call System.Void TrafficManager.Manager.AbstractCustomManager::OnBeforeLoadData()
+IL_0006: ldarg.0 
+IL_0007: newobj System.Void TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::.ctor()
+IL_000C: stfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0011: ret 
+
+--- Method: OnLevelUnloading (0 params) returns System.Void ---
+IL_0000: ldarg.0 
+IL_0001: call System.Void TrafficManager.Manager.AbstractCustomManager::OnLevelUnloading()
+IL_0006: ldarg.0 
+IL_0007: ldnull 
+IL_0008: stfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_000D: ret 
+
+--- Method: InternalPrintDebugInfo (0 params) returns System.Void ---
+IL_0000: ldarg.0 
+IL_0001: call System.Void TrafficManager.Manager.AbstractCustomManager::InternalPrintDebugInfo()
+IL_0006: ldstr Group={0}
+IL_000B: ldarg.0 
+IL_000C: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_0011: box TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup
+IL_0016: call System.String System.String::Format(System.String,System.Object)
+IL_001B: call System.Void CSUtil.Commons.Log::Info(System.String)
+IL_0020: ret 
+
+--- Method: ValidateLane (1 params) returns System.Boolean ---
+IL_0000: ldarg.1 
+IL_0001: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0006: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+IL_000B: dup 
+IL_000C: brtrue.s IL_001a: ret
+IL_000E: ldarg.0 
+IL_000F: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0014: ldarg.1 
+IL_0015: callvirt System.Void TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::RemoveConnections(System.UInt32)
+IL_001A: ret 
+
+--- Method: AreLanesConnected (3 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldarg.0
+IL_000C: ldc.i4.1 
+IL_000D: ret 
+IL_000E: ldarg.0 
+IL_000F: ldarg.1 
+IL_0010: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_0015: ldarg.0 
+IL_0016: ldarg.2 
+IL_0017: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_001C: and 
+IL_001D: brtrue.s IL_0021: ldarg.0
+IL_001F: ldc.i4.0 
+IL_0020: ret 
+IL_0021: ldarg.0 
+IL_0022: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0027: ldarg.1 
+IL_0028: ldarg.2 
+IL_0029: ldarg.3 
+IL_002A: callvirt System.Boolean TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::IsConnectedTo(System.UInt32,System.UInt32,System.Boolean)
+IL_002F: ret 
+
+--- Method: IsHeadingTowardsStartNode (1 params) returns System.Boolean ---
+IL_0000: ldarg.1 
+IL_0001: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0006: ldfld System.UInt16 NetLane::m_segment
+IL_000B: stloc.0 
+IL_000C: ldloc.0 
+IL_000D: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0012: dup 
+IL_0013: ldfld System.UInt32 NetSegment::m_lanes
+IL_0018: stloc.1 
+IL_0019: dup 
+IL_001A: ldfld NetSegment/Flags NetSegment::m_flags
+IL_001F: ldc.i4.s 16
+IL_0021: and 
+IL_0022: ldc.i4.0 
+IL_0023: cgt.un 
+IL_0025: stloc.2 
+IL_0026: call NetInfo NetSegment::get_Info()
+IL_002B: ldfld NetInfo/Lane[] NetInfo::m_lanes
+IL_0030: stloc.3 
+IL_0031: ldc.i4.0 
+IL_0032: stloc.s V_4
+IL_0034: br.s IL_0086: ldloc.s V_4
+IL_0036: ldloc.3 
+IL_0037: ldloc.s V_4
+IL_0039: ldelem.ref 
+IL_003A: stloc.s V_5
+IL_003C: ldloc.1 
+IL_003D: ldarg.1 
+IL_003E: bne.un.s IL_0074: ldloc.1
+IL_0040: ldloc.s V_5
+IL_0042: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+IL_0047: stloc.s V_6
+IL_0049: ldloc.s V_6
+IL_004B: ldc.i4.1 
+IL_004C: sub 
+IL_004D: ldc.i4.1 
+IL_004E: bgt.un.s IL_0055: ldc.i4.0
+IL_0050: ldc.i4.1 
+IL_0051: stloc.s V_7
+IL_0053: br.s IL_0058: ldloc.s V_7
+IL_0055: ldc.i4.0 
+IL_0056: stloc.s V_7
+IL_0058: ldloc.s V_7
+IL_005A: ldstr 
+IL_005F: call System.Void TrafficManager.Util.Shortcuts::Assert(System.Boolean,System.String)
+IL_0064: ldloc.s V_5
+IL_0066: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+IL_006B: ldc.i4.1 
+IL_006C: ceq 
+IL_006E: ldloc.2 
+IL_006F: ldc.i4.0 
+IL_0070: ceq 
+IL_0072: xor 
+IL_0073: ret 
+IL_0074: ldloc.1 
+IL_0075: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_007A: ldfld System.UInt32 NetLane::m_nextLane
+IL_007F: stloc.1 
+IL_0080: ldloc.s V_4
+IL_0082: ldc.i4.1 
+IL_0083: add 
+IL_0084: stloc.s V_4
+IL_0086: ldloc.s V_4
+IL_0088: ldloc.3 
+IL_0089: ldlen 
+IL_008A: conv.i4 
+IL_008B: blt.s IL_0036: ldloc.3
+IL_008D: ldstr Unreachable code. sourceLaneId:{0}, segmentId:{1} 
+IL_0092: ldarg.1 
+IL_0093: box System.UInt32
+IL_0098: ldloc.0 
+IL_0099: box System.UInt16
+IL_009E: call System.String System.String::Format(System.String,System.Object,System.Object)
+IL_00A3: newobj System.Void System.Exception::.ctor(System.String)
+IL_00A8: throw 
+
+--- Method: HasOutgoingConnections (1 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldarg.0
+IL_000C: ldc.i4.0 
+IL_000D: ret 
+IL_000E: ldarg.0 
+IL_000F: ldarg.1 
+IL_0010: ldarg.0 
+IL_0011: ldarg.1 
+IL_0012: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::IsHeadingTowardsStartNode(System.UInt32)
+IL_0017: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::HasOutgoingConnections(System.UInt32,System.Boolean)
+IL_001C: ret 
+
+--- Method: HasConnections (2 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brfalse.s IL_001f: ldc.i4.0
+IL_000C: ldarg.0 
+IL_000D: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0012: ldarg.1 
+IL_0013: ldarg.2 
+IL_0014: newobj System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_0019: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::ContainsKey(!0)
+IL_001E: ret 
+IL_001F: ldc.i4.0 
+IL_0020: ret 
+
+--- Method: HasOutgoingConnections (2 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldloca.s V_0
+IL_000C: ldc.i4.0 
+IL_000D: ret 
+IL_000E: ldloca.s V_0
+IL_0010: ldarg.1 
+IL_0011: ldarg.2 
+IL_0012: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_0017: ldarg.0 
+IL_0018: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_001D: ldloc.0 
+IL_001E: ldloca.s V_1
+IL_0020: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::TryGetValue(!0,!1&)
+IL_0025: brfalse.s IL_0047: ldc.i4.0
+IL_0027: ldloc.1 
+IL_0028: ldlen 
+IL_0029: conv.i4 
+IL_002A: stloc.2 
+IL_002B: ldc.i4.0 
+IL_002C: stloc.3 
+IL_002D: br.s IL_0043: ldloc.3
+IL_002F: ldloc.1 
+IL_0030: ldloc.3 
+IL_0031: ldelema TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_0036: ldfld System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::Enabled
+IL_003B: brfalse.s IL_003f: ldloc.3
+IL_003D: ldc.i4.1 
+IL_003E: ret 
+IL_003F: ldloc.3 
+IL_0040: ldc.i4.1 
+IL_0041: add 
+IL_0042: stloc.3 
+IL_0043: ldloc.3 
+IL_0044: ldloc.2 
+IL_0045: blt.s IL_002f: ldloc.1
+IL_0047: ldc.i4.0 
+IL_0048: ret 
+
+--- Method: HasNodeConnections (1 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldarg.1
+IL_000C: ldc.i4.0 
+IL_000D: ret 
+IL_000E: ldarg.1 
+IL_000F: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+IL_0014: stloc.0 
+IL_0015: ldc.i4.0 
+IL_0016: stloc.1 
+IL_0017: br.s IL_008d: ldloc.1
+IL_0019: ldloc.0 
+IL_001A: ldloc.1 
+IL_001B: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_0020: stloc.2 
+IL_0021: ldloc.2 
+IL_0022: brfalse.s IL_0089: ldloc.1
+IL_0024: ldloc.2 
+IL_0025: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_002A: dup 
+IL_002B: ldarg.1 
+IL_002C: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsStartNode(NetSegment&,System.UInt16)
+IL_0031: stloc.3 
+IL_0032: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable TrafficManager.Util.Extensions.NetSegmentExtensions::GetSegmentLaneIdsAndLaneIndexes(NetSegment&)
+IL_0037: stloc.s V_5
+IL_0039: ldloca.s V_5
+IL_003B: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable::GetEnumerator()
+IL_0040: stloc.s V_4
+IL_0042: br.s IL_0070: ldloca.s V_4
+IL_0044: ldloca.s V_4
+IL_0046: call TrafficManager.Manager.Impl.LaneIdAndIndex TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::get_Current()
+IL_004B: stloc.s V_6
+IL_004D: ldloca.s V_7
+IL_004F: ldloc.s V_6
+IL_0051: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+IL_0056: ldloc.3 
+IL_0057: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_005C: ldarg.0 
+IL_005D: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0062: ldloc.s V_7
+IL_0064: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::ContainsKey(!0)
+IL_0069: brfalse.s IL_0070: ldloca.s V_4
+IL_006B: ldc.i4.1 
+IL_006C: stloc.s V_8
+IL_006E: leave.s IL_0093: ldloc.s V_8
+IL_0070: ldloca.s V_4
+IL_0072: call System.Boolean TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::MoveNext()
+IL_0077: brtrue.s IL_0044: ldloca.s V_4
+IL_0079: leave.s IL_0089: ldloc.1
+IL_007B: ldloca.s V_4
+IL_007D: constrained. TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator
+IL_0083: callvirt System.Void System.IDisposable::Dispose()
+IL_0088: endfinally 
+IL_0089: ldloc.1 
+IL_008A: ldc.i4.1 
+IL_008B: add 
+IL_008C: stloc.1 
+IL_008D: ldloc.1 
+IL_008E: ldc.i4.8 
+IL_008F: blt.s IL_0019: ldloc.0
+IL_0091: ldc.i4.0 
+IL_0092: ret 
+IL_0093: ldloc.s V_8
+IL_0095: ret 
+
+--- Method: HasUturnConnections (2 params) returns System.Boolean ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldarg.1
+IL_000C: ldc.i4.0 
+IL_000D: ret 
+IL_000E: ldarg.1 
+IL_000F: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0014: ldfld System.UInt32 NetSegment::m_lanes
+IL_0019: stloc.0 
+IL_001A: br.s IL_0056: ldloc.0
+IL_001C: ldarg.0 
+IL_001D: ldloc.0 
+IL_001E: ldarg.2 
+IL_001F: call System.UInt32[] TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::GetLaneConnections(System.UInt32,System.Boolean)
+IL_0024: stloc.1 
+IL_0025: ldloc.1 
+IL_0026: brfalse.s IL_004a: ldloc.0
+IL_0028: ldloc.1 
+IL_0029: stloc.2 
+IL_002A: ldc.i4.0 
+IL_002B: stloc.3 
+IL_002C: br.s IL_0044: ldloc.3
+IL_002E: ldloc.2 
+IL_002F: ldloc.3 
+IL_0030: ldelem.u4 
+IL_0031: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0036: ldfld System.UInt16 NetLane::m_segment
+IL_003B: ldarg.1 
+IL_003C: bne.un.s IL_0040: ldloc.3
+IL_003E: ldc.i4.1 
+IL_003F: ret 
+IL_0040: ldloc.3 
+IL_0041: ldc.i4.1 
+IL_0042: add 
+IL_0043: stloc.3 
+IL_0044: ldloc.3 
+IL_0045: ldloc.2 
+IL_0046: ldlen 
+IL_0047: conv.i4 
+IL_0048: blt.s IL_002e: ldloc.2
+IL_004A: ldloc.0 
+IL_004B: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0050: ldfld System.UInt32 NetLane::m_nextLane
+IL_0055: stloc.0 
+IL_0056: ldloc.0 
+IL_0057: brtrue.s IL_001c: ldarg.0
+IL_0059: ldc.i4.0 
+IL_005A: ret 
+
+--- Method: GetLaneConnections (2 params) returns System.UInt32[] ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000e: ldarg.0
+IL_000C: ldnull 
+IL_000D: ret 
+IL_000E: ldarg.0 
+IL_000F: ldarg.1 
+IL_0010: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_0015: brtrue.s IL_0019: ldloca.s V_0
+IL_0017: ldnull 
+IL_0018: ret 
+IL_0019: ldloca.s V_0
+IL_001B: ldarg.1 
+IL_001C: ldarg.2 
+IL_001D: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_0022: ldarg.0 
+IL_0023: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0028: ldloc.0 
+IL_0029: ldloca.s V_1
+IL_002B: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::TryGetValue(!0,!1&)
+IL_0030: brfalse.s IL_003a: ldnull
+IL_0032: ldarg.0 
+IL_0033: ldloc.1 
+IL_0034: call System.UInt32[] TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::FindEnabledLaneIds(TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[])
+IL_0039: ret 
+IL_003A: ldnull 
+IL_003B: ret 
+
+--- Method: RemoveLaneConnection (3 params) returns System.Boolean ---
+IL_0000: ldarg.0 
+IL_0001: ldarg.1 
+IL_0002: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_0007: ldarg.0 
+IL_0008: ldarg.2 
+IL_0009: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_000E: and 
+IL_000F: brtrue.s IL_0013: ldarg.1
+IL_0011: ldc.i4.0 
+IL_0012: ret 
+IL_0013: ldarg.1 
+IL_0014: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0019: ldfld System.UInt16 NetLane::m_segment
+IL_001E: stloc.0 
+IL_001F: ldarg.2 
+IL_0020: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0025: ldfld System.UInt16 NetLane::m_segment
+IL_002A: stloc.1 
+IL_002B: ldloc.0 
+IL_002C: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0031: ldarg.3 
+IL_0032: call System.UInt16 TrafficManager.Util.Extensions.NetSegmentExtensions::GetNodeId(NetSegment&,System.Boolean)
+IL_0037: stloc.2 
+IL_0038: ldarg.0 
+IL_0039: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_003E: ldarg.1 
+IL_003F: ldarg.2 
+IL_0040: ldloc.2 
+IL_0041: callvirt System.Boolean TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::Disconnect(System.UInt32,System.UInt32,System.UInt16)
+IL_0046: ldarg.0 
+IL_0047: ldarg.1 
+IL_0048: ldarg.3 
+IL_0049: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::AssertLane(System.UInt32,System.Boolean)
+IL_004E: brtrue.s IL_0052: ldarg.0
+IL_0050: ldc.i4.0 
+IL_0051: ret 
+IL_0052: ldarg.0 
+IL_0053: ldc.i4.1 
+IL_0054: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup)
+IL_0059: brfalse.s IL_0064: ldloc.2
+IL_005B: ldarg.0 
+IL_005C: ldarg.1 
+IL_005D: ldloc.2 
+IL_005E: ldarg.3 
+IL_005F: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::RecalculateLaneArrows(System.UInt32,System.UInt16,System.Boolean)
+IL_0064: ldloc.2 
+IL_0065: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+IL_006A: stloc.3 
+IL_006B: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_0070: ldloc.3 
+IL_0071: callvirt System.Void TrafficManager.Manager.Impl.RoutingManager::RequestNodeRecalculation(NetNode&)
+IL_0076: call TrafficManager.Lifecycle.TMPELifecycle TrafficManager.Lifecycle.TMPELifecycle::get_Instance()
+IL_007B: callvirt System.Boolean TrafficManager.Lifecycle.TMPELifecycle::MayPublishSegmentChanges()
+IL_0080: brfalse.s IL_0094: ldc.i4.1
+IL_0082: call TrafficManager.Manager.Impl.ExtSegmentManager TrafficManager.Manager.Impl.ExtSegmentManager::get_Instance()
+IL_0087: dup 
+IL_0088: ldloc.0 
+IL_0089: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_008E: ldloc.1 
+IL_008F: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_0094: ldc.i4.1 
+IL_0095: ret 
+
+--- Method: RemoveLaneConnectionsFromNode (1 params) returns System.Void ---
+IL_0000: ldarg.1 
+IL_0001: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+IL_0006: stloc.0 
+IL_0007: ldc.i4.0 
+IL_0008: stloc.1 
+IL_0009: br.s IL_0079: ldloc.1
+IL_000B: ldloc.0 
+IL_000C: ldloc.1 
+IL_000D: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_0012: stloc.2 
+IL_0013: ldloc.2 
+IL_0014: brfalse.s IL_0075: ldloc.1
+IL_0016: ldloc.2 
+IL_0017: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_001C: dup 
+IL_001D: ldarg.1 
+IL_001E: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsStartNode(NetSegment&,System.UInt16)
+IL_0023: stloc.3 
+IL_0024: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable TrafficManager.Util.Extensions.NetSegmentExtensions::GetSegmentLaneIdsAndLaneIndexes(NetSegment&)
+IL_0029: stloc.s V_5
+IL_002B: ldloca.s V_5
+IL_002D: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable::GetEnumerator()
+IL_0032: stloc.s V_4
+IL_0034: br.s IL_005c: ldloca.s V_4
+IL_0036: ldloca.s V_4
+IL_0038: call TrafficManager.Manager.Impl.LaneIdAndIndex TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::get_Current()
+IL_003D: stloc.s V_6
+IL_003F: ldloca.s V_7
+IL_0041: ldloc.s V_6
+IL_0043: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+IL_0048: ldloc.3 
+IL_0049: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_004E: ldarg.0 
+IL_004F: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0054: ldloc.s V_7
+IL_0056: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::Remove(!0)
+IL_005B: pop 
+IL_005C: ldloca.s V_4
+IL_005E: call System.Boolean TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::MoveNext()
+IL_0063: brtrue.s IL_0036: ldloca.s V_4
+IL_0065: leave.s IL_0075: ldloc.1
+IL_0067: ldloca.s V_4
+IL_0069: constrained. TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator
+IL_006F: callvirt System.Void System.IDisposable::Dispose()
+IL_0074: endfinally 
+IL_0075: ldloc.1 
+IL_0076: ldc.i4.1 
+IL_0077: add 
+IL_0078: stloc.1 
+IL_0079: ldloc.1 
+IL_007A: ldc.i4.8 
+IL_007B: blt.s IL_000b: ldloc.0
+IL_007D: ldarg.0 
+IL_007E: ldc.i4.1 
+IL_007F: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup)
+IL_0084: brfalse.s IL_0091: ldc.i4.0
+IL_0086: ldsfld TrafficManager.Manager.Impl.LaneArrowManager TrafficManager.Manager.Impl.LaneArrowManager::Instance
+IL_008B: ldarg.1 
+IL_008C: callvirt System.Void TrafficManager.Manager.Impl.LaneArrowManager::ResetNodeLaneArrows(System.UInt16)
+IL_0091: ldc.i4.0 
+IL_0092: stloc.s V_8
+IL_0094: br.s IL_00cf: ldloc.s V_8
+IL_0096: ldloc.0 
+IL_0097: ldloc.s V_8
+IL_0099: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_009E: stloc.s V_9
+IL_00A0: ldloc.s V_9
+IL_00A2: brfalse.s IL_00c9: ldloc.s V_8
+IL_00A4: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_00A9: ldloc.s V_9
+IL_00AB: ldc.i4.1 
+IL_00AC: callvirt System.Void TrafficManager.Manager.Impl.RoutingManager::RequestRecalculation(System.UInt16,System.Boolean)
+IL_00B1: call TrafficManager.Lifecycle.TMPELifecycle TrafficManager.Lifecycle.TMPELifecycle::get_Instance()
+IL_00B6: callvirt System.Boolean TrafficManager.Lifecycle.TMPELifecycle::MayPublishSegmentChanges()
+IL_00BB: brfalse.s IL_00c9: ldloc.s V_8
+IL_00BD: call TrafficManager.Manager.Impl.ExtSegmentManager TrafficManager.Manager.Impl.ExtSegmentManager::get_Instance()
+IL_00C2: ldloc.s V_9
+IL_00C4: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_00C9: ldloc.s V_8
+IL_00CB: ldc.i4.1 
+IL_00CC: add 
+IL_00CD: stloc.s V_8
+IL_00CF: ldloc.s V_8
+IL_00D1: ldc.i4.8 
+IL_00D2: blt.s IL_0096: ldloc.0
+IL_00D4: ret 
+
+--- Method: RemoveLaneConnections (3 params) returns System.Void ---
+IL_0000: ldloca.s V_0
+IL_0002: ldarg.1 
+IL_0003: ldarg.2 
+IL_0004: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_0009: ldarg.0 
+IL_000A: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_000F: ldloc.0 
+IL_0010: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::Remove(!0)
+IL_0015: pop 
+IL_0016: ldarg.3 
+IL_0017: brfalse.s IL_0048: ret
+IL_0019: ldarg.1 
+IL_001A: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_001F: ldfld System.UInt16 NetLane::m_segment
+IL_0024: stloc.1 
+IL_0025: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_002A: ldloc.1 
+IL_002B: ldc.i4.1 
+IL_002C: callvirt System.Void TrafficManager.Manager.Impl.RoutingManager::RequestRecalculation(System.UInt16,System.Boolean)
+IL_0031: call TrafficManager.Lifecycle.TMPELifecycle TrafficManager.Lifecycle.TMPELifecycle::get_Instance()
+IL_0036: callvirt System.Boolean TrafficManager.Lifecycle.TMPELifecycle::MayPublishSegmentChanges()
+IL_003B: brfalse.s IL_0048: ret
+IL_003D: call TrafficManager.Manager.Impl.ExtSegmentManager TrafficManager.Manager.Impl.ExtSegmentManager::get_Instance()
+IL_0042: ldloc.1 
+IL_0043: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_0048: ret 
+
+--- Method: AddLaneConnection (3 params) returns System.Boolean ---
+IL_0000: ldarg.0 
+IL_0001: ldarg.1 
+IL_0002: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_0007: ldarg.0 
+IL_0008: ldarg.2 
+IL_0009: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ValidateLane(System.UInt32)
+IL_000E: and 
+IL_000F: brtrue.s IL_0013: call TrafficManager.Manager.Impl.ExtLaneManager TrafficManager.Manager.Impl.ExtLaneManager::get_Instance()
+IL_0011: ldc.i4.0 
+IL_0012: ret 
+IL_0013: call TrafficManager.Manager.Impl.ExtLaneManager TrafficManager.Manager.Impl.ExtLaneManager::get_Instance()
+IL_0018: ldarg.1 
+IL_0019: callvirt NetInfo/Lane TrafficManager.Manager.Impl.ExtLaneManager::GetLaneInfo(System.UInt32)
+IL_001E: stloc.0 
+IL_001F: call TrafficManager.Manager.Impl.ExtLaneManager TrafficManager.Manager.Impl.ExtLaneManager::get_Instance()
+IL_0024: ldarg.2 
+IL_0025: callvirt NetInfo/Lane TrafficManager.Manager.Impl.ExtLaneManager::GetLaneInfo(System.UInt32)
+IL_002A: stloc.1 
+IL_002B: ldarg.1 
+IL_002C: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0031: stloc.2 
+IL_0032: ldarg.2 
+IL_0033: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0038: stloc.3 
+IL_0039: ldarg.0 
+IL_003A: ldloc.0 
+IL_003B: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(NetInfo/Lane)
+IL_0040: brfalse.s IL_004b: ldc.i4.0
+IL_0042: ldarg.0 
+IL_0043: ldloc.1 
+IL_0044: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(NetInfo/Lane)
+IL_0049: br.s IL_004c: stloc.s V_4
+IL_004B: ldc.i4.0 
+IL_004C: stloc.s V_4
+IL_004E: ldloc.s V_4
+IL_0050: brtrue.s IL_0054: ldarg.1
+IL_0052: ldc.i4.0 
+IL_0053: ret 
+IL_0054: ldarg.1 
+IL_0055: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_005A: ldfld System.UInt16 NetLane::m_segment
+IL_005F: stloc.s V_5
+IL_0061: ldarg.2 
+IL_0062: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0067: ldfld System.UInt16 NetLane::m_segment
+IL_006C: stloc.s V_6
+IL_006E: ldloc.s V_5
+IL_0070: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0075: ldarg.3 
+IL_0076: call System.UInt16 TrafficManager.Util.Extensions.NetSegmentExtensions::GetNodeId(NetSegment&,System.Boolean)
+IL_007B: stloc.s V_7
+IL_007D: ldloc.s V_7
+IL_007F: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+IL_0084: stloc.s V_8
+IL_0086: ldloc.2 
+IL_0087: ldloc.0 
+IL_0088: ldloc.s V_7
+IL_008A: ldc.i4.1 
+IL_008B: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::<AddLaneConnection>g__IsDirectionValid|27_0(NetLane&,NetInfo/Lane,System.UInt16,System.Boolean)
+IL_0090: stloc.s V_4
+IL_0092: ldarg.1 
+IL_0093: ldarg.2 
+IL_0094: ceq 
+IL_0096: stloc.s V_9
+IL_0098: ldloc.s V_9
+IL_009A: brtrue.s IL_00ab: ldloc.s V_4
+IL_009C: ldloc.s V_4
+IL_009E: ldloc.3 
+IL_009F: ldloc.1 
+IL_00A0: ldloc.s V_7
+IL_00A2: ldc.i4.0 
+IL_00A3: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::<AddLaneConnection>g__IsDirectionValid|27_0(NetLane&,NetInfo/Lane,System.UInt16,System.Boolean)
+IL_00A8: and 
+IL_00A9: stloc.s V_4
+IL_00AB: ldloc.s V_4
+IL_00AD: brtrue.s IL_00b1: ldloc.s V_9
+IL_00AF: ldc.i4.0 
+IL_00B0: ret 
+IL_00B1: ldloc.s V_9
+IL_00B3: brtrue.s IL_00e2: ldarg.0
+IL_00B5: ldarg.0 
+IL_00B6: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_00BB: ldc.i4.2 
+IL_00BC: bne.un.s IL_00e2: ldarg.0
+IL_00BE: ldloc.s V_6
+IL_00C0: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_00C5: ldloc.s V_7
+IL_00C7: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsStartNode(NetSegment&,System.UInt16)
+IL_00CC: stloc.s V_11
+IL_00CE: ldloc.s V_5
+IL_00D0: ldarg.3 
+IL_00D1: ldloc.s V_6
+IL_00D3: ldloc.s V_11
+IL_00D5: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionManager::CheckSegmentsTurningAngle(System.UInt16,System.Boolean,System.UInt16,System.Boolean)
+IL_00DA: stloc.s V_4
+IL_00DC: ldloc.s V_4
+IL_00DE: brtrue.s IL_00e2: ldarg.0
+IL_00E0: ldc.i4.0 
+IL_00E1: ret 
+IL_00E2: ldarg.0 
+IL_00E3: ldarg.1 
+IL_00E4: ldarg.3 
+IL_00E5: call System.UInt32[] TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::GetLaneConnections(System.UInt32,System.Boolean)
+IL_00EA: stloc.s V_10
+IL_00EC: ldloc.s V_10
+IL_00EE: brfalse.s IL_0149: ldarg.0
+IL_00F0: ldloc.s V_10
+IL_00F2: stloc.s V_12
+IL_00F4: ldc.i4.0 
+IL_00F5: stloc.s V_13
+IL_00F7: br.s IL_0141: ldloc.s V_13
+IL_00F9: ldloc.s V_12
+IL_00FB: ldloc.s V_13
+IL_00FD: ldelem.u4 
+IL_00FE: stloc.s V_14
+IL_0100: ldloc.s V_14
+IL_0102: ldloc.s V_7
+IL_0104: newobj System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.UInt16)
+IL_0109: pop 
+IL_010A: ldloc.s V_9
+IL_010C: brfalse.s IL_0126: ldloc.s V_14
+IL_010E: ldloc.s V_14
+IL_0110: ldarg.1 
+IL_0111: beq.s IL_013b: ldloc.s V_13
+IL_0113: ldarg.0 
+IL_0114: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0119: ldarg.1 
+IL_011A: ldloc.s V_14
+IL_011C: ldloc.s V_7
+IL_011E: callvirt System.Boolean TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::Disconnect(System.UInt32,System.UInt32,System.UInt16)
+IL_0123: pop 
+IL_0124: br.s IL_013b: ldloc.s V_13
+IL_0126: ldloc.s V_14
+IL_0128: ldarg.1 
+IL_0129: bne.un.s IL_013b: ldloc.s V_13
+IL_012B: ldarg.0 
+IL_012C: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0131: ldarg.1 
+IL_0132: ldarg.1 
+IL_0133: ldloc.s V_7
+IL_0135: callvirt System.Boolean TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::Disconnect(System.UInt32,System.UInt32,System.UInt16)
+IL_013A: pop 
+IL_013B: ldloc.s V_13
+IL_013D: ldc.i4.1 
+IL_013E: add 
+IL_013F: stloc.s V_13
+IL_0141: ldloc.s V_13
+IL_0143: ldloc.s V_12
+IL_0145: ldlen 
+IL_0146: conv.i4 
+IL_0147: blt.s IL_00f9: ldloc.s V_12
+IL_0149: ldarg.0 
+IL_014A: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_014F: ldarg.1 
+IL_0150: ldarg.2 
+IL_0151: ldloc.s V_7
+IL_0153: callvirt System.Void TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::ConnectTo(System.UInt32,System.UInt32,System.UInt16)
+IL_0158: ldarg.0 
+IL_0159: ldarg.1 
+IL_015A: ldarg.2 
+IL_015B: ldarg.3 
+IL_015C: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::AreLanesConnected(System.UInt32,System.UInt32,System.Boolean)
+IL_0161: ldstr AreLanesConnected({0}, {1}, {2})
+IL_0166: ldarg.1 
+IL_0167: box System.UInt32
+IL_016C: ldarg.2 
+IL_016D: box System.UInt32
+IL_0172: ldarg.3 
+IL_0173: box System.Boolean
+IL_0178: call System.String System.String::Format(System.String,System.Object,System.Object,System.Object)
+IL_017D: call System.Void TrafficManager.Util.Shortcuts::Assert(System.Boolean,System.String)
+IL_0182: ldarg.0 
+IL_0183: ldarg.1 
+IL_0184: ldarg.3 
+IL_0185: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::AssertLane(System.UInt32,System.Boolean)
+IL_018A: ldarg.0 
+IL_018B: ldc.i4.1 
+IL_018C: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup)
+IL_0191: brfalse.s IL_019d: ldloc.s V_5
+IL_0193: ldarg.0 
+IL_0194: ldarg.1 
+IL_0195: ldloc.s V_7
+IL_0197: ldarg.3 
+IL_0198: call System.Void TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::RecalculateLaneArrows(System.UInt32,System.UInt16,System.Boolean)
+IL_019D: ldloc.s V_5
+IL_019F: ldloc.s V_6
+IL_01A1: bne.un.s IL_01b2: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_01A3: call TrafficManager.Manager.Impl.JunctionRestrictionsManager TrafficManager.Manager.Impl.JunctionRestrictionsManager::get_Instance()
+IL_01A8: ldloc.s V_5
+IL_01AA: ldarg.3 
+IL_01AB: ldc.i4.1 
+IL_01AC: callvirt System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::SetUturnAllowed(System.UInt16,System.Boolean,System.Boolean)
+IL_01B1: pop 
+IL_01B2: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_01B7: ldloc.s V_8
+IL_01B9: callvirt System.Void TrafficManager.Manager.Impl.RoutingManager::RequestNodeRecalculation(NetNode&)
+IL_01BE: call TrafficManager.Lifecycle.TMPELifecycle TrafficManager.Lifecycle.TMPELifecycle::get_Instance()
+IL_01C3: callvirt System.Boolean TrafficManager.Lifecycle.TMPELifecycle::MayPublishSegmentChanges()
+IL_01C8: brfalse.s IL_01de: ldc.i4.1
+IL_01CA: call TrafficManager.Manager.Impl.ExtSegmentManager TrafficManager.Manager.Impl.ExtSegmentManager::get_Instance()
+IL_01CF: dup 
+IL_01D0: ldloc.s V_5
+IL_01D2: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_01D7: ldloc.s V_6
+IL_01D9: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_01DE: ldc.i4.1 
+IL_01DF: ret 
+
+--- Method: AssertLane (2 params) returns System.Void ---
+IL_0000: ldarg.1 
+IL_0001: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0006: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+IL_000B: ldstr IsValidWithSegment() failed for laneId:{0}
+IL_0010: ldarg.1 
+IL_0011: box System.UInt32
+IL_0016: call System.String System.String::Format(System.String,System.Object)
+IL_001B: call System.Void TrafficManager.Util.Shortcuts::Assert(System.Boolean,System.String)
+IL_0020: ldarg.0 
+IL_0021: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0026: ldarg.1 
+IL_0027: ldarg.2 
+IL_0028: newobj System.Void TrafficManager.Manager.Impl.LaneConnection.LaneEnd::.ctor(System.UInt32,System.Boolean)
+IL_002D: ldloca.s V_0
+IL_002F: callvirt System.Boolean System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::TryGetValue(!0,!1&)
+IL_0034: brfalse IL_00ca: leave.s IL_00d4
+IL_0039: ldarg.0 
+IL_003A: ldloc.0 
+IL_003B: ldarg.1 
+IL_003C: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::ContainsLaneId(TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[],System.UInt32)
+IL_0041: brfalse IL_00ca: leave.s IL_00d4
+IL_0046: ldarg.1 
+IL_0047: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_004C: ldarg.2 
+IL_004D: call System.UInt16 TrafficManager.Util.Extensions.NetLaneExtensions::GetNodeId(NetLane&,System.Boolean)
+IL_0052: stloc.1 
+IL_0053: ldloc.0 
+IL_0054: ldlen 
+IL_0055: conv.i4 
+IL_0056: ldc.i4.1 
+IL_0057: ceq 
+IL_0059: ldstr dead end should only have one connection to itself. 
+IL_005E: ldstr connections for lane:{0} at node:{1} = 
+IL_0063: ldarg.1 
+IL_0064: box System.UInt32
+IL_0069: ldloc.1 
+IL_006A: box System.UInt16
+IL_006F: call System.String System.String::Format(System.String,System.Object,System.Object)
+IL_0074: ldloc.0 
+IL_0075: call System.String TrafficManager.Util.Shortcuts::ToSTR<TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData>(System.Collections.Generic.IEnumerable`1<T>)
+IL_007A: call System.String System.String::Concat(System.String,System.String,System.String)
+IL_007F: call System.Void TrafficManager.Util.Shortcuts::Assert(System.Boolean,System.String)
+IL_0084: ldloc.0 
+IL_0085: ldc.i4.0 
+IL_0086: ldelema TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_008B: ldfld System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::Enabled
+IL_0090: ldstr disabled dead should be deleted. 
+IL_0095: ldstr connection data for lane:{0} at node:{1} = 
+IL_009A: ldarg.1 
+IL_009B: box System.UInt32
+IL_00A0: ldloc.1 
+IL_00A1: box System.UInt16
+IL_00A6: call System.String System.String::Format(System.String,System.Object,System.Object)
+IL_00AB: ldloc.0 
+IL_00AC: ldc.i4.0 
+IL_00AD: ldelem.any TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_00B2: stloc.2 
+IL_00B3: ldloca.s V_2
+IL_00B5: constrained. TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_00BB: callvirt System.String System.Object::ToString()
+IL_00C0: call System.String System.String::Concat(System.String,System.String,System.String)
+IL_00C5: call System.Void TrafficManager.Util.Shortcuts::Assert(System.Boolean,System.String)
+IL_00CA: leave.s IL_00d4: ret
+IL_00CC: ldc.i4.0 
+IL_00CD: call System.Void TrafficManager.Util.Shortcuts::LogException(System.Exception,System.Boolean)
+IL_00D2: leave.s IL_00d4: ret
+IL_00D4: ret 
+
+--- Method: ReleasingSegment (2 params) returns System.Void ---
+IL_0000: ldarg.2 
+IL_0001: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable TrafficManager.Util.Extensions.NetSegmentExtensions::GetSegmentLaneIdsAndLaneIndexes(NetSegment&)
+IL_0006: stloc.1 
+IL_0007: ldloca.s V_1
+IL_0009: call TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerable::GetEnumerator()
+IL_000E: stloc.0 
+IL_000F: br.s IL_002a: ldloca.s V_0
+IL_0011: ldloca.s V_0
+IL_0013: call TrafficManager.Manager.Impl.LaneIdAndIndex TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::get_Current()
+IL_0018: stloc.2 
+IL_0019: ldarg.0 
+IL_001A: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_001F: ldloc.2 
+IL_0020: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneIdAndIndex::laneId
+IL_0025: callvirt System.Void TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::RemoveConnections(System.UInt32)
+IL_002A: ldloca.s V_0
+IL_002C: call System.Boolean TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator::MoveNext()
+IL_0031: brtrue.s IL_0011: ldloca.s V_0
+IL_0033: leave.s IL_0043: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_0035: ldloca.s V_0
+IL_0037: constrained. TrafficManager.Util.Iterators.GetSegmentLaneIdsEnumerator
+IL_003D: callvirt System.Void System.IDisposable::Dispose()
+IL_0042: endfinally 
+IL_0043: ldsfld TrafficManager.Manager.Impl.RoutingManager TrafficManager.Manager.Impl.RoutingManager::Instance
+IL_0048: ldarg.1 
+IL_0049: ldc.i4.1 
+IL_004A: callvirt System.Void TrafficManager.Manager.Impl.RoutingManager::RequestRecalculation(System.UInt16,System.Boolean)
+IL_004F: call TrafficManager.Lifecycle.TMPELifecycle TrafficManager.Lifecycle.TMPELifecycle::get_Instance()
+IL_0054: callvirt System.Boolean TrafficManager.Lifecycle.TMPELifecycle::MayPublishSegmentChanges()
+IL_0059: brfalse.s IL_0066: ret
+IL_005B: call TrafficManager.Manager.Impl.ExtSegmentManager TrafficManager.Manager.Impl.ExtSegmentManager::get_Instance()
+IL_0060: ldarg.1 
+IL_0061: callvirt System.Void TrafficManager.Manager.Impl.ExtSegmentManager::PublishSegmentChanges(System.UInt16)
+IL_0066: ret 
+
+--- Method: RecalculateLaneArrows (3 params) returns System.Void ---
+IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::laneConnectorEnabled
+IL_000A: brtrue.s IL_000d: ldarg.1
+IL_000C: ret 
+IL_000D: ldarg.1 
+IL_000E: ldarg.3 
+IL_000F: newobj System.Void System.Nullable`1<System.Boolean>::.ctor(!0)
+IL_0014: call System.Boolean TrafficManager.State.Flags::CanHaveLaneArrows(System.UInt32,System.Nullable`1<System.Boolean>)
+IL_0019: brtrue.s IL_001c: ldarg.2
+IL_001B: ret 
+IL_001C: ldarg.2 
+IL_001D: brtrue.s IL_0020: ldarg.1
+IL_001F: ret 
+IL_0020: ldarg.1 
+IL_0021: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0026: ldfld System.UInt16 NetLane::m_segment
+IL_002B: brtrue.s IL_002e: ldarg.2
+IL_002D: ret 
+IL_002E: ldarg.2 
+IL_002F: call NetNode& TrafficManager.Util.Extensions.NetNodeExtensions::ToNode(System.UInt16)
+IL_0034: call System.Boolean TrafficManager.Util.Extensions.NetNodeExtensions::IsValid(NetNode&)
+IL_0039: brtrue.s IL_003c: ldarg.0
+IL_003B: ret 
+IL_003C: ldarg.0 
+IL_003D: ldarg.1 
+IL_003E: ldarg.3 
+IL_003F: call System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows> TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::GetArrowsForConnection(System.UInt32,System.Boolean)
+IL_0044: stloc.0 
+IL_0045: ldloca.s V_0
+IL_0047: call System.Boolean System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows>::get_HasValue()
+IL_004C: brtrue.s IL_005a: ldsfld TrafficManager.Manager.Impl.LaneArrowManager TrafficManager.Manager.Impl.LaneArrowManager::Instance
+IL_004E: ldsfld TrafficManager.Manager.Impl.LaneArrowManager TrafficManager.Manager.Impl.LaneArrowManager::Instance
+IL_0053: ldarg.1 
+IL_0054: callvirt System.Void TrafficManager.Manager.Impl.LaneArrowManager::ResetLaneArrows(System.UInt32)
+IL_0059: ret 
+IL_005A: ldsfld TrafficManager.Manager.Impl.LaneArrowManager TrafficManager.Manager.Impl.LaneArrowManager::Instance
+IL_005F: ldarg.1 
+IL_0060: ldloca.s V_0
+IL_0062: call !0 System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows>::get_Value()
+IL_0067: ldc.i4.1 
+IL_0068: callvirt System.Boolean TrafficManager.Manager.Impl.LaneArrowManager::SetLaneArrows(System.UInt32,TrafficManager.API.Traffic.Enums.LaneArrows,System.Boolean)
+IL_006D: pop 
+IL_006E: ret 
+
+--- Method: GetArrowsForConnection (2 params) returns System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows> ---
+IL_0000: ldarg.0 
+IL_0001: ldarg.1 
+IL_0002: ldarg.2 
+IL_0003: call System.UInt32[] TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::GetLaneConnections(System.UInt32,System.Boolean)
+IL_0008: stloc.0 
+IL_0009: ldloc.0 
+IL_000A: call System.Boolean TrafficManager.Util.ArrayExtensions::IsNullOrEmpty(System.Array)
+IL_000F: brfalse.s IL_001c: ldarg.1
+IL_0011: ldloca.s V_4
+IL_0013: initobj System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows>
+IL_0019: ldloc.s V_4
+IL_001B: ret 
+IL_001C: ldarg.1 
+IL_001D: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0022: ldfld System.UInt16 NetLane::m_segment
+IL_0027: stloc.1 
+IL_0028: ldloc.1 
+IL_0029: brtrue.s IL_0036: call TrafficManager.Manager.Impl.ExtSegmentEndManager TrafficManager.Manager.Impl.ExtSegmentEndManager::get_Instance()
+IL_002B: ldloca.s V_4
+IL_002D: initobj System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows>
+IL_0033: ldloc.s V_4
+IL_0035: ret 
+IL_0036: call TrafficManager.Manager.Impl.ExtSegmentEndManager TrafficManager.Manager.Impl.ExtSegmentEndManager::get_Instance()
+IL_003B: callvirt TrafficManager.API.Traffic.Data.ExtSegmentEnd[] TrafficManager.Manager.Impl.ExtSegmentEndManager::get_ExtSegmentEnds()
+IL_0040: call TrafficManager.API.Manager.IExtSegmentEndManager TrafficManager.Util.Shortcuts::get_segEndMan()
+IL_0045: ldloc.1 
+IL_0046: ldarg.2 
+IL_0047: callvirt System.Int32 TrafficManager.API.Manager.IExtSegmentEndManager::GetIndex(System.UInt16,System.Boolean)
+IL_004C: ldelema TrafficManager.API.Traffic.Data.ExtSegmentEnd
+IL_0051: stloc.2 
+IL_0052: ldc.i4.0 
+IL_0053: stloc.3 
+IL_0054: ldloc.0 
+IL_0055: stloc.s V_5
+IL_0057: ldc.i4.0 
+IL_0058: stloc.s V_6
+IL_005A: br.s IL_0091: ldloc.s V_6
+IL_005C: ldloc.s V_5
+IL_005E: ldloc.s V_6
+IL_0060: ldelem.u4 
+IL_0061: stloc.s V_7
+IL_0063: ldloc.s V_7
+IL_0065: ldarg.1 
+IL_0066: beq.s IL_008b: ldloc.s V_6
+IL_0068: call TrafficManager.API.Manager.IExtSegmentEndManager TrafficManager.Util.Shortcuts::get_segEndMan()
+IL_006D: ldloc.2 
+IL_006E: ldloc.s V_7
+IL_0070: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0075: ldfld System.UInt16 NetLane::m_segment
+IL_007A: callvirt CSUtil.Commons.ArrowDirection TrafficManager.API.Manager.IExtSegmentEndManager::GetDirection(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,System.UInt16)
+IL_007F: stloc.s V_8
+IL_0081: ldloc.3 
+IL_0082: ldloc.s V_8
+IL_0084: call TrafficManager.API.Traffic.Enums.LaneArrows TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::<GetArrowsForConnection>g__ToLaneArrows|31_0(CSUtil.Commons.ArrowDirection)
+IL_0089: or 
+IL_008A: stloc.3 
+IL_008B: ldloc.s V_6
+IL_008D: ldc.i4.1 
+IL_008E: add 
+IL_008F: stloc.s V_6
+IL_0091: ldloc.s V_6
+IL_0093: ldloc.s V_5
+IL_0095: ldlen 
+IL_0096: conv.i4 
+IL_0097: blt.s IL_005c: ldloc.s V_5
+IL_0099: ldloc.3 
+IL_009A: newobj System.Void System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows>::.ctor(!0)
+IL_009F: ret 
+
+--- Method: GetArrowsForOutgoingConnections (1 params) returns System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows> ---
+IL_0000: ldarg.0 
+IL_0001: ldarg.1 
+IL_0002: ldarg.0 
+IL_0003: ldarg.1 
+IL_0004: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::IsHeadingTowardsStartNode(System.UInt32)
+IL_0009: call System.Nullable`1<TrafficManager.API.Traffic.Enums.LaneArrows> TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::GetArrowsForConnection(System.UInt32,System.Boolean)
+IL_000E: ret 
+
+--- Method: ResetLaneConnections (0 params) returns System.Void ---
+IL_0000: ldstr Resetting lane connections of group: {0}
+IL_0005: ldarg.0 
+IL_0006: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_000B: box TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup
+IL_0010: call System.String System.String::Format(System.String,System.Object)
+IL_0015: call System.Void CSUtil.Commons.Log::Info(System.String)
+IL_001A: ldarg.0 
+IL_001B: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_0020: callvirt System.Void TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase::ResetConnectionsDatabase()
+IL_0025: ret 
+
+--- Method: LoadData (1 params) returns System.Boolean ---
+IL_0000: ldc.i4.1 
+IL_0001: stloc.0 
+IL_0002: ldstr Loading {0} lane connections
+IL_0007: ldarg.1 
+IL_0008: callvirt System.Int32 System.Collections.Generic.List`1<TrafficManager.Configuration/LaneConnection>::get_Count()
+IL_000D: box System.Int32
+IL_0012: call System.String System.String::Format(System.String,System.Object)
+IL_0017: call System.Void CSUtil.Commons.Log::Info(System.String)
+IL_001C: ldarg.1 
+IL_001D: callvirt System.Collections.Generic.List`1/Enumerator<!0> System.Collections.Generic.List`1<TrafficManager.Configuration/LaneConnection>::GetEnumerator()
+IL_0022: stloc.1 
+IL_0023: br IL_00dc: ldloca.s V_1
+IL_0028: ldloca.s V_1
+IL_002A: call !0 System.Collections.Generic.List`1/Enumerator<TrafficManager.Configuration/LaneConnection>::get_Current()
+IL_002F: stloc.2 
+IL_0030: ldarg.0 
+IL_0031: ldloc.2 
+IL_0032: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Configuration/LaneConnection::group
+IL_0037: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Supports(TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup)
+IL_003C: brtrue.s IL_0043: ldloc.2
+IL_003E: leave IL_00dc: ldloca.s V_1
+IL_0043: ldloc.2 
+IL_0044: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::sourceLaneId
+IL_0049: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_004E: stloc.3 
+IL_004F: ldloc.3 
+IL_0050: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+IL_0055: brtrue.s IL_005c: ldloc.2
+IL_0057: leave IL_00dc: ldloca.s V_1
+IL_005C: ldloc.2 
+IL_005D: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::targetLaneId
+IL_0062: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0067: stloc.s V_4
+IL_0069: ldloc.s V_4
+IL_006B: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+IL_0070: brtrue.s IL_0074: ldloc.3
+IL_0072: leave.s IL_00dc: ldloca.s V_1
+IL_0074: ldloc.3 
+IL_0075: ldloc.2 
+IL_0076: ldfld System.Boolean TrafficManager.Configuration/LaneConnection::sourceStartNode
+IL_007B: call System.UInt16 TrafficManager.Util.Extensions.NetLaneExtensions::GetNodeId(NetLane&,System.Boolean)
+IL_0080: stloc.s V_5
+IL_0082: ldarg.0 
+IL_0083: ldloc.2 
+IL_0084: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::sourceLaneId
+IL_0089: ldloc.2 
+IL_008A: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::targetLaneId
+IL_008F: ldloc.2 
+IL_0090: ldfld System.Boolean TrafficManager.Configuration/LaneConnection::sourceStartNode
+IL_0095: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::AddLaneConnection(System.UInt32,System.UInt32,System.Boolean)
+IL_009A: pop 
+IL_009B: ldloc.2 
+IL_009C: callvirt System.Boolean TrafficManager.Configuration/LaneConnection::get_LegacyBidirectional()
+IL_00A1: brfalse.s IL_00c3: leave.s IL_00dc
+IL_00A3: ldloc.s V_4
+IL_00A5: ldloc.s V_5
+IL_00A7: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsStartNode(NetLane&,System.UInt16)
+IL_00AC: stloc.s V_6
+IL_00AE: ldarg.0 
+IL_00AF: ldloc.2 
+IL_00B0: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::targetLaneId
+IL_00B5: ldloc.2 
+IL_00B6: ldfld System.UInt32 TrafficManager.Configuration/LaneConnection::sourceLaneId
+IL_00BB: ldloc.s V_6
+IL_00BD: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::AddLaneConnection(System.UInt32,System.UInt32,System.Boolean)
+IL_00C2: pop 
+IL_00C3: leave.s IL_00dc: ldloca.s V_1
+IL_00C5: stloc.s V_7
+IL_00C7: ldstr Error loading data from lane connection: {0}
+IL_00CC: ldloc.s V_7
+IL_00CE: call System.String System.String::Format(System.String,System.Object)
+IL_00D3: call System.Void CSUtil.Commons.Log::Error(System.String)
+IL_00D8: ldc.i4.0 
+IL_00D9: stloc.0 
+IL_00DA: leave.s IL_00dc: ldloca.s V_1
+IL_00DC: ldloca.s V_1
+IL_00DE: call System.Boolean System.Collections.Generic.List`1/Enumerator<TrafficManager.Configuration/LaneConnection>::MoveNext()
+IL_00E3: brtrue IL_0028: ldloca.s V_1
+IL_00E8: leave.s IL_00f8: ldloc.0
+IL_00EA: ldloca.s V_1
+IL_00EC: constrained. System.Collections.Generic.List`1/Enumerator<TrafficManager.Configuration/LaneConnection>
+IL_00F2: callvirt System.Void System.IDisposable::Dispose()
+IL_00F7: endfinally 
+IL_00F8: ldloc.0 
+IL_00F9: ret 
+
+--- Method: SaveData (1 params) returns System.Collections.Generic.List`1<TrafficManager.Configuration/LaneConnection> ---
+IL_0000: newobj System.Void System.Collections.Generic.List`1<TrafficManager.Configuration/LaneConnection>::.ctor()
+IL_0005: stloc.0 
+IL_0006: ldarg.0 
+IL_0007: ldfld TrafficManager.Manager.Impl.LaneConnection.ConnectionDataBase TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::connectionDataBase_
+IL_000C: callvirt System.Collections.Generic.Dictionary`2/Enumerator<!0,!1> System.Collections.Generic.Dictionary`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::GetEnumerator()
+IL_0011: stloc.1 
+IL_0012: br IL_00c3: ldloca.s V_1
+IL_0017: ldloca.s V_1
+IL_0019: call System.Collections.Generic.KeyValuePair`2<!0,!1> System.Collections.Generic.Dictionary`2/Enumerator<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::get_Current()
+IL_001E: stloc.2 
+IL_001F: ldloca.s V_2
+IL_0021: call !0 System.Collections.Generic.KeyValuePair`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::get_Key()
+IL_0026: stloc.3 
+IL_0027: ldloca.s V_2
+IL_0029: call !1 System.Collections.Generic.KeyValuePair`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::get_Value()
+IL_002E: pop 
+IL_002F: ldloca.s V_2
+IL_0031: call !1 System.Collections.Generic.KeyValuePair`2<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::get_Value()
+IL_0036: stloc.s V_4
+IL_0038: ldc.i4.0 
+IL_0039: stloc.s V_5
+IL_003B: br.s IL_0090: ldloc.s V_5
+IL_003D: ldloc.s V_4
+IL_003F: ldloc.s V_5
+IL_0041: ldelem.any TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_0046: stloc.s V_6
+IL_0048: ldloc.s V_6
+IL_004A: ldfld System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::Enabled
+IL_004F: brfalse.s IL_008a: ldloc.s V_5
+IL_0051: ldloc.s V_6
+IL_0053: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::LaneId
+IL_0058: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_005D: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsValidWithSegment(NetLane&)
+IL_0062: brfalse.s IL_008a: ldloc.s V_5
+IL_0064: ldloc.0 
+IL_0065: ldloca.s V_3
+IL_0067: call System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneEnd::get_LaneId()
+IL_006C: ldloc.s V_6
+IL_006E: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::LaneId
+IL_0073: ldloca.s V_3
+IL_0075: call System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneEnd::get_StartNode()
+IL_007A: ldarg.0 
+IL_007B: ldfld TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup TrafficManager.Manager.Impl.LaneConnection.LaneConnectionSubManager::Group
+IL_0080: newobj System.Void TrafficManager.Configuration/LaneConnection::.ctor(System.UInt32,System.UInt32,System.Boolean,TrafficManager.API.Traffic.Enums.LaneEndTransitionGroup)
+IL_0085: callvirt System.Void System.Collections.Generic.List`1<TrafficManager.Configuration/LaneConnection>::Add(!0)
+IL_008A: ldloc.s V_5
+IL_008C: ldc.i4.1 
+IL_008D: add 
+IL_008E: stloc.s V_5
+IL_0090: ldloc.s V_5
+IL_0092: ldloc.s V_4
+IL_0094: ldlen 
+IL_0095: conv.i4 
+IL_0096: blt.s IL_003d: ldloc.s V_4
+IL_0098: leave.s IL_00c3: ldloca.s V_1
+IL_009A: stloc.s V_7
+IL_009C: ldstr Exception occurred while saving lane data @ {0}: {1}
+IL_00A1: ldloca.s V_3
+IL_00A3: call System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneEnd::get_LaneId()
+IL_00A8: box System.UInt32
+IL_00AD: ldloc.s V_7
+IL_00AF: callvirt System.String System.Object::ToString()
+IL_00B4: call System.String System.String::Format(System.String,System.Object,System.Object)
+IL_00B9: call System.Void CSUtil.Commons.Log::Error(System.String)
+IL_00BE: ldarg.1 
+IL_00BF: ldc.i4.0 
+IL_00C0: stind.i1 
+IL_00C1: leave.s IL_00c3: ldloca.s V_1
+IL_00C3: ldloca.s V_1
+IL_00C5: call System.Boolean System.Collections.Generic.Dictionary`2/Enumerator<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>::MoveNext()
+IL_00CA: brtrue IL_0017: ldloca.s V_1
+IL_00CF: leave.s IL_00df: ldloc.0
+IL_00D1: ldloca.s V_1
+IL_00D3: constrained. System.Collections.Generic.Dictionary`2/Enumerator<TrafficManager.Manager.Impl.LaneConnection.LaneEnd,TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData[]>
+IL_00D9: callvirt System.Void System.IDisposable::Dispose()
+IL_00DE: endfinally 
+IL_00DF: ldloc.0 
+IL_00E0: ret 
+
+--- Method: ContainsLaneId (2 params) returns System.Boolean ---
+IL_0000: ldarg.1 
+IL_0001: stloc.0 
+IL_0002: ldc.i4.0 
+IL_0003: stloc.1 
+IL_0004: br.s IL_001b: ldloc.1
+IL_0006: ldloc.0 
+IL_0007: ldloc.1 
+IL_0008: ldelem.any TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_000D: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::LaneId
+IL_0012: ldarg.2 
+IL_0013: bne.un.s IL_0017: ldloc.1
+IL_0015: ldc.i4.1 
+IL_0016: ret 
+IL_0017: ldloc.1 
+IL_0018: ldc.i4.1 
+IL_0019: add 
+IL_001A: stloc.1 
+IL_001B: ldloc.1 
+IL_001C: ldloc.0 
+IL_001D: ldlen 
+IL_001E: conv.i4 
+IL_001F: blt.s IL_0006: ldloc.0
+IL_0021: ldc.i4.0 
+IL_0022: ret 
+
+--- Method: FindEnabledLaneIds (1 params) returns System.UInt32[] ---
+IL_0000: call ColossalFramework.PoolList`1<!0> ColossalFramework.PoolList`1<System.UInt32>::Obtain()
+IL_0005: stloc.0 
+IL_0006: ldloc.0 
+IL_0007: ldarg.1 
+IL_0008: ldlen 
+IL_0009: conv.i4 
+IL_000A: callvirt System.Void ColossalFramework.PoolList`1<System.UInt32>::EnsureCapacity(System.Int32)
+IL_000F: ldarg.1 
+IL_0010: stloc.1 
+IL_0011: ldc.i4.0 
+IL_0012: stloc.2 
+IL_0013: br.s IL_0035: ldloc.2
+IL_0015: ldloc.1 
+IL_0016: ldloc.2 
+IL_0017: ldelem.any TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData
+IL_001C: stloc.3 
+IL_001D: ldloc.3 
+IL_001E: ldfld System.Boolean TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::Enabled
+IL_0023: brfalse.s IL_0031: ldloc.2
+IL_0025: ldloc.0 
+IL_0026: ldloc.3 
+IL_0027: ldfld System.UInt32 TrafficManager.Manager.Impl.LaneConnection.LaneConnectionData::LaneId
+IL_002C: callvirt System.Void ColossalFramework.PoolList`1<System.UInt32>::Add(!0)
+IL_0031: ldloc.2 
+IL_0032: ldc.i4.1 
+IL_0033: add 
+IL_0034: stloc.2 
+IL_0035: ldloc.2 
+IL_0036: ldloc.1 
+IL_0037: ldlen 
+IL_0038: conv.i4 
+IL_0039: blt.s IL_0015: ldloc.1
+IL_003B: ldloc.0 
+IL_003C: callvirt !0[] ColossalFramework.PoolList`1<System.UInt32>::ToArray()
+IL_0041: stloc.s V_4
+IL_0043: leave.s IL_004f: ldloc.s V_4
+IL_0045: ldloc.0 
+IL_0046: brfalse.s IL_004e: endfinally
+IL_0048: ldloc.0 
+IL_0049: callvirt System.Void System.IDisposable::Dispose()
+IL_004E: endfinally 
+IL_004F: ldloc.s V_4
+IL_0051: ret 
+
+--- Method: <AddLaneConnection>g__IsDirectionValid|27_0 (4 params) returns System.Boolean ---
+IL_0000: ldarg.0 
+IL_0001: ldfld System.UInt16 NetLane::m_segment
+IL_0006: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_000B: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0010: ldc.i4.s 16
+IL_0012: call System.Boolean TrafficManager.Util.Extensions.FlagsExtensions::IsFlagSet(NetSegment/Flags,NetSegment/Flags)
+IL_0017: stloc.0 
+IL_0018: ldarg.0 
+IL_0019: ldarg.2 
+IL_001A: call System.Boolean TrafficManager.Util.Extensions.NetLaneExtensions::IsStartNode(NetLane&,System.UInt16)
+IL_001F: stloc.1 
+IL_0020: ldarg.1 
+IL_0021: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+IL_0026: stloc.2 
+IL_0027: ldarg.3 
+IL_0028: ldloc.1 
+IL_0029: xor 
+IL_002A: ldloc.0 
+IL_002B: xor 
+IL_002C: brfalse.s IL_0036: ldloc.2
+IL_002E: ldloc.2 
+IL_002F: ldc.i4.1 
+IL_0030: call System.Boolean TrafficManager.Util.Extensions.FlagsExtensions::IsFlagSet(NetInfo/Direction,NetInfo/Direction)
+IL_0035: ret 
+IL_0036: ldloc.2 
+IL_0037: ldc.i4.2 
+IL_0038: call System.Boolean TrafficManager.Util.Extensions.FlagsExtensions::IsFlagSet(NetInfo/Direction,NetInfo/Direction)
+IL_003D: ret 
+
+--- Method: <GetArrowsForConnection>g__ToLaneArrows|31_0 (1 params) returns TrafficManager.API.Traffic.Enums.LaneArrows ---
+IL_0000: ldarg.0 
+IL_0001: ldc.i4.1 
+IL_0002: sub 
+IL_0003: switch Mono.Cecil.Cil.Instruction[]
+IL_0018: br.s IL_0029: ldc.i4.0
+IL_001A: ldc.i4.s 16
+IL_001C: ret 
+IL_001D: ldc.i4.s 32
+IL_001F: ret 
+IL_0020: ldc.i4.s 64
+IL_0022: ret 
+IL_0023: call TrafficManager.API.Traffic.Enums.LaneArrows TrafficManager.Util.Shortcuts::get_LaneArrows_Far()
+IL_0028: ret 
+IL_0029: ldc.i4.0 
+IL_002A: ret 

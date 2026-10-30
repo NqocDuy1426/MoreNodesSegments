@@ -1,0 +1,210 @@
+Method: System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::HasPriority(System.UInt16,Vehicle&,PathUnit/Position&,TrafficManager.API.Traffic.Data.ExtSegmentEnd&,System.UInt16,System.Boolean,PathUnit/Position&,NetNode&)
+  IL_0000: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_0005: callvirt TrafficManager.API.Manager.IExtSegmentEndManager TrafficManager.API.Manager.IManagerFactory::get_ExtSegmentEndManager()
+  IL_000a: stloc.0
+  IL_000b: ldarg.2
+  IL_000c: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0011: ldc.i4.4
+  IL_0012: and
+  IL_0013: brtrue.s IL_0017
+  IL_0015: ldc.i4.1
+  IL_0016: ret
+  IL_0017: ldarg.2
+  IL_0018: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_001d: ldc.i4 128
+  IL_0022: and
+  IL_0023: brfalse.s IL_0027
+  IL_0025: ldc.i4.1
+  IL_0026: ret
+  IL_0027: ldarg.2
+  IL_0028: call VehicleInfo Vehicle::get_Info()
+  IL_002d: ldfld VehicleInfo/VehicleType VehicleInfo::m_vehicleType
+  IL_0032: ldc.i4 2048
+  IL_0037: bne.un.s IL_003b
+  IL_0039: ldc.i4.1
+  IL_003a: ret
+  IL_003b: ldarg.0
+  IL_003c: ldarg.3
+  IL_003d: ldfld System.UInt16 PathUnit/Position::m_segment
+  IL_0042: ldarg.s startNode
+  IL_0044: call TrafficManager.API.Traffic.Enums.PriorityType TrafficManager.Manager.Impl.TrafficPriorityManager::GetPrioritySign(System.UInt16,System.Boolean)
+  IL_0049: stloc.1
+  IL_004a: ldloc.1
+  IL_004b: brtrue.s IL_004f
+  IL_004d: ldc.i4.1
+  IL_004e: stloc.1
+  IL_004f: ldloc.1
+  IL_0050: ldc.i4.1
+  IL_0051: ceq
+  IL_0053: stloc.2
+  IL_0054: ldc.r4 NaN
+  IL_0059: stloc.3
+  IL_005a: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_005f: ldfld TrafficManager.API.Traffic.Enums.SimulationAccuracy TrafficManager.State.SavedGameOptions::simulationAccuracy
+  IL_0064: ldc.i4.3
+  IL_0065: blt.s IL_00ab
+  IL_0067: ldarg.s transitNode
+  IL_0069: ldfld UnityEngine.Vector3 NetNode::m_position
+  IL_006e: ldarg.2
+  IL_006f: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+  IL_0074: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_0079: stloc.s V_8
+  IL_007b: ldarg.2
+  IL_007c: call UnityEngine.Vector3 Vehicle::GetLastFrameVelocity()
+  IL_0081: stloc.s V_9
+  IL_0083: ldloca.s V_9
+  IL_0085: call System.Single UnityEngine.Vector3::get_magnitude()
+  IL_008a: stloc.s V_10
+  IL_008c: ldloca.s V_8
+  IL_008e: call System.Single UnityEngine.Vector3::get_magnitude()
+  IL_0093: stloc.s V_11
+  IL_0095: ldloc.s V_10
+  IL_0097: ldc.r4 0
+  IL_009c: bgt.s IL_00a5
+  IL_009e: ldc.r4 0
+  IL_00a3: br.s IL_00aa
+  IL_00a5: ldloc.s V_11
+  IL_00a7: ldloc.s V_10
+  IL_00a9: div
+  IL_00aa: stloc.3
+  IL_00ab: ldloc.0
+  IL_00ac: ldarg.s curEnd
+  IL_00ae: ldarg.s nextPos
+  IL_00b0: ldfld System.UInt16 PathUnit/Position::m_segment
+  IL_00b5: callvirt CSUtil.Commons.ArrowDirection TrafficManager.API.Manager.IExtSegmentEndManager::GetDirection(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,System.UInt16)
+  IL_00ba: stloc.s V_4
+  IL_00bc: ldsfld TrafficManager.Manager.Impl.ExtVehicleManager TrafficManager.Manager.Impl.ExtVehicleManager::Instance
+  IL_00c1: stloc.s V_5
+  IL_00c3: call TrafficManager.Manager.Impl.CustomSegmentLightsManager TrafficManager.Manager.Impl.CustomSegmentLightsManager::get_Instance()
+  IL_00c8: stloc.s V_6
+  IL_00ca: ldc.i4.0
+  IL_00cb: stloc.s V_12
+  IL_00cd: br IL_0210
+  IL_00d2: ldarg.s transitNode
+  IL_00d4: ldloc.s V_12
+  IL_00d6: call System.UInt16 NetNode::GetSegment(System.Int32)
+  IL_00db: stloc.s V_13
+  IL_00dd: ldloc.s V_13
+  IL_00df: ldarg.s curEnd
+  IL_00e1: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::segmentId
+  IL_00e6: beq IL_020a
+  IL_00eb: ldloc.s V_13
+  IL_00ed: brfalse IL_020a
+  IL_00f2: ldloc.s V_13
+  IL_00f4: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_00f9: ldarg.s transitNodeId
+  IL_00fb: call System.Boolean TrafficManager.Util.Extensions.NetSegmentExtensions::IsStartNode(NetSegment&,System.UInt16)
+  IL_0100: stloc.s V_14
+  IL_0102: ldnull
+  IL_0103: stloc.s V_15
+  IL_0105: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_010a: ldfld System.Boolean TrafficManager.State.SavedGameOptions::trafficLightPriorityRules
+  IL_010f: brfalse.s IL_0120
+  IL_0111: ldloc.s V_6
+  IL_0113: ldloc.s V_13
+  IL_0115: ldloc.s V_14
+  IL_0117: ldc.i4.0
+  IL_0118: ldc.i4.2
+  IL_0119: callvirt TrafficManager.TrafficLight.Impl.CustomSegmentLights TrafficManager.Manager.Impl.CustomSegmentLightsManager::GetSegmentLights(System.UInt16,System.Boolean,System.Boolean,RoadBaseAI/TrafficLightState)
+  IL_011e: stloc.s V_15
+  IL_0120: ldarg.0
+  IL_0121: ldloc.s V_13
+  IL_0123: ldloc.s V_14
+  IL_0125: call TrafficManager.API.Traffic.Enums.PriorityType TrafficManager.Manager.Impl.TrafficPriorityManager::GetPrioritySign(System.UInt16,System.Boolean)
+  IL_012a: stloc.s V_16
+  IL_012c: ldloc.s V_16
+  IL_012e: brtrue.s IL_0133
+  IL_0130: ldc.i4.1
+  IL_0131: stloc.s V_16
+  IL_0133: ldloc.s V_16
+  IL_0135: ldc.i4.1
+  IL_0136: ceq
+  IL_0138: stloc.s V_17
+  IL_013a: ldloc.0
+  IL_013b: ldarg.s curEnd
+  IL_013d: ldloc.s V_13
+  IL_013f: callvirt CSUtil.Commons.ArrowDirection TrafficManager.API.Manager.IExtSegmentEndManager::GetDirection(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,System.UInt16)
+  IL_0144: stloc.s V_18
+  IL_0146: ldloc.0
+  IL_0147: ldloc.s V_13
+  IL_0149: ldloc.s V_14
+  IL_014b: callvirt System.Int32 TrafficManager.API.Manager.IExtSegmentEndManager::GetIndex(System.UInt16,System.Boolean)
+  IL_0150: stloc.s V_19
+  IL_0152: ldloc.0
+  IL_0153: callvirt TrafficManager.API.Traffic.Data.ExtSegmentEnd[] TrafficManager.API.Manager.IExtSegmentEndManager::get_ExtSegmentEnds()
+  IL_0158: ldloc.s V_19
+  IL_015a: ldelema TrafficManager.API.Traffic.Data.ExtSegmentEnd
+  IL_015f: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtSegmentEnd::firstVehicleId
+  IL_0164: stloc.s V_20
+  IL_0166: ldc.i4.0
+  IL_0167: stloc.s V_21
+  IL_0169: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_016e: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0173: ldfld !0[] Array16`1<Vehicle>::m_buffer
+  IL_0178: ldlen
+  IL_0179: conv.i4
+  IL_017a: stloc.s V_22
+  IL_017c: br IL_0203
+  IL_0181: ldarg.0
+  IL_0182: ldc.i4.0
+  IL_0183: ldarg.s transitNode
+  IL_0185: ldfld UnityEngine.Vector3 NetNode::m_position
+  IL_018a: ldloc.3
+  IL_018b: ldarg.1
+  IL_018c: ldarg.2
+  IL_018d: ldarg.3
+  IL_018e: ldarg.s transitNodeId
+  IL_0190: ldarg.s startNode
+  IL_0192: ldarg.s nextPos
+  IL_0194: ldloc.2
+  IL_0195: ldarg.s curEnd
+  IL_0197: ldloc.s V_4
+  IL_0199: ldloc.s V_20
+  IL_019b: ldloc.s V_20
+  IL_019d: call Vehicle& TrafficManager.Util.Extensions.VehicleExtensions::ToVehicle(System.UInt16)
+  IL_01a2: ldloc.s V_5
+  IL_01a4: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.Manager.Impl.ExtVehicleManager::get_ExtVehicles()
+  IL_01a9: ldloc.s V_20
+  IL_01ab: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+  IL_01b0: ldloc.s V_17
+  IL_01b2: ldloc.0
+  IL_01b3: callvirt TrafficManager.API.Traffic.Data.ExtSegmentEnd[] TrafficManager.API.Manager.IExtSegmentEndManager::get_ExtSegmentEnds()
+  IL_01b8: ldloc.s V_19
+  IL_01ba: ldelema TrafficManager.API.Traffic.Data.ExtSegmentEnd
+  IL_01bf: ldloc.s V_15
+  IL_01c1: ldloc.s V_18
+  IL_01c3: call System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::IsConflictingVehicle(System.Boolean,UnityEngine.Vector3,System.Single,System.UInt16,Vehicle&,PathUnit/Position&,System.UInt16,System.Boolean,PathUnit/Position&,System.Boolean,TrafficManager.API.Traffic.Data.ExtSegmentEnd&,CSUtil.Commons.ArrowDirection,System.UInt16,Vehicle&,TrafficManager.API.Traffic.Data.ExtVehicle&,System.Boolean,TrafficManager.API.Traffic.Data.ExtSegmentEnd&,TrafficManager.TrafficLight.Impl.CustomSegmentLights,CSUtil.Commons.ArrowDirection)
+  IL_01c8: brfalse.s IL_01cc
+  IL_01ca: ldc.i4.0
+  IL_01cb: ret
+  IL_01cc: ldloc.s V_5
+  IL_01ce: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.Manager.Impl.ExtVehicleManager::get_ExtVehicles()
+  IL_01d3: ldloc.s V_20
+  IL_01d5: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+  IL_01da: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtVehicle::nextVehicleIdOnSegment
+  IL_01df: stloc.s V_20
+  IL_01e1: ldloc.s V_21
+  IL_01e3: ldc.i4.1
+  IL_01e4: add
+  IL_01e5: dup
+  IL_01e6: stloc.s V_21
+  IL_01e8: ldloc.s V_22
+  IL_01ea: ble.s IL_0203
+  IL_01ec: ldc.i4.1
+  IL_01ed: ldstr "Invalid list detected!
+"
+  IL_01f2: call System.String System.Environment::get_StackTrace()
+  IL_01f7: call System.String System.String::Concat(System.String,System.String)
+  IL_01fc: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0201: br.s IL_020a
+  IL_0203: ldloc.s V_20
+  IL_0205: brtrue IL_0181
+  IL_020a: ldloc.s V_12
+  IL_020c: ldc.i4.1
+  IL_020d: add
+  IL_020e: stloc.s V_12
+  IL_0210: ldloc.s V_12
+  IL_0212: ldc.i4.8
+  IL_0213: blt IL_00d2
+  IL_0218: ldc.i4.1
+  IL_0219: ret

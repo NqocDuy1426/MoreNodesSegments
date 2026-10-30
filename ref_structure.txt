@@ -1,0 +1,173 @@
+Assembly: MoreNetworkCapacityRenew, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+==========================================
+TYPE: <Module> (Base: none)
+==========================================
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.DiagnosticLogger (Base: System.Object)
+==========================================
+  FIELD: System.DateTime lastCheckpoint (static)
+  METHOD: System.Void Checkpoint (System.String phase) (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.MemoryOptimizer (Base: System.Object)
+==========================================
+  FIELD: System.Boolean EnableStrategicGC (static)
+  FIELD: System.Boolean EnableEarlyPreallocation (static)
+  METHOD: System.Void StrategicGarbageCollect (System.String phase) (static)
+  METHOD: System.Void LogMemoryStatus (System.String phase) (static)
+  METHOD: System.Void CheckProceduralObjectsPresence () (static)
+  METHOD: System.Void PrewarmHeap () (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.RenewMod (Base: System.Object)
+==========================================
+  FIELD: System.AssemblyLoadEventHandler <>f__am$cache0 (static)
+  FIELD: ICities.OnCheckChanged <>f__am$cache1 (static)
+  FIELD: ICities.OnCheckChanged <>f__am$cache2 (static)
+  FIELD: ICities.OnButtonClicked <>f__am$cache3 (static)
+  PROPERTY: System.String Name
+  PROPERTY: System.String Description
+  METHOD: System.Void .cctor () (static)
+  METHOD: System.Void .ctor ()
+  METHOD: System.String get_Name ()
+  METHOD: System.String get_Description ()
+  METHOD: System.Void OnEnabled ()
+  METHOD: System.Void OnDisabled ()
+  METHOD: System.Void OnSettingsUI (ICities.UIHelperBase helper)
+  METHOD: System.Reflection.Assembly EnsureCoreLoaded () (static)
+  METHOD: System.Void EnsureCoreActive () (static)
+  METHOD: System.Void EnsureRenderManagerCapacity () (static)
+  METHOD: System.Void DisableCore () (static)
+  METHOD: System.Reflection.Assembly <RenewMod>m__0 (System.Object sender, System.ResolveEventArgs args) (static)
+  METHOD: System.Void <OnEnabled>m__1 (System.Object sender, System.AssemblyLoadEventArgs args) (static)
+  METHOD: System.Void <OnSettingsUI>m__2 (System.Boolean b) (static)
+  METHOD: System.Void <OnSettingsUI>m__3 (System.Boolean b) (static)
+  METHOD: System.Void <OnSettingsUI>m__4 () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.InstanceManagerCompatibility (Base: System.Object)
+==========================================
+  FIELD: System.Int32 EXPANDED_SIZE (static)
+  METHOD: System.Void EnsureCompatibility () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.MissingAssetProtection (Base: System.Object)
+==========================================
+  FIELD: System.Int32 nullPrefabCount (static)
+  FIELD: System.Collections.Generic.HashSet`1<System.UInt32> reportedIndices (static)
+  METHOD: System.Void Initialize (Harmony.HarmonyInstance harmony) (static)
+  METHOD: System.Void GetPrefabSafePostfix (System.UInt32 index, BuildingInfo& __result) (static)
+  METHOD: System.Void ReportFinalStats () (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.TMPECompatibility (Base: System.Object)
+==========================================
+  FIELD: System.Reflection.Assembly cachedTMPEAssembly (static)
+  METHOD: System.Reflection.Assembly GetTMPEAssembly () (static)
+  METHOD: System.Void Apply (Harmony.HarmonyInstance harmony) (static)
+  METHOD: System.Void SynchronizeTMPEBuffersAndArrays (System.String context) (static)
+  METHOD: System.Void SetStaticField (System.Reflection.Assembly asm, System.String typeName, System.String fieldName, System.Object value) (static)
+  METHOD: System.Void ResizeStaticArray (System.Type type, System.String fieldName, System.Int32 targetSize) (static)
+  METHOD: System.Object GetManagerInstance (System.Type t) (static)
+  METHOD: System.Void EnsureParkingRestrictionsCapacity (System.Int32 minSize) (static)
+  METHOD: System.Void EnsureParkingRestrictionsCapacity (System.Object inst, System.Int32 minSize) (static)
+  METHOD: System.Void EnsureSegmentEndManagersCapacity (System.Reflection.Assembly tmpe) (static)
+  METHOD: System.Void ResizeAllManagerArrays (System.Reflection.Assembly tmpe) (static)
+  METHOD: System.Void ResizeGenericArrayCaches (System.Reflection.Assembly tmpe) (static)
+  METHOD: System.Void EnsurePathFindCapacity () (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.TMPEPatches (Base: System.Object)
+==========================================
+  FIELD: System.Reflection.PropertyInfo propSimulations (static)
+  FIELD: System.Reflection.MethodInfo removeNodeMethod (static)
+  FIELD: System.Reflection.MethodInfo fallbackStepMethod (static)
+  FIELD: MoreNetworkCapacityRenew.TMPEPatches/SimOneDelegate simOneDel (static)
+  FIELD: System.Boolean tmpePostfixInitDone (static)
+  FIELD: System.Boolean tmpePostfixLoggedOnce (static)
+  METHOD: System.Void SerializableDataExtension_Load_Prefix () (static)
+  METHOD: System.Void SerializableDataExtension_Load_Postfix () (static)
+  METHOD: System.Void SerializableDataExtension_DeserializeData_Prefix () (static)
+  METHOD: System.Void SerializableDataExtension_Save_Prefix () (static)
+  METHOD: System.Void SerializableDataExtension_Save_Postfix () (static)
+  METHOD: System.Void ParkingRestrictionsManager_OnBeforeLoadData_Postfix (System.Object __instance) (static)
+  METHOD: System.Boolean ParkingRestrictionsManager_SetParkingAllowed_Prefix (System.Object __instance, System.UInt16 segmentId, System.Boolean& __result) (static)
+  METHOD: System.Void ParkingRestrictionsManager_LoadData_Postfix (System.Boolean& __result) (static)
+  METHOD: System.Boolean SegmentEndManager_GetIndex_Prefix (System.UInt32 segmentId, System.Boolean startNode, System.Int32& __result) (static)
+  METHOD: System.Boolean SegmentEndManager_GetIndex_ushort_Prefix (System.UInt16 segmentId, System.Boolean startNode, System.Int32& __result) (static)
+  METHOD: System.Boolean SegmentEndManager_GetSegmentAndNodeFromIndex_Prefix (System.Int32 index, System.UInt32& segmentId, System.Boolean& startNode) (static)
+  METHOD: System.Boolean SegmentEndManager_GetSegmentAndNodeFromIndex_ushort_Prefix (System.Int32 index, System.UInt16& segmentId, System.Boolean& startNode) (static)
+  METHOD: System.Boolean TurnOnRedManager_GetIndex_Prefix (System.UInt32 segmentId, System.Boolean startNode, System.Int32& __result) (static)
+  METHOD: System.Boolean TurnOnRedManager_GetIndex_ushort_Prefix (System.UInt16 segmentId, System.Boolean startNode, System.Int32& __result) (static)
+  METHOD: System.Boolean TrafficMeasurementManager_GetDirIndex_Prefix (System.UInt32 segmentId, NetInfo/Direction dir, System.Int32& __result) (static)
+  METHOD: System.Boolean TrafficMeasurementManager_GetDirIndex_ushort_Prefix (System.UInt16 segmentId, NetInfo/Direction dir, System.Int32& __result) (static)
+  METHOD: System.Boolean RoutingManager_GetLaneEndRoutingIndex_Prefix (System.UInt32 laneId, System.Boolean startNode, System.UInt32& __result) (static)
+  METHOD: System.Void TrafficLightSimulationManager_SimulationStep_Postfix (System.Object __instance) (static)
+  METHOD: System.Void TMPELifecycle_Load_Postfix () (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.NetManagerSimulationPatches (Base: System.Object)
+==========================================
+  FIELD: System.Boolean loggedOnce (static)
+  METHOD: System.Void Postfix (NetManager __instance, System.Int32 subStep) (static)
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.NetManagerUpdateSegmentColorsZeroPatch (Base: System.Object)
+==========================================
+  METHOD: System.Void Postfix (NetManager __instance) (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.NetManagerUpdateNodeColorsZeroPatch (Base: System.Object)
+==========================================
+  METHOD: System.Void Postfix (NetManager __instance) (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.InfoManagerSetActualModePatch (Base: System.Object)
+==========================================
+  METHOD: System.Void Postfix () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.RenderManagerUpdateInstancePatch (Base: System.Object)
+==========================================
+  METHOD: System.Boolean Prefix (RenderManager __instance, System.UInt32 holder) (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.RenderManagerGetInstanceIndexPatch (Base: System.Object)
+==========================================
+  METHOD: System.Boolean Prefix (RenderManager __instance, System.UInt32 holder, System.UInt32& instanceIndex, System.Boolean& __result) (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.RenewLoading (Base: ICities.LoadingExtensionBase)
+==========================================
+  FIELD: System.Boolean patchApplied (static)
+  METHOD: System.Void .ctor ()
+  METHOD: System.Int32 SafePatchKianCommons (Harmony.HarmonyInstance harmony, System.Type type, System.String methodName, System.String transpilerName) (static)
+  METHOD: System.Void OnCreated (ICities.ILoading loading)
+  METHOD: System.Void OnLevelLoaded (ICities.LoadMode mode)
+  METHOD: System.Void SanitizeNetwork ()
+  METHOD: System.Void SanitizeVehicleGrid ()
+  METHOD: System.Void .cctor () (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.Transpilers (Base: System.Object)
+==========================================
+  METHOD: System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> NodeLimitTranspiler (System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> instructions) (static)
+  METHOD: System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> SegmentLimitTranspiler (System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> instructions) (static)
+
+==========================================
+TYPE: MoreNetworkCapacityRenew.DynamicPatcher (Base: System.Object)
+==========================================
+  METHOD: System.Void Apply (Harmony.HarmonyInstance harmony) (static)
+  METHOD: System.Int32 PatchType (Harmony.HarmonyInstance harmony, System.Type type) (static)
+  METHOD: System.Boolean IsBoundsCheckOp (System.Reflection.Emit.OpCode op) (static)
+  METHOD: System.Boolean IsAllocationOp (System.Reflection.Emit.OpCode op) (static)
+  METHOD: System.Boolean IsPreserveOp (System.Reflection.Emit.OpCode op) (static)
+  METHOD: System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> ValidationTranspiler (System.Collections.Generic.IEnumerable`1<Harmony.CodeInstruction> instructions, System.Reflection.MethodBase original) (static)

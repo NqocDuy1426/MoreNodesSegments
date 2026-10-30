@@ -1,0 +1,46 @@
+Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::TargetMethod()
+  IL_0000: ldtoken CarAI
+  IL_0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_000a: ldstr "CalculateSegmentPosition"
+  IL_000f: ldc.i4.0
+  IL_0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch/CalculatePositionDelegate>(System.Type,System.String,System.Boolean)
+  IL_0015: ret
+Method: System.Boolean TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::Prefix(CarAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+  IL_0000: ldarg.0
+  IL_0001: ldarg.1
+  IL_0002: ldarg.2
+  IL_0003: ldarg.3
+  IL_0004: ldarg.s laneID
+  IL_0006: ldarg.s offset
+  IL_0008: ldarg.s pos
+  IL_000a: ldarg.s dir
+  IL_000c: ldarg.s maxSpeed
+  IL_000e: call System.Void TrafficManager.Patch._VehicleAI.VehicleAICommons::CustomCalculateSegmentPosition(VehicleAI,System.UInt16,Vehicle&,PathUnit/Position,System.UInt32,System.Byte,UnityEngine.Vector3&,UnityEngine.Vector3&,System.Single&)
+  IL_0013: ldarg.s maxSpeed
+  IL_0015: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_001a: callvirt TrafficManager.API.Manager.IVehicleBehaviorManager TrafficManager.API.Manager.IManagerFactory::get_VehicleBehaviorManager()
+  IL_001f: ldarg.1
+  IL_0020: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_0025: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+  IL_002a: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+  IL_002f: ldarg.1
+  IL_0030: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+  IL_0035: ldarg.0
+  IL_0036: ldfld VehicleInfo VehicleAI::m_info
+  IL_003b: ldarg.3
+  IL_003c: ldarg.3
+  IL_003d: ldfld System.UInt16 PathUnit/Position::m_segment
+  IL_0042: call NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+  IL_0047: ldarg.s pos
+  IL_0049: ldobj UnityEngine.Vector3
+  IL_004e: ldarg.s maxSpeed
+  IL_0050: ldind.r4
+  IL_0051: ldc.i4.0
+  IL_0052: callvirt System.Single TrafficManager.API.Manager.IVehicleBehaviorManager::CalcMaxSpeed(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,VehicleInfo,PathUnit/Position,NetSegment&,UnityEngine.Vector3,System.Single,System.Boolean)
+  IL_0057: stind.r4
+  IL_0058: ldc.i4.0
+  IL_0059: ret
+Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.CalculateSegmentPositionPatch::.ctor()
+  IL_0000: ldarg.0
+  IL_0001: call System.Void System.Object::.ctor()
+  IL_0006: ret

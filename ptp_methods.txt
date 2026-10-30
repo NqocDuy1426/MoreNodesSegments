@@ -1,0 +1,134 @@
+
+================== PublicTransportPanel.RefreshPanel ==================
+Method: System.Void PublicTransportPanel::RefreshPanel()
+IL_0000: ldarg.0 
+IL_0001: call System.Void GeneratedScrollPanel::RefreshPanel()
+IL_0006: ldarg.0 
+IL_0007: call System.String GeneratedScrollPanel::get_category()
+IL_000c: ldstr PublicTransportAirportArea
+IL_0011: call System.Boolean System.String::op_Inequality(System.String,System.String)
+IL_0016: brfalse IL_0033
+IL_001b: ldarg.0 
+IL_001c: ldc.i4.7 
+IL_001d: ldarg.0 
+IL_001e: ldftn System.Int32 GeneratedScrollPanel::ItemsTypeReverseSort(PrefabInfo,PrefabInfo)
+IL_0024: newobj System.Void System.Comparison`1<PrefabInfo>::.ctor(System.Object,System.IntPtr)
+IL_0029: call System.Void GeneratedScrollPanel::PopulateAssets(GeneratedScrollPanel/AssetFilter,System.Comparison`1<PrefabInfo>)
+IL_002e: br IL_0046
+IL_0033: ldarg.0 
+IL_0034: ldc.i4.7 
+IL_0035: ldarg.0 
+IL_0036: ldftn System.Int32 GeneratedScrollPanel::ItemsAirportAreaSort(PrefabInfo,PrefabInfo)
+IL_003c: newobj System.Void System.Comparison`1<PrefabInfo>::.ctor(System.Object,System.IntPtr)
+IL_0041: call System.Void GeneratedScrollPanel::PopulateAssets(GeneratedScrollPanel/AssetFilter,System.Comparison`1<PrefabInfo>)
+IL_0046: ret 
+
+================== PublicTransportPanel.OnButtonClicked ==================
+Method: System.Void PublicTransportPanel::OnButtonClicked(ColossalFramework.UI.UIComponent)
+IL_0000: ldarg.1 
+IL_0001: callvirt System.Object ColossalFramework.UI.UIComponent::get_objectUserData()
+IL_0006: stloc.0 
+IL_0007: ldloc.0 
+IL_0008: isinst BuildingInfo
+IL_000d: stloc.1 
+IL_000e: ldloc.0 
+IL_000f: isinst NetInfo
+IL_0014: stloc.2 
+IL_0015: ldloc.0 
+IL_0016: isinst TransportInfo
+IL_001b: stloc.3 
+IL_001c: ldloc.1 
+IL_001d: ldnull 
+IL_001e: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_0023: brfalse IL_0052
+IL_0028: call T ToolsModifierControl::SetTool<BuildingTool>()
+IL_002d: stloc.s V_4
+IL_002f: ldloc.s V_4
+IL_0031: ldnull 
+IL_0032: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_0037: brfalse IL_0052
+IL_003c: ldarg.0 
+IL_003d: call System.Void GeneratedScrollPanel::HideAllOptionPanels()
+IL_0042: ldloc.s V_4
+IL_0044: ldloc.1 
+IL_0045: stfld BuildingInfo BuildingTool::m_prefab
+IL_004a: ldloc.s V_4
+IL_004c: ldc.i4.0 
+IL_004d: stfld System.Int32 BuildingTool::m_relocate
+IL_0052: ldloc.3 
+IL_0053: ldnull 
+IL_0054: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_0059: brfalse IL_0088
+IL_005e: call T ToolsModifierControl::SetTool<TransportTool>()
+IL_0063: stloc.s V_5
+IL_0065: ldloc.s V_5
+IL_0067: ldnull 
+IL_0068: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_006d: brfalse IL_0088
+IL_0072: ldarg.0 
+IL_0073: call System.Void GeneratedScrollPanel::HideAllOptionPanels()
+IL_0078: ldloc.s V_5
+IL_007a: ldloc.3 
+IL_007b: stfld TransportInfo TransportTool::m_prefab
+IL_0080: ldloc.s V_5
+IL_0082: ldc.i4.0 
+IL_0083: stfld System.Int32 TransportTool::m_building
+IL_0088: ldloc.2 
+IL_0089: ldnull 
+IL_008a: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_008f: brfalse IL_0141
+IL_0094: call T ToolsModifierControl::SetTool<NetTool>()
+IL_0099: stloc.s V_6
+IL_009b: ldloc.s V_6
+IL_009d: ldnull 
+IL_009e: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+IL_00a3: brfalse IL_0141
+IL_00a8: ldloc.2 
+IL_00a9: callvirt ItemClass/SubService PrefabInfo::GetSubService()
+IL_00ae: stloc.s V_7
+IL_00b0: ldloc.2 
+IL_00b1: ldfld NetAI NetInfo::m_netAI
+IL_00b6: isinst RunwayAI
+IL_00bb: brtrue IL_012b
+IL_00c0: ldloc.s V_7
+IL_00c2: ldc.i4.s 11
+IL_00c4: beq IL_00e4
+IL_00c9: ldloc.s V_7
+IL_00cb: ldc.i4.s 12
+IL_00cd: beq IL_00e4
+IL_00d2: ldloc.s V_7
+IL_00d4: ldc.i4.s 16
+IL_00d6: beq IL_00e4
+IL_00db: ldloc.s V_7
+IL_00dd: ldc.i4.s 20
+IL_00df: bne.un IL_00ef
+IL_00e4: ldarg.0 
+IL_00e5: call System.Void GeneratedScrollPanel::ShowTracksOptionPanel()
+IL_00ea: br IL_0126
+IL_00ef: ldloc.s V_7
+IL_00f1: ldc.i4.s 21
+IL_00f3: bne.un IL_0103
+IL_00f8: ldarg.0 
+IL_00f9: call System.Void GeneratedScrollPanel::ShowPowerLinesOptionPanel()
+IL_00fe: br IL_0126
+IL_0103: ldloc.s V_7
+IL_0105: ldc.i4.s 13
+IL_0107: beq IL_0115
+IL_010c: ldloc.s V_7
+IL_010e: ldc.i4.s 14
+IL_0110: bne.un IL_0120
+IL_0115: ldarg.0 
+IL_0116: call System.Void GeneratedScrollPanel::ShowQuaysOptionPanel()
+IL_011b: br IL_0126
+IL_0120: ldarg.0 
+IL_0121: call System.Void GeneratedScrollPanel::ShowRoadsOptionPanel()
+IL_0126: br IL_0139
+IL_012b: ldarg.0 
+IL_012c: call System.Void GeneratedScrollPanel::HideAllOptionPanels()
+IL_0131: ldloc.s V_6
+IL_0133: ldc.i4.0 
+IL_0134: stfld NetTool/Mode NetTool::m_mode
+IL_0139: ldloc.s V_6
+IL_013b: ldloc.2 
+IL_013c: callvirt System.Void NetTool::set_Prefab(NetInfo)
+IL_0141: ret 

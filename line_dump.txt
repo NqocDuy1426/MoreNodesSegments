@@ -1,0 +1,263 @@
+=== TransportLine.SimulationStep ===
+  IL_0150: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0155: br IL_0161: ldloc.2
+  IL_015A: ldloc.s V_14
+  IL_015C: brtrue IL_00ba: ldloc.s V_13
+  IL_0161: ldloc.2 
+  IL_0162: ldfld System.Boolean SimulationManager::m_isNightTime
+  IL_0167: brfalse IL_0182: ldarg.0
+  IL_016C: ldarg.0 
+  IL_016D: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0172: ldc.i4 8192
+  IL_0177: and 
+  IL_0178: ldc.i4.0 
+  IL_0179: ceq 
+  IL_017B: stloc.s V_17
+  IL_017D: br IL_0193: ldc.i4.0
+  IL_0182: ldarg.0 
+  IL_0183: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0188: ldc.i4 4096
+  IL_018D: and 
+  IL_018E: ldc.i4.0 
+  IL_018F: ceq 
+  IL_0191: stloc.s V_17
+  IL_0193: ldc.i4.0 
+  IL_0194: stloc.s V_18
+  IL_0196: ldc.i4.0 
+  IL_0197: stloc.s V_19
+  IL_0199: ldc.i4.0 
+  IL_019A: stloc.s V_20
+  IL_019C: ldc.i4.0 
+  IL_019D: stloc.s V_21
+  IL_019F: ldarg.0 
+  IL_01A0: ldfld System.UInt16 TransportLine::m_stops
+  IL_01A5: brfalse IL_0407: ldloc.s V_9
+  IL_01AA: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+  IL_01AF: stloc.s V_22
+  IL_01B1: ldarg.0 
+  IL_01B2: ldfld System.UInt16 TransportLine::m_stops
+  IL_01B7: stloc.s V_23
+  IL_01B9: ldloc.s V_23
+  IL_01BB: stloc.s V_24
+  IL_01BD: ldc.i4.0 
+  IL_01BE: stloc.s V_25
+  IL_01C0: br IL_0400: ldloc.s V_24
+  IL_01C5: ldc.i4.0 
+  IL_01C6: stloc.s V_26
+  IL_01C8: ldloc.s V_17
+  IL_01CA: brfalse IL_01f4: ldloc.1
+  IL_01CF: ldloc.1 
+  IL_01D0: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_01D5: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_01DA: ldloc.s V_24
+  IL_01DC: ldelema NetNode
+  IL_01E1: dup 
+  IL_01E2: ldfld NetNode/Flags NetNode::m_flags
+  IL_01E7: ldc.i4.s -9
+  IL_01E9: and 
+  IL_01EA: stfld NetNode/Flags NetNode::m_flags
+  IL_01EF: br IL_0213: ldloc.s V_5
+  IL_01F4: ldloc.1 
+  IL_01F5: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_01FA: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_01FF: ldloc.s V_24
+  IL_0201: ldelema NetNode
+  IL_0206: dup 
+  IL_0207: ldfld NetNode/Flags NetNode::m_flags
+  IL_020C: ldc.i4.8 
+  IL_020D: or 
+  IL_020E: stfld NetNode/Flags NetNode::m_flags
+  IL_0213: ldloc.s V_5
+  IL_0215: ldloc.1 
+  IL_0216: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_021B: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0220: ldloc.s V_24
+  IL_0222: ldelema NetNode
+  IL_0227: ldfld Notification/ProblemStruct NetNode::m_problems
+  IL_022C: ldloc.s V_4
+  IL_022E: call Notification/ProblemStruct Notification/ProblemStruct::op_ExclusiveOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0233: ldloc.s V_6
+  IL_0235: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_023A: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_023F: stloc.s V_5
+  IL_0241: ldc.i4.0 
+  IL_0242: stloc.s V_27
+  IL_0244: br IL_0342: ldloc.s V_27
+  IL_0249: ldloc.1 
+  IL_024A: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_024F: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0254: ldloc.s V_24
+  IL_0256: ldelema NetNode
+  IL_025B: ldloc.s V_27
+  IL_025D: call System.UInt16 NetNode::GetSegment(System.Int32)
+  IL_0262: stloc.s V_28
+  IL_0264: ldloc.s V_28
+  IL_0266: brfalse IL_033c: ldloc.s V_27
+  IL_026B: ldloc.1 
+  IL_026C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0271: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0276: ldloc.s V_28
+  IL_0278: ldelema NetSegment
+  IL_027D: ldfld System.UInt16 NetSegment::m_startNode
+  IL_0282: ldloc.s V_24
+  IL_0284: bne.un IL_033c: ldloc.s V_27
+  IL_0289: ldloc.s V_19
+  IL_028B: ldloc.1 
+  IL_028C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0291: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0296: ldloc.s V_28
+  IL_0298: ldelema NetSegment
+  IL_029D: ldfld System.Int32 NetSegment::m_trafficLightState0
+  IL_02A2: ldloc.1 
+  IL_02A3: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02A8: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02AD: ldloc.s V_28
+  IL_02AF: ldelema NetSegment
+  IL_02B4: ldfld System.Int32 NetSegment::m_trafficLightState1
+  IL_02B9: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_02BE: add 
+  IL_02BF: stloc.s V_19
+  IL_02C1: ldloc.s V_8
+  IL_02C3: ldloc.1 
+  IL_02C4: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02C9: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02CE: ldloc.s V_28
+  IL_02D0: ldelema NetSegment
+  IL_02D5: ldfld System.Single NetSegment::m_averageLength
+  IL_02DA: add 
+  IL_02DB: stloc.s V_8
+  IL_02DD: ldloc.s V_20
+  IL_02DF: ldloc.1 
+  IL_02E0: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02E5: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02EA: ldloc.s V_28
+  IL_02EC: ldelema NetSegment
+  IL_02F1: ldfld System.UInt16 NetSegment::m_trafficBuffer
+  IL_02F6: add 
+  IL_02F7: stloc.s V_20
+  IL_02F9: ldloc.1 
+  IL_02FA: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02FF: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0304: ldloc.s V_28
+  IL_0306: ldelema NetSegment
+  IL_030B: ldfld System.UInt16 NetSegment::m_endNode
+  IL_0310: stloc.s V_26
+  IL_0312: ldloc.1 
+  IL_0313: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0318: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_031D: ldloc.s V_28
+  IL_031F: ldelema NetSegment
+  IL_0324: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0329: ldc.i4 1024
+  IL_032E: and 
+  IL_032F: brtrue IL_0337: br IL_034a
+  IL_0334: ldc.i4.1 
+  IL_0335: stloc.s V_9
+  IL_0337: br IL_034a: ldloc.1
+  IL_033C: ldloc.s V_27
+  IL_033E: ldc.i4.1 
+  IL_033F: add 
+  IL_0340: stloc.s V_27
+  IL_0342: ldloc.s V_27
+  IL_0344: ldc.i4.8 
+  IL_0345: blt IL_0249: ldloc.1
+  IL_034A: ldloc.1 
+  IL_034B: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0350: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0355: ldloc.s V_24
+  IL_0357: ldelema NetNode
+  IL_035C: ldfld System.UInt16 NetNode::m_targetCitizens
+  IL_0361: stloc.s V_29
+  IL_0363: ldc.i4.0 
+  IL_0364: stloc.s V_30
+  IL_0366: br IL_03b6: ldloc.s V_29
+  IL_036B: ldloc.s V_21
+  IL_036D: ldc.i4.1 
+  IL_036E: add 
+  IL_036F: stloc.s V_21
+  IL_0371: ldloc.s V_22
+  IL_0373: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+  IL_0378: ldfld T[] Array16`1<CitizenInstance>::m_buffer
+  IL_037D: ldloc.s V_29
+  IL_037F: ldelema CitizenInstance
+  IL_0384: ldfld System.UInt16 CitizenInstance::m_nextTargetInstance
+  IL_0389: stloc.s V_29
+  IL_038B: ldloc.s V_30
+  IL_038D: ldc.i4.1 
+  IL_038E: add 
+  IL_038F: dup 
+  IL_0390: stloc.s V_30
+  IL_0392: ldc.i4 32768
+  IL_0397: blt IL_03b6: ldloc.s V_29
+  IL_039C: ldc.i4.1 
+  IL_039D: ldstr Invalid list detected!
+
+  IL_03A2: call System.String System.Environment::get_StackTrace()
+  IL_03A7: call System.String System.String::Concat(System.String,System.String)
+  IL_03AC: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_03B1: br IL_03bd: ldloc.s V_18
+  IL_03B6: ldloc.s V_29
+  IL_03B8: brtrue IL_036b: ldloc.s V_21
+  IL_03BD: ldloc.s V_18
+  IL_03BF: ldc.i4.1 
+  IL_03C0: add 
+  IL_03C1: stloc.s V_18
+  IL_03C3: ldloc.s V_26
+  IL_03C5: stloc.s V_24
+  IL_03C7: ldloc.s V_24
+  IL_03C9: ldloc.s V_23
+  IL_03CB: bne.un IL_03d5: ldloc.s V_25
+  IL_03D0: br IL_0407: ldloc.s V_9
+  IL_03D5: ldloc.s V_25
+  IL_03D7: ldc.i4.1 
+  IL_03D8: add 
+  IL_03D9: dup 
+  IL_03DA: stloc.s V_25
+  IL_03DC: ldc.i4 32768
+  IL_03E1: blt IL_0400: ldloc.s V_24
+  IL_03E6: ldc.i4.1 
+  IL_03E7: ldstr Invalid list detected!
+
+  IL_03EC: call System.String System.Environment::get_StackTrace()
+  IL_03F1: call System.String System.String::Concat(System.String,System.String)
+  IL_03F6: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_03FB: br IL_0407: ldloc.s V_9
+  IL_0400: ldloc.s V_24
+  IL_0402: brtrue IL_01c5: ldc.i4.0
+  IL_0407: ldloc.s V_9
+  IL_0409: brtrue IL_0416: ldloc.s V_18
+  IL_040E: ldarg.0 
+  IL_040F: ldloc.s V_8
+  IL_0411: stfld System.Single TransportLine::m_totalLength
+  IL_0416: ldloc.s V_18
+  IL_0418: brfalse IL_043c: ldloc.s V_10
+  IL_041D: ldarg.0 
+  IL_041E: ldc.r4 255
+  IL_0423: ldloc.s V_19
+  IL_0425: conv.i8 
+  IL_0426: ldloc.s V_18
+  IL_0428: ldc.i4.1 
+  IL_0429: shr.un 
+  IL_042A: conv.u8 
+  IL_042B: add 
+  IL_042C: ldloc.s V_18
+  IL_042E: conv.u8 
+  IL_042F: div 
+  IL_0430: conv.r4 
+  IL_0431: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_0436: conv.u1 
+  IL_0437: stfld System.Byte TransportLine::m_averageInterval
+  IL_043C: ldloc.s V_10
+  IL_043E: ldloc.0 
+  IL_043F: ldfld System.Int32 TransportInfo::m_maintenanceCostPerVehicle
+  IL_0444: mul 
+  IL_0445: ldloc.s V_11
+  IL_0447: conv.r4 
+  IL_0448: ldloc.0 
+  IL_0449: ldfld System.Single TransportInfo::m_maintenanceCostPerPassenger
+  IL_044E: mul 
+  IL_044F: conv.i4 
+  IL_0450: add 
+  IL_0451: stloc.s V_31
+  IL_0453: ldloc.s V_31
+  IL_0455: brfalse IL_046e: ldloc.0

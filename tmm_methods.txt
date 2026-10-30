@@ -1,0 +1,369 @@
+=== .ctor ===
+  IL_0000: ldarg.0 
+  IL_0001: ldc.i4.2 
+  IL_0002: newarr System.UInt32
+  IL_0007: stfld System.UInt32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeeds
+  IL_000C: ldarg.0 
+  IL_000D: ldc.i4.2 
+  IL_000E: newarr System.Int32
+  IL_0013: stfld System.Int32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeedLanes
+  IL_0018: ldarg.0 
+  IL_0019: call System.Void TrafficManager.Manager.AbstractCustomManager::.ctor()
+  IL_001E: ldarg.0 
+  IL_001F: ldc.i4 36864
+  IL_0024: newarr TrafficManager.API.Traffic.Data.LaneTrafficData[]
+  IL_0029: stfld TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::<LaneTrafficData>k__BackingField
+  IL_002E: ldarg.0 
+  IL_002F: ldc.i4 73728
+  IL_0034: newarr TrafficManager.API.Traffic.Data.SegmentDirTrafficData
+  IL_0039: stfld TrafficManager.API.Traffic.Data.SegmentDirTrafficData[] TrafficManager.Manager.Impl.TrafficMeasurementManager::<SegmentDirTrafficData>k__BackingField
+  IL_003E: ldc.i4.0 
+  IL_003F: stloc.0 
+  IL_0040: br.s IL_005c: ldloc.0
+  IL_0042: ldarg.0 
+  IL_0043: call TrafficManager.API.Traffic.Data.SegmentDirTrafficData[] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_SegmentDirTrafficData()
+  IL_0048: ldloc.0 
+  IL_0049: ldelema TrafficManager.API.Traffic.Data.SegmentDirTrafficData
+  IL_004E: ldc.i4 10000
+  IL_0053: stfld System.UInt16 TrafficManager.API.Traffic.Data.SegmentDirTrafficData::meanSpeed
+  IL_0058: ldloc.0 
+  IL_0059: ldc.i4.1 
+  IL_005A: add 
+  IL_005B: stloc.0 
+  IL_005C: ldloc.0 
+  IL_005D: ldarg.0 
+  IL_005E: call TrafficManager.API.Traffic.Data.SegmentDirTrafficData[] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_SegmentDirTrafficData()
+  IL_0063: ldlen 
+  IL_0064: conv.i4 
+  IL_0065: blt.s IL_0042: ldarg.0
+  IL_0067: ldarg.0 
+  IL_0068: call System.Void TrafficManager.Manager.Impl.TrafficMeasurementManager::ResetTrafficStats()
+  IL_006D: ret 
+=== OnBeforeSimulationStep ===
+  IL_0000: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+  IL_0005: stloc.0 
+  IL_0006: ldarg.2 
+  IL_0007: call NetInfo NetSegment::get_Info()
+  IL_000C: stloc.1 
+  IL_000D: ldloc.1 
+  IL_000E: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0013: ldlen 
+  IL_0014: conv.i4 
+  IL_0015: stloc.2 
+  IL_0016: ldarg.0 
+  IL_0017: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_001C: ldarg.1 
+  IL_001D: ldelem.ref 
+  IL_001E: brfalse.s IL_002d: ldarg.0
+  IL_0020: ldarg.0 
+  IL_0021: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0026: ldarg.1 
+  IL_0027: ldelem.ref 
+  IL_0028: ldlen 
+  IL_0029: conv.i4 
+  IL_002A: ldloc.2 
+  IL_002B: bge.s IL_0064: ldc.i4.0
+  IL_002D: ldarg.0 
+  IL_002E: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0033: ldarg.1 
+  IL_0034: ldloc.2 
+  IL_0035: newarr TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_003A: stelem.ref 
+  IL_003B: ldc.i4.0 
+  IL_003C: stloc.s V_5
+  IL_003E: br.s IL_005f: ldloc.s V_5
+  IL_0040: ldarg.0 
+  IL_0041: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0046: ldarg.1 
+  IL_0047: ldelem.ref 
+  IL_0048: ldloc.s V_5
+  IL_004A: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_004F: ldc.i4 10000
+  IL_0054: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::meanSpeed
+  IL_0059: ldloc.s V_5
+  IL_005B: ldc.i4.1 
+  IL_005C: add 
+  IL_005D: stloc.s V_5
+  IL_005F: ldloc.s V_5
+  IL_0061: ldloc.2 
+  IL_0062: blt.s IL_0040: ldarg.0
+  IL_0064: ldc.i4.0 
+  IL_0065: stloc.s V_6
+  IL_0067: br.s IL_0083: ldloc.s V_6
+  IL_0069: ldarg.0 
+  IL_006A: ldfld System.UInt32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeeds
+  IL_006F: ldloc.s V_6
+  IL_0071: ldc.i4.0 
+  IL_0072: stelem.i4 
+  IL_0073: ldarg.0 
+  IL_0074: ldfld System.Int32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeedLanes
+  IL_0079: ldloc.s V_6
+  IL_007B: ldc.i4.0 
+  IL_007C: stelem.i4 
+  IL_007D: ldloc.s V_6
+  IL_007F: ldc.i4.1 
+  IL_0080: add 
+  IL_0081: stloc.s V_6
+  IL_0083: ldloc.s V_6
+  IL_0085: ldc.i4.2 
+  IL_0086: blt.s IL_0069: ldarg.0
+  IL_0088: ldarg.2 
+  IL_0089: ldfld System.UInt32 NetSegment::m_lanes
+  IL_008E: stloc.3 
+  IL_008F: ldc.i4.0 
+  IL_0090: stloc.s V_4
+  IL_0092: br IL_0293: ldloc.s V_4
+  IL_0097: ldloc.1 
+  IL_0098: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_009D: ldloc.s V_4
+  IL_009F: ldelem.ref 
+  IL_00A0: stloc.s V_7
+  IL_00A2: ldloc.s V_7
+  IL_00A4: ldfld NetInfo/LaneType NetInfo/Lane::m_laneType
+  IL_00A9: ldc.i4.s 33
+  IL_00AB: and 
+  IL_00AC: brfalse IL_0280: ldloc.s V_4
+  IL_00B1: ldloc.s V_7
+  IL_00B3: ldfld VehicleInfo/VehicleType NetInfo/Lane::m_vehicleType
+  IL_00B8: ldc.i4.1 
+  IL_00B9: and 
+  IL_00BA: brfalse IL_0280: ldloc.s V_4
+  IL_00BF: ldarg.0 
+  IL_00C0: ldloc.s V_7
+  IL_00C2: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+  IL_00C7: call System.Int32 TrafficManager.Manager.Impl.TrafficMeasurementManager::GetDirIndex(NetInfo/Direction)
+  IL_00CC: stloc.s V_8
+  IL_00CE: ldarg.0 
+  IL_00CF: ldarg.1 
+  IL_00D0: ldloc.s V_4
+  IL_00D2: ldloc.3 
+  IL_00D3: ldarg.2 
+  IL_00D4: call NetInfo NetSegment::get_Info()
+  IL_00D9: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_00DE: ldloc.s V_4
+  IL_00E0: ldelem.ref 
+  IL_00E1: call System.UInt16 TrafficManager.Manager.Impl.TrafficMeasurementManager::CalcLaneRelativeMeanSpeed(System.UInt16,System.Byte,System.UInt32,NetInfo/Lane)
+  IL_00E6: stloc.s V_9
+  IL_00E8: ldarg.0 
+  IL_00E9: ldfld System.UInt32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeeds
+  IL_00EE: ldloc.s V_8
+  IL_00F0: ldelema System.UInt32
+  IL_00F5: dup 
+  IL_00F6: ldind.u4 
+  IL_00F7: ldloc.s V_9
+  IL_00F9: add 
+  IL_00FA: stind.i4 
+  IL_00FB: ldarg.0 
+  IL_00FC: ldfld System.Int32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeedLanes
+  IL_0101: ldloc.s V_8
+  IL_0103: ldelema System.Int32
+  IL_0108: dup 
+  IL_0109: ldind.i4 
+  IL_010A: ldc.i4.1 
+  IL_010B: add 
+  IL_010C: stind.i4 
+  IL_010D: ldarg.0 
+  IL_010E: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0113: ldarg.1 
+  IL_0114: ldelem.ref 
+  IL_0115: ldloc.s V_4
+  IL_0117: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_011C: ldloc.s V_9
+  IL_011E: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::meanSpeed
+  IL_0123: ldarg.0 
+  IL_0124: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0129: ldarg.1 
+  IL_012A: ldelem.ref 
+  IL_012B: ldloc.s V_4
+  IL_012D: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0132: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_0137: stloc.s V_10
+  IL_0139: ldarg.0 
+  IL_013A: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_013F: ldarg.1 
+  IL_0140: ldelem.ref 
+  IL_0141: ldloc.s V_4
+  IL_0143: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0148: ldloc.s V_10
+  IL_014A: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::lastTrafficBuffer
+  IL_014F: ldloc.s V_10
+  IL_0151: ldarg.0 
+  IL_0152: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0157: ldarg.1 
+  IL_0158: ldelem.ref 
+  IL_0159: ldloc.s V_4
+  IL_015B: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0160: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::maxTrafficBuffer
+  IL_0165: ble.s IL_017d: ldloc.0
+  IL_0167: ldarg.0 
+  IL_0168: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_016D: ldarg.1 
+  IL_016E: ldelem.ref 
+  IL_016F: ldloc.s V_4
+  IL_0171: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0176: ldloc.s V_10
+  IL_0178: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::maxTrafficBuffer
+  IL_017D: ldloc.0 
+  IL_017E: ldfld TrafficManager.State.ConfigData.AdvancedVehicleAI TrafficManager.State.GlobalConfig::AdvancedVehicleAI
+  IL_0183: ldfld System.UInt32 TrafficManager.State.ConfigData.AdvancedVehicleAI::MaxTrafficBuffer
+  IL_0188: ldc.i4.0 
+  IL_0189: ble.un IL_0256: ldarg.0
+  IL_018E: ldarg.0 
+  IL_018F: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0194: ldarg.1 
+  IL_0195: ldelem.ref 
+  IL_0196: ldloc.s V_4
+  IL_0198: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_019D: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_01A2: ldloc.0 
+  IL_01A3: ldfld TrafficManager.State.ConfigData.AdvancedVehicleAI TrafficManager.State.GlobalConfig::AdvancedVehicleAI
+  IL_01A8: ldfld System.UInt32 TrafficManager.State.ConfigData.AdvancedVehicleAI::MaxTrafficBuffer
+  IL_01AD: ble.un.s IL_0209: ldarg.0
+  IL_01AF: ldarg.0 
+  IL_01B0: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_01B5: ldarg.1 
+  IL_01B6: ldelem.ref 
+  IL_01B7: ldloc.s V_4
+  IL_01B9: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_01BE: ldflda System.UInt32 TrafficManager.API.Traffic.Data.LaneTrafficData::accumulatedSpeeds
+  IL_01C3: dup 
+  IL_01C4: ldind.u4 
+  IL_01C5: ldarg.0 
+  IL_01C6: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_01CB: ldarg.1 
+  IL_01CC: ldelem.ref 
+  IL_01CD: ldloc.s V_4
+  IL_01CF: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_01D4: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_01D9: ldloc.0 
+  IL_01DA: ldfld TrafficManager.State.ConfigData.AdvancedVehicleAI TrafficManager.State.GlobalConfig::AdvancedVehicleAI
+  IL_01DF: ldfld System.UInt32 TrafficManager.State.ConfigData.AdvancedVehicleAI::MaxTrafficBuffer
+  IL_01E4: div.un 
+  IL_01E5: div.un 
+  IL_01E6: stind.i4 
+  IL_01E7: ldarg.0 
+  IL_01E8: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_01ED: ldarg.1 
+  IL_01EE: ldelem.ref 
+  IL_01EF: ldloc.s V_4
+  IL_01F1: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_01F6: ldloc.0 
+  IL_01F7: ldfld TrafficManager.State.ConfigData.AdvancedVehicleAI TrafficManager.State.GlobalConfig::AdvancedVehicleAI
+  IL_01FC: ldfld System.UInt32 TrafficManager.State.ConfigData.AdvancedVehicleAI::MaxTrafficBuffer
+  IL_0201: conv.u2 
+  IL_0202: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_0207: br.s IL_0280: ldloc.s V_4
+  IL_0209: ldarg.0 
+  IL_020A: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_020F: ldarg.1 
+  IL_0210: ldelem.ref 
+  IL_0211: ldloc.s V_4
+  IL_0213: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0218: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_021D: ldloc.0 
+  IL_021E: ldfld TrafficManager.State.ConfigData.AdvancedVehicleAI TrafficManager.State.GlobalConfig::AdvancedVehicleAI
+  IL_0223: ldfld System.UInt32 TrafficManager.State.ConfigData.AdvancedVehicleAI::MaxTrafficBuffer
+  IL_0228: bne.un.s IL_0280: ldloc.s V_4
+  IL_022A: ldarg.0 
+  IL_022B: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0230: ldarg.1 
+  IL_0231: ldelem.ref 
+  IL_0232: ldloc.s V_4
+  IL_0234: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0239: ldc.i4.0 
+  IL_023A: stfld System.UInt32 TrafficManager.API.Traffic.Data.LaneTrafficData::accumulatedSpeeds
+  IL_023F: ldarg.0 
+  IL_0240: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0245: ldarg.1 
+  IL_0246: ldelem.ref 
+  IL_0247: ldloc.s V_4
+  IL_0249: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_024E: ldc.i4.0 
+  IL_024F: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_0254: br.s IL_0280: ldloc.s V_4
+  IL_0256: ldarg.0 
+  IL_0257: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_025C: ldarg.1 
+  IL_025D: ldelem.ref 
+  IL_025E: ldloc.s V_4
+  IL_0260: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_0265: ldc.i4.0 
+  IL_0266: stfld System.UInt32 TrafficManager.API.Traffic.Data.LaneTrafficData::accumulatedSpeeds
+  IL_026B: ldarg.0 
+  IL_026C: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0271: ldarg.1 
+  IL_0272: ldelem.ref 
+  IL_0273: ldloc.s V_4
+  IL_0275: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_027A: ldc.i4.0 
+  IL_027B: stfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_0280: ldloc.s V_4
+  IL_0282: ldc.i4.1 
+  IL_0283: add 
+  IL_0284: conv.u1 
+  IL_0285: stloc.s V_4
+  IL_0287: ldloc.3 
+  IL_0288: call NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+  IL_028D: ldfld System.UInt32 NetLane::m_nextLane
+  IL_0292: stloc.3 
+  IL_0293: ldloc.s V_4
+  IL_0295: ldloc.2 
+  IL_0296: bge.s IL_029e: ldc.i4.0
+  IL_0298: ldloc.3 
+  IL_0299: brtrue IL_0097: ldloc.1
+  IL_029E: ldc.i4.0 
+  IL_029F: stloc.s V_11
+  IL_02A1: br.s IL_0319: ldloc.s V_11
+  IL_02A3: ldloc.s V_11
+  IL_02A5: brfalse.s IL_02b1: ldarg.0
+  IL_02A7: ldarg.0 
+  IL_02A8: ldarg.1 
+  IL_02A9: ldc.i4.2 
+  IL_02AA: call System.Int32 TrafficManager.Manager.Impl.TrafficMeasurementManager::GetDirIndex(System.UInt16,NetInfo/Direction)
+  IL_02AF: br.s IL_02b9: stloc.s V_12
+  IL_02B1: ldarg.0 
+  IL_02B2: ldarg.1 
+  IL_02B3: ldc.i4.1 
+  IL_02B4: call System.Int32 TrafficManager.Manager.Impl.TrafficMeasurementManager::GetDirIndex(System.UInt16,NetInfo/Direction)
+  IL_02B9: stloc.s V_12
+  IL_02BB: ldarg.0 
+  IL_02BC: ldfld System.Int32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeedLanes
+  IL_02C1: ldloc.s V_11
+  IL_02C3: ldelem.i4 
+  IL_02C4: ldc.i4.0 
+  IL_02C5: ble.s IL_02fc: ldarg.0
+  IL_02C7: ldarg.0 
+  IL_02C8: call TrafficManager.API.Traffic.Data.SegmentDirTrafficData[] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_SegmentDirTrafficData()
+  IL_02CD: ldloc.s V_12
+  IL_02CF: ldelema TrafficManager.API.Traffic.Data.SegmentDirTrafficData
+  IL_02D4: ldc.i4 10000
+  IL_02D9: conv.i8 
+  IL_02DA: ldarg.0 
+  IL_02DB: ldfld System.UInt32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeeds
+  IL_02E0: ldloc.s V_11
+  IL_02E2: ldelem.u4 
+  IL_02E3: conv.u8 
+  IL_02E4: ldarg.0 
+  IL_02E5: ldfld System.Int32[] TrafficManager.Manager.Impl.TrafficMeasurementManager::meanSpeedLanes
+  IL_02EA: ldloc.s V_11
+  IL_02EC: ldelem.i4 
+  IL_02ED: conv.i8 
+  IL_02EE: div 
+  IL_02EF: call System.Int64 System.Math::Min(System.Int64,System.Int64)
+  IL_02F4: conv.u2 
+  IL_02F5: stfld System.UInt16 TrafficManager.API.Traffic.Data.SegmentDirTrafficData::meanSpeed
+  IL_02FA: br.s IL_0313: ldloc.s V_11
+  IL_02FC: ldarg.0 
+  IL_02FD: call TrafficManager.API.Traffic.Data.SegmentDirTrafficData[] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_SegmentDirTrafficData()
+  IL_0302: ldloc.s V_12
+  IL_0304: ldelema TrafficManager.API.Traffic.Data.SegmentDirTrafficData
+  IL_0309: ldc.i4 10000
+  IL_030E: stfld System.UInt16 TrafficManager.API.Traffic.Data.SegmentDirTrafficData::meanSpeed
+  IL_0313: ldloc.s V_11
+  IL_0315: ldc.i4.1 
+  IL_0316: add 
+  IL_0317: stloc.s V_11
+  IL_0319: ldloc.s V_11
+  IL_031B: ldc.i4.2 
+  IL_031C: blt.s IL_02a3: ldloc.s V_11
+  IL_031E: ret 

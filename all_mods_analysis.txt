@@ -1,0 +1,198 @@
+==================================================
+ANALYZING: NetworkAnarchy.dll
+==================================================
+[NetworkAnarchy.NetworkAnarchy/<>c__DisplayClass0_1::<FixNodes>b__0] ldc.i4 16384 -> next: IL_0172: or
+[NetworkAnarchy.NetworkAnarchy::FixNodes] ldc.i4 16384 -> next: IL_03ad: and
+[NetworkAnarchy.NetworkAnarchy::FixNodes] ldc.i4 16384 -> next: IL_03e3: or
+[NetworkAnarchy.NetworkAnarchy::FixNodes] ldc.i4 16384 -> next: IL_0445: and
+[NetworkAnarchy.NetworkAnarchy::FixNodes] ldc.i4 16384 -> next: IL_047b: or
+[NetworkAnarchy.NetworkAnarchy::FixNodes] ldc.i4 16384 -> next: IL_04a0: and
+==================================================
+ANALYZING: NetworkMultitool.dll
+==================================================
+[ModsCommon.BaseSelectToolMode`1::RayCast] ldc.i4 36864 -> next: IL_00b9: blt.s IL_008f
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 32768 -> next: IL_0024: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.NodeSelection>::.ctor(System.Int32)
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 36864 -> next: IL_0034: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.SegmentSelection>::.ctor(System.Int32)
+[NetworkMultitool.NetworkMultitoolTool::.cctor] ldc.i4 16384 -> next: IL_00b1: ldc.i4.s 57
+[NetworkMultitool.NetworkMultitoolTool::.cctor] ldc.i4 262144 -> next: IL_00de: ldc.i4.s 52
+[NetworkMultitool.NetworkMultitoolTool::.cctor] ldc.i4 32768 -> next: IL_0129: ldc.i4.s 49
+[NetworkMultitool.BaseNetworkMultitoolMode::CreateNode] ldc.i4 16384 -> next: IL_009d: or
+[NetworkMultitool.BaseNetworkMultitoolMode::RenderNearNodes] ldc.i4 32768 -> next: IL_01bf: blt IL_00c6
+[NetworkMultitool.BaseCreateMode::get_CanFollowTerrain] ldc.i4 16384 -> next: IL_0015: call System.Boolean ColossalFramework.EnumExtensions::IsFlagSet<NetNode/Flags>(!!0,!!0)
+[NetworkMultitool.BaseCreateMode::get_CanFollowTerrain] ldc.i4 16384 -> next: IL_0031: call System.Boolean ColossalFramework.EnumExtensions::IsFlagSet<NetNode/Flags>(!!0,!!0)
+[NetworkMultitool.ArrangeCircleMode::get_Type] ldc.i4 262144 -> next: IL_0005: ret
+[NetworkMultitool.ArrangeCircleCompleteMode::OnSecondaryMouseClicked] ldc.i4 262144 -> next: IL_000b: callvirt System.Void ModsCommon.BaseTool`3<NetworkMultitool.Mod,NetworkMultitool.NetworkMultitoolTool,NetworkMultitool.ToolModeType>::SetMode(TypeModeType)
+[NetworkMultitool.ArrangeCircleCompleteMode::OnEscape] ldc.i4 262144 -> next: IL_000b: callvirt System.Void ModsCommon.BaseTool`3<NetworkMultitool.Mod,NetworkMultitool.NetworkMultitoolTool,NetworkMultitool.ToolModeType>::SetMode(TypeModeType)
+[NetworkMultitool.ArrangeCircleCompleteMode::Apply] ldc.i4 262144 -> next: IL_0060: callvirt System.Void ModsCommon.BaseTool`3<NetworkMultitool.Mod,NetworkMultitool.NetworkMultitoolTool,NetworkMultitool.ToolModeType>::SetMode(TypeModeType)
+[NetworkMultitool.InvertSegmentMode::get_Type] ldc.i4 16384 -> next: IL_0005: ret
+[NetworkMultitool.UnlockSegmentMode::get_Type] ldc.i4 32768 -> next: IL_0005: ret
+==================================================
+ANALYZING: FindIt.dll
+==================================================
+[FindIt.Asset::CheckCCP] ldc.i4 16384 -> next: IL_0098: bgt.s IL_00b7
+[FindIt.Asset::CheckCCP] ldc.i4 16384 -> next: IL_00ad: beq IL_024c
+[FindIt.Asset::CheckCCP] ldc.i4 32768 -> next: IL_00bd: beq IL_025c
+[FindIt.Asset::CheckCCP] ldc.i4 262144 -> next: IL_00ea: beq IL_027c
+[FindIt.AssetTagList::CheckDLCFilters] ldc.i4 16384 -> next: IL_01c5: and
+[FindIt.AssetTagList::CheckDLCFilters] ldc.i4 32768 -> next: IL_030b: and
+[FindIt.AssetTagList::CheckDLCFilters] ldc.i4 16384 -> next: IL_0462: and
+[FindIt.AssetTagList::CheckDLCFilters] ldc.i4 32768 -> next: IL_0480: and
+[FindIt.AssetTagList::CheckDLCFilters] ldc.i4 262144 -> next: IL_04bc: and
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 32768 -> next: IL_010a: bgt.s IL_0126
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 16384 -> next: IL_0112: beq.s IL_0192
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 32768 -> next: IL_011c: beq IL_020b
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 32768 -> next: IL_023b: bgt IL_0328
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 16384 -> next: IL_0310: beq IL_04af
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 32768 -> next: IL_031e: beq IL_04ba
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteToolTip] ldc.i4 262144 -> next: IL_034f: beq IL_04cd
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 32768 -> next: IL_010a: bgt.s IL_0126
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 16384 -> next: IL_0112: beq.s IL_0192
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 32768 -> next: IL_011c: beq IL_020b
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 16384 -> next: IL_02e8: bgt.s IL_0309
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 16384 -> next: IL_02ff: beq IL_048a
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 32768 -> next: IL_0310: beq IL_0495
+[FindIt.GUI.UIScrollPanelItem::GetDLCSpriteName] ldc.i4 262144 -> next: IL_0341: beq IL_04a8
+==================================================
+ANALYZING: MoveIt.dll
+==================================================
+[MoveIt.BulldozeAction::.ctor] ldc.i4 32768 -> next: IL_0219: ble.s IL_0232
+[MoveIt.BulldozeAction::UndoImplementation] ldc.i4 32768 -> next: IL_0450: ble.s IL_0469
+[MoveIt.MoveItTool::RaycastHoverInstance] ldc.i4 49152 -> next: IL_0409: ble.s IL_0422
+[MoveIt.MoveItTool::RaycastHoverInstance] ldc.i4 32768 -> next: IL_0587: ble.s IL_059e
+[MoveIt.MoveItTool::RaycastHoverInstance] ldc.i4 36864 -> next: IL_0764: ble.s IL_077e
+[MoveIt.MoveItTool::GetMarqueeList] ldc.i4 49152 -> next: IL_044c: ble.s IL_0465
+[MoveIt.MoveItTool::GetMarqueeList] ldc.i4 32768 -> next: IL_05d6: ble.s IL_05ed
+[MoveIt.MoveItTool::GetMarqueeList] ldc.i4 36864 -> next: IL_0721: ble.s IL_0738
+[MoveIt.MoveItTool::FindOwnerBuilding] ldc.i4 49152 -> next: IL_01c0: blt.s IL_01d9
+[MoveIt.MoveableBuilding::get_segmentList] ldc.i4 32768 -> next: IL_0086: ble.s IL_009f
+[MoveIt.MoveableBuilding::ResetSubInstances] ldc.i4 49152 -> next: IL_006a: ble.s IL_0083
+[MoveIt.MoveableBuilding::ResetSubInstances] ldc.i4 32768 -> next: IL_011c: ble.s IL_0135
+[MoveIt.MoveableBuilding::RemoveFromGrid] ldc.i4 49152 -> next: IL_00dc: ble.s IL_00f5
+[MoveIt.MoveableNode::GetSubInstances] ldc.i4 49152 -> next: IL_0062: ble.s IL_007b
+[MoveIt.MoveableNode::GetSubInstances] ldc.i4 32768 -> next: IL_0114: ble.s IL_012d
+==================================================
+ANALYZING: NetworkSkins.dll
+==================================================
+[NetworkSkins.Skins.NetworkSkinManager::Awake] ldc.i4 36864 -> next: IL_0005: newarr NetworkSkins.Skins.NetworkSkin
+[NetworkSkins.Skins.NetworkSkinManager::Awake] ldc.i4 32768 -> next: IL_0014: newarr NetworkSkins.Skins.NetworkSkin
+==================================================
+ANALYZING: AdaptiveRoads.dll
+==================================================
+[KianCommons.NetUtil::IsSegmentValid] ldc.i4 36864 -> next: IL_000a: clt
+[KianCommons.NetUtil::AssertSegmentValid] ldc.i4 36864 -> next: IL_0013: ldarg.0
+[KianCommons.NetUtil::IsNodeValid] ldc.i4 32768 -> next: IL_000a: clt
+[KianCommons.NetUtil::IsLaneValid] ldc.i4 262144 -> next: IL_000a: clt.un
+[AdaptiveRoads.Util.BuildingUtil::RemoveFromGrid] ldc.i4 49152 -> next: IL_00f5: cgt
+[AdaptiveRoads.Util.LaneHelpers/<GetSimilarLanes>d__10::MoveNext] ldc.i4 36864 -> next: IL_0113: clt
+[AdaptiveRoads.Util.PropHelpers::InvertStartEnd] ldc.i4 32768 -> next: IL_001d: call System.Void AdaptiveRoads.Util.PropHelpers::SwitchFlags<NetLane/Flags>(T&,T,T)
+[AdaptiveRoads.Util.PropHelpers::InvertStartEnd] ldc.i4 16384 -> next: IL_002e: call System.Void AdaptiveRoads.Util.PropHelpers::SwitchFlags<NetLane/Flags>(T&,T,T)
+[AdaptiveRoads.Util.PropHelpers::InvertLeftRight] ldc.i4 32768 -> next: IL_0018: ldc.i4 16384
+[AdaptiveRoads.Util.PropHelpers::InvertLeftRight] ldc.i4 16384 -> next: IL_001d: call System.Void AdaptiveRoads.Util.PropHelpers::SwitchFlags<NetLane/Flags>(T&,T,T)
+[AdaptiveRoads.Util.PropHelpers::InvertLeftRight] ldc.i4 32768 -> next: IL_000d: conv.i8
+[AdaptiveRoads.Util.PropHelpers::InvertLeftRight] ldc.i4 16384 -> next: IL_001a: conv.i8
+[AdaptiveRoads.Util.PropHelpers::InvertLeftRight] ldc.i4 262144 -> next: IL_001d: call System.Void AdaptiveRoads.Util.PropHelpers::SwitchFlags<NetSegment/Flags>(T&,T,T)
+[AdaptiveRoads.Util.RoadEditorUtils::RefreshAllNetworks] ldc.i4 32768 -> next: IL_0061: clt
+[AdaptiveRoads.Util.RoadUtils::SetDirectionImpl] ldc.i4 36864 -> next: IL_0152: clt
+[AdaptiveRoads.UI.VBSTool.VSPanel::Init] ldc.i4 262144 -> next: IL_0046: stelem.i4
+[AdaptiveRoads.UI.VBSTool.VSPanel::UpdateLaneFlags] ldc.i4 262144 -> next: IL_00e1: call System.Boolean KianCommons.EnumBitMaskExtensions::IsFlagSet(NetSegment/Flags,NetSegment/Flags)
+[AdaptiveRoads.UI.RoadEditor.Overlay::RenderOverlay] ldc.i4 36864 -> next: IL_0094: clt
+[AdaptiveRoads.UI.Debug.PWModifier::Refresh] ldc.i4 36864 -> next: IL_0052: clt
+[AdaptiveRoads.UI.Debug.PWSelector::Refresh] ldc.i4 36864 -> next: IL_0052: clt
+[AdaptiveRoads.Patches.AsymPavements.RefreshJunctionDataPatch::Prefix] ldc.i4 49152 -> next: IL_0b3a: ldarg.2
+[AdaptiveRoads.Data.NetworkExtensions.LaneTransition::GenerateRenderData] ldc.i4 49152 -> next: IL_012f: ldarg.0
+[AdaptiveRoads.Data.NetworkExtensions.LaneTransition::GenerateRenderData] ldc.i4 49152 -> next: IL_0141: ldarg.0
+[AdaptiveRoads.Manager.NetLaneExt::UpdateLane] ldc.i4 16384 -> next: IL_0219: conv.i8
+[AdaptiveRoads.Manager.NetLaneExt::UpdateLane] ldc.i4 32768 -> next: IL_0240: conv.i8
+[AdaptiveRoads.Manager.NetLaneExt::UpdateLane] ldc.i4 262144 -> next: IL_02bf: conv.i8
+[AdaptiveRoads.Manager.NetLaneExt::GenerateRenderData] ldc.i4 49152 -> next: IL_01b4: ldarg.0
+[AdaptiveRoads.Manager.NetNodeExt::UpdateFlags] ldc.i4 16384 -> next: IL_01ea: conv.i8
+[AdaptiveRoads.Manager.NetNodeExt::UpdateFlags] ldc.i4 32768 -> next: IL_0222: conv.i8
+[AdaptiveRoads.Manager.NetNodeExt::UpdateFlags] ldc.i4 262144 -> next: IL_02e1: conv.i8
+[AdaptiveRoads.Manager.NetSegmentEnd::UpdateDirections] ldc.i4 32768 -> next: IL_003d: conv.i8
+[AdaptiveRoads.Manager.NetSegmentEnd::UpdateDirections] ldc.i4 262144 -> next: IL_007f: conv.i8
+[AdaptiveRoads.Manager.NetSegmentEnd::UpdateDirections] ldc.i4 16384 -> next: IL_009e: conv.i8
+[AdaptiveRoads.Manager.NetInfoExtionsion/Net::RemoveSegmentUserValue] ldc.i4 36864 -> next: IL_0287: clt
+[AdaptiveRoads.Manager.NetInfoExtionsion/Net::AllocateUserData] ldc.i4 36864 -> next: IL_0213: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::.ctor] ldc.i4 32768 -> next: IL_0056: newarr AdaptiveRoads.Manager.NetNodeExt
+[AdaptiveRoads.Manager.NetworkExtensionManager::.ctor] ldc.i4 36864 -> next: IL_0066: newarr AdaptiveRoads.Manager.NetSegmentExt
+[AdaptiveRoads.Manager.NetworkExtensionManager::.ctor] ldc.i4 262144 -> next: IL_0076: newarr AdaptiveRoads.Manager.NetLaneExt
+[AdaptiveRoads.Manager.NetworkExtensionManager::.ctor] ldc.i4 73728 -> next: IL_0086: newarr AdaptiveRoads.Manager.NetSegmentEnd
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 36864 -> next: IL_0075: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 32768 -> next: IL_00b5: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 36864 -> next: IL_00f7: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 32768 -> next: IL_0139: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 36864 -> next: IL_0176: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::UpdateAllNetworkFlags] ldc.i4 32768 -> next: IL_01e9: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::InitBuffers] ldc.i4 32768 -> next: IL_0023: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::InitBuffers] ldc.i4 36864 -> next: IL_006d: clt
+[AdaptiveRoads.Manager.NetworkExtensionManager::InitBuffers] ldc.i4 262144 -> next: IL_009c: clt.un
+[AdaptiveRoads.Manager.TrackManager::EndRendering] ldc.i4 36864 -> next: IL_00dc: clt
+[AdaptiveRoads.Manager.TrackManager::EndRendering] ldc.i4 32768 -> next: IL_019e: clt
+[AdaptiveRoads.Manager.TrackManager::CalculateGroupData] ldc.i4 36864 -> next: IL_0099: clt
+[AdaptiveRoads.Manager.TrackManager::CalculateGroupData] ldc.i4 32768 -> next: IL_0160: clt
+[AdaptiveRoads.Manager.TrackManager::PopulateGroupData] ldc.i4 36864 -> next: IL_0097: clt
+[AdaptiveRoads.Manager.TrackManager::PopulateGroupData] ldc.i4 32768 -> next: IL_0165: clt
+==================================================
+ANALYZING: NetworkExtensions2.dll
+==================================================
+==================================================
+ANALYZING: NodeControllerRenewal.dll
+==================================================
+[ModsCommon.BaseSelectToolMode`1::RayCast] ldc.i4 36864 -> next: IL_00b9: blt.s IL_008f
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 32768 -> next: IL_0024: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.NodeSelection>::.ctor(System.Int32)
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 36864 -> next: IL_0034: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.SegmentSelection>::.ctor(System.Int32)
+[ModsCommon.Utilities.BaseBuildingAssetDataExtension`3::GetMap] ldc.i4 36864 -> next: IL_0041: blt.s IL_0010
+[NodeController.NodeStyle::IsVisible] ldc.i4 16384 -> next: IL_005c: bgt.s IL_007b
+[NodeController.NodeStyle::IsVisible] ldc.i4 16384 -> next: IL_0074: beq.s IL_00e9
+[NodeController.NodeStyle::IsVisible] ldc.i4 262144 -> next: IL_009b: beq.s IL_00e9
+[NodeController.NodeStyle::GetOptionPanel] ldc.i4 16384 -> next: IL_00c1: beq IL_019f
+[NodeController.NodeStyle::GetOptionPanel] ldc.i4 262144 -> next: IL_00e7: beq IL_01b7
+[NodeController.Manager::.ctor] ldc.i4 32768 -> next: IL_001b: newarr NodeController.NodeData
+[NodeController.Manager::Clear] ldc.i4 32768 -> next: IL_0015: newarr NodeController.NodeData
+[NodeController.Manager::FromXml] ldc.i4 32768 -> next: IL_0056: bgt IL_017e
+[NodeController.Settings::GetDefaultOptionVisibility] ldc.i4 16384 -> next: IL_006e: bgt.s IL_008a
+[NodeController.Settings::GetDefaultOptionVisibility] ldc.i4 16384 -> next: IL_0086: beq.s IL_00e6
+[NodeController.Settings::GetDefaultOptionVisibility] ldc.i4 262144 -> next: IL_00aa: beq.s IL_00ee
+==================================================
+ANALYZING: IntersectionMarkingTool.dll
+==================================================
+[ModsCommon.BaseSelectToolMode`1::RayCast] ldc.i4 36864 -> next: IL_00b9: blt.s IL_008f
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 32768 -> next: IL_0024: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.NodeSelection>::.ctor(System.Int32)
+[ModsCommon.BaseSelectToolMode`1::.ctor] ldc.i4 36864 -> next: IL_0034: newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt16,ModsCommon.Utilities.SegmentSelection>::.ctor(System.Int32)
+[ModsCommon.Utilities.BaseBuildingAssetDataExtension`3::GetMap] ldc.i4 36864 -> next: IL_0041: blt.s IL_0010
+[IMT.Mod::ThemeMixer_TerrainTexture_Postfix] ldc.i4 32768 -> next: IL_0069: blt.s IL_000b
+[IMT.Mod::ThemeMixer_TerrainTexture_Postfix] ldc.i4 36864 -> next: IL_00de: blt.s IL_0077
+[IMT.Settings::<AddOther>g__InvertChevrons|143_0] ldc.i4 32768 -> next: IL_0072: blt.s IL_0004
+[IMT.Settings::<AddOther>g__InvertChevrons|143_0] ldc.i4 36864 -> next: IL_00f0: blt.s IL_0079
+[IMT.Settings::<AddOther>g__RecalculateMarkings|143_1] ldc.i4 32768 -> next: IL_0024: blt.s IL_0004
+[IMT.Settings::<AddOther>g__RecalculateMarkings|143_1] ldc.i4 36864 -> next: IL_004a: blt.s IL_002a
+[IMT.Tools.IntersectionMarkingTool::ApplyPresetToAsset] ldc.i4 36864 -> next: IL_005f: blt.s IL_001e
+[IMT.Tools.IntersectionMarkingTool::Apply] ldc.i4 32768 -> next: IL_00b6: bge.s IL_00c8
+[IMT.Tools.IntersectionMarkingTool::Apply] ldc.i4 36864 -> next: IL_00c3: blt IL_0029
+==================================================
+ANALYZING: AdvancedRoadTools.dll
+==================================================
+[AdvancedRoadTools.Tools.AdvancedTools::AdjustElevation] ldc.i4 16384 -> next: IL_00f9: or
+[AdvancedRoadTools.Tools.AdvancedTools::AdjustElevationDontFollowTerrain] ldc.i4 16384 -> next: IL_00bd: or
+==================================================
+ANALYZING: Picker.dll
+==================================================
+[Picker.Db::Position] ldc.i4 32768 -> next: IL_0030: bge.s IL_0044
+[Picker.Db::Info] ldc.i4 32768 -> next: IL_0030: bge.s IL_0044
+==================================================
+ANALYZING: PropAnarchy.dll
+==================================================
+==================================================
+ANALYZING: PropLineTool_v1.dll
+==================================================
+[PropLineTool.PropLineTool::RenderProgressiveSpacingFill] ldc.i4 262144 -> next: IL_0036: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+[PropLineTool.Utility.Vector3Extensions::ToShortVector3] ldc.i4 32767 -> next: IL_0039: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+[PropLineTool.Utility.Vector3Extensions::ToShortVector3] ldc.i4 32767 -> next: IL_005b: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+[PropLineTool.Utility.Vector3Extensions::ToShortVector3] ldc.i4 32767 -> next: IL_009f: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+[PropLineTool.Utility.Vector3Extensions::ToShortVector3] ldc.i4 32767 -> next: IL_00c1: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+==================================================
+ANALYZING: LineTool.dll
+==================================================
+==================================================
+ANALYZING: TerraformTool.dll
+==================================================

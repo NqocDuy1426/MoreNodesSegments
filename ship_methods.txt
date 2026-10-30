@@ -1,0 +1,1111 @@
+
+================== TransportTool.GetStopPosition ==================
+Method: System.Boolean TransportTool::GetStopPosition(TransportInfo,System.UInt16,System.UInt16,System.UInt16,UnityEngine.Vector3&,System.Boolean&)
+IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0005: stloc.0 
+IL_0006: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+IL_000b: stloc.1 
+IL_000c: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_0011: stloc.2 
+IL_0012: ldarg.s fixedPlatform
+IL_0014: ldc.i4.0 
+IL_0015: stind.i1 
+IL_0016: ldarg.1 
+IL_0017: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_001c: ldc.i4.s 10
+IL_001e: bne.un IL_0265
+IL_0023: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0028: stloc.3 
+IL_0029: ldc.r4 0
+IL_002e: stloc.s V_4
+IL_0030: ldc.i4.0 
+IL_0031: stloc.s V_5
+IL_0033: ldarg.2 
+IL_0034: brfalse IL_009c
+IL_0039: ldloc.0 
+IL_003a: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_003f: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0044: ldarg.2 
+IL_0045: ldelema NetSegment
+IL_004a: ldarg.s hitPos
+IL_004c: ldobj UnityEngine.Vector3
+IL_0051: ldc.i4.2 
+IL_0052: ldc.i4.0 
+IL_0053: ldc.i4.0 
+IL_0054: conv.i8 
+IL_0055: ldc.i4.0 
+IL_0056: ldloca.s V_3
+IL_0058: ldloca.s V_5
+IL_005a: ldloca.s V_6
+IL_005c: ldloca.s V_4
+IL_005e: call System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+IL_0063: brtrue IL_009c
+IL_0068: ldc.i4.0 
+IL_0069: stloc.s V_5
+IL_006b: ldloc.0 
+IL_006c: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0071: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0076: ldarg.2 
+IL_0077: ldelema NetSegment
+IL_007c: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0081: ldc.i4.s 32
+IL_0083: and 
+IL_0084: brfalse IL_009c
+IL_0089: ldarg.3 
+IL_008a: brtrue IL_009c
+IL_008f: ldarg.2 
+IL_0090: ldc.r4 363
+IL_0095: call System.UInt16 NetSegment::FindOwnerBuilding(System.UInt16,System.Single)
+IL_009a: starg.s building
+IL_009c: ldarg.3 
+IL_009d: brfalse IL_012e
+IL_00a2: ldloc.1 
+IL_00a3: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_00a8: ldfld T[] Array16`1<Building>::m_buffer
+IL_00ad: ldarg.3 
+IL_00ae: ldelema Building
+IL_00b3: call BuildingInfo Building::get_Info()
+IL_00b8: stloc.s V_7
+IL_00ba: ldloc.s V_7
+IL_00bc: ldfld System.Boolean BuildingInfo::m_hasPedestrianPaths
+IL_00c1: brfalse IL_00ed
+IL_00c6: ldloc.1 
+IL_00c7: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_00cc: ldfld T[] Array16`1<Building>::m_buffer
+IL_00d1: ldarg.3 
+IL_00d2: ldelema Building
+IL_00d7: ldc.i4.2 
+IL_00d8: ldc.i4.0 
+IL_00d9: ldc.i4.0 
+IL_00da: conv.i8 
+IL_00db: ldarg.s hitPos
+IL_00dd: ldobj UnityEngine.Vector3
+IL_00e2: ldloca.s V_3
+IL_00e4: ldloca.s V_4
+IL_00e6: call System.UInt32 Building::FindLane(NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,UnityEngine.Vector3,UnityEngine.Vector3&,System.Single&)
+IL_00eb: stloc.s V_5
+IL_00ed: ldloc.s V_5
+IL_00ef: brtrue IL_012e
+IL_00f4: ldloc.1 
+IL_00f5: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_00fa: ldfld T[] Array16`1<Building>::m_buffer
+IL_00ff: ldarg.3 
+IL_0100: ldelema Building
+IL_0105: call UnityEngine.Vector3 Building::CalculateSidewalkPosition()
+IL_010a: stloc.s V_8
+IL_010c: ldloc.1 
+IL_010d: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_0112: ldfld T[] Array16`1<Building>::m_buffer
+IL_0117: ldarg.3 
+IL_0118: ldelema Building
+IL_011d: ldc.i4.2 
+IL_011e: ldc.i4.0 
+IL_011f: ldc.i4.0 
+IL_0120: conv.i8 
+IL_0121: ldloc.s V_8
+IL_0123: ldloca.s V_3
+IL_0125: ldloca.s V_4
+IL_0127: call System.UInt32 Building::FindAccessLane(NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,UnityEngine.Vector3,UnityEngine.Vector3&,System.Single&)
+IL_012c: stloc.s V_5
+IL_012e: ldloc.s V_5
+IL_0130: brfalse IL_0263
+IL_0135: ldloc.s V_4
+IL_0137: ldc.r4 0,003921569
+IL_013c: bge.un IL_0168
+IL_0141: ldc.r4 0,003921569
+IL_0146: stloc.s V_4
+IL_0148: ldloc.0 
+IL_0149: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_014e: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0153: ldloc.s V_5
+IL_0155: conv.u 
+IL_0156: ldelema NetLane
+IL_015b: ldloc.s V_4
+IL_015d: call UnityEngine.Vector3 NetLane::CalculatePosition(System.Single)
+IL_0162: stloc.3 
+IL_0163: br IL_0196
+IL_0168: ldloc.s V_4
+IL_016a: ldc.r4 0,9960784
+IL_016f: ble.un IL_0196
+IL_0174: ldc.r4 0,9960784
+IL_0179: stloc.s V_4
+IL_017b: ldloc.0 
+IL_017c: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0181: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0186: ldloc.s V_5
+IL_0188: conv.u 
+IL_0189: ldelema NetLane
+IL_018e: ldloc.s V_4
+IL_0190: call UnityEngine.Vector3 NetLane::CalculatePosition(System.Single)
+IL_0195: stloc.3 
+IL_0196: ldarg.0 
+IL_0197: ldfld System.UInt16 TransportTool::m_line
+IL_019c: brfalse IL_0255
+IL_01a1: ldloc.2 
+IL_01a2: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_01a7: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_01ac: ldarg.0 
+IL_01ad: ldfld System.UInt16 TransportTool::m_line
+IL_01b2: ldelema TransportLine
+IL_01b7: ldfld System.UInt16 TransportLine::m_stops
+IL_01bc: starg.s firstStop
+IL_01be: ldarg.s firstStop
+IL_01c0: stloc.s V_9
+IL_01c2: ldc.i4.0 
+IL_01c3: stloc.s V_10
+IL_01c5: br IL_024e
+IL_01ca: ldloc.0 
+IL_01cb: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01d0: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_01d5: ldloc.s V_9
+IL_01d7: ldelema NetNode
+IL_01dc: ldfld System.UInt32 NetNode::m_lane
+IL_01e1: ldloc.s V_5
+IL_01e3: bne.un IL_020c
+IL_01e8: ldarg.s hitPos
+IL_01ea: ldloc.0 
+IL_01eb: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01f0: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_01f5: ldloc.s V_9
+IL_01f7: ldelema NetNode
+IL_01fc: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0201: stobj UnityEngine.Vector3
+IL_0206: ldarg.s fixedPlatform
+IL_0208: ldc.i4.1 
+IL_0209: stind.i1 
+IL_020a: ldc.i4.1 
+IL_020b: ret 
+IL_020c: ldloc.s V_9
+IL_020e: call System.UInt16 TransportLine::GetNextStop(System.UInt16)
+IL_0213: stloc.s V_9
+IL_0215: ldloc.s V_9
+IL_0217: ldarg.s firstStop
+IL_0219: bne.un IL_0223
+IL_021e: br IL_0255
+IL_0223: ldloc.s V_10
+IL_0225: ldc.i4.1 
+IL_0226: add 
+IL_0227: dup 
+IL_0228: stloc.s V_10
+IL_022a: ldc.i4 32768
+IL_022f: blt IL_024e
+IL_0234: ldc.i4.1 
+IL_0235: ldstr Invalid list detected!
+
+IL_023a: call System.String System.Environment::get_StackTrace()
+IL_023f: call System.String System.String::Concat(System.String,System.String)
+IL_0244: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+IL_0249: br IL_0255
+IL_024e: ldloc.s V_9
+IL_0250: brtrue IL_01ca
+IL_0255: ldarg.s hitPos
+IL_0257: ldloc.3 
+IL_0258: stobj UnityEngine.Vector3
+IL_025d: ldarg.s fixedPlatform
+IL_025f: ldc.i4.1 
+IL_0260: stind.i1 
+IL_0261: ldc.i4.1 
+IL_0262: ret 
+IL_0263: ldc.i4.0 
+IL_0264: ret 
+IL_0265: ldarg.2 
+IL_0266: brfalse IL_0510
+IL_026b: ldloc.0 
+IL_026c: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0271: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0276: ldarg.2 
+IL_0277: ldelema NetSegment
+IL_027c: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0281: ldc.i4.s 32
+IL_0283: and 
+IL_0284: brfalse IL_030d
+IL_0289: ldarg.2 
+IL_028a: ldc.r4 363
+IL_028f: call System.UInt16 NetSegment::FindOwnerBuilding(System.UInt16,System.Single)
+IL_0294: starg.s building
+IL_0296: ldarg.3 
+IL_0297: brfalse IL_030d
+IL_029c: ldloc.1 
+IL_029d: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_02a2: ldfld T[] Array16`1<Building>::m_buffer
+IL_02a7: ldarg.3 
+IL_02a8: ldelema Building
+IL_02ad: call BuildingInfo Building::get_Info()
+IL_02b2: stloc.s V_11
+IL_02b4: ldloc.s V_11
+IL_02b6: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_02bb: callvirt TransportInfo BuildingAI::GetTransportLineInfo()
+IL_02c0: stloc.s V_12
+IL_02c2: ldloc.s V_11
+IL_02c4: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_02c9: callvirt TransportInfo BuildingAI::GetSecondaryTransportLineInfo()
+IL_02ce: stloc.s V_13
+IL_02d0: ldloc.s V_12
+IL_02d2: brfalse IL_02e9
+IL_02d7: ldloc.s V_12
+IL_02d9: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_02de: ldarg.1 
+IL_02df: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_02e4: beq IL_0302
+IL_02e9: ldloc.s V_13
+IL_02eb: brfalse IL_030a
+IL_02f0: ldloc.s V_13
+IL_02f2: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_02f7: ldarg.1 
+IL_02f8: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_02fd: bne.un IL_030a
+IL_0302: ldc.i4.0 
+IL_0303: starg.s segment
+IL_0305: br IL_030d
+IL_030a: ldc.i4.0 
+IL_030b: starg.s building
+IL_030d: ldarg.2 
+IL_030e: brfalse IL_0510
+IL_0313: ldloc.0 
+IL_0314: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0319: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_031e: ldarg.2 
+IL_031f: ldelema NetSegment
+IL_0324: ldarg.s hitPos
+IL_0326: ldobj UnityEngine.Vector3
+IL_032b: ldc.i4.2 
+IL_032c: ldc.i4.0 
+IL_032d: ldarg.1 
+IL_032e: callvirt VehicleInfo/VehicleCategory TransportInfo::get_vehicleCategory()
+IL_0333: ldarg.1 
+IL_0334: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_0339: ldloca.s V_14
+IL_033b: ldloca.s V_16
+IL_033d: ldloca.s V_18
+IL_033f: ldloca.s V_20
+IL_0341: call System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+IL_0346: brfalse IL_0510
+IL_034b: ldarg.1 
+IL_034c: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_0351: brtrue IL_0423
+IL_0356: ldloc.0 
+IL_0357: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_035c: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0361: ldloc.s V_16
+IL_0363: conv.u 
+IL_0364: ldelema NetLane
+IL_0369: ldfld System.UInt16 NetLane::m_flags
+IL_036e: stloc.s V_22
+IL_0370: ldloc.s V_22
+IL_0372: ldc.i4 768
+IL_0377: and 
+IL_0378: stloc.s V_22
+IL_037a: ldarg.1 
+IL_037b: ldfld NetLane/Flags TransportInfo::m_stopFlag
+IL_0380: stloc.s V_23
+IL_0382: ldloc.0 
+IL_0383: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0388: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_038d: ldarg.2 
+IL_038e: ldelema NetSegment
+IL_0393: call NetInfo NetSegment::get_Info()
+IL_0398: stloc.s V_24
+IL_039a: ldloc.s V_24
+IL_039c: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+IL_03a1: brfalse IL_03a9
+IL_03a6: ldc.i4.0 
+IL_03a7: stloc.s V_23
+IL_03a9: ldloc.s V_22
+IL_03ab: brfalse IL_03c2
+IL_03b0: ldloc.s V_23
+IL_03b2: brfalse IL_03c2
+IL_03b7: ldloc.s V_22
+IL_03b9: ldloc.s V_23
+IL_03bb: beq IL_03c2
+IL_03c0: ldc.i4.0 
+IL_03c1: ret 
+IL_03c2: ldloc.s V_24
+IL_03c4: ldfld NetInfo/Lane[] NetInfo::m_lanes
+IL_03c9: ldloc.s V_18
+IL_03cb: ldelem.ref 
+IL_03cc: stloc.s V_25
+IL_03ce: ldloc.s V_25
+IL_03d0: ldfld System.Single NetInfo/Lane::m_stopOffset
+IL_03d5: stloc.s V_26
+IL_03d7: ldloc.0 
+IL_03d8: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_03dd: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_03e2: ldarg.2 
+IL_03e3: ldelema NetSegment
+IL_03e8: ldfld NetSegment/Flags NetSegment::m_flags
+IL_03ed: ldc.i4.s 16
+IL_03ef: and 
+IL_03f0: brfalse IL_03fa
+IL_03f5: ldloc.s V_26
+IL_03f7: neg 
+IL_03f8: stloc.s V_26
+IL_03fa: ldloc.0 
+IL_03fb: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0400: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0405: ldloc.s V_16
+IL_0407: conv.u 
+IL_0408: ldelema NetLane
+IL_040d: ldc.r4 0,5019608
+IL_0412: ldloc.s V_26
+IL_0414: ldarg.s hitPos
+IL_0416: ldloca.s V_27
+IL_0418: call System.Void NetLane::CalculateStopPositionAndDirection(System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+IL_041d: ldarg.s fixedPlatform
+IL_041f: ldc.i4.1 
+IL_0420: stind.i1 
+IL_0421: ldc.i4.1 
+IL_0422: ret 
+IL_0423: ldloc.0 
+IL_0424: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0429: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_042e: ldarg.2 
+IL_042f: ldelema NetSegment
+IL_0434: ldloc.s V_14
+IL_0436: ldc.i4.s 33
+IL_0438: ldarg.1 
+IL_0439: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_043e: ldarg.1 
+IL_043f: callvirt VehicleInfo/VehicleCategory TransportInfo::get_vehicleCategory()
+IL_0444: ldloca.s V_15
+IL_0446: ldloca.s V_17
+IL_0448: ldloca.s V_19
+IL_044a: ldloca.s V_21
+IL_044c: call System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+IL_0451: brfalse IL_0510
+IL_0456: ldloc.0 
+IL_0457: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_045c: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0461: ldloc.s V_16
+IL_0463: conv.u 
+IL_0464: ldelema NetLane
+IL_0469: ldfld System.UInt16 NetLane::m_flags
+IL_046e: stloc.s V_28
+IL_0470: ldloc.s V_28
+IL_0472: ldc.i4 768
+IL_0477: and 
+IL_0478: stloc.s V_28
+IL_047a: ldloc.s V_28
+IL_047c: brfalse IL_049b
+IL_0481: ldarg.1 
+IL_0482: ldfld NetLane/Flags TransportInfo::m_stopFlag
+IL_0487: brfalse IL_049b
+IL_048c: ldloc.s V_28
+IL_048e: ldarg.1 
+IL_048f: ldfld NetLane/Flags TransportInfo::m_stopFlag
+IL_0494: beq IL_049b
+IL_0499: ldc.i4.0 
+IL_049a: ret 
+IL_049b: ldloc.0 
+IL_049c: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04a1: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04a6: ldarg.2 
+IL_04a7: ldelema NetSegment
+IL_04ac: call NetInfo NetSegment::get_Info()
+IL_04b1: ldfld NetInfo/Lane[] NetInfo::m_lanes
+IL_04b6: ldloc.s V_19
+IL_04b8: ldelem.ref 
+IL_04b9: stloc.s V_29
+IL_04bb: ldloc.s V_29
+IL_04bd: ldfld System.Single NetInfo/Lane::m_stopOffset
+IL_04c2: stloc.s V_30
+IL_04c4: ldloc.0 
+IL_04c5: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04ca: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04cf: ldarg.2 
+IL_04d0: ldelema NetSegment
+IL_04d5: ldfld NetSegment/Flags NetSegment::m_flags
+IL_04da: ldc.i4.s 16
+IL_04dc: and 
+IL_04dd: brfalse IL_04e7
+IL_04e2: ldloc.s V_30
+IL_04e4: neg 
+IL_04e5: stloc.s V_30
+IL_04e7: ldloc.0 
+IL_04e8: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_04ed: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_04f2: ldloc.s V_17
+IL_04f4: conv.u 
+IL_04f5: ldelema NetLane
+IL_04fa: ldc.r4 0,5019608
+IL_04ff: ldloc.s V_30
+IL_0501: ldarg.s hitPos
+IL_0503: ldloca.s V_31
+IL_0505: call System.Void NetLane::CalculateStopPositionAndDirection(System.Single,System.Single,UnityEngine.Vector3&,UnityEngine.Vector3&)
+IL_050a: ldarg.s fixedPlatform
+IL_050c: ldc.i4.1 
+IL_050d: stind.i1 
+IL_050e: ldc.i4.1 
+IL_050f: ret 
+IL_0510: ldarg.3 
+IL_0511: brfalse IL_08d5
+IL_0516: ldc.i4.0 
+IL_0517: stloc.s V_32
+IL_0519: ldloc.1 
+IL_051a: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_051f: ldfld T[] Array16`1<Building>::m_buffer
+IL_0524: ldarg.3 
+IL_0525: ldelema Building
+IL_052a: ldfld Building/Flags Building::m_flags
+IL_052f: ldc.i4.s 16
+IL_0531: and 
+IL_0532: brfalse IL_053f
+IL_0537: ldarg.3 
+IL_0538: call System.UInt16 Building::FindParentBuilding(System.UInt16)
+IL_053d: stloc.s V_32
+IL_053f: ldarg.0 
+IL_0540: ldfld System.Int32 TransportTool::m_building
+IL_0545: brfalse IL_058a
+IL_054a: ldarg.s firstStop
+IL_054c: brfalse IL_058a
+IL_0551: ldarg.0 
+IL_0552: ldfld System.Int32 TransportTool::m_building
+IL_0557: ldarg.3 
+IL_0558: beq IL_056a
+IL_055d: ldarg.0 
+IL_055e: ldfld System.Int32 TransportTool::m_building
+IL_0563: ldloc.s V_32
+IL_0565: bne.un IL_058a
+IL_056a: ldarg.s hitPos
+IL_056c: ldloc.0 
+IL_056d: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0572: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0577: ldarg.s firstStop
+IL_0579: ldelema NetNode
+IL_057e: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0583: stobj UnityEngine.Vector3
+IL_0588: ldc.i4.1 
+IL_0589: ret 
+IL_058a: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+IL_058f: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0594: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+IL_0599: ldarg.1 
+IL_059a: ldfld ItemClass TransportInfo::m_class
+IL_059f: ldfld ItemClass/Service ItemClass::m_service
+IL_05a4: ldarg.1 
+IL_05a5: ldfld ItemClass TransportInfo::m_class
+IL_05aa: ldfld ItemClass/SubService ItemClass::m_subService
+IL_05af: ldarg.1 
+IL_05b0: ldfld ItemClass TransportInfo::m_class
+IL_05b5: ldfld ItemClass/Level ItemClass::m_level
+IL_05ba: ldarg.1 
+IL_05bb: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_05c0: callvirt VehicleInfo VehicleManager::GetRandomVehicleInfo(ColossalFramework.Math.Randomizer&,ItemClass/Service,ItemClass/SubService,ItemClass/Level,VehicleInfo/VehicleType)
+IL_05c5: stloc.s V_33
+IL_05c7: ldloc.s V_33
+IL_05c9: brfalse IL_08d5
+IL_05ce: ldloc.1 
+IL_05cf: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_05d4: ldfld T[] Array16`1<Building>::m_buffer
+IL_05d9: ldarg.3 
+IL_05da: ldelema Building
+IL_05df: call BuildingInfo Building::get_Info()
+IL_05e4: stloc.s V_34
+IL_05e6: ldloc.s V_34
+IL_05e8: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_05ed: callvirt TransportInfo BuildingAI::GetTransportLineInfo()
+IL_05f2: stloc.s V_35
+IL_05f4: ldloc.s V_34
+IL_05f6: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_05fb: callvirt TransportInfo BuildingAI::GetSecondaryTransportLineInfo()
+IL_0600: stloc.s V_36
+IL_0602: ldloc.s V_32
+IL_0604: brfalse IL_06a3
+IL_0609: ldloc.s V_35
+IL_060b: ldnull 
+IL_060c: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+IL_0611: brtrue IL_063a
+IL_0616: ldloc.s V_35
+IL_0618: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_061d: ldarg.1 
+IL_061e: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_0623: bne.un IL_063a
+IL_0628: ldloc.s V_35
+IL_062a: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_062f: ldarg.1 
+IL_0630: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_0635: beq IL_06a3
+IL_063a: ldloc.s V_36
+IL_063c: ldnull 
+IL_063d: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+IL_0642: brtrue IL_066b
+IL_0647: ldloc.s V_36
+IL_0649: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_064e: ldarg.1 
+IL_064f: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_0654: bne.un IL_066b
+IL_0659: ldloc.s V_36
+IL_065b: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_0660: ldarg.1 
+IL_0661: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_0666: beq IL_06a3
+IL_066b: ldloc.s V_32
+IL_066d: starg.s building
+IL_066f: ldloc.1 
+IL_0670: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_0675: ldfld T[] Array16`1<Building>::m_buffer
+IL_067a: ldarg.3 
+IL_067b: ldelema Building
+IL_0680: call BuildingInfo Building::get_Info()
+IL_0685: stloc.s V_34
+IL_0687: ldloc.s V_34
+IL_0689: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_068e: callvirt TransportInfo BuildingAI::GetTransportLineInfo()
+IL_0693: stloc.s V_35
+IL_0695: ldloc.s V_34
+IL_0697: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_069c: callvirt TransportInfo BuildingAI::GetSecondaryTransportLineInfo()
+IL_06a1: stloc.s V_36
+IL_06a3: ldloc.s V_35
+IL_06a5: brfalse IL_06ce
+IL_06aa: ldloc.s V_35
+IL_06ac: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_06b1: ldarg.1 
+IL_06b2: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_06b7: bne.un IL_06ce
+IL_06bc: ldloc.s V_35
+IL_06be: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_06c3: ldarg.1 
+IL_06c4: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_06c9: beq IL_06f9
+IL_06ce: ldloc.s V_36
+IL_06d0: brfalse IL_08d5
+IL_06d5: ldloc.s V_36
+IL_06d7: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_06dc: ldarg.1 
+IL_06dd: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_06e2: bne.un IL_08d5
+IL_06e7: ldloc.s V_36
+IL_06e9: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_06ee: ldarg.1 
+IL_06ef: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_06f4: bne.un IL_08d5
+IL_06f9: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_06fe: stloc.s V_37
+IL_0700: ldc.i4 1000000
+IL_0705: stloc.s V_38
+IL_0707: ldc.i4.0 
+IL_0708: stloc.s V_39
+IL_070a: br IL_07fd
+IL_070f: ldloca.s V_40
+IL_0711: ldloc.s V_39
+IL_0713: conv.i8 
+IL_0714: call System.Void ColossalFramework.Math.Randomizer::.ctor(System.UInt64)
+IL_0719: ldloc.s V_34
+IL_071b: ldfld BuildingAI BuildingInfo::m_buildingAI
+IL_0720: ldarg.3 
+IL_0721: ldloc.1 
+IL_0722: ldfld Array16`1<Building> BuildingManager::m_buildings
+IL_0727: ldfld T[] Array16`1<Building>::m_buffer
+IL_072c: ldarg.3 
+IL_072d: ldelema Building
+IL_0732: ldloca.s V_40
+IL_0734: ldloc.s V_33
+IL_0736: ldloca.s V_41
+IL_0738: ldloca.s V_42
+IL_073a: callvirt System.Void BuildingAI::CalculateSpawnPosition(System.UInt16,Building&,ColossalFramework.Math.Randomizer&,VehicleInfo,UnityEngine.Vector3&,UnityEngine.Vector3&)
+IL_073f: ldc.i4.0 
+IL_0740: stloc.s V_43
+IL_0742: ldarg.1 
+IL_0743: ldfld System.Boolean TransportInfo::m_avoidSameStopPlatform
+IL_0748: brfalse IL_0766
+IL_074d: ldarg.0 
+IL_074e: ldloc.s V_41
+IL_0750: ldloc.s V_42
+IL_0752: ldloc.s V_41
+IL_0754: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0759: ldarg.1 
+IL_075a: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_075f: call System.Int32 TransportTool::GetLineCount(UnityEngine.Vector3,UnityEngine.Vector3,TransportInfo/TransportType)
+IL_0764: stloc.s V_43
+IL_0766: ldarg.1 
+IL_0767: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_076c: ldc.i4.1 
+IL_076d: beq IL_07c5
+IL_0772: ldloc.s V_43
+IL_0774: ldloc.s V_38
+IL_0776: bge IL_0788
+IL_077b: ldloc.s V_41
+IL_077d: stloc.s V_37
+IL_077f: ldloc.s V_43
+IL_0781: stloc.s V_38
+IL_0783: br IL_07c0
+IL_0788: ldloc.s V_43
+IL_078a: ldloc.s V_38
+IL_078c: bne.un IL_07c0
+IL_0791: ldloc.s V_41
+IL_0793: ldarg.s hitPos
+IL_0795: ldobj UnityEngine.Vector3
+IL_079a: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_079f: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_07a4: ldloc.s V_37
+IL_07a6: ldarg.s hitPos
+IL_07a8: ldobj UnityEngine.Vector3
+IL_07ad: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_07b2: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_07b7: bge.un IL_07c0
+IL_07bc: ldloc.s V_41
+IL_07be: stloc.s V_37
+IL_07c0: br IL_07f7
+IL_07c5: ldloc.s V_41
+IL_07c7: ldarg.s hitPos
+IL_07c9: ldobj UnityEngine.Vector3
+IL_07ce: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_07d3: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_07d8: ldloc.s V_37
+IL_07da: ldarg.s hitPos
+IL_07dc: ldobj UnityEngine.Vector3
+IL_07e1: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_07e6: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_07eb: bge.un IL_07f7
+IL_07f0: ldloc.s V_41
+IL_07f2: stloc.s V_37
+IL_07f4: ldc.i4.0 
+IL_07f5: stloc.s V_38
+IL_07f7: ldloc.s V_39
+IL_07f9: ldc.i4.1 
+IL_07fa: add 
+IL_07fb: stloc.s V_39
+IL_07fd: ldloc.s V_39
+IL_07ff: ldc.i4.s 12
+IL_0801: blt IL_070f
+IL_0806: ldarg.s firstStop
+IL_0808: brfalse IL_08bf
+IL_080d: ldloc.0 
+IL_080e: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0813: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0818: ldarg.s firstStop
+IL_081a: ldelema NetNode
+IL_081f: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0824: stloc.s V_44
+IL_0826: ldloc.s V_44
+IL_0828: ldloc.s V_37
+IL_082a: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_082f: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_0834: ldc.r4 16384
+IL_0839: bge.un IL_08bf
+IL_083e: ldloc.0 
+IL_083f: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0844: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0849: ldarg.s firstStop
+IL_084b: ldelema NetNode
+IL_0850: ldfld System.UInt32 NetNode::m_lane
+IL_0855: stloc.s V_45
+IL_0857: ldloc.s V_45
+IL_0859: brfalse IL_08bf
+IL_085e: ldloc.0 
+IL_085f: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0864: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0869: ldloc.s V_45
+IL_086b: conv.u 
+IL_086c: ldelema NetLane
+IL_0871: ldfld System.UInt16 NetLane::m_segment
+IL_0876: stloc.s V_46
+IL_0878: ldloc.s V_46
+IL_087a: brfalse IL_08bf
+IL_087f: ldloc.0 
+IL_0880: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0885: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_088a: ldloc.s V_46
+IL_088c: ldelema NetSegment
+IL_0891: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0896: ldc.i4.s 32
+IL_0898: and 
+IL_0899: brfalse IL_08bf
+IL_089e: ldloc.s V_46
+IL_08a0: ldc.r4 363
+IL_08a5: call System.UInt16 NetSegment::FindOwnerBuilding(System.UInt16,System.Single)
+IL_08aa: stloc.s V_47
+IL_08ac: ldarg.3 
+IL_08ad: ldloc.s V_47
+IL_08af: bne.un IL_08bf
+IL_08b4: ldarg.s hitPos
+IL_08b6: ldloc.s V_44
+IL_08b8: stobj UnityEngine.Vector3
+IL_08bd: ldc.i4.1 
+IL_08be: ret 
+IL_08bf: ldarg.s hitPos
+IL_08c1: ldloc.s V_37
+IL_08c3: stobj UnityEngine.Vector3
+IL_08c8: ldloc.s V_38
+IL_08ca: ldc.i4 1000000
+IL_08cf: ceq 
+IL_08d1: ldc.i4.0 
+IL_08d2: ceq 
+IL_08d4: ret 
+IL_08d5: ldc.i4.0 
+IL_08d6: ret 
+
+================== TransportTool.CanAddStop ==================
+Method: System.Boolean TransportTool::CanAddStop(TransportInfo,System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_0000: ldarg.2 
+IL_0001: brtrue IL_0008
+IL_0006: ldc.i4.1 
+IL_0007: ret 
+IL_0008: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_000d: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0012: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0017: ldarg.2 
+IL_0018: ldelema TransportLine
+IL_001d: ldarg.2 
+IL_001e: ldarg.3 
+IL_001f: ldarg.s addPos
+IL_0021: call System.Boolean TransportLine::CanAddStop(System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_0026: ret 
+
+================== TransportTool.AddStop ==================
+Method: System.Collections.IEnumerator TransportTool::AddStop()
+IL_0000: newobj System.Void TransportTool/<AddStop>c__Iterator2::.ctor()
+IL_0005: stloc.0 
+IL_0006: ldloc.0 
+IL_0007: ldarg.0 
+IL_0008: stfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_000d: ldloc.0 
+IL_000e: ret 
+
+================== ShipDockAI.RemoveLaneConnection ==================
+Method: System.Void ShipDockAI::RemoveLaneConnection(System.UInt16,NetNode&)
+IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0005: stloc.0 
+IL_0006: ldc.i4.0 
+IL_0007: stloc.1 
+IL_0008: ldloc.0 
+IL_0009: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_000e: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0013: ldarg.2 
+IL_0014: ldfld System.UInt32 NetNode::m_lane
+IL_0019: conv.u 
+IL_001a: ldelema NetLane
+IL_001f: ldfld System.UInt16 NetLane::m_nodes
+IL_0024: stloc.2 
+IL_0025: ldc.i4.0 
+IL_0026: stloc.3 
+IL_0027: br IL_00c3
+IL_002c: ldloc.2 
+IL_002d: ldarg.1 
+IL_002e: bne.un IL_0081
+IL_0033: ldloc.1 
+IL_0034: brtrue IL_0060
+IL_0039: ldloc.0 
+IL_003a: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_003f: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_0044: ldarg.2 
+IL_0045: ldfld System.UInt32 NetNode::m_lane
+IL_004a: conv.u 
+IL_004b: ldelema NetLane
+IL_0050: ldarg.2 
+IL_0051: ldfld System.UInt16 NetNode::m_nextLaneNode
+IL_0056: stfld System.UInt16 NetLane::m_nodes
+IL_005b: br IL_007c
+IL_0060: ldloc.0 
+IL_0061: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0066: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_006b: ldloc.1 
+IL_006c: ldelema NetNode
+IL_0071: ldarg.2 
+IL_0072: ldfld System.UInt16 NetNode::m_nextLaneNode
+IL_0077: stfld System.UInt16 NetNode::m_nextLaneNode
+IL_007c: br IL_00c9
+IL_0081: ldloc.2 
+IL_0082: stloc.1 
+IL_0083: ldloc.0 
+IL_0084: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0089: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_008e: ldloc.2 
+IL_008f: ldelema NetNode
+IL_0094: ldfld System.UInt16 NetNode::m_nextLaneNode
+IL_0099: stloc.2 
+IL_009a: ldloc.3 
+IL_009b: ldc.i4.1 
+IL_009c: add 
+IL_009d: dup 
+IL_009e: stloc.3 
+IL_009f: ldc.i4 32768
+IL_00a4: ble IL_00c3
+IL_00a9: ldc.i4.1 
+IL_00aa: ldstr Invalid list detected!
+
+IL_00af: call System.String System.Environment::get_StackTrace()
+IL_00b4: call System.String System.String::Concat(System.String,System.String)
+IL_00b9: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+IL_00be: br IL_00c9
+IL_00c3: ldloc.2 
+IL_00c4: brtrue IL_002c
+IL_00c9: ldarg.2 
+IL_00ca: ldc.i4.0 
+IL_00cb: stfld System.UInt32 NetNode::m_lane
+IL_00d0: ldarg.2 
+IL_00d1: ldc.i4.0 
+IL_00d2: stfld System.Byte NetNode::m_laneOffset
+IL_00d7: ldarg.2 
+IL_00d8: ldc.i4.0 
+IL_00d9: stfld System.UInt16 NetNode::m_nextLaneNode
+IL_00de: ldarg.0 
+IL_00df: ldfld TransportInfo ShipDockAI::m_transportInfo
+IL_00e4: brfalse IL_01b0
+IL_00e9: ldarg.0 
+IL_00ea: ldfld TransportInfo ShipDockAI::m_transportInfo
+IL_00ef: ldfld VehicleInfo/VehicleType TransportInfo::m_vehicleType
+IL_00f4: ldc.i4 1024
+IL_00f9: bne.un IL_01b0
+IL_00fe: ldc.i4.0 
+IL_00ff: stloc.s V_4
+IL_0101: br IL_01a8
+IL_0106: ldarg.2 
+IL_0107: ldloc.s V_4
+IL_0109: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_010e: stloc.s V_5
+IL_0110: ldloc.s V_5
+IL_0112: brfalse IL_01a2
+IL_0117: ldloc.0 
+IL_0118: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_011d: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0122: ldloc.s V_5
+IL_0124: ldelema NetSegment
+IL_0129: call NetInfo NetSegment::get_Info()
+IL_012e: stloc.s V_6
+IL_0130: ldloc.s V_6
+IL_0132: brfalse IL_01a2
+IL_0137: ldloc.s V_6
+IL_0139: ldfld NetAI NetInfo::m_netAI
+IL_013e: isinst ShipDockAI
+IL_0143: brfalse IL_01a2
+IL_0148: ldarg.0 
+IL_0149: ldloc.s V_5
+IL_014b: ldloc.0 
+IL_014c: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0151: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0156: ldloc.s V_5
+IL_0158: ldelema NetSegment
+IL_015d: call System.Boolean ShipDockAI::HasLaneConnection(System.UInt16,NetSegment&)
+IL_0162: brtrue IL_01a2
+IL_0167: ldloc.0 
+IL_0168: ldloc.s V_5
+IL_016a: ldarg.0 
+IL_016b: ldfld NetInfo NetAI::m_info
+IL_0170: ldfld ItemClass NetInfo::m_class
+IL_0175: ldfld ItemClass/Service ItemClass::m_service
+IL_017a: ldarg.0 
+IL_017b: ldfld NetInfo NetAI::m_info
+IL_0180: ldfld ItemClass NetInfo::m_class
+IL_0185: ldfld ItemClass/SubService ItemClass::m_subService
+IL_018a: callvirt System.Void NetManager::AddServiceSegment(System.UInt16,ItemClass/Service,ItemClass/SubService)
+IL_018f: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_0194: ldloc.s V_5
+IL_0196: ldarg.0 
+IL_0197: ldfld TransportInfo ShipDockAI::m_transportInfo
+IL_019c: ldc.i4.1 
+IL_019d: callvirt System.Void TransportManager::SetPatchDirty(System.UInt16,TransportInfo,System.Boolean)
+IL_01a2: ldloc.s V_4
+IL_01a4: ldc.i4.1 
+IL_01a5: add 
+IL_01a6: stloc.s V_4
+IL_01a8: ldloc.s V_4
+IL_01aa: ldc.i4.8 
+IL_01ab: blt IL_0106
+IL_01b0: ret 
+
+================== ShipPathAI.UpdateLanes ==================
+Method: System.Void ShipPathAI::UpdateLanes(System.UInt16,NetSegment&,System.Boolean)
+IL_0000: ldarg.0 
+IL_0001: ldarg.1 
+IL_0002: ldarg.2 
+IL_0003: ldarg.3 
+IL_0004: call System.Void NetAI::UpdateLanes(System.UInt16,NetSegment&,System.Boolean)
+IL_0009: ldarg.3 
+IL_000a: brtrue IL_0262
+IL_000f: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0014: stloc.0 
+IL_0015: ldarg.2 
+IL_0016: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_001b: call UnityEngine.Vector3 UnityEngine.Bounds::get_min()
+IL_0020: stloc.2 
+IL_0021: ldloca.s V_2
+IL_0023: ldfld System.Single UnityEngine.Vector3::x
+IL_0028: ldc.r4 16
+IL_002d: sub 
+IL_002e: ldc.r4 64
+IL_0033: div 
+IL_0034: ldc.r4 135
+IL_0039: add 
+IL_003a: conv.i4 
+IL_003b: ldc.i4.0 
+IL_003c: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+IL_0041: stloc.1 
+IL_0042: ldarg.2 
+IL_0043: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_0048: call UnityEngine.Vector3 UnityEngine.Bounds::get_min()
+IL_004d: stloc.s V_4
+IL_004f: ldloca.s V_4
+IL_0051: ldfld System.Single UnityEngine.Vector3::z
+IL_0056: ldc.r4 16
+IL_005b: sub 
+IL_005c: ldc.r4 64
+IL_0061: div 
+IL_0062: ldc.r4 135
+IL_0067: add 
+IL_0068: conv.i4 
+IL_0069: ldc.i4.0 
+IL_006a: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+IL_006f: stloc.3 
+IL_0070: ldarg.2 
+IL_0071: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_0076: call UnityEngine.Vector3 UnityEngine.Bounds::get_max()
+IL_007b: stloc.s V_6
+IL_007d: ldloca.s V_6
+IL_007f: ldfld System.Single UnityEngine.Vector3::x
+IL_0084: ldc.r4 16
+IL_0089: add 
+IL_008a: ldc.r4 64
+IL_008f: div 
+IL_0090: ldc.r4 135
+IL_0095: add 
+IL_0096: conv.i4 
+IL_0097: ldc.i4 269
+IL_009c: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+IL_00a1: stloc.s V_5
+IL_00a3: ldarg.2 
+IL_00a4: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_00a9: call UnityEngine.Vector3 UnityEngine.Bounds::get_max()
+IL_00ae: stloc.s V_8
+IL_00b0: ldloca.s V_8
+IL_00b2: ldfld System.Single UnityEngine.Vector3::z
+IL_00b7: ldc.r4 16
+IL_00bc: add 
+IL_00bd: ldc.r4 64
+IL_00c2: div 
+IL_00c3: ldc.r4 135
+IL_00c8: add 
+IL_00c9: conv.i4 
+IL_00ca: ldc.i4 269
+IL_00cf: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+IL_00d4: stloc.s V_7
+IL_00d6: ldloc.3 
+IL_00d7: stloc.s V_9
+IL_00d9: br IL_0259
+IL_00de: ldloc.1 
+IL_00df: stloc.s V_10
+IL_00e1: br IL_024a
+IL_00e6: ldloc.0 
+IL_00e7: ldfld System.UInt16[] NetManager::m_nodeGrid
+IL_00ec: ldloc.s V_9
+IL_00ee: ldc.i4 270
+IL_00f3: mul 
+IL_00f4: ldloc.s V_10
+IL_00f6: add 
+IL_00f7: ldelem.u2 
+IL_00f8: stloc.s V_11
+IL_00fa: ldc.i4.0 
+IL_00fb: stloc.s V_12
+IL_00fd: br IL_023d
+IL_0102: ldloc.0 
+IL_0103: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0108: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_010d: ldloc.s V_11
+IL_010f: ldelema NetNode
+IL_0114: call NetInfo NetNode::get_Info()
+IL_0119: stloc.s V_13
+IL_011b: ldloc.0 
+IL_011c: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0121: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0126: ldloc.s V_11
+IL_0128: ldelema NetNode
+IL_012d: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0132: stloc.s V_14
+IL_0134: ldarg.2 
+IL_0135: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_013a: call UnityEngine.Vector3 UnityEngine.Bounds::get_min()
+IL_013f: stloc.s V_16
+IL_0141: ldloca.s V_16
+IL_0143: ldfld System.Single UnityEngine.Vector3::x
+IL_0148: ldc.r4 16
+IL_014d: sub 
+IL_014e: ldloca.s V_14
+IL_0150: ldfld System.Single UnityEngine.Vector3::x
+IL_0155: sub 
+IL_0156: ldarg.2 
+IL_0157: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_015c: call UnityEngine.Vector3 UnityEngine.Bounds::get_min()
+IL_0161: stloc.s V_17
+IL_0163: ldloca.s V_17
+IL_0165: ldfld System.Single UnityEngine.Vector3::z
+IL_016a: ldc.r4 16
+IL_016f: sub 
+IL_0170: ldloca.s V_14
+IL_0172: ldfld System.Single UnityEngine.Vector3::z
+IL_0177: sub 
+IL_0178: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_017d: ldloca.s V_14
+IL_017f: ldfld System.Single UnityEngine.Vector3::x
+IL_0184: ldarg.2 
+IL_0185: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_018a: call UnityEngine.Vector3 UnityEngine.Bounds::get_max()
+IL_018f: stloc.s V_18
+IL_0191: ldloca.s V_18
+IL_0193: ldfld System.Single UnityEngine.Vector3::x
+IL_0198: sub 
+IL_0199: ldc.r4 16
+IL_019e: sub 
+IL_019f: ldloca.s V_14
+IL_01a1: ldfld System.Single UnityEngine.Vector3::z
+IL_01a6: ldarg.2 
+IL_01a7: ldflda UnityEngine.Bounds NetSegment::m_bounds
+IL_01ac: call UnityEngine.Vector3 UnityEngine.Bounds::get_max()
+IL_01b1: stloc.s V_19
+IL_01b3: ldloca.s V_19
+IL_01b5: ldfld System.Single UnityEngine.Vector3::z
+IL_01ba: sub 
+IL_01bb: ldc.r4 16
+IL_01c0: sub 
+IL_01c1: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_01c6: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_01cb: stloc.s V_15
+IL_01cd: ldloc.s V_15
+IL_01cf: ldc.r4 0
+IL_01d4: bge.un IL_01f9
+IL_01d9: ldloc.s V_13
+IL_01db: ldfld NetAI NetInfo::m_netAI
+IL_01e0: ldloc.s V_11
+IL_01e2: ldloc.0 
+IL_01e3: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01e8: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_01ed: ldloc.s V_11
+IL_01ef: ldelema NetNode
+IL_01f4: callvirt System.Void NetAI::NearbyLanesUpdated(System.UInt16,NetNode&)
+IL_01f9: ldloc.0 
+IL_01fa: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01ff: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0204: ldloc.s V_11
+IL_0206: ldelema NetNode
+IL_020b: ldfld System.UInt16 NetNode::m_nextGridNode
+IL_0210: stloc.s V_11
+IL_0212: ldloc.s V_12
+IL_0214: ldc.i4.1 
+IL_0215: add 
+IL_0216: dup 
+IL_0217: stloc.s V_12
+IL_0219: ldc.i4 32768
+IL_021e: blt IL_023d
+IL_0223: ldc.i4.1 
+IL_0224: ldstr Invalid list detected!
+
+IL_0229: call System.String System.Environment::get_StackTrace()
+IL_022e: call System.String System.String::Concat(System.String,System.String)
+IL_0233: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+IL_0238: br IL_0244
+IL_023d: ldloc.s V_11
+IL_023f: brtrue IL_0102
+IL_0244: ldloc.s V_10
+IL_0246: ldc.i4.1 
+IL_0247: add 
+IL_0248: stloc.s V_10
+IL_024a: ldloc.s V_10
+IL_024c: ldloc.s V_5
+IL_024e: ble IL_00e6
+IL_0253: ldloc.s V_9
+IL_0255: ldc.i4.1 
+IL_0256: add 
+IL_0257: stloc.s V_9
+IL_0259: ldloc.s V_9
+IL_025b: ldloc.s V_7
+IL_025d: ble IL_00de
+IL_0262: ret 

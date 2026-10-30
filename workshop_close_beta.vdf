@@ -9,7 +9,7 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.36:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.37:[/h2]
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -28,5 +28,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.36 Close Beta: Universal Simulation Manager Armor (Defeat Mono generic vtable SIGSEGV crash during manager updates, protect NetworkSkins & Material.HasProperty)."
+	"changenote"		"v5.0.37 Close Beta: Unpatch external mods (NetworkSkins etc.) from Managers_UpdateData/LateUpdateData/EarlyUpdateData to defeat Mono get_object_generic_inst SIGSEGV; let vanilla CIL-compiled manager loop handle all dispatch safely."
 }

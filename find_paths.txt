@@ -1,0 +1,203 @@
+
+================== ShipDockAI.FindConnectionPath ==================
+Method: System.Boolean ShipDockAI::FindConnectionPath(UnityEngine.Vector3&,System.UInt32&,System.Byte&,System.Boolean)
+IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0005: stloc.0 
+IL_0006: ldarg.0 
+IL_0007: ldobj UnityEngine.Vector3
+IL_000c: stloc.1 
+IL_000d: ldc.i4.0 
+IL_000e: stloc.2 
+IL_000f: ldc.r4 1E+10
+IL_0014: stloc.3 
+IL_0015: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_001a: ldc.i4.s 19
+IL_001c: ldc.i4.s 13
+IL_001e: callvirt FastList`1<System.UInt16> NetManager::GetServiceSegments(ItemClass/Service,ItemClass/SubService)
+IL_0023: stloc.s V_4
+IL_0025: ldc.i4.0 
+IL_0026: stloc.s V_5
+IL_0028: br IL_0156
+IL_002d: ldloc.s V_4
+IL_002f: ldfld T[] FastList`1<System.UInt16>::m_buffer
+IL_0034: ldloc.s V_5
+IL_0036: ldelem.u2 
+IL_0037: stloc.s V_6
+IL_0039: ldloc.0 
+IL_003a: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_003f: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0044: ldloc.s V_6
+IL_0046: ldelema NetSegment
+IL_004b: call NetInfo NetSegment::get_Info()
+IL_0050: stloc.s V_7
+IL_0052: ldloc.s V_7
+IL_0054: ldfld ItemClass NetInfo::m_class
+IL_0059: ldfld ItemClass/Layer ItemClass::m_layer
+IL_005e: ldc.i4.s 32
+IL_0060: bne.un IL_0150
+IL_0065: ldloc.0 
+IL_0066: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_006b: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0070: ldloc.s V_6
+IL_0072: ldelema NetSegment
+IL_0077: ldfld System.UInt16 NetSegment::m_startNode
+IL_007c: stloc.s V_8
+IL_007e: ldloc.0 
+IL_007f: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0084: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0089: ldloc.s V_6
+IL_008b: ldelema NetSegment
+IL_0090: ldfld System.UInt16 NetSegment::m_endNode
+IL_0095: stloc.s V_9
+IL_0097: ldloca.s V_10
+IL_0099: ldloc.0 
+IL_009a: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_009f: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00a4: ldloc.s V_8
+IL_00a6: ldelema NetNode
+IL_00ab: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_00b0: stfld UnityEngine.Vector3 ColossalFramework.Math.Segment3::a
+IL_00b5: ldloca.s V_10
+IL_00b7: ldloc.0 
+IL_00b8: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00bd: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00c2: ldloc.s V_9
+IL_00c4: ldelema NetNode
+IL_00c9: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_00ce: stfld UnityEngine.Vector3 ColossalFramework.Math.Segment3::b
+IL_00d3: ldloca.s V_10
+IL_00d5: ldloc.1 
+IL_00d6: ldloca.s V_11
+IL_00d8: call System.Single ColossalFramework.Math.Segment3::DistanceSqr(UnityEngine.Vector3,System.Single&)
+IL_00dd: stloc.s V_12
+IL_00df: ldc.i4.0 
+IL_00e0: stloc.s V_13
+IL_00e2: ldarg.3 
+IL_00e3: brfalse IL_0135
+IL_00e8: ldloca.s V_10
+IL_00ea: ldloc.s V_11
+IL_00ec: ldc.r4 0,9
+IL_00f1: mul 
+IL_00f2: call UnityEngine.Vector3 ColossalFramework.Math.Segment3::Position(System.Single)
+IL_00f7: stloc.s V_14
+IL_00f9: ldloc.1 
+IL_00fa: stloc.s V_15
+IL_00fc: ldloca.s V_15
+IL_00fe: ldloca.s V_14
+IL_0100: ldfld System.Single UnityEngine.Vector3::y
+IL_0105: stfld System.Single UnityEngine.Vector3::y
+IL_010a: ldloca.s V_16
+IL_010c: ldloc.s V_14
+IL_010e: stfld UnityEngine.Vector3 ColossalFramework.Math.Segment3::a
+IL_0113: ldloca.s V_16
+IL_0115: ldloc.s V_15
+IL_0117: stfld UnityEngine.Vector3 ColossalFramework.Math.Segment3::b
+IL_011c: call !0 ColossalFramework.Singleton`1<TerrainManager>::get_instance()
+IL_0121: ldloc.s V_16
+IL_0123: call ColossalFramework.Math.Segment2 ColossalFramework.Math.Segment2::XZ(ColossalFramework.Math.Segment3)
+IL_0128: ldc.r4 50
+IL_012d: ldc.i4.0 
+IL_012e: callvirt System.Boolean TerrainManager::HasWater(ColossalFramework.Math.Segment2,System.Single,System.Boolean)
+IL_0133: stloc.s V_13
+IL_0135: ldloc.s V_12
+IL_0137: ldloc.3 
+IL_0138: bge.un IL_0150
+IL_013d: ldarg.3 
+IL_013e: brfalse IL_014a
+IL_0143: ldloc.s V_13
+IL_0145: brfalse IL_0150
+IL_014a: ldloc.s V_6
+IL_014c: stloc.2 
+IL_014d: ldloc.s V_12
+IL_014f: stloc.3 
+IL_0150: ldloc.s V_5
+IL_0152: ldc.i4.1 
+IL_0153: add 
+IL_0154: stloc.s V_5
+IL_0156: ldloc.s V_5
+IL_0158: ldloc.s V_4
+IL_015a: ldfld System.Int32 FastList`1<System.UInt16>::m_size
+IL_015f: blt IL_002d
+IL_0164: ldarg.1 
+IL_0165: ldc.i4.0 
+IL_0166: stind.i4 
+IL_0167: ldarg.2 
+IL_0168: ldc.i4.0 
+IL_0169: stind.i1 
+IL_016a: ldloc.2 
+IL_016b: brfalse IL_01ba
+IL_0170: ldloc.0 
+IL_0171: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0176: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_017b: ldloc.2 
+IL_017c: ldelema NetSegment
+IL_0181: ldloc.1 
+IL_0182: ldc.i4.1 
+IL_0183: ldc.i4.8 
+IL_0184: ldc.i4.m1 
+IL_0185: conv.i8 
+IL_0186: ldloca.s V_17
+IL_0188: ldarg.1 
+IL_0189: ldloca.s V_18
+IL_018b: ldloca.s V_19
+IL_018d: call System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+IL_0192: brfalse IL_01ba
+IL_0197: ldarg.2 
+IL_0198: ldloc.s V_19
+IL_019a: ldc.r4 255
+IL_019f: mul 
+IL_01a0: call System.Int32 UnityEngine.Mathf::RoundToInt(System.Single)
+IL_01a5: ldc.i4.0 
+IL_01a6: ldc.i4 255
+IL_01ab: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+IL_01b0: conv.u1 
+IL_01b1: stind.i1 
+IL_01b2: ldarg.0 
+IL_01b3: ldloc.s V_17
+IL_01b5: stobj UnityEngine.Vector3
+IL_01ba: ldarg.1 
+IL_01bb: ldind.u4 
+IL_01bc: ldc.i4.0 
+IL_01bd: ceq 
+IL_01bf: ldc.i4.0 
+IL_01c0: ceq 
+IL_01c2: ret 
+
+================== ShipDockAI.FindFerryPath ==================
+Method: System.Boolean ShipDockAI::FindFerryPath(UnityEngine.Vector3&,System.UInt32&,System.Byte&)
+IL_0000: ldarg.0 
+IL_0001: ldobj UnityEngine.Vector3
+IL_0006: ldc.i4.s 12
+IL_0008: ldc.i4.1 
+IL_0009: ldc.i4 1024
+IL_000e: ldc.i4.m1 
+IL_000f: conv.i8 
+IL_0010: ldc.i4.0 
+IL_0011: ldc.i4.1 
+IL_0012: ldc.r4 32
+IL_0017: ldc.i4.0 
+IL_0018: ldc.i4.0 
+IL_0019: ldloca.s V_0
+IL_001b: ldloca.s V_1
+IL_001d: ldloca.s V_2
+IL_001f: ldloca.s V_3
+IL_0021: call System.Boolean PathManager::FindPathPosition(UnityEngine.Vector3,ItemClass/Service,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Boolean,System.Boolean,System.Single,System.Boolean,System.Boolean,PathUnit/Position&,PathUnit/Position&,System.Single&,System.Single&)
+IL_0026: brfalse IL_003e
+IL_002b: ldarg.1 
+IL_002c: ldloc.0 
+IL_002d: call System.UInt32 PathManager::GetLaneID(PathUnit/Position)
+IL_0032: stind.i4 
+IL_0033: ldarg.2 
+IL_0034: ldloca.s V_0
+IL_0036: ldfld System.Byte PathUnit/Position::m_offset
+IL_003b: stind.i1 
+IL_003c: ldc.i4.1 
+IL_003d: ret 
+IL_003e: ldarg.1 
+IL_003f: ldc.i4.0 
+IL_0040: stind.i4 
+IL_0041: ldarg.2 
+IL_0042: ldc.i4.0 
+IL_0043: stind.i1 
+IL_0044: ldc.i4.0 
+IL_0045: ret 

@@ -1,0 +1,938 @@
+Method: System.Void TransportTool::SimulationStep()
+IL_0000: ldarg.0 
+IL_0001: ldfld TransportInfo TransportTool::m_prefab
+IL_0006: stloc.0 
+IL_0007: ldloc.0 
+IL_0008: brtrue IL_000e
+IL_000d: ret 
+IL_000e: ldarg.0 
+IL_000f: ldfld System.UInt16 TransportTool::m_line
+IL_0014: brfalse IL_006b
+IL_0019: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_001e: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0023: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0028: ldarg.0 
+IL_0029: ldfld System.UInt16 TransportTool::m_line
+IL_002e: ldelema TransportLine
+IL_0033: ldfld TransportLine/Flags TransportLine::m_flags
+IL_0038: ldc.i4.3 
+IL_0039: and 
+IL_003a: ldc.i4.1 
+IL_003b: bne.un IL_0065
+IL_0040: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_0045: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_004a: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_004f: ldarg.0 
+IL_0050: ldfld System.UInt16 TransportTool::m_line
+IL_0055: ldelema TransportLine
+IL_005a: call TransportInfo TransportLine::get_Info()
+IL_005f: ldloc.0 
+IL_0060: beq IL_006b
+IL_0065: ldarg.0 
+IL_0066: call System.Void TransportTool::ResetTool()
+IL_006b: ldc.i4.0 
+IL_006c: conv.i8 
+IL_006d: stloc.1 
+IL_006e: ldarg.0 
+IL_006f: ldfld TransportTool/Mode TransportTool::m_mode
+IL_0074: stloc.2 
+IL_0075: ldloc.2 
+IL_0076: switch Mono.Cecil.Cil.Instruction[]
+IL_0087: br IL_0ad7
+IL_008c: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0091: stloc.3 
+IL_0092: ldc.i4.0 
+IL_0093: stloc.s V_4
+IL_0095: ldc.i4.m1 
+IL_0096: stloc.s V_5
+IL_0098: ldc.i4.m1 
+IL_0099: stloc.s V_6
+IL_009b: ldc.i4.0 
+IL_009c: stloc.s V_7
+IL_009e: ldarg.0 
+IL_009f: ldfld System.Boolean TransportTool::m_mouseRayValid
+IL_00a4: brfalse IL_00d8
+IL_00a9: ldc.i4.1 
+IL_00aa: ldloc.0 
+IL_00ab: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_00b0: ldc.i4.s 31
+IL_00b2: and 
+IL_00b3: shl 
+IL_00b4: stloc.s V_8
+IL_00b6: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_00bb: ldarg.0 
+IL_00bc: ldfld UnityEngine.Ray TransportTool::m_mouseRay
+IL_00c1: ldarg.0 
+IL_00c2: ldfld System.Single TransportTool::m_mouseRayLength
+IL_00c7: ldloc.s V_8
+IL_00c9: ldloca.s V_3
+IL_00cb: ldloca.s V_4
+IL_00cd: ldloca.s V_5
+IL_00cf: ldloca.s V_6
+IL_00d1: callvirt System.Boolean TransportManager::RayCast(UnityEngine.Ray,System.Single,System.Int32,UnityEngine.Vector3&,System.UInt16&,System.Int32&,System.Int32&)
+IL_00d6: stloc.s V_7
+IL_00d8: ldloc.s V_7
+IL_00da: brfalse IL_01b0
+IL_00df: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_00e4: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_00e9: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_00ee: ldloc.s V_4
+IL_00f0: ldelema TransportLine
+IL_00f5: call TransportInfo TransportLine::get_Info()
+IL_00fa: stloc.s V_9
+IL_00fc: ldloc.s V_9
+IL_00fe: ldloc.0 
+IL_00ff: bne.un IL_01ad
+IL_0104: ldarg.0 
+IL_0105: ldfld System.Int32 TransportTool::m_building
+IL_010a: brfalse IL_0119
+IL_010f: ldloc.s V_5
+IL_0111: ldc.i4.0 
+IL_0112: ceq 
+IL_0114: ldc.i4.0 
+IL_0115: ceq 
+IL_0117: br.s IL_011a
+IL_0119: ldc.i4.1 
+IL_011a: stloc.s V_10
+IL_011c: ldloc.s V_10
+IL_011e: brfalse IL_0134
+IL_0123: ldarg.0 
+IL_0124: ldloc.0 
+IL_0125: ldloc.s V_4
+IL_0127: ldc.i4.s -2
+IL_0129: ldc.i4.s -2
+IL_012b: ldloc.3 
+IL_012c: ldc.i4.0 
+IL_012d: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0132: stloc.s V_10
+IL_0134: ldloc.s V_10
+IL_0136: brfalse IL_0182
+IL_013b: ldarg.0 
+IL_013c: ldloc.3 
+IL_013d: stfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_0142: ldarg.0 
+IL_0143: ldc.i4.0 
+IL_0144: stfld System.Boolean TransportTool::m_fixedPlatform
+IL_0149: ldarg.0 
+IL_014a: ldloc.s V_5
+IL_014c: stfld System.Int32 TransportTool::m_hoverStopIndex
+IL_0151: ldarg.0 
+IL_0152: ldloc.s V_6
+IL_0154: stfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0159: ldarg.0 
+IL_015a: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_015f: ldc.i4.m1 
+IL_0160: beq IL_017d
+IL_0165: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_016a: callvirt System.Boolean NetManager::CheckLimits()
+IL_016f: brtrue IL_017d
+IL_0174: ldloc.1 
+IL_0175: ldc.i4 4194304
+IL_017a: conv.i8 
+IL_017b: or 
+IL_017c: stloc.1 
+IL_017d: br IL_01a8
+IL_0182: ldarg.0 
+IL_0183: ldloc.0 
+IL_0184: ldc.i4.0 
+IL_0185: ldc.i4.s -2
+IL_0187: ldc.i4.s -2
+IL_0189: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_018e: ldc.i4.0 
+IL_018f: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0194: pop 
+IL_0195: ldarg.0 
+IL_0196: ldc.i4.m1 
+IL_0197: stfld System.Int32 TransportTool::m_hoverStopIndex
+IL_019c: ldarg.0 
+IL_019d: ldc.i4.m1 
+IL_019e: stfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_01a3: ldloc.1 
+IL_01a4: ldc.i4.1 
+IL_01a5: conv.i8 
+IL_01a6: or 
+IL_01a7: stloc.1 
+IL_01a8: br IL_01b0
+IL_01ad: ldc.i4.0 
+IL_01ae: stloc.s V_7
+IL_01b0: ldloc.s V_7
+IL_01b2: brtrue IL_037e
+IL_01b7: ldloca.s V_11
+IL_01b9: ldarg.0 
+IL_01ba: ldfld UnityEngine.Ray TransportTool::m_mouseRay
+IL_01bf: ldarg.0 
+IL_01c0: ldfld System.Single TransportTool::m_mouseRayLength
+IL_01c5: call System.Void ToolBase/RaycastInput::.ctor(UnityEngine.Ray,System.Single)
+IL_01ca: ldloca.s V_11
+IL_01cc: ldloc.0 
+IL_01cd: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_01d2: ldloc.0 
+IL_01d3: ldfld ItemClass/SubService TransportInfo::m_stationSubService
+IL_01d8: ldloc.0 
+IL_01d9: ldfld ItemClass/Layer TransportInfo::m_stationLayer
+IL_01de: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_01e3: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_buildingService
+IL_01e8: ldloca.s V_11
+IL_01ea: ldloc.0 
+IL_01eb: ldfld ItemClass/Service TransportInfo::m_netService
+IL_01f0: ldloc.0 
+IL_01f1: ldfld ItemClass/SubService TransportInfo::m_netSubService
+IL_01f6: ldloc.0 
+IL_01f7: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_01fc: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_0201: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService
+IL_0206: ldloca.s V_11
+IL_0208: ldloc.0 
+IL_0209: ldfld ItemClass/Service TransportInfo::m_secondaryNetService
+IL_020e: ldloc.0 
+IL_020f: ldfld ItemClass/SubService TransportInfo::m_secondaryNetSubService
+IL_0214: ldloc.0 
+IL_0215: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_021a: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_021f: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService2
+IL_0224: ldloca.s V_11
+IL_0226: ldc.i4.1 
+IL_0227: stfld System.Boolean ToolBase/RaycastInput::m_ignoreTerrain
+IL_022c: ldloca.s V_11
+IL_022e: ldloc.0 
+IL_022f: ldfld ItemClass/Service TransportInfo::m_netService
+IL_0234: brfalse IL_023f
+IL_0239: ldc.i4.0 
+IL_023a: br IL_0240
+IL_023f: ldc.i4.m1 
+IL_0240: stfld NetSegment/Flags ToolBase/RaycastInput::m_ignoreSegmentFlags
+IL_0245: ldloca.s V_11
+IL_0247: ldloc.0 
+IL_0248: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_024d: brtrue IL_025f
+IL_0252: ldloc.0 
+IL_0253: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_0258: ldc.i4.s 10
+IL_025a: bne.un IL_0265
+IL_025f: ldc.i4.0 
+IL_0260: br IL_0266
+IL_0265: ldc.i4.m1 
+IL_0266: stfld Building/Flags ToolBase/RaycastInput::m_ignoreBuildingFlags
+IL_026b: ldloca.s V_12
+IL_026d: initobj ToolBase/RaycastOutput
+IL_0273: ldc.i4.0 
+IL_0274: stloc.s V_13
+IL_0276: ldarg.0 
+IL_0277: ldfld System.Boolean TransportTool::m_mouseRayValid
+IL_027c: brfalse IL_0297
+IL_0281: ldarg.0 
+IL_0282: ldfld System.Int32 TransportTool::m_building
+IL_0287: brtrue IL_0297
+IL_028c: ldloc.s V_11
+IL_028e: ldloca.s V_12
+IL_0290: call System.Boolean ToolBase::RayCast(ToolBase/RaycastInput,ToolBase/RaycastOutput&)
+IL_0295: stloc.s V_13
+IL_0297: ldc.i4.0 
+IL_0298: stloc.s V_14
+IL_029a: ldloc.s V_13
+IL_029c: brfalse IL_02c2
+IL_02a1: ldarg.0 
+IL_02a2: ldloc.0 
+IL_02a3: ldloca.s V_12
+IL_02a5: ldfld System.UInt16 ToolBase/RaycastOutput::m_netSegment
+IL_02aa: ldloca.s V_12
+IL_02ac: ldfld System.UInt16 ToolBase/RaycastOutput::m_building
+IL_02b1: ldc.i4.0 
+IL_02b2: ldloca.s V_12
+IL_02b4: ldflda UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_02b9: ldloca.s V_14
+IL_02bb: call System.Boolean TransportTool::GetStopPosition(TransportInfo,System.UInt16,System.UInt16,System.UInt16,UnityEngine.Vector3&,System.Boolean&)
+IL_02c0: stloc.s V_13
+IL_02c2: ldloc.s V_13
+IL_02c4: brfalse IL_02db
+IL_02c9: ldarg.0 
+IL_02ca: ldloc.0 
+IL_02cb: ldc.i4.0 
+IL_02cc: ldc.i4.m1 
+IL_02cd: ldloca.s V_12
+IL_02cf: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_02d4: call System.Boolean TransportTool::CanAddStop(TransportInfo,System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_02d9: stloc.s V_13
+IL_02db: ldloc.s V_13
+IL_02dd: brfalse IL_02f8
+IL_02e2: ldarg.0 
+IL_02e3: ldloc.0 
+IL_02e4: ldc.i4.0 
+IL_02e5: ldc.i4.s -2
+IL_02e7: ldc.i4.m1 
+IL_02e8: ldloca.s V_12
+IL_02ea: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_02ef: ldloc.s V_14
+IL_02f1: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_02f6: stloc.s V_13
+IL_02f8: ldloc.s V_13
+IL_02fa: brfalse IL_0357
+IL_02ff: ldarg.0 
+IL_0300: ldloca.s V_12
+IL_0302: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_0307: stfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_030c: ldarg.0 
+IL_030d: ldloc.s V_14
+IL_030f: stfld System.Boolean TransportTool::m_fixedPlatform
+IL_0314: ldarg.0 
+IL_0315: ldc.i4.m1 
+IL_0316: stfld System.Int32 TransportTool::m_hoverStopIndex
+IL_031b: ldarg.0 
+IL_031c: ldc.i4.m1 
+IL_031d: stfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0322: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0327: callvirt System.Boolean NetManager::CheckLimits()
+IL_032c: brtrue IL_033a
+IL_0331: ldloc.1 
+IL_0332: ldc.i4 4194304
+IL_0337: conv.i8 
+IL_0338: or 
+IL_0339: stloc.1 
+IL_033a: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_033f: callvirt System.Boolean TransportManager::CheckLimits()
+IL_0344: brtrue IL_0352
+IL_0349: ldloc.1 
+IL_034a: ldc.i4 4194304
+IL_034f: conv.i8 
+IL_0350: or 
+IL_0351: stloc.1 
+IL_0352: br IL_037e
+IL_0357: ldarg.0 
+IL_0358: ldloc.0 
+IL_0359: ldc.i4.0 
+IL_035a: ldc.i4.s -2
+IL_035c: ldc.i4.s -2
+IL_035e: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0363: ldloc.s V_14
+IL_0365: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_036a: pop 
+IL_036b: ldarg.0 
+IL_036c: ldc.i4.m1 
+IL_036d: stfld System.Int32 TransportTool::m_hoverStopIndex
+IL_0372: ldarg.0 
+IL_0373: ldc.i4.m1 
+IL_0374: stfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0379: ldloc.1 
+IL_037a: ldc.i4.1 
+IL_037b: conv.i8 
+IL_037c: or 
+IL_037d: stloc.1 
+IL_037e: br IL_0ae1
+IL_0383: ldarg.0 
+IL_0384: ldfld System.UInt16 TransportTool::m_line
+IL_0389: brtrue IL_039f
+IL_038e: ldarg.0 
+IL_038f: ldc.i4.0 
+IL_0390: stfld TransportTool/Mode TransportTool::m_mode
+IL_0395: ldloc.1 
+IL_0396: ldc.i4.1 
+IL_0397: conv.i8 
+IL_0398: or 
+IL_0399: stloc.1 
+IL_039a: br IL_067d
+IL_039f: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_03a4: stloc.s V_15
+IL_03a6: ldloca.s V_16
+IL_03a8: ldarg.0 
+IL_03a9: ldfld UnityEngine.Ray TransportTool::m_mouseRay
+IL_03ae: ldarg.0 
+IL_03af: ldfld System.Single TransportTool::m_mouseRayLength
+IL_03b4: call System.Void ToolBase/RaycastInput::.ctor(UnityEngine.Ray,System.Single)
+IL_03b9: ldloca.s V_16
+IL_03bb: ldloc.0 
+IL_03bc: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_03c1: ldloc.0 
+IL_03c2: ldfld ItemClass/SubService TransportInfo::m_stationSubService
+IL_03c7: ldloc.0 
+IL_03c8: ldfld ItemClass/Layer TransportInfo::m_stationLayer
+IL_03cd: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_03d2: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_buildingService
+IL_03d7: ldloca.s V_16
+IL_03d9: ldloc.0 
+IL_03da: ldfld ItemClass/Service TransportInfo::m_netService
+IL_03df: ldloc.0 
+IL_03e0: ldfld ItemClass/SubService TransportInfo::m_netSubService
+IL_03e5: ldloc.0 
+IL_03e6: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_03eb: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_03f0: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService
+IL_03f5: ldloca.s V_16
+IL_03f7: ldloc.0 
+IL_03f8: ldfld ItemClass/Service TransportInfo::m_secondaryNetService
+IL_03fd: ldloc.0 
+IL_03fe: ldfld ItemClass/SubService TransportInfo::m_secondaryNetSubService
+IL_0403: ldloc.0 
+IL_0404: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_0409: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_040e: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService2
+IL_0413: ldloca.s V_16
+IL_0415: ldc.i4.1 
+IL_0416: stfld System.Boolean ToolBase/RaycastInput::m_ignoreTerrain
+IL_041b: ldloca.s V_16
+IL_041d: ldloc.0 
+IL_041e: ldfld ItemClass/Service TransportInfo::m_netService
+IL_0423: brfalse IL_042e
+IL_0428: ldc.i4.0 
+IL_0429: br IL_042f
+IL_042e: ldc.i4.m1 
+IL_042f: stfld NetSegment/Flags ToolBase/RaycastInput::m_ignoreSegmentFlags
+IL_0434: ldloca.s V_16
+IL_0436: ldloc.0 
+IL_0437: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_043c: brtrue IL_044e
+IL_0441: ldloc.0 
+IL_0442: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_0447: ldc.i4.s 10
+IL_0449: bne.un IL_0454
+IL_044e: ldc.i4.0 
+IL_044f: br IL_0455
+IL_0454: ldc.i4.m1 
+IL_0455: stfld Building/Flags ToolBase/RaycastInput::m_ignoreBuildingFlags
+IL_045a: ldloca.s V_17
+IL_045c: initobj ToolBase/RaycastOutput
+IL_0462: ldc.i4.0 
+IL_0463: stloc.s V_18
+IL_0465: ldarg.0 
+IL_0466: ldfld System.Boolean TransportTool::m_mouseRayValid
+IL_046b: brfalse IL_047b
+IL_0470: ldloc.s V_16
+IL_0472: ldloca.s V_17
+IL_0474: call System.Boolean ToolBase::RayCast(ToolBase/RaycastInput,ToolBase/RaycastOutput&)
+IL_0479: stloc.s V_18
+IL_047b: ldc.i4.0 
+IL_047c: stloc.s V_19
+IL_047e: ldloc.s V_18
+IL_0480: brfalse IL_04f4
+IL_0485: ldc.i4.0 
+IL_0486: stloc.s V_20
+IL_0488: ldarg.0 
+IL_0489: ldfld System.UInt16 TransportTool::m_line
+IL_048e: brfalse IL_04d2
+IL_0493: ldloc.s V_15
+IL_0495: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_049a: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_049f: ldarg.0 
+IL_04a0: ldfld System.UInt16 TransportTool::m_line
+IL_04a5: ldelema TransportLine
+IL_04aa: call System.Boolean TransportLine::get_Complete()
+IL_04af: brtrue IL_04d2
+IL_04b4: ldloc.s V_15
+IL_04b6: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_04bb: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_04c0: ldarg.0 
+IL_04c1: ldfld System.UInt16 TransportTool::m_line
+IL_04c6: ldelema TransportLine
+IL_04cb: ldfld System.UInt16 TransportLine::m_stops
+IL_04d0: stloc.s V_20
+IL_04d2: ldarg.0 
+IL_04d3: ldloc.0 
+IL_04d4: ldloca.s V_17
+IL_04d6: ldfld System.UInt16 ToolBase/RaycastOutput::m_netSegment
+IL_04db: ldloca.s V_17
+IL_04dd: ldfld System.UInt16 ToolBase/RaycastOutput::m_building
+IL_04e2: ldloc.s V_20
+IL_04e4: ldloca.s V_17
+IL_04e6: ldflda UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_04eb: ldloca.s V_19
+IL_04ed: call System.Boolean TransportTool::GetStopPosition(TransportInfo,System.UInt16,System.UInt16,System.UInt16,UnityEngine.Vector3&,System.Boolean&)
+IL_04f2: stloc.s V_18
+IL_04f4: ldloc.s V_18
+IL_04f6: brfalse IL_0512
+IL_04fb: ldarg.0 
+IL_04fc: ldloc.0 
+IL_04fd: ldarg.0 
+IL_04fe: ldfld System.UInt16 TransportTool::m_line
+IL_0503: ldc.i4.m1 
+IL_0504: ldloca.s V_17
+IL_0506: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_050b: call System.Boolean TransportTool::CanAddStop(TransportInfo,System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_0510: stloc.s V_18
+IL_0512: ldloc.s V_18
+IL_0514: brfalse IL_0534
+IL_0519: ldarg.0 
+IL_051a: ldloc.0 
+IL_051b: ldarg.0 
+IL_051c: ldfld System.UInt16 TransportTool::m_line
+IL_0521: ldc.i4.s -2
+IL_0523: ldc.i4.m1 
+IL_0524: ldloca.s V_17
+IL_0526: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_052b: ldloc.s V_19
+IL_052d: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0532: stloc.s V_18
+IL_0534: ldloc.s V_18
+IL_0536: brfalse IL_065f
+IL_053b: ldarg.0 
+IL_053c: ldloca.s V_17
+IL_053e: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_0543: stfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_0548: ldarg.0 
+IL_0549: ldloc.s V_19
+IL_054b: stfld System.Boolean TransportTool::m_fixedPlatform
+IL_0550: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0555: callvirt System.Boolean NetManager::CheckLimits()
+IL_055a: brtrue IL_0568
+IL_055f: ldloc.1 
+IL_0560: ldc.i4 4194304
+IL_0565: conv.i8 
+IL_0566: or 
+IL_0567: stloc.1 
+IL_0568: ldloc.s V_15
+IL_056a: callvirt System.Void TransportManager::UpdateLinesNow()
+IL_056f: ldarg.0 
+IL_0570: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0575: brfalse IL_065a
+IL_057a: ldloc.s V_15
+IL_057c: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0581: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0586: ldarg.0 
+IL_0587: ldfld System.UInt16 TransportTool::m_tempLine
+IL_058c: ldelema TransportLine
+IL_0591: ldc.i4.m1 
+IL_0592: ldloca.s V_21
+IL_0594: call System.Boolean TransportLine::CheckPrevPath(System.Int32,System.Boolean&)
+IL_0599: brfalse IL_05ae
+IL_059e: ldloc.s V_21
+IL_05a0: brfalse IL_05ae
+IL_05a5: ldloc.1 
+IL_05a6: ldc.i4 16777216
+IL_05ab: conv.i8 
+IL_05ac: or 
+IL_05ad: stloc.1 
+IL_05ae: ldloc.1 
+IL_05af: ldc.i4.0 
+IL_05b0: conv.i8 
+IL_05b1: bne.un IL_065a
+IL_05b6: ldloc.s V_15
+IL_05b8: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_05bd: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_05c2: ldarg.0 
+IL_05c3: ldfld System.UInt16 TransportTool::m_tempLine
+IL_05c8: ldelema TransportLine
+IL_05cd: ldarg.0 
+IL_05ce: ldfld System.UInt16 TransportTool::m_tempLine
+IL_05d3: call System.Boolean TransportLine::UpdatePaths(System.UInt16)
+IL_05d8: brfalse IL_0655
+IL_05dd: ldloc.s V_15
+IL_05df: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_05e4: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_05e9: ldarg.0 
+IL_05ea: ldfld System.UInt16 TransportTool::m_tempLine
+IL_05ef: ldelema TransportLine
+IL_05f4: ldfld System.UInt16 TransportLine::m_stops
+IL_05f9: stloc.s V_22
+IL_05fb: ldloc.s V_22
+IL_05fd: brfalse IL_0650
+IL_0602: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0607: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_060c: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0611: ldloc.s V_22
+IL_0613: ldelema NetNode
+IL_0618: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_061d: stloc.s V_23
+IL_061f: ldloc.s V_23
+IL_0621: ldc.i8 4611687117939015680
+IL_062a: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/Problem1)
+IL_062f: ldc.i8 4611687117939015680
+IL_0638: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+IL_063d: call System.Boolean Notification/ProblemStruct::op_Equality(Notification/ProblemStruct,Notification/ProblemStruct)
+IL_0642: brfalse IL_0650
+IL_0647: ldloc.1 
+IL_0648: ldc.i4 -2147483648
+IL_064d: conv.u8 
+IL_064e: or 
+IL_064f: stloc.1 
+IL_0650: br IL_065a
+IL_0655: ldloc.1 
+IL_0656: ldc.i4.2 
+IL_0657: conv.i8 
+IL_0658: or 
+IL_0659: stloc.1 
+IL_065a: br IL_067d
+IL_065f: ldarg.0 
+IL_0660: ldloc.0 
+IL_0661: ldarg.0 
+IL_0662: ldfld System.UInt16 TransportTool::m_line
+IL_0667: ldc.i4.s -2
+IL_0669: ldc.i4.s -2
+IL_066b: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0670: ldloc.s V_19
+IL_0672: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0677: pop 
+IL_0678: ldloc.1 
+IL_0679: ldc.i4.1 
+IL_067a: conv.i8 
+IL_067b: or 
+IL_067c: stloc.1 
+IL_067d: br IL_0ae1
+IL_0682: ldarg.0 
+IL_0683: ldfld System.UInt16 TransportTool::m_line
+IL_0688: brtrue IL_069e
+IL_068d: ldarg.0 
+IL_068e: ldc.i4.0 
+IL_068f: stfld TransportTool/Mode TransportTool::m_mode
+IL_0694: ldloc.1 
+IL_0695: ldc.i4.1 
+IL_0696: conv.i8 
+IL_0697: or 
+IL_0698: stloc.1 
+IL_0699: br IL_0ad2
+IL_069e: ldloca.s V_24
+IL_06a0: ldarg.0 
+IL_06a1: ldfld UnityEngine.Ray TransportTool::m_mouseRay
+IL_06a6: ldarg.0 
+IL_06a7: ldfld System.Single TransportTool::m_mouseRayLength
+IL_06ac: call System.Void ToolBase/RaycastInput::.ctor(UnityEngine.Ray,System.Single)
+IL_06b1: ldloca.s V_24
+IL_06b3: ldloc.0 
+IL_06b4: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_06b9: ldloc.0 
+IL_06ba: ldfld ItemClass/SubService TransportInfo::m_stationSubService
+IL_06bf: ldloc.0 
+IL_06c0: ldfld ItemClass/Layer TransportInfo::m_stationLayer
+IL_06c5: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_06ca: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_buildingService
+IL_06cf: ldloca.s V_24
+IL_06d1: ldloc.0 
+IL_06d2: ldfld ItemClass/Service TransportInfo::m_netService
+IL_06d7: ldloc.0 
+IL_06d8: ldfld ItemClass/SubService TransportInfo::m_netSubService
+IL_06dd: ldloc.0 
+IL_06de: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_06e3: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_06e8: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService
+IL_06ed: ldloca.s V_24
+IL_06ef: ldloc.0 
+IL_06f0: ldfld ItemClass/Service TransportInfo::m_secondaryNetService
+IL_06f5: ldloc.0 
+IL_06f6: ldfld ItemClass/SubService TransportInfo::m_secondaryNetSubService
+IL_06fb: ldloc.0 
+IL_06fc: ldfld ItemClass/Layer TransportInfo::m_netLayer
+IL_0701: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+IL_0706: stfld ToolBase/RaycastService ToolBase/RaycastInput::m_netService2
+IL_070b: ldloca.s V_24
+IL_070d: ldc.i4.1 
+IL_070e: stfld System.Boolean ToolBase/RaycastInput::m_ignoreTerrain
+IL_0713: ldloca.s V_24
+IL_0715: ldloc.0 
+IL_0716: ldfld ItemClass/Service TransportInfo::m_netService
+IL_071b: brfalse IL_0726
+IL_0720: ldc.i4.0 
+IL_0721: br IL_0727
+IL_0726: ldc.i4.m1 
+IL_0727: stfld NetSegment/Flags ToolBase/RaycastInput::m_ignoreSegmentFlags
+IL_072c: ldloca.s V_24
+IL_072e: ldloc.0 
+IL_072f: ldfld ItemClass/Service TransportInfo::m_stationService
+IL_0734: brtrue IL_0746
+IL_0739: ldloc.0 
+IL_073a: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+IL_073f: ldc.i4.s 10
+IL_0741: bne.un IL_074c
+IL_0746: ldc.i4.0 
+IL_0747: br IL_074d
+IL_074c: ldc.i4.m1 
+IL_074d: stfld Building/Flags ToolBase/RaycastInput::m_ignoreBuildingFlags
+IL_0752: ldloca.s V_25
+IL_0754: initobj ToolBase/RaycastOutput
+IL_075a: ldc.i4.0 
+IL_075b: stloc.s V_26
+IL_075d: ldarg.0 
+IL_075e: ldfld System.Boolean TransportTool::m_mouseRayValid
+IL_0763: brfalse IL_0773
+IL_0768: ldloc.s V_24
+IL_076a: ldloca.s V_25
+IL_076c: call System.Boolean ToolBase::RayCast(ToolBase/RaycastInput,ToolBase/RaycastOutput&)
+IL_0771: stloc.s V_26
+IL_0773: ldc.i4.0 
+IL_0774: stloc.s V_27
+IL_0776: ldloc.s V_26
+IL_0778: brfalse IL_079e
+IL_077d: ldarg.0 
+IL_077e: ldloc.0 
+IL_077f: ldloca.s V_25
+IL_0781: ldfld System.UInt16 ToolBase/RaycastOutput::m_netSegment
+IL_0786: ldloca.s V_25
+IL_0788: ldfld System.UInt16 ToolBase/RaycastOutput::m_building
+IL_078d: ldc.i4.0 
+IL_078e: ldloca.s V_25
+IL_0790: ldflda UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_0795: ldloca.s V_27
+IL_0797: call System.Boolean TransportTool::GetStopPosition(TransportInfo,System.UInt16,System.UInt16,System.UInt16,UnityEngine.Vector3&,System.Boolean&)
+IL_079c: stloc.s V_26
+IL_079e: ldarg.0 
+IL_079f: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_07a4: ldc.i4.m1 
+IL_07a5: beq IL_07f9
+IL_07aa: ldloc.s V_26
+IL_07ac: brfalse IL_07cd
+IL_07b1: ldarg.0 
+IL_07b2: ldloc.0 
+IL_07b3: ldarg.0 
+IL_07b4: ldfld System.UInt16 TransportTool::m_line
+IL_07b9: ldarg.0 
+IL_07ba: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_07bf: ldloca.s V_25
+IL_07c1: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_07c6: call System.Boolean TransportTool::CanMoveStop(TransportInfo,System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_07cb: stloc.s V_26
+IL_07cd: ldloc.s V_26
+IL_07cf: brfalse IL_07f4
+IL_07d4: ldarg.0 
+IL_07d5: ldloc.0 
+IL_07d6: ldarg.0 
+IL_07d7: ldfld System.UInt16 TransportTool::m_line
+IL_07dc: ldarg.0 
+IL_07dd: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_07e2: ldc.i4.s -2
+IL_07e4: ldloca.s V_25
+IL_07e6: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_07eb: ldloc.s V_27
+IL_07ed: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_07f2: stloc.s V_26
+IL_07f4: br IL_0853
+IL_07f9: ldarg.0 
+IL_07fa: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_07ff: ldc.i4.m1 
+IL_0800: beq IL_0853
+IL_0805: ldloc.s V_26
+IL_0807: brfalse IL_082a
+IL_080c: ldarg.0 
+IL_080d: ldloc.0 
+IL_080e: ldarg.0 
+IL_080f: ldfld System.UInt16 TransportTool::m_line
+IL_0814: ldarg.0 
+IL_0815: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_081a: ldc.i4.1 
+IL_081b: add 
+IL_081c: ldloca.s V_25
+IL_081e: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_0823: call System.Boolean TransportTool::CanAddStop(TransportInfo,System.UInt16,System.Int32,UnityEngine.Vector3)
+IL_0828: stloc.s V_26
+IL_082a: ldloc.s V_26
+IL_082c: brfalse IL_0853
+IL_0831: ldarg.0 
+IL_0832: ldloc.0 
+IL_0833: ldarg.0 
+IL_0834: ldfld System.UInt16 TransportTool::m_line
+IL_0839: ldc.i4.s -2
+IL_083b: ldarg.0 
+IL_083c: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0841: ldc.i4.1 
+IL_0842: add 
+IL_0843: ldloca.s V_25
+IL_0845: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_084a: ldloc.s V_27
+IL_084c: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0851: stloc.s V_26
+IL_0853: ldloc.s V_26
+IL_0855: brfalse IL_0ab4
+IL_085a: ldarg.0 
+IL_085b: ldloca.s V_25
+IL_085d: ldfld UnityEngine.Vector3 ToolBase/RaycastOutput::m_hitPos
+IL_0862: stfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_0867: ldarg.0 
+IL_0868: ldloc.s V_27
+IL_086a: stfld System.Boolean TransportTool::m_fixedPlatform
+IL_086f: ldarg.0 
+IL_0870: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0875: ldc.i4.m1 
+IL_0876: beq IL_0893
+IL_087b: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0880: callvirt System.Boolean NetManager::CheckLimits()
+IL_0885: brtrue IL_0893
+IL_088a: ldloc.1 
+IL_088b: ldc.i4 4194304
+IL_0890: conv.i8 
+IL_0891: or 
+IL_0892: stloc.1 
+IL_0893: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_0898: stloc.s V_28
+IL_089a: ldloc.s V_28
+IL_089c: callvirt System.Void TransportManager::UpdateLinesNow()
+IL_08a1: ldarg.0 
+IL_08a2: ldfld System.UInt16 TransportTool::m_tempLine
+IL_08a7: brfalse IL_0aaf
+IL_08ac: ldarg.0 
+IL_08ad: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_08b2: ldc.i4.m1 
+IL_08b3: beq IL_0981
+IL_08b8: ldloc.s V_28
+IL_08ba: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_08bf: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_08c4: ldarg.0 
+IL_08c5: ldfld System.UInt16 TransportTool::m_tempLine
+IL_08ca: ldelema TransportLine
+IL_08cf: ldarg.0 
+IL_08d0: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_08d5: ldloca.s V_29
+IL_08d7: call System.Boolean TransportLine::CheckPrevPath(System.Int32,System.Boolean&)
+IL_08dc: brtrue IL_091a
+IL_08e1: ldloc.s V_29
+IL_08e3: brfalse IL_091a
+IL_08e8: ldloc.s V_28
+IL_08ea: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_08ef: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_08f4: ldarg.0 
+IL_08f5: ldfld System.UInt16 TransportTool::m_line
+IL_08fa: ldelema TransportLine
+IL_08ff: ldarg.0 
+IL_0900: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_0905: ldloca.s V_29
+IL_0907: call System.Boolean TransportLine::CheckPrevPath(System.Int32,System.Boolean&)
+IL_090c: brfalse IL_091a
+IL_0911: ldloc.1 
+IL_0912: ldc.i4 16777216
+IL_0917: conv.i8 
+IL_0918: or 
+IL_0919: stloc.1 
+IL_091a: ldloc.s V_28
+IL_091c: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0921: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0926: ldarg.0 
+IL_0927: ldfld System.UInt16 TransportTool::m_tempLine
+IL_092c: ldelema TransportLine
+IL_0931: ldarg.0 
+IL_0932: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_0937: ldloca.s V_29
+IL_0939: call System.Boolean TransportLine::CheckNextPath(System.Int32,System.Boolean&)
+IL_093e: brtrue IL_097c
+IL_0943: ldloc.s V_29
+IL_0945: brfalse IL_097c
+IL_094a: ldloc.s V_28
+IL_094c: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0951: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0956: ldarg.0 
+IL_0957: ldfld System.UInt16 TransportTool::m_line
+IL_095c: ldelema TransportLine
+IL_0961: ldarg.0 
+IL_0962: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_0967: ldloca.s V_29
+IL_0969: call System.Boolean TransportLine::CheckNextPath(System.Int32,System.Boolean&)
+IL_096e: brfalse IL_097c
+IL_0973: ldloc.1 
+IL_0974: ldc.i4 16777216
+IL_0979: conv.i8 
+IL_097a: or 
+IL_097b: stloc.1 
+IL_097c: br IL_0a03
+IL_0981: ldarg.0 
+IL_0982: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_0987: ldc.i4.m1 
+IL_0988: beq IL_0a03
+IL_098d: ldloc.s V_28
+IL_098f: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0994: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0999: ldarg.0 
+IL_099a: ldfld System.UInt16 TransportTool::m_tempLine
+IL_099f: ldelema TransportLine
+IL_09a4: ldarg.0 
+IL_09a5: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_09aa: ldc.i4.1 
+IL_09ab: add 
+IL_09ac: ldloca.s V_29
+IL_09ae: call System.Boolean TransportLine::CheckPrevPath(System.Int32,System.Boolean&)
+IL_09b3: brtrue IL_09c8
+IL_09b8: ldloc.s V_29
+IL_09ba: brfalse IL_09c8
+IL_09bf: ldloc.1 
+IL_09c0: ldc.i4 16777216
+IL_09c5: conv.i8 
+IL_09c6: or 
+IL_09c7: stloc.1 
+IL_09c8: ldloc.s V_28
+IL_09ca: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_09cf: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_09d4: ldarg.0 
+IL_09d5: ldfld System.UInt16 TransportTool::m_tempLine
+IL_09da: ldelema TransportLine
+IL_09df: ldarg.0 
+IL_09e0: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_09e5: ldc.i4.1 
+IL_09e6: add 
+IL_09e7: ldloca.s V_29
+IL_09e9: call System.Boolean TransportLine::CheckNextPath(System.Int32,System.Boolean&)
+IL_09ee: brtrue IL_0a03
+IL_09f3: ldloc.s V_29
+IL_09f5: brfalse IL_0a03
+IL_09fa: ldloc.1 
+IL_09fb: ldc.i4 16777216
+IL_0a00: conv.i8 
+IL_0a01: or 
+IL_0a02: stloc.1 
+IL_0a03: ldloc.1 
+IL_0a04: ldc.i4.0 
+IL_0a05: conv.i8 
+IL_0a06: bne.un IL_0aaf
+IL_0a0b: ldloc.s V_28
+IL_0a0d: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0a12: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0a17: ldarg.0 
+IL_0a18: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0a1d: ldelema TransportLine
+IL_0a22: ldarg.0 
+IL_0a23: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0a28: call System.Boolean TransportLine::UpdatePaths(System.UInt16)
+IL_0a2d: brfalse IL_0aaa
+IL_0a32: ldloc.s V_28
+IL_0a34: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0a39: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0a3e: ldarg.0 
+IL_0a3f: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0a44: ldelema TransportLine
+IL_0a49: ldfld System.UInt16 TransportLine::m_stops
+IL_0a4e: stloc.s V_30
+IL_0a50: ldloc.s V_30
+IL_0a52: brfalse IL_0aa5
+IL_0a57: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0a5c: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0a61: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0a66: ldloc.s V_30
+IL_0a68: ldelema NetNode
+IL_0a6d: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_0a72: stloc.s V_31
+IL_0a74: ldloc.s V_31
+IL_0a76: ldc.i8 4611687117939015680
+IL_0a7f: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/Problem1)
+IL_0a84: ldc.i8 4611687117939015680
+IL_0a8d: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+IL_0a92: call System.Boolean Notification/ProblemStruct::op_Equality(Notification/ProblemStruct,Notification/ProblemStruct)
+IL_0a97: brfalse IL_0aa5
+IL_0a9c: ldloc.1 
+IL_0a9d: ldc.i4 -2147483648
+IL_0aa2: conv.u8 
+IL_0aa3: or 
+IL_0aa4: stloc.1 
+IL_0aa5: br IL_0aaf
+IL_0aaa: ldloc.1 
+IL_0aab: ldc.i4.2 
+IL_0aac: conv.i8 
+IL_0aad: or 
+IL_0aae: stloc.1 
+IL_0aaf: br IL_0ad2
+IL_0ab4: ldarg.0 
+IL_0ab5: ldloc.0 
+IL_0ab6: ldarg.0 
+IL_0ab7: ldfld System.UInt16 TransportTool::m_line
+IL_0abc: ldc.i4.s -2
+IL_0abe: ldc.i4.s -2
+IL_0ac0: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0ac5: ldloc.s V_27
+IL_0ac7: call System.Boolean TransportTool::EnsureTempLine(TransportInfo,System.UInt16,System.Int32,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0acc: pop 
+IL_0acd: ldloc.1 
+IL_0ace: ldc.i4.1 
+IL_0acf: conv.i8 
+IL_0ad0: or 
+IL_0ad1: stloc.1 
+IL_0ad2: br IL_0ae1
+IL_0ad7: ldloc.1 
+IL_0ad8: ldc.i4.1 
+IL_0ad9: conv.i8 
+IL_0ada: or 
+IL_0adb: stloc.1 
+IL_0adc: br IL_0ae1
+IL_0ae1: ldarg.0 
+IL_0ae2: ldloc.1 
+IL_0ae3: stfld ToolBase/ToolErrors TransportTool::m_errors
+IL_0ae8: ret 

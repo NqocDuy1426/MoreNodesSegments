@@ -1,0 +1,392 @@
+Type: TrafficManager.Patch._RoadBaseAI.SetTrafficLightStatePatch (found: True)
+  Method: System.Boolean TrafficManager.Patch._RoadBaseAI.SetTrafficLightStatePatch::Prefix(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState,RoadBaseAI/TrafficLightState,System.Boolean,System.Boolean)
+    IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::timedLightsEnabled
+    IL_000a: brfalse.s IL_0025
+    IL_000c: ldsfld TrafficManager.Manager.Impl.TrafficLightSimulationManager TrafficManager.Manager.Impl.TrafficLightSimulationManager::Instance
+    IL_0011: callvirt TrafficManager.TrafficLight.Impl.TrafficLightSimulation[] TrafficManager.Manager.Impl.TrafficLightSimulationManager::get_TrafficLightSimulations()
+    IL_0016: ldarg.0
+    IL_0017: ldelema TrafficManager.TrafficLight.Impl.TrafficLightSimulation
+    IL_001c: call System.Boolean TrafficManager.TrafficLight.Impl.TrafficLightSimulation::IsSimulationRunning()
+    IL_0021: ldc.i4.0
+    IL_0022: ceq
+    IL_0024: ret
+    IL_0025: ldc.i4.1
+    IL_0026: ret
+  Method: System.Void TrafficManager.Patch._RoadBaseAI.SetTrafficLightStatePatch::.ctor()
+    IL_0000: ldarg.0
+    IL_0001: call System.Void System.Object::.ctor()
+    IL_0006: ret
+Type: TrafficManager.Patch._RoadBaseAI.GetTrafficLightNodeStatePatch (found: True)
+  Method: System.Boolean TrafficManager.Patch._RoadBaseAI.GetTrafficLightNodeStatePatch::Prefix(System.UInt16,NetNode&,System.UInt16,NetSegment&,NetNode/Flags&,UnityEngine.Color&)
+    IL_0000: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    IL_0005: ldfld System.Boolean TrafficManager.State.SavedGameOptions::timedLightsEnabled
+    IL_000a: brfalse.s IL_0023
+    IL_000c: ldsfld TrafficManager.Manager.Impl.TrafficLightSimulationManager TrafficManager.Manager.Impl.TrafficLightSimulationManager::Instance
+    IL_0011: callvirt TrafficManager.TrafficLight.Impl.TrafficLightSimulation[] TrafficManager.Manager.Impl.TrafficLightSimulationManager::get_TrafficLightSimulations()
+    IL_0016: ldarg.0
+    IL_0017: ldelema TrafficManager.TrafficLight.Impl.TrafficLightSimulation
+    IL_001c: call System.Boolean TrafficManager.TrafficLight.Impl.TrafficLightSimulation::IsSimulationRunning()
+    IL_0021: brtrue.s IL_0025
+    IL_0023: ldc.i4.1
+    IL_0024: ret
+    IL_0025: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    IL_002a: ldfld System.UInt32 SimulationManager::m_referenceFrameIndex
+    IL_002f: ldc.i4.s 15
+    IL_0031: sub
+    IL_0032: stloc.0
+    IL_0033: ldarg.0
+    IL_0034: ldc.i4.7
+    IL_0035: shr.un
+    IL_0036: stloc.1
+    IL_0037: ldarg.0
+    IL_0038: ldarg.3
+    IL_0039: ldloc.0
+    IL_003a: ldloc.1
+    IL_003b: sub
+    IL_003c: ldloca.s V_2
+    IL_003e: ldloca.s V_3
+    IL_0040: call System.Void RoadBaseAI::GetTrafficLightState(System.UInt16,NetSegment&,System.UInt32,RoadBaseAI/TrafficLightState&,RoadBaseAI/TrafficLightState&)
+    IL_0045: ldarg.s color
+    IL_0047: ldc.r4 0.5
+    IL_004c: stfld System.Single UnityEngine.Color::a
+    IL_0051: ldloc.2
+    IL_0052: switch IL_0069,IL_0077,IL_0085,IL_0093
+    IL_0067: br.s IL_009f
+    IL_0069: ldarg.s color
+    IL_006b: ldc.r4 1
+    IL_0070: stfld System.Single UnityEngine.Color::g
+    IL_0075: br.s IL_009f
+    IL_0077: ldarg.s color
+    IL_0079: ldc.r4 1
+    IL_007e: stfld System.Single UnityEngine.Color::r
+    IL_0083: br.s IL_009f
+    IL_0085: ldarg.s color
+    IL_0087: ldc.r4 0
+    IL_008c: stfld System.Single UnityEngine.Color::g
+    IL_0091: br.s IL_009f
+    IL_0093: ldarg.s color
+    IL_0095: ldc.r4 1
+    IL_009a: stfld System.Single UnityEngine.Color::r
+    IL_009f: ldloc.3
+    IL_00a0: switch IL_00b7,IL_00c5,IL_00d3,IL_00e1
+    IL_00b5: br.s IL_00ed
+    IL_00b7: ldarg.s color
+    IL_00b9: ldc.r4 1
+    IL_00be: stfld System.Single UnityEngine.Color::b
+    IL_00c3: br.s IL_00ed
+    IL_00c5: ldarg.s color
+    IL_00c7: ldc.r4 0
+    IL_00cc: stfld System.Single UnityEngine.Color::b
+    IL_00d1: br.s IL_00ed
+    IL_00d3: ldarg.s color
+    IL_00d5: ldc.r4 0
+    IL_00da: stfld System.Single UnityEngine.Color::b
+    IL_00df: br.s IL_00ed
+    IL_00e1: ldarg.s color
+    IL_00e3: ldc.r4 0
+    IL_00e8: stfld System.Single UnityEngine.Color::b
+    IL_00ed: ldc.i4.0
+    IL_00ee: ret
+  Method: System.Void TrafficManager.Patch._RoadBaseAI.GetTrafficLightNodeStatePatch::.ctor()
+    IL_0000: ldarg.0
+    IL_0001: call System.Void System.Object::.ctor()
+    IL_0006: ret
+Type: TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch (found: True)
+  Method: System.Reflection.MethodBase TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::TargetMethod()
+    IL_0000: ldtoken CarAI
+    IL_0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_000a: ldstr "SimulationStep"
+    IL_000f: ldc.i4.0
+    IL_0010: call System.Reflection.MethodInfo TrafficManager.Util.TranspilerUtil::DeclaredMethod<TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch/SimulationStepTargetDelegate>(System.Type,System.String,System.Boolean)
+    IL_0015: ret
+  Method: System.Boolean TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::Prefix(CarAI,System.UInt16,Vehicle&,UnityEngine.Vector3)
+    IL_0000: ldarg.2
+    IL_0001: ldfld Vehicle/Flags Vehicle::m_flags
+    IL_0006: ldc.i4 256
+    IL_000b: and
+    IL_000c: brfalse IL_01a4
+    IL_0011: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    IL_0016: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+    IL_001b: ldfld !0[] Array32`1<PathUnit>::m_buffer
+    IL_0020: ldarg.2
+    IL_0021: ldfld System.UInt32 Vehicle::m_path
+    IL_0026: ldelema PathUnit
+    IL_002b: ldfld System.Byte PathUnit::m_pathFindFlags
+    IL_0030: stloc.s V_4
+    IL_0032: ldc.i4.1
+    IL_0033: stloc.s V_5
+    IL_0035: ldloc.s V_4
+    IL_0037: ldc.i4.8
+    IL_0038: and
+    IL_0039: brtrue.s IL_0043
+    IL_003b: ldarg.2
+    IL_003c: ldfld System.UInt32 Vehicle::m_path
+    IL_0041: brtrue.s IL_0048
+    IL_0043: ldc.i4.3
+    IL_0044: stloc.s V_5
+    IL_0046: br.s IL_0051
+    IL_0048: ldloc.s V_4
+    IL_004a: ldc.i4.4
+    IL_004b: and
+    IL_004c: brfalse.s IL_0051
+    IL_004e: ldc.i4.2
+    IL_004f: stloc.s V_5
+    IL_0051: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    IL_0056: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    IL_005b: stloc.s V_6
+    IL_005d: ldloc.s V_5
+    IL_005f: call TrafficManager.API.Traffic.Enums.ExtSoftPathState TrafficManager.API.Traffic.Data.ExtCitizenInstance::ConvertPathStateToSoftPathState(TrafficManager.API.Traffic.Enums.ExtPathState)
+    IL_0064: stloc.s V_7
+    IL_0066: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    IL_006b: ldfld System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+    IL_0070: brfalse.s IL_00c9
+    IL_0072: ldloc.s V_6
+    IL_0074: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+    IL_0079: ldarg.1
+    IL_007a: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+    IL_007f: ldfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.ExtVehicle::vehicleType
+    IL_0084: ldc.i4.1
+    IL_0085: bne.un.s IL_00c9
+    IL_0087: ldloc.s V_6
+    IL_0089: ldarg.1
+    IL_008a: ldarg.2
+    IL_008b: callvirt System.UInt16 TrafficManager.API.Manager.IExtVehicleManager::GetDriverInstanceId(System.UInt16,Vehicle&)
+    IL_0090: stloc.s V_8
+    IL_0092: ldsfld TrafficManager.Manager.Impl.AdvancedParkingManager TrafficManager.Manager.Impl.AdvancedParkingManager::Instance
+    IL_0097: ldarg.1
+    IL_0098: ldarg.2
+    IL_0099: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+    IL_009e: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+    IL_00a3: ldfld !0[] Array16`1<CitizenInstance>::m_buffer
+    IL_00a8: ldloc.s V_8
+    IL_00aa: ldelema CitizenInstance
+    IL_00af: ldsfld TrafficManager.Manager.Impl.ExtCitizenInstanceManager TrafficManager.Manager.Impl.ExtCitizenInstanceManager::Instance
+    IL_00b4: callvirt TrafficManager.API.Traffic.Data.ExtCitizenInstance[] TrafficManager.Manager.Impl.ExtCitizenInstanceManager::get_ExtInstances()
+    IL_00b9: ldloc.s V_8
+    IL_00bb: ldelema TrafficManager.API.Traffic.Data.ExtCitizenInstance
+    IL_00c0: ldloc.s V_5
+    IL_00c2: callvirt TrafficManager.API.Traffic.Enums.ExtSoftPathState TrafficManager.Manager.Impl.AdvancedParkingManager::UpdateCarPathState(System.UInt16,Vehicle&,CitizenInstance&,TrafficManager.API.Traffic.Data.ExtCitizenInstance&,TrafficManager.API.Traffic.Enums.ExtPathState)
+    IL_00c7: stloc.s V_7
+    IL_00c9: ldloc.s V_7
+    IL_00cb: ldc.i4.1
+    IL_00cc: sub
+    IL_00cd: switch IL_01bb,IL_00eb,IL_013b,IL_017a,IL_0139
+    IL_00e6: br IL_01bb
+    IL_00eb: ldarg.2
+    IL_00ec: ldc.i4 255
+    IL_00f1: stfld System.Byte Vehicle::m_pathPositionIndex
+    IL_00f6: ldarg.2
+    IL_00f7: ldflda Vehicle/Flags Vehicle::m_flags
+    IL_00fc: dup
+    IL_00fd: ldind.i4
+    IL_00fe: ldc.i4 -257
+    IL_0103: and
+    IL_0104: stind.i4
+    IL_0105: ldarg.2
+    IL_0106: ldflda Vehicle/Flags Vehicle::m_flags
+    IL_010b: dup
+    IL_010c: ldind.i4
+    IL_010d: ldc.i4 -2049
+    IL_0112: and
+    IL_0113: stind.i4
+    IL_0114: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    IL_0119: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    IL_011e: callvirt TrafficManager.Patch._VehicleAI.Connection.PathfindSuccessDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_PathfindSuccess()
+    IL_0123: ldarg.0
+    IL_0124: ldarg.1
+    IL_0125: ldarg.2
+    IL_0126: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.PathfindSuccessDelegate::Invoke(CarAI,System.UInt16,Vehicle&)
+    IL_012b: ldarg.0
+    IL_012c: ldarg.1
+    IL_012d: ldarg.2
+    IL_012e: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+    IL_0133: pop
+    IL_0134: br IL_01bb
+    IL_0139: ldc.i4.0
+    IL_013a: ret
+    IL_013b: ldarg.2
+    IL_013c: ldflda Vehicle/Flags Vehicle::m_flags
+    IL_0141: dup
+    IL_0142: ldind.i4
+    IL_0143: ldc.i4 -257
+    IL_0148: and
+    IL_0149: stind.i4
+    IL_014a: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+    IL_014f: ldarg.2
+    IL_0150: ldfld System.UInt32 Vehicle::m_path
+    IL_0155: callvirt System.Void PathManager::ReleasePath(System.UInt32)
+    IL_015a: ldarg.2
+    IL_015b: ldc.i4.0
+    IL_015c: stfld System.UInt32 Vehicle::m_path
+    IL_0161: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    IL_0166: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    IL_016b: callvirt TrafficManager.Patch._VehicleAI.Connection.PathfindFailureDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_PathfindFailure()
+    IL_0170: ldarg.0
+    IL_0171: ldarg.1
+    IL_0172: ldarg.2
+    IL_0173: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.PathfindFailureDelegate::Invoke(CarAI,System.UInt16,Vehicle&)
+    IL_0178: ldc.i4.0
+    IL_0179: ret
+    IL_017a: ldarg.2
+    IL_017b: ldflda Vehicle/Flags Vehicle::m_flags
+    IL_0180: dup
+    IL_0181: ldind.i4
+    IL_0182: ldc.i4 -257
+    IL_0187: and
+    IL_0188: stind.i4
+    IL_0189: ldsfld TrafficManager.Manager.Impl.GameConnectionManager TrafficManager.Manager.Impl.GameConnectionManager::Instance
+    IL_018e: callvirt TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection TrafficManager.Manager.Impl.GameConnectionManager::get_VehicleAIConnection()
+    IL_0193: callvirt TrafficManager.Patch._VehicleAI.Connection.InvalidPathDelegate TrafficManager.Patch._VehicleAI.Connection.VehicleAIConnection::get_InvalidPath()
+    IL_0198: ldarg.0
+    IL_0199: ldarg.1
+    IL_019a: ldarg.2
+    IL_019b: ldarg.1
+    IL_019c: ldarg.2
+    IL_019d: callvirt System.Void TrafficManager.Patch._VehicleAI.Connection.InvalidPathDelegate::Invoke(VehicleAI,System.UInt16,Vehicle&,System.UInt16,Vehicle&)
+    IL_01a2: br.s IL_01bb
+    IL_01a4: ldarg.2
+    IL_01a5: ldfld Vehicle/Flags Vehicle::m_flags
+    IL_01aa: ldc.i4 65536
+    IL_01af: and
+    IL_01b0: brfalse.s IL_01bb
+    IL_01b2: ldarg.0
+    IL_01b3: ldarg.1
+    IL_01b4: ldarg.2
+    IL_01b5: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+    IL_01ba: pop
+    IL_01bb: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+    IL_01c0: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+    IL_01c5: stloc.0
+    IL_01c6: ldloc.0
+    IL_01c7: ldarg.1
+    IL_01c8: ldarg.2
+    IL_01c9: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::UpdateVehiclePosition(System.UInt16,Vehicle&)
+    IL_01ce: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+    IL_01d3: ldfld System.Boolean TrafficManager.State.SavedGameOptions::advancedAI
+    IL_01d8: brfalse.s IL_01ec
+    IL_01da: ldarg.2
+    IL_01db: ldfld Vehicle/Flags Vehicle::m_flags
+    IL_01e0: ldc.i4.4
+    IL_01e1: and
+    IL_01e2: brfalse.s IL_01ec
+    IL_01e4: ldloc.0
+    IL_01e5: ldarg.1
+    IL_01e6: ldarg.2
+    IL_01e7: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::LogTraffic(System.UInt16,Vehicle&)
+    IL_01ec: ldarg.2
+    IL_01ed: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+    IL_01f2: stloc.1
+    IL_01f3: ldarg.3
+    IL_01f4: ldloc.1
+    IL_01f5: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+    IL_01fa: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+    IL_01ff: ldc.r4 1210000
+    IL_0204: blt.un.s IL_020a
+    IL_0206: ldc.i4.2
+    IL_0207: stloc.2
+    IL_0208: br.s IL_0231
+    IL_020a: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    IL_020f: ldflda SimulationManager/ViewData SimulationManager::m_simulationView
+    IL_0214: ldfld UnityEngine.Vector3 SimulationManager/ViewData::m_position
+    IL_0219: ldloc.1
+    IL_021a: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+    IL_021f: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+    IL_0224: ldc.r4 250000
+    IL_0229: blt.un.s IL_022f
+    IL_022b: ldc.i4.1
+    IL_022c: stloc.2
+    IL_022d: br.s IL_0231
+    IL_022f: ldc.i4.0
+    IL_0230: stloc.2
+    IL_0231: ldarg.0
+    IL_0232: ldarg.1
+    IL_0233: ldarg.2
+    IL_0234: ldarg.1
+    IL_0235: ldarg.2
+    IL_0236: ldloc.2
+    IL_0237: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+    IL_023c: ldarg.2
+    IL_023d: ldfld System.UInt16 Vehicle::m_leadingVehicle
+    IL_0242: brtrue.s IL_02ac
+    IL_0244: ldarg.2
+    IL_0245: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    IL_024a: brfalse.s IL_02ac
+    IL_024c: ldarg.2
+    IL_024d: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    IL_0252: stloc.s V_9
+    IL_0254: ldc.i4.0
+    IL_0255: stloc.s V_10
+    IL_0257: br.s IL_02a8
+    IL_0259: ldloc.s V_9
+    IL_025b: call Vehicle& TrafficManager.Util.Extensions.VehicleExtensions::ToVehicle(System.UInt16)
+    IL_0260: stloc.s V_11
+    IL_0262: ldloc.s V_11
+    IL_0264: call VehicleInfo Vehicle::get_Info()
+    IL_0269: ldfld VehicleAI VehicleInfo::m_vehicleAI
+    IL_026e: ldloc.s V_9
+    IL_0270: ldloc.s V_11
+    IL_0272: ldarg.1
+    IL_0273: ldarg.2
+    IL_0274: ldloc.2
+    IL_0275: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+    IL_027a: ldloc.s V_11
+    IL_027c: ldfld System.UInt16 Vehicle::m_trailingVehicle
+    IL_0281: stloc.s V_9
+    IL_0283: ldloc.s V_10
+    IL_0285: ldc.i4.1
+    IL_0286: add
+    IL_0287: dup
+    IL_0288: stloc.s V_10
+    IL_028a: ldc.i4 16384
+    IL_028f: ble.s IL_02a8
+    IL_0291: ldc.i4.1
+    IL_0292: ldstr "Invalid list detected!
+"
+    IL_0297: call System.String System.Environment::get_StackTrace()
+    IL_029c: call System.String System.String::Concat(System.String,System.String)
+    IL_02a1: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+    IL_02a6: br.s IL_02ac
+    IL_02a8: ldloc.s V_9
+    IL_02aa: brtrue.s IL_0259
+    IL_02ac: ldarg.0
+    IL_02ad: ldfld VehicleInfo VehicleAI::m_info
+    IL_02b2: ldfld ItemClass VehicleInfo::m_class
+    IL_02b7: ldfld ItemClass/Service ItemClass::m_service
+    IL_02bc: call System.Int32 ItemClass::GetPrivateServiceIndex(ItemClass/Service)
+    IL_02c1: ldc.i4.m1
+    IL_02c2: beq.s IL_02c8
+    IL_02c4: ldc.i4.s 100
+    IL_02c6: br.s IL_02cd
+    IL_02c8: ldc.i4 150
+    IL_02cd: stloc.3
+    IL_02ce: ldarg.2
+    IL_02cf: ldfld Vehicle/Flags Vehicle::m_flags
+    IL_02d4: ldc.i4 65796
+    IL_02d9: and
+    IL_02da: brtrue.s IL_02f1
+    IL_02dc: ldarg.2
+    IL_02dd: ldfld System.UInt16 Vehicle::m_cargoParent
+    IL_02e2: brtrue.s IL_02f1
+    IL_02e4: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+    IL_02e9: ldarg.1
+    IL_02ea: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+    IL_02ef: br.s IL_0313
+    IL_02f1: ldarg.2
+    IL_02f2: ldfld System.Byte Vehicle::m_blockCounter
+    IL_02f7: ldloc.3
+    IL_02f8: blt.s IL_0313
+    IL_02fa: ldsfld TrafficManager.Manager.Impl.VehicleBehaviorManager TrafficManager.Manager.Impl.VehicleBehaviorManager::Instance
+    IL_02ff: ldarg.1
+    IL_0300: ldarg.2
+    IL_0301: callvirt System.Boolean TrafficManager.Manager.Impl.VehicleBehaviorManager::MayDespawn(System.UInt16,Vehicle&)
+    IL_0306: brfalse.s IL_0313
+    IL_0308: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+    IL_030d: ldarg.1
+    IL_030e: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+    IL_0313: ldc.i4.0
+    IL_0314: ret
+  Method: System.Void TrafficManager.Patch._VehicleAI._CarAI.SimulationStepPatch::.ctor()
+    IL_0000: ldarg.0
+    IL_0001: call System.Void System.Object::.ctor()
+    IL_0006: ret

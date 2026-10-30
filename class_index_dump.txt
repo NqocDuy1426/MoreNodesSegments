@@ -1,0 +1,58 @@
+=== EconomyManager.PublicClassIndex (1 params) ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld ItemClass/Service ItemClass::m_service
+  IL_0006: ldarg.0 
+  IL_0007: ldfld ItemClass/SubService ItemClass::m_subService
+  IL_000C: call System.Int32 EconomyManager::PublicClassIndex(ItemClass/Service,ItemClass/SubService)
+  IL_0011: ret 
+=== EconomyManager.PublicClassIndex (2 params) ===
+  IL_0000: ldarg.0 
+  IL_0001: call System.Int32 ItemClass::GetPublicServiceIndex(ItemClass/Service)
+  IL_0006: stloc.0 
+  IL_0007: ldarg.1 
+  IL_0008: call System.Int32 ItemClass::GetPublicSubServiceIndex(ItemClass/SubService)
+  IL_000D: stloc.1 
+  IL_000E: ldloc.0 
+  IL_000F: ldc.i4.m1 
+  IL_0010: bne.un IL_0017: ldloc.1
+  IL_0015: ldc.i4.m1 
+  IL_0016: ret 
+  IL_0017: ldloc.1 
+  IL_0018: ldc.i4.m1 
+  IL_0019: beq IL_0028: ldloc.0
+  IL_001E: ldc.i4.s 20
+  IL_0020: ldloc.1 
+  IL_0021: add 
+  IL_0022: stloc.2 
+  IL_0023: br IL_002a: ldloc.2
+  IL_0028: ldloc.0 
+  IL_0029: stloc.2 
+  IL_002A: ldloc.2 
+  IL_002B: ret 
+=== EconomyManager.ClassIndex (1 params) ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld ItemClass/Service ItemClass::m_service
+  IL_0006: ldarg.0 
+  IL_0007: ldfld ItemClass/SubService ItemClass::m_subService
+  IL_000C: ldarg.0 
+  IL_000D: ldfld ItemClass/Level ItemClass::m_level
+  IL_0012: call System.Int32 EconomyManager::ClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_0017: ret 
+=== EconomyManager.ClassIndex (3 params) ===
+  IL_0000: ldarg.0 
+  IL_0001: call System.Int32 ItemClass::GetPrivateServiceIndex(ItemClass/Service)
+  IL_0006: stloc.0 
+  IL_0007: ldloc.0 
+  IL_0008: ldc.i4.m1 
+  IL_0009: beq IL_0017: ldarg.0
+  IL_000E: ldarg.0 
+  IL_000F: ldarg.1 
+  IL_0010: ldarg.2 
+  IL_0011: call System.Int32 EconomyManager::PrivateClassIndex(ItemClass/Service,ItemClass/SubService,ItemClass/Level)
+  IL_0016: ret 
+  IL_0017: ldarg.0 
+  IL_0018: ldarg.1 
+  IL_0019: call System.Int32 EconomyManager::PublicClassIndex(ItemClass/Service,ItemClass/SubService)
+  IL_001E: ldc.i4 140
+  IL_0023: add 
+  IL_0024: ret 

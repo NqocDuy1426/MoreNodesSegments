@@ -1,0 +1,314 @@
+
+================== <NewLine>c__Iterator0.MoveNext ==================
+IL_0000: ldarg.0 
+IL_0001: ldfld System.Int32 TransportTool/<NewLine>c__Iterator0::$PC
+IL_0006: stloc.0 
+IL_0007: ldarg.0 
+IL_0008: ldc.i4.m1 
+IL_0009: stfld System.Int32 TransportTool/<NewLine>c__Iterator0::$PC
+IL_000e: ldloc.0 
+IL_000f: switch Mono.Cecil.Cil.Instruction[]
+IL_001c: br IL_01b2
+IL_0021: ldarg.0 
+IL_0022: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0027: ldfld TransportTool/Mode TransportTool::m_mode
+IL_002c: brtrue IL_018b
+IL_0031: ldarg.0 
+IL_0032: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0037: ldfld ToolBase/ToolErrors TransportTool::m_errors
+IL_003c: ldc.i4.0 
+IL_003d: conv.i8 
+IL_003e: bne.un IL_018b
+IL_0043: ldarg.0 
+IL_0044: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0049: ldfld System.UInt16 TransportTool::m_lastEditLine
+IL_004e: brfalse IL_009c
+IL_0053: ldarg.0 
+IL_0054: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0059: ldfld System.Int32 TransportTool::m_hoverStopIndex
+IL_005e: ldc.i4.m1 
+IL_005f: bne.un IL_0075
+IL_0064: ldarg.0 
+IL_0065: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_006a: ldfld System.Int32 TransportTool::m_hoverSegmentIndex
+IL_006f: ldc.i4.m1 
+IL_0070: beq IL_0097
+IL_0075: ldarg.0 
+IL_0076: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_007b: ldarg.0 
+IL_007c: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0081: ldfld System.UInt16 TransportTool::m_lastEditLine
+IL_0086: stfld System.UInt16 TransportTool::m_line
+IL_008b: ldarg.0 
+IL_008c: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0091: ldc.i4.2 
+IL_0092: stfld TransportTool/Mode TransportTool::m_mode
+IL_0097: br IL_017e
+IL_009c: ldarg.0 
+IL_009d: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_00a2: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_00a7: ldc.i4.s -2
+IL_00a9: beq IL_017e
+IL_00ae: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_00b3: stloc.1 
+IL_00b4: ldloc.1 
+IL_00b5: ldloca.s V_2
+IL_00b7: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_00bc: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+IL_00c1: ldarg.0 
+IL_00c2: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_00c7: ldfld TransportInfo TransportTool::m_prefab
+IL_00cc: ldc.i4.1 
+IL_00cd: callvirt System.Boolean TransportManager::CreateLine(System.UInt16&,ColossalFramework.Math.Randomizer&,TransportInfo,System.Boolean)
+IL_00d2: brfalse IL_017e
+IL_00d7: ldc.i4.1 
+IL_00d8: stloc.3 
+IL_00d9: ldloc.1 
+IL_00da: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_00df: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_00e4: ldloc.2 
+IL_00e5: ldelema TransportLine
+IL_00ea: ldarg.0 
+IL_00eb: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_00f0: ldfld System.Int32 TransportTool::m_building
+IL_00f5: conv.u2 
+IL_00f6: stfld System.UInt16 TransportLine::m_building
+IL_00fb: ldloc.1 
+IL_00fc: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0101: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0106: ldloc.2 
+IL_0107: ldelema TransportLine
+IL_010c: ldloc.2 
+IL_010d: ldarg.0 
+IL_010e: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0113: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_0118: ldarg.0 
+IL_0119: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_011e: ldfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_0123: ldarg.0 
+IL_0124: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0129: ldfld System.Boolean TransportTool::m_fixedPlatform
+IL_012e: call System.Boolean TransportLine::AddStop(System.UInt16,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_0133: brtrue IL_013a
+IL_0138: ldc.i4.0 
+IL_0139: stloc.3 
+IL_013a: ldloc.3 
+IL_013b: brfalse IL_0177
+IL_0140: ldarg.0 
+IL_0141: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0146: ldloc.2 
+IL_0147: stfld System.UInt16 TransportTool::m_line
+IL_014c: ldarg.0 
+IL_014d: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0152: ldc.i4.1 
+IL_0153: stfld TransportTool/Mode TransportTool::m_mode
+IL_0158: ldarg.0 
+IL_0159: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_015e: ldc.i4.s -2
+IL_0160: stfld System.Int32 TransportTool::m_lastMoveIndex
+IL_0165: ldarg.0 
+IL_0166: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_016b: ldc.i4.s -2
+IL_016d: stfld System.Int32 TransportTool::m_lastAddIndex
+IL_0172: br IL_017e
+IL_0177: ldloc.1 
+IL_0178: ldloc.2 
+IL_0179: callvirt System.Void TransportManager::ReleaseLine(System.UInt16)
+IL_017e: ldarg.0 
+IL_017f: ldfld TransportTool TransportTool/<NewLine>c__Iterator0::$this
+IL_0184: ldc.i4.2 
+IL_0185: conv.i8 
+IL_0186: stfld ToolBase/ToolErrors TransportTool::m_errors
+IL_018b: ldarg.0 
+IL_018c: ldc.i4.0 
+IL_018d: box System.Int32
+IL_0192: stfld System.Object TransportTool/<NewLine>c__Iterator0::$current
+IL_0197: ldarg.0 
+IL_0198: ldfld System.Boolean TransportTool/<NewLine>c__Iterator0::$disposing
+IL_019d: brtrue.s IL_01a6
+IL_019f: ldarg.0 
+IL_01a0: ldc.i4.1 
+IL_01a1: stfld System.Int32 TransportTool/<NewLine>c__Iterator0::$PC
+IL_01a6: br IL_01b4
+IL_01ab: ldarg.0 
+IL_01ac: ldc.i4.m1 
+IL_01ad: stfld System.Int32 TransportTool/<NewLine>c__Iterator0::$PC
+IL_01b2: ldc.i4.0 
+IL_01b3: ret 
+IL_01b4: ldc.i4.1 
+IL_01b5: ret 
+
+================== <AddStop>c__Iterator2.MoveNext ==================
+IL_0000: ldarg.0 
+IL_0001: ldfld System.Int32 TransportTool/<AddStop>c__Iterator2::$PC
+IL_0006: stloc.0 
+IL_0007: ldarg.0 
+IL_0008: ldc.i4.m1 
+IL_0009: stfld System.Int32 TransportTool/<AddStop>c__Iterator2::$PC
+IL_000e: ldloc.0 
+IL_000f: switch Mono.Cecil.Cil.Instruction[]
+IL_001c: br IL_024a
+IL_0021: ldarg.0 
+IL_0022: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0027: ldfld TransportTool/Mode TransportTool::m_mode
+IL_002c: ldc.i4.1 
+IL_002d: bne.un IL_0223
+IL_0032: ldarg.0 
+IL_0033: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0038: ldfld ToolBase/ToolErrors TransportTool::m_errors
+IL_003d: ldc.i4.0 
+IL_003e: conv.i8 
+IL_003f: bne.un IL_0223
+IL_0044: ldarg.0 
+IL_0045: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_004a: ldfld System.UInt16 TransportTool::m_line
+IL_004f: brfalse IL_0223
+IL_0054: ldarg.0 
+IL_0055: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_005a: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_005f: ldc.i4.s -2
+IL_0061: beq IL_0223
+IL_0066: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+IL_006b: stloc.1 
+IL_006c: ldarg.0 
+IL_006d: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0072: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0077: brfalse IL_0223
+IL_007c: ldloc.1 
+IL_007d: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0082: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_0087: ldarg.0 
+IL_0088: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_008d: ldfld System.UInt16 TransportTool::m_tempLine
+IL_0092: ldelema TransportLine
+IL_0097: ldarg.0 
+IL_0098: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_009d: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_00a2: ldloca.s V_2
+IL_00a4: call System.Boolean TransportLine::CheckPrevPath(System.Int32,System.Boolean&)
+IL_00a9: brfalse IL_0223
+IL_00ae: ldc.i4.0 
+IL_00af: stloc.2 
+IL_00b0: ldloc.1 
+IL_00b1: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_00b6: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_00bb: ldarg.0 
+IL_00bc: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_00c1: ldfld System.UInt16 TransportTool::m_tempLine
+IL_00c6: ldelema TransportLine
+IL_00cb: ldarg.0 
+IL_00cc: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_00d1: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_00d6: call System.UInt16 TransportLine::GetStop(System.Int32)
+IL_00db: stloc.3 
+IL_00dc: ldloc.3 
+IL_00dd: brfalse IL_013b
+IL_00e2: ldloc.3 
+IL_00e3: call System.UInt16 TransportLine::GetPrevStop(System.UInt16)
+IL_00e8: stloc.s V_4
+IL_00ea: ldloc.s V_4
+IL_00ec: brfalse IL_013b
+IL_00f1: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_00f6: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00fb: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0100: ldloc.3 
+IL_0101: ldelema NetNode
+IL_0106: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_010b: stloc.s V_5
+IL_010d: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0112: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0117: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_011c: ldloc.s V_4
+IL_011e: ldelema NetNode
+IL_0123: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0128: stloc.s V_6
+IL_012a: ldloc.s V_5
+IL_012c: ldloc.s V_6
+IL_012e: call System.Single UnityEngine.Vector3::Distance(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0133: ldc.r4 1
+IL_0138: clt 
+IL_013a: stloc.2 
+IL_013b: ldloc.2 
+IL_013c: brtrue IL_0223
+IL_0141: ldloc.1 
+IL_0142: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0147: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_014c: ldarg.0 
+IL_014d: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0152: ldfld System.UInt16 TransportTool::m_line
+IL_0157: ldelema TransportLine
+IL_015c: ldarg.0 
+IL_015d: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0162: ldfld System.UInt16 TransportTool::m_line
+IL_0167: ldarg.0 
+IL_0168: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_016d: ldfld System.Int32 TransportTool::m_lastAddIndex
+IL_0172: ldarg.0 
+IL_0173: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0178: ldfld UnityEngine.Vector3 TransportTool::m_hitPosition
+IL_017d: ldarg.0 
+IL_017e: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0183: ldfld System.Boolean TransportTool::m_fixedPlatform
+IL_0188: call System.Boolean TransportLine::AddStop(System.UInt16,System.Int32,UnityEngine.Vector3,System.Boolean)
+IL_018d: brfalse IL_0216
+IL_0192: ldloc.1 
+IL_0193: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_0198: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_019d: ldarg.0 
+IL_019e: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_01a3: ldfld System.UInt16 TransportTool::m_line
+IL_01a8: ldelema TransportLine
+IL_01ad: ldarg.0 
+IL_01ae: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_01b3: ldfld System.UInt16 TransportTool::m_tempLine
+IL_01b8: call System.Void TransportLine::CopyMissingPaths(System.UInt16)
+IL_01bd: ldarg.0 
+IL_01be: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_01c3: ldc.i4.s -2
+IL_01c5: stfld System.Int32 TransportTool::m_lastMoveIndex
+IL_01ca: ldarg.0 
+IL_01cb: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_01d0: ldc.i4.s -2
+IL_01d2: stfld System.Int32 TransportTool::m_lastAddIndex
+IL_01d7: ldloc.1 
+IL_01d8: ldfld Array16`1<TransportLine> TransportManager::m_lines
+IL_01dd: ldfld T[] Array16`1<TransportLine>::m_buffer
+IL_01e2: ldarg.0 
+IL_01e3: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_01e8: ldfld System.UInt16 TransportTool::m_line
+IL_01ed: ldelema TransportLine
+IL_01f2: ldfld TransportLine/Flags TransportLine::m_flags
+IL_01f7: ldc.i4.4 
+IL_01f8: and 
+IL_01f9: brfalse IL_0216
+IL_01fe: ldarg.0 
+IL_01ff: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0204: ldc.i4.0 
+IL_0205: stfld TransportTool/Mode TransportTool::m_mode
+IL_020a: ldarg.0 
+IL_020b: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_0210: ldc.i4.0 
+IL_0211: stfld System.UInt16 TransportTool::m_line
+IL_0216: ldarg.0 
+IL_0217: ldfld TransportTool TransportTool/<AddStop>c__Iterator2::$this
+IL_021c: ldc.i4.2 
+IL_021d: conv.i8 
+IL_021e: stfld ToolBase/ToolErrors TransportTool::m_errors
+IL_0223: ldarg.0 
+IL_0224: ldc.i4.0 
+IL_0225: box System.Int32
+IL_022a: stfld System.Object TransportTool/<AddStop>c__Iterator2::$current
+IL_022f: ldarg.0 
+IL_0230: ldfld System.Boolean TransportTool/<AddStop>c__Iterator2::$disposing
+IL_0235: brtrue.s IL_023e
+IL_0237: ldarg.0 
+IL_0238: ldc.i4.1 
+IL_0239: stfld System.Int32 TransportTool/<AddStop>c__Iterator2::$PC
+IL_023e: br IL_024c
+IL_0243: ldarg.0 
+IL_0244: ldc.i4.m1 
+IL_0245: stfld System.Int32 TransportTool/<AddStop>c__Iterator2::$PC
+IL_024a: ldc.i4.0 
+IL_024b: ret 
+IL_024c: ldc.i4.1 
+IL_024d: ret 

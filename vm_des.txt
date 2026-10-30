@@ -1,0 +1,1671 @@
+=== Method: System.Void VehicleManager/Data::Deserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "VehicleManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_001a: stloc.0
+  IL_001b: ldloc.0
+  IL_001c: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0021: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0026: stloc.1
+  IL_0027: ldloc.0
+  IL_0028: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_002d: ldfld T[] Array16`1<VehicleParked>::m_buffer
+  IL_0032: stloc.2
+  IL_0033: ldloc.0
+  IL_0034: ldfld System.UInt16[] VehicleManager::m_vehicleGrid
+  IL_0039: stloc.3
+  IL_003a: ldloc.0
+  IL_003b: ldfld System.UInt16[] VehicleManager::m_vehicleGrid2
+  IL_0040: stloc.s V_4
+  IL_0042: ldloc.0
+  IL_0043: ldfld System.UInt16[] VehicleManager::m_parkedGrid
+  IL_0048: stloc.s V_5
+  IL_004a: ldloc.1
+  IL_004b: ldlen
+  IL_004c: conv.i4
+  IL_004d: stloc.s V_6
+  IL_004f: ldloc.2
+  IL_0050: ldlen
+  IL_0051: conv.i4
+  IL_0052: stloc.s V_7
+  IL_0054: ldloc.3
+  IL_0055: ldlen
+  IL_0056: conv.i4
+  IL_0057: stloc.s V_8
+  IL_0059: ldloc.s V_4
+  IL_005b: ldlen
+  IL_005c: conv.i4
+  IL_005d: stloc.s V_9
+  IL_005f: ldloc.s V_5
+  IL_0061: ldlen
+  IL_0062: conv.i4
+  IL_0063: stloc.s V_10
+  IL_0065: ldloc.0
+  IL_0066: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_006b: callvirt System.Void Array16`1<Vehicle>::ClearUnused()
+  IL_0070: ldloc.0
+  IL_0071: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_0076: callvirt System.Void Array16`1<VehicleParked>::ClearUnused()
+  IL_007b: ldc.i4.0
+  IL_007c: stloc.s V_11
+  IL_007e: br IL_008e
+  IL_0083: ldloc.3
+  IL_0084: ldloc.s V_11
+  IL_0086: ldc.i4.0
+  IL_0087: stelem.i2
+  IL_0088: ldloc.s V_11
+  IL_008a: ldc.i4.1
+  IL_008b: add
+  IL_008c: stloc.s V_11
+  IL_008e: ldloc.s V_11
+  IL_0090: ldloc.s V_8
+  IL_0092: blt IL_0083
+  IL_0097: ldc.i4.0
+  IL_0098: stloc.s V_12
+  IL_009a: br IL_00ab
+  IL_009f: ldloc.s V_4
+  IL_00a1: ldloc.s V_12
+  IL_00a3: ldc.i4.0
+  IL_00a4: stelem.i2
+  IL_00a5: ldloc.s V_12
+  IL_00a7: ldc.i4.1
+  IL_00a8: add
+  IL_00a9: stloc.s V_12
+  IL_00ab: ldloc.s V_12
+  IL_00ad: ldloc.s V_9
+  IL_00af: blt IL_009f
+  IL_00b4: ldc.i4.0
+  IL_00b5: stloc.s V_13
+  IL_00b7: br IL_00c8
+  IL_00bc: ldloc.s V_5
+  IL_00be: ldloc.s V_13
+  IL_00c0: ldc.i4.0
+  IL_00c1: stelem.i2
+  IL_00c2: ldloc.s V_13
+  IL_00c4: ldc.i4.1
+  IL_00c5: add
+  IL_00c6: stloc.s V_13
+  IL_00c8: ldloc.s V_13
+  IL_00ca: ldloc.s V_10
+  IL_00cc: blt IL_00bc
+  IL_00d1: ldc.i4.0
+  IL_00d2: stloc.s V_14
+  IL_00d4: br IL_00ea
+  IL_00d9: ldloc.0
+  IL_00da: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_00df: ldloc.s V_14
+  IL_00e1: ldc.i4.0
+  IL_00e2: conv.i8
+  IL_00e3: stelem.i8
+  IL_00e4: ldloc.s V_14
+  IL_00e6: ldc.i4.1
+  IL_00e7: add
+  IL_00e8: stloc.s V_14
+  IL_00ea: ldloc.s V_14
+  IL_00ec: ldloc.0
+  IL_00ed: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_00f2: ldlen
+  IL_00f3: conv.i4
+  IL_00f4: blt IL_00d9
+  IL_00f9: ldloc.0
+  IL_00fa: ldc.i4.0
+  IL_00fb: stfld System.Boolean VehicleManager::m_parkedUpdated
+  IL_0100: ldarg.1
+  IL_0101: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0106: stloc.s V_15
+  IL_0108: ldc.i4.1
+  IL_0109: stloc.s V_16
+  IL_010b: br IL_012a
+  IL_0110: ldloc.1
+  IL_0111: ldloc.s V_16
+  IL_0113: ldelema Vehicle
+  IL_0118: ldloc.s V_15
+  IL_011a: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+  IL_011f: stfld Vehicle/Flags Vehicle::m_flags
+  IL_0124: ldloc.s V_16
+  IL_0126: ldc.i4.1
+  IL_0127: add
+  IL_0128: stloc.s V_16
+  IL_012a: ldloc.s V_16
+  IL_012c: ldloc.s V_6
+  IL_012e: blt IL_0110
+  IL_0133: ldarg.1
+  IL_0134: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0139: ldc.i4 274
+  IL_013e: blt.un IL_0173
+  IL_0143: ldc.i4.1
+  IL_0144: stloc.s V_17
+  IL_0146: br IL_0165
+  IL_014b: ldloc.1
+  IL_014c: ldloc.s V_17
+  IL_014e: ldelema Vehicle
+  IL_0153: ldloc.s V_15
+  IL_0155: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+  IL_015a: stfld Vehicle/Flags2 Vehicle::m_flags2
+  IL_015f: ldloc.s V_17
+  IL_0161: ldc.i4.1
+  IL_0162: add
+  IL_0163: stloc.s V_17
+  IL_0165: ldloc.s V_17
+  IL_0167: ldloc.s V_6
+  IL_0169: blt IL_014b
+  IL_016e: br IL_0198
+  IL_0173: ldc.i4.1
+  IL_0174: stloc.s V_18
+  IL_0176: br IL_018f
+  IL_017b: ldloc.1
+  IL_017c: ldloc.s V_18
+  IL_017e: ldelema Vehicle
+  IL_0183: ldc.i4.0
+  IL_0184: stfld Vehicle/Flags2 Vehicle::m_flags2
+  IL_0189: ldloc.s V_18
+  IL_018b: ldc.i4.1
+  IL_018c: add
+  IL_018d: stloc.s V_18
+  IL_018f: ldloc.s V_18
+  IL_0191: ldloc.s V_6
+  IL_0193: blt IL_017b
+  IL_0198: ldloc.s V_15
+  IL_019a: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+  IL_019f: ldarg.1
+  IL_01a0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01a5: ldc.i4 205
+  IL_01aa: blt.un IL_01ee
+  IL_01af: ldarg.1
+  IL_01b0: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_01b5: stloc.s V_19
+  IL_01b7: ldc.i4.1
+  IL_01b8: stloc.s V_20
+  IL_01ba: br IL_01d9
+  IL_01bf: ldloc.2
+  IL_01c0: ldloc.s V_20
+  IL_01c2: ldelema VehicleParked
+  IL_01c7: ldloc.s V_19
+  IL_01c9: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_01ce: stfld System.UInt16 VehicleParked::m_flags
+  IL_01d3: ldloc.s V_20
+  IL_01d5: ldc.i4.1
+  IL_01d6: add
+  IL_01d7: stloc.s V_20
+  IL_01d9: ldloc.s V_20
+  IL_01db: ldloc.s V_7
+  IL_01dd: blt IL_01bf
+  IL_01e2: ldloc.s V_19
+  IL_01e4: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_01e9: br IL_028b
+  IL_01ee: ldarg.1
+  IL_01ef: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_01f4: ldc.i4.s 115
+  IL_01f6: blt.un IL_0266
+  IL_01fb: ldarg.1
+  IL_01fc: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0201: stloc.s V_21
+  IL_0203: ldc.i4.1
+  IL_0204: stloc.s V_22
+  IL_0206: br IL_0225
+  IL_020b: ldloc.2
+  IL_020c: ldloc.s V_22
+  IL_020e: ldelema VehicleParked
+  IL_0213: ldloc.s V_21
+  IL_0215: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_021a: stfld System.UInt16 VehicleParked::m_flags
+  IL_021f: ldloc.s V_22
+  IL_0221: ldc.i4.1
+  IL_0222: add
+  IL_0223: stloc.s V_22
+  IL_0225: ldloc.s V_22
+  IL_0227: ldc.i4 16384
+  IL_022c: blt IL_020b
+  IL_0231: ldc.i4 16384
+  IL_0236: stloc.s V_23
+  IL_0238: br IL_0251
+  IL_023d: ldloc.2
+  IL_023e: ldloc.s V_23
+  IL_0240: ldelema VehicleParked
+  IL_0245: ldc.i4.0
+  IL_0246: stfld System.UInt16 VehicleParked::m_flags
+  IL_024b: ldloc.s V_23
+  IL_024d: ldc.i4.1
+  IL_024e: add
+  IL_024f: stloc.s V_23
+  IL_0251: ldloc.s V_23
+  IL_0253: ldloc.s V_7
+  IL_0255: blt IL_023d
+  IL_025a: ldloc.s V_21
+  IL_025c: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_0261: br IL_028b
+  IL_0266: ldc.i4.1
+  IL_0267: stloc.s V_24
+  IL_0269: br IL_0282
+  IL_026e: ldloc.2
+  IL_026f: ldloc.s V_24
+  IL_0271: ldelema VehicleParked
+  IL_0276: ldc.i4.0
+  IL_0277: stfld System.UInt16 VehicleParked::m_flags
+  IL_027c: ldloc.s V_24
+  IL_027e: ldc.i4.1
+  IL_027f: add
+  IL_0280: stloc.s V_24
+  IL_0282: ldloc.s V_24
+  IL_0284: ldloc.s V_7
+  IL_0286: blt IL_026e
+  IL_028b: ldarg.1
+  IL_028c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0291: ldc.i4.s 30
+  IL_0293: blt.un IL_032b
+  IL_0298: ldarg.1
+  IL_0299: call System.Void PrefabCollection`1<VehicleInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_029e: ldc.i4.1
+  IL_029f: stloc.s V_25
+  IL_02a1: br IL_02d2
+  IL_02a6: ldloc.1
+  IL_02a7: ldloc.s V_25
+  IL_02a9: ldelema Vehicle
+  IL_02ae: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_02b3: brfalse IL_02cc
+  IL_02b8: ldloc.1
+  IL_02b9: ldloc.s V_25
+  IL_02bb: ldelema Vehicle
+  IL_02c0: ldc.i4.1
+  IL_02c1: call System.UInt32 PrefabCollection`1<VehicleInfo>::Deserialize(System.Boolean)
+  IL_02c6: conv.u2
+  IL_02c7: stfld System.UInt16 Vehicle::m_infoIndex
+  IL_02cc: ldloc.s V_25
+  IL_02ce: ldc.i4.1
+  IL_02cf: add
+  IL_02d0: stloc.s V_25
+  IL_02d2: ldloc.s V_25
+  IL_02d4: ldloc.s V_6
+  IL_02d6: blt IL_02a6
+  IL_02db: ldarg.1
+  IL_02dc: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_02e1: ldc.i4.s 115
+  IL_02e3: blt.un IL_0325
+  IL_02e8: ldc.i4.1
+  IL_02e9: stloc.s V_26
+  IL_02eb: br IL_031c
+  IL_02f0: ldloc.2
+  IL_02f1: ldloc.s V_26
+  IL_02f3: ldelema VehicleParked
+  IL_02f8: ldfld System.UInt16 VehicleParked::m_flags
+  IL_02fd: brfalse IL_0316
+  IL_0302: ldloc.2
+  IL_0303: ldloc.s V_26
+  IL_0305: ldelema VehicleParked
+  IL_030a: ldc.i4.1
+  IL_030b: call System.UInt32 PrefabCollection`1<VehicleInfo>::Deserialize(System.Boolean)
+  IL_0310: conv.u2
+  IL_0311: stfld System.UInt16 VehicleParked::m_infoIndex
+  IL_0316: ldloc.s V_26
+  IL_0318: ldc.i4.1
+  IL_0319: add
+  IL_031a: stloc.s V_26
+  IL_031c: ldloc.s V_26
+  IL_031e: ldloc.s V_7
+  IL_0320: blt IL_02f0
+  IL_0325: ldarg.1
+  IL_0326: call System.Void PrefabCollection`1<VehicleInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer)
+  IL_032b: ldarg.1
+  IL_032c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0331: ldc.i4 182
+  IL_0336: blt.un IL_039f
+  IL_033b: ldarg.1
+  IL_033c: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0341: stloc.s V_27
+  IL_0343: ldc.i4.1
+  IL_0344: stloc.s V_28
+  IL_0346: br IL_038a
+  IL_034b: ldloc.1
+  IL_034c: ldloc.s V_28
+  IL_034e: ldelema Vehicle
+  IL_0353: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0358: brfalse IL_0376
+  IL_035d: ldloc.1
+  IL_035e: ldloc.s V_28
+  IL_0360: ldelema Vehicle
+  IL_0365: ldloc.s V_27
+  IL_0367: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+  IL_036c: stfld System.Byte Vehicle::m_gateIndex
+  IL_0371: br IL_0384
+  IL_0376: ldloc.1
+  IL_0377: ldloc.s V_28
+  IL_0379: ldelema Vehicle
+  IL_037e: ldc.i4.0
+  IL_037f: stfld System.Byte Vehicle::m_gateIndex
+  IL_0384: ldloc.s V_28
+  IL_0386: ldc.i4.1
+  IL_0387: add
+  IL_0388: stloc.s V_28
+  IL_038a: ldloc.s V_28
+  IL_038c: ldloc.s V_6
+  IL_038e: blt IL_034b
+  IL_0393: ldloc.s V_27
+  IL_0395: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+  IL_039a: br IL_03c4
+  IL_039f: ldc.i4.1
+  IL_03a0: stloc.s V_29
+  IL_03a2: br IL_03bb
+  IL_03a7: ldloc.1
+  IL_03a8: ldloc.s V_29
+  IL_03aa: ldelema Vehicle
+  IL_03af: ldc.i4.0
+  IL_03b0: stfld System.Byte Vehicle::m_gateIndex
+  IL_03b5: ldloc.s V_29
+  IL_03b7: ldc.i4.1
+  IL_03b8: add
+  IL_03b9: stloc.s V_29
+  IL_03bb: ldloc.s V_29
+  IL_03bd: ldloc.s V_6
+  IL_03bf: blt IL_03a7
+  IL_03c4: ldarg.1
+  IL_03c5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_03ca: ldc.i4 121008
+  IL_03cf: blt.un IL_0438
+  IL_03d4: ldarg.1
+  IL_03d5: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_03da: stloc.s V_30
+  IL_03dc: ldc.i4.1
+  IL_03dd: stloc.s V_31
+  IL_03df: br IL_0423
+  IL_03e4: ldloc.1
+  IL_03e5: ldloc.s V_31
+  IL_03e7: ldelema Vehicle
+  IL_03ec: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_03f1: brfalse IL_040f
+  IL_03f6: ldloc.1
+  IL_03f7: ldloc.s V_31
+  IL_03f9: ldelema Vehicle
+  IL_03fe: ldloc.s V_30
+  IL_0400: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_0405: stfld System.UInt16 Vehicle::m_raceTeam
+  IL_040a: br IL_041d
+  IL_040f: ldloc.1
+  IL_0410: ldloc.s V_31
+  IL_0412: ldelema Vehicle
+  IL_0417: ldc.i4.0
+  IL_0418: stfld System.UInt16 Vehicle::m_raceTeam
+  IL_041d: ldloc.s V_31
+  IL_041f: ldc.i4.1
+  IL_0420: add
+  IL_0421: stloc.s V_31
+  IL_0423: ldloc.s V_31
+  IL_0425: ldloc.s V_6
+  IL_0427: blt IL_03e4
+  IL_042c: ldloc.s V_30
+  IL_042e: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_0433: br IL_045d
+  IL_0438: ldc.i4.1
+  IL_0439: stloc.s V_32
+  IL_043b: br IL_0454
+  IL_0440: ldloc.1
+  IL_0441: ldloc.s V_32
+  IL_0443: ldelema Vehicle
+  IL_0448: ldc.i4.0
+  IL_0449: stfld System.UInt16 Vehicle::m_raceTeam
+  IL_044e: ldloc.s V_32
+  IL_0450: ldc.i4.1
+  IL_0451: add
+  IL_0452: stloc.s V_32
+  IL_0454: ldloc.s V_32
+  IL_0456: ldloc.s V_6
+  IL_0458: blt IL_0440
+  IL_045d: ldarg.1
+  IL_045e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0463: ldc.i4 121012
+  IL_0468: blt.un IL_0530
+  IL_046d: ldarg.1
+  IL_046e: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0473: stloc.s V_33
+  IL_0475: ldc.i4.1
+  IL_0476: stloc.s V_34
+  IL_0478: br IL_04bc
+  IL_047d: ldloc.1
+  IL_047e: ldloc.s V_34
+  IL_0480: ldelema Vehicle
+  IL_0485: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_048a: brfalse IL_04a8
+  IL_048f: ldloc.1
+  IL_0490: ldloc.s V_34
+  IL_0492: ldelema Vehicle
+  IL_0497: ldloc.s V_33
+  IL_0499: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+  IL_049e: stfld System.Byte Vehicle::m_raceTeammate
+  IL_04a3: br IL_04b6
+  IL_04a8: ldloc.1
+  IL_04a9: ldloc.s V_34
+  IL_04ab: ldelema Vehicle
+  IL_04b0: ldc.i4.0
+  IL_04b1: stfld System.Byte Vehicle::m_raceTeammate
+  IL_04b6: ldloc.s V_34
+  IL_04b8: ldc.i4.1
+  IL_04b9: add
+  IL_04ba: stloc.s V_34
+  IL_04bc: ldloc.s V_34
+  IL_04be: ldloc.s V_6
+  IL_04c0: blt IL_047d
+  IL_04c5: ldloc.s V_33
+  IL_04c7: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+  IL_04cc: ldarg.1
+  IL_04cd: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_04d2: stloc.s V_33
+  IL_04d4: ldc.i4.1
+  IL_04d5: stloc.s V_35
+  IL_04d7: br IL_051b
+  IL_04dc: ldloc.1
+  IL_04dd: ldloc.s V_35
+  IL_04df: ldelema Vehicle
+  IL_04e4: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_04e9: brfalse IL_0507
+  IL_04ee: ldloc.1
+  IL_04ef: ldloc.s V_35
+  IL_04f1: ldelema Vehicle
+  IL_04f6: ldloc.s V_33
+  IL_04f8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+  IL_04fd: stfld System.Byte Vehicle::m_racerIndex
+  IL_0502: br IL_0515
+  IL_0507: ldloc.1
+  IL_0508: ldloc.s V_35
+  IL_050a: ldelema Vehicle
+  IL_050f: ldc.i4.0
+  IL_0510: stfld System.Byte Vehicle::m_racerIndex
+  IL_0515: ldloc.s V_35
+  IL_0517: ldc.i4.1
+  IL_0518: add
+  IL_0519: stloc.s V_35
+  IL_051b: ldloc.s V_35
+  IL_051d: ldloc.s V_6
+  IL_051f: blt IL_04dc
+  IL_0524: ldloc.s V_33
+  IL_0526: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+  IL_052b: br IL_0563
+  IL_0530: ldc.i4.1
+  IL_0531: stloc.s V_36
+  IL_0533: br IL_055a
+  IL_0538: ldloc.1
+  IL_0539: ldloc.s V_36
+  IL_053b: ldelema Vehicle
+  IL_0540: ldc.i4.0
+  IL_0541: stfld System.Byte Vehicle::m_raceTeammate
+  IL_0546: ldloc.1
+  IL_0547: ldloc.s V_36
+  IL_0549: ldelema Vehicle
+  IL_054e: ldc.i4.0
+  IL_054f: stfld System.Byte Vehicle::m_racerIndex
+  IL_0554: ldloc.s V_36
+  IL_0556: ldc.i4.1
+  IL_0557: add
+  IL_0558: stloc.s V_36
+  IL_055a: ldloc.s V_36
+  IL_055c: ldloc.s V_6
+  IL_055e: blt IL_0538
+  IL_0563: ldarg.1
+  IL_0564: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0569: ldc.i4 273
+  IL_056e: blt.un IL_05d7
+  IL_0573: ldarg.1
+  IL_0574: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+  IL_0579: stloc.s V_37
+  IL_057b: ldc.i4.1
+  IL_057c: stloc.s V_38
+  IL_057e: br IL_05c2
+  IL_0583: ldloc.1
+  IL_0584: ldloc.s V_38
+  IL_0586: ldelema Vehicle
+  IL_058b: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0590: brfalse IL_05ae
+  IL_0595: ldloc.1
+  IL_0596: ldloc.s V_38
+  IL_0598: ldelema Vehicle
+  IL_059d: ldloc.s V_37
+  IL_059f: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+  IL_05a4: stfld System.UInt16 Vehicle::m_waterSource
+  IL_05a9: br IL_05bc
+  IL_05ae: ldloc.1
+  IL_05af: ldloc.s V_38
+  IL_05b1: ldelema Vehicle
+  IL_05b6: ldc.i4.0
+  IL_05b7: stfld System.UInt16 Vehicle::m_waterSource
+  IL_05bc: ldloc.s V_38
+  IL_05be: ldc.i4.1
+  IL_05bf: add
+  IL_05c0: stloc.s V_38
+  IL_05c2: ldloc.s V_38
+  IL_05c4: ldloc.s V_6
+  IL_05c6: blt IL_0583
+  IL_05cb: ldloc.s V_37
+  IL_05cd: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+  IL_05d2: br IL_05fc
+  IL_05d7: ldc.i4.1
+  IL_05d8: stloc.s V_39
+  IL_05da: br IL_05f3
+  IL_05df: ldloc.1
+  IL_05e0: ldloc.s V_39
+  IL_05e2: ldelema Vehicle
+  IL_05e7: ldc.i4.0
+  IL_05e8: stfld System.UInt16 Vehicle::m_waterSource
+  IL_05ed: ldloc.s V_39
+  IL_05ef: ldc.i4.1
+  IL_05f0: add
+  IL_05f1: stloc.s V_39
+  IL_05f3: ldloc.s V_39
+  IL_05f5: ldloc.s V_6
+  IL_05f7: blt IL_05df
+  IL_05fc: ldc.i4.1
+  IL_05fd: stloc.s V_40
+  IL_05ff: br IL_0ced
+  IL_0604: ldloc.1
+  IL_0605: ldloc.s V_40
+  IL_0607: ldelema Vehicle
+  IL_060c: ldc.i4.0
+  IL_060d: stfld System.UInt16 Vehicle::m_nextGridVehicle
+  IL_0612: ldloc.1
+  IL_0613: ldloc.s V_40
+  IL_0615: ldelema Vehicle
+  IL_061a: ldc.i4.0
+  IL_061b: stfld System.UInt16 Vehicle::m_nextGuestVehicle
+  IL_0620: ldloc.1
+  IL_0621: ldloc.s V_40
+  IL_0623: ldelema Vehicle
+  IL_0628: ldc.i4.0
+  IL_0629: stfld System.UInt16 Vehicle::m_nextOwnVehicle
+  IL_062e: ldloc.1
+  IL_062f: ldloc.s V_40
+  IL_0631: ldelema Vehicle
+  IL_0636: ldc.i4.0
+  IL_0637: stfld System.UInt16 Vehicle::m_nextLineVehicle
+  IL_063c: ldloc.1
+  IL_063d: ldloc.s V_40
+  IL_063f: ldelema Vehicle
+  IL_0644: ldc.i4.0
+  IL_0645: stfld System.UInt16 Vehicle::m_leadingVehicle
+  IL_064a: ldloc.1
+  IL_064b: ldloc.s V_40
+  IL_064d: ldelema Vehicle
+  IL_0652: ldc.i4.0
+  IL_0653: stfld System.UInt16 Vehicle::m_firstCargo
+  IL_0658: ldloc.1
+  IL_0659: ldloc.s V_40
+  IL_065b: ldelema Vehicle
+  IL_0660: ldc.i4.0
+  IL_0661: stfld System.UInt16 Vehicle::m_nextCargo
+  IL_0666: ldloc.1
+  IL_0667: ldloc.s V_40
+  IL_0669: ldelema Vehicle
+  IL_066e: ldc.i4.0
+  IL_066f: stfld System.Byte Vehicle::m_lastFrame
+  IL_0674: ldloc.1
+  IL_0675: ldloc.s V_40
+  IL_0677: ldelema Vehicle
+  IL_067c: ldc.i4.0
+  IL_067d: stfld System.UInt16 Vehicle::m_touristCount
+  IL_0682: ldloc.1
+  IL_0683: ldloc.s V_40
+  IL_0685: ldelema Vehicle
+  IL_068a: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_068f: brfalse IL_0b5d
+  IL_0694: ldloc.1
+  IL_0695: ldloc.s V_40
+  IL_0697: ldelema Vehicle
+  IL_069c: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_06a1: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_06a6: newobj System.Void Vehicle/Frame::.ctor(UnityEngine.Vector3,UnityEngine.Quaternion)
+  IL_06ab: stfld Vehicle/Frame Vehicle::m_frame0
+  IL_06b0: ldarg.1
+  IL_06b1: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_06b6: ldc.i4.s 47
+  IL_06b8: blt.un IL_06d5
+  IL_06bd: ldloc.1
+  IL_06be: ldloc.s V_40
+  IL_06c0: ldelema Vehicle
+  IL_06c5: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_06ca: ldarg.1
+  IL_06cb: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+  IL_06d0: stfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+  IL_06d5: ldloc.1
+  IL_06d6: ldloc.s V_40
+  IL_06d8: ldelema Vehicle
+  IL_06dd: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_06e2: ldarg.1
+  IL_06e3: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+  IL_06e8: stfld UnityEngine.Vector3 Vehicle/Frame::m_position
+  IL_06ed: ldarg.1
+  IL_06ee: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_06f3: ldc.i4.s 78
+  IL_06f5: blt.un IL_0712
+  IL_06fa: ldloc.1
+  IL_06fb: ldloc.s V_40
+  IL_06fd: ldelema Vehicle
+  IL_0702: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_0707: ldarg.1
+  IL_0708: callvirt UnityEngine.Quaternion ColossalFramework.IO.DataSerializer::ReadQuaternion()
+  IL_070d: stfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+  IL_0712: ldarg.1
+  IL_0713: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0718: ldc.i4 129
+  IL_071d: blt.un IL_073a
+  IL_0722: ldloc.1
+  IL_0723: ldloc.s V_40
+  IL_0725: ldelema Vehicle
+  IL_072a: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_072f: ldarg.1
+  IL_0730: callvirt System.Single ColossalFramework.IO.DataSerializer::ReadFloat()
+  IL_0735: stfld System.Single Vehicle/Frame::m_angleVelocity
+  IL_073a: ldloc.1
+  IL_073b: ldloc.s V_40
+  IL_073d: ldelema Vehicle
+  IL_0742: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_0747: ldloc.1
+  IL_0748: ldloc.s V_40
+  IL_074a: ldelema Vehicle
+  IL_074f: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0754: ldc.i4 268435456
+  IL_0759: and
+  IL_075a: ldc.i4.0
+  IL_075b: ceq
+  IL_075d: ldc.i4.0
+  IL_075e: ceq
+  IL_0760: stfld System.Boolean Vehicle/Frame::m_underground
+  IL_0765: ldloc.1
+  IL_0766: ldloc.s V_40
+  IL_0768: ldelema Vehicle
+  IL_076d: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_0772: ldloc.1
+  IL_0773: ldloc.s V_40
+  IL_0775: ldelema Vehicle
+  IL_077a: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_077f: ldc.i4 536870912
+  IL_0784: and
+  IL_0785: ldc.i4.0
+  IL_0786: ceq
+  IL_0788: ldc.i4.0
+  IL_0789: ceq
+  IL_078b: stfld System.Boolean Vehicle/Frame::m_transition
+  IL_0790: ldloc.1
+  IL_0791: ldloc.s V_40
+  IL_0793: ldelema Vehicle
+  IL_0798: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_079d: ldloc.1
+  IL_079e: ldloc.s V_40
+  IL_07a0: ldelema Vehicle
+  IL_07a5: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_07aa: ldc.i4 1073741824
+  IL_07af: and
+  IL_07b0: ldc.i4.0
+  IL_07b1: ceq
+  IL_07b3: ldc.i4.0
+  IL_07b4: ceq
+  IL_07b6: stfld System.Boolean Vehicle/Frame::m_insideBuilding
+  IL_07bb: ldloc.1
+  IL_07bc: ldloc.s V_40
+  IL_07be: ldelema Vehicle
+  IL_07c3: ldloc.1
+  IL_07c4: ldloc.s V_40
+  IL_07c6: ldelema Vehicle
+  IL_07cb: ldfld Vehicle/Frame Vehicle::m_frame0
+  IL_07d0: stfld Vehicle/Frame Vehicle::m_frame1
+  IL_07d5: ldloc.1
+  IL_07d6: ldloc.s V_40
+  IL_07d8: ldelema Vehicle
+  IL_07dd: ldloc.1
+  IL_07de: ldloc.s V_40
+  IL_07e0: ldelema Vehicle
+  IL_07e5: ldfld Vehicle/Frame Vehicle::m_frame0
+  IL_07ea: stfld Vehicle/Frame Vehicle::m_frame2
+  IL_07ef: ldloc.1
+  IL_07f0: ldloc.s V_40
+  IL_07f2: ldelema Vehicle
+  IL_07f7: ldloc.1
+  IL_07f8: ldloc.s V_40
+  IL_07fa: ldelema Vehicle
+  IL_07ff: ldfld Vehicle/Frame Vehicle::m_frame0
+  IL_0804: stfld Vehicle/Frame Vehicle::m_frame3
+  IL_0809: ldarg.1
+  IL_080a: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_080f: ldc.i4.s 68
+  IL_0811: blt.un IL_082e
+  IL_0816: ldloc.1
+  IL_0817: ldloc.s V_40
+  IL_0819: ldelema Vehicle
+  IL_081e: ldarg.1
+  IL_081f: callvirt UnityEngine.Vector4 ColossalFramework.IO.DataSerializer::ReadVector4()
+  IL_0824: stfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0829: br IL_08aa
+  IL_082e: ldarg.1
+  IL_082f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0834: ldc.i4.s 47
+  IL_0836: blt.un IL_086f
+  IL_083b: ldloc.1
+  IL_083c: ldloc.s V_40
+  IL_083e: ldelema Vehicle
+  IL_0843: ldarg.1
+  IL_0844: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+  IL_0849: call UnityEngine.Vector4 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector3)
+  IL_084e: stfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0853: ldloc.1
+  IL_0854: ldloc.s V_40
+  IL_0856: ldelema Vehicle
+  IL_085b: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0860: ldc.r4 2
+  IL_0865: stfld System.Single UnityEngine.Vector4::w
+  IL_086a: br IL_08aa
+  IL_086f: ldloc.1
+  IL_0870: ldloc.s V_40
+  IL_0872: ldelema Vehicle
+  IL_0877: ldloc.1
+  IL_0878: ldloc.s V_40
+  IL_087a: ldelema Vehicle
+  IL_087f: ldflda Vehicle/Frame Vehicle::m_frame0
+  IL_0884: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+  IL_0889: call UnityEngine.Vector4 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector3)
+  IL_088e: stfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0893: ldloc.1
+  IL_0894: ldloc.s V_40
+  IL_0896: ldelema Vehicle
+  IL_089b: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_08a0: ldc.r4 2
+  IL_08a5: stfld System.Single UnityEngine.Vector4::w
+  IL_08aa: ldarg.1
+  IL_08ab: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_08b0: ldc.i4.s 90
+  IL_08b2: blt.un IL_08f5
+  IL_08b7: ldloc.1
+  IL_08b8: ldloc.s V_40
+  IL_08ba: ldelema Vehicle
+  IL_08bf: ldarg.1
+  IL_08c0: callvirt UnityEngine.Vector4 ColossalFramework.IO.DataSerializer::ReadVector4()
+  IL_08c5: stfld UnityEngine.Vector4 Vehicle::m_targetPos1
+  IL_08ca: ldloc.1
+  IL_08cb: ldloc.s V_40
+  IL_08cd: ldelema Vehicle
+  IL_08d2: ldarg.1
+  IL_08d3: callvirt UnityEngine.Vector4 ColossalFramework.IO.DataSerializer::ReadVector4()
+  IL_08d8: stfld UnityEngine.Vector4 Vehicle::m_targetPos2
+  IL_08dd: ldloc.1
+  IL_08de: ldloc.s V_40
+  IL_08e0: ldelema Vehicle
+  IL_08e5: ldarg.1
+  IL_08e6: callvirt UnityEngine.Vector4 ColossalFramework.IO.DataSerializer::ReadVector4()
+  IL_08eb: stfld UnityEngine.Vector4 Vehicle::m_targetPos3
+  IL_08f0: br IL_0943
+  IL_08f5: ldloc.1
+  IL_08f6: ldloc.s V_40
+  IL_08f8: ldelema Vehicle
+  IL_08fd: ldloc.1
+  IL_08fe: ldloc.s V_40
+  IL_0900: ldelema Vehicle
+  IL_0905: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_090a: stfld UnityEngine.Vector4 Vehicle::m_targetPos1
+  IL_090f: ldloc.1
+  IL_0910: ldloc.s V_40
+  IL_0912: ldelema Vehicle
+  IL_0917: ldloc.1
+  IL_0918: ldloc.s V_40
+  IL_091a: ldelema Vehicle
+  IL_091f: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0924: stfld UnityEngine.Vector4 Vehicle::m_targetPos2
+  IL_0929: ldloc.1
+  IL_092a: ldloc.s V_40
+  IL_092c: ldelema Vehicle
+  IL_0931: ldloc.1
+  IL_0932: ldloc.s V_40
+  IL_0934: ldelema Vehicle
+  IL_0939: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_093e: stfld UnityEngine.Vector4 Vehicle::m_targetPos3
+  IL_0943: ldloc.1
+  IL_0944: ldloc.s V_40
+  IL_0946: ldelema Vehicle
+  IL_094b: ldarg.1
+  IL_094c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0951: conv.u2
+  IL_0952: stfld System.UInt16 Vehicle::m_sourceBuilding
+  IL_0957: ldloc.1
+  IL_0958: ldloc.s V_40
+  IL_095a: ldelema Vehicle
+  IL_095f: ldarg.1
+  IL_0960: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0965: conv.u2
+  IL_0966: stfld System.UInt16 Vehicle::m_targetBuilding
+  IL_096b: ldarg.1
+  IL_096c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0971: ldc.i4.s 52
+  IL_0973: blt.un IL_0991
+  IL_0978: ldloc.1
+  IL_0979: ldloc.s V_40
+  IL_097b: ldelema Vehicle
+  IL_0980: ldarg.1
+  IL_0981: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0986: conv.u2
+  IL_0987: stfld System.UInt16 Vehicle::m_transportLine
+  IL_098c: br IL_099f
+  IL_0991: ldloc.1
+  IL_0992: ldloc.s V_40
+  IL_0994: ldelema Vehicle
+  IL_0999: ldc.i4.0
+  IL_099a: stfld System.UInt16 Vehicle::m_transportLine
+  IL_099f: ldloc.1
+  IL_09a0: ldloc.s V_40
+  IL_09a2: ldelema Vehicle
+  IL_09a7: ldarg.1
+  IL_09a8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_09ad: conv.u2
+  IL_09ae: stfld System.UInt16 Vehicle::m_transferSize
+  IL_09b3: ldloc.1
+  IL_09b4: ldloc.s V_40
+  IL_09b6: ldelema Vehicle
+  IL_09bb: ldarg.1
+  IL_09bc: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_09c1: conv.u1
+  IL_09c2: stfld System.Byte Vehicle::m_transferType
+  IL_09c7: ldloc.1
+  IL_09c8: ldloc.s V_40
+  IL_09ca: ldelema Vehicle
+  IL_09cf: ldarg.1
+  IL_09d0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_09d5: conv.u1
+  IL_09d6: stfld System.Byte Vehicle::m_waitCounter
+  IL_09db: ldarg.1
+  IL_09dc: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_09e1: ldc.i4.s 99
+  IL_09e3: blt.un IL_0a01
+  IL_09e8: ldloc.1
+  IL_09e9: ldloc.s V_40
+  IL_09eb: ldelema Vehicle
+  IL_09f0: ldarg.1
+  IL_09f1: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_09f6: conv.u1
+  IL_09f7: stfld System.Byte Vehicle::m_blockCounter
+  IL_09fc: br IL_0a0f
+  IL_0a01: ldloc.1
+  IL_0a02: ldloc.s V_40
+  IL_0a04: ldelema Vehicle
+  IL_0a09: ldc.i4.0
+  IL_0a0a: stfld System.Byte Vehicle::m_blockCounter
+  IL_0a0f: ldarg.1
+  IL_0a10: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0a15: ldc.i4.s 32
+  IL_0a17: blt.un IL_0a34
+  IL_0a1c: ldloc.1
+  IL_0a1d: ldloc.s V_40
+  IL_0a1f: ldelema Vehicle
+  IL_0a24: ldarg.1
+  IL_0a25: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+  IL_0a2a: stfld System.UInt32 Vehicle::m_citizenUnits
+  IL_0a2f: br IL_0a42
+  IL_0a34: ldloc.1
+  IL_0a35: ldloc.s V_40
+  IL_0a37: ldelema Vehicle
+  IL_0a3c: ldc.i4.0
+  IL_0a3d: stfld System.UInt32 Vehicle::m_citizenUnits
+  IL_0a42: ldarg.1
+  IL_0a43: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0a48: ldc.i4.s 47
+  IL_0a4a: blt.un IL_0a8f
+  IL_0a4f: ldloc.1
+  IL_0a50: ldloc.s V_40
+  IL_0a52: ldelema Vehicle
+  IL_0a57: ldarg.1
+  IL_0a58: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+  IL_0a5d: stfld System.UInt32 Vehicle::m_path
+  IL_0a62: ldloc.1
+  IL_0a63: ldloc.s V_40
+  IL_0a65: ldelema Vehicle
+  IL_0a6a: ldarg.1
+  IL_0a6b: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_0a70: conv.u1
+  IL_0a71: stfld System.Byte Vehicle::m_pathPositionIndex
+  IL_0a76: ldloc.1
+  IL_0a77: ldloc.s V_40
+  IL_0a79: ldelema Vehicle
+  IL_0a7e: ldarg.1
+  IL_0a7f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_0a84: conv.u1
+  IL_0a85: stfld System.Byte Vehicle::m_lastPathOffset
+  IL_0a8a: br IL_0ab9
+  IL_0a8f: ldloc.1
+  IL_0a90: ldloc.s V_40
+  IL_0a92: ldelema Vehicle
+  IL_0a97: ldc.i4.0
+  IL_0a98: stfld System.UInt32 Vehicle::m_path
+  IL_0a9d: ldloc.1
+  IL_0a9e: ldloc.s V_40
+  IL_0aa0: ldelema Vehicle
+  IL_0aa5: ldc.i4.0
+  IL_0aa6: stfld System.Byte Vehicle::m_pathPositionIndex
+  IL_0aab: ldloc.1
+  IL_0aac: ldloc.s V_40
+  IL_0aae: ldelema Vehicle
+  IL_0ab3: ldc.i4.0
+  IL_0ab4: stfld System.Byte Vehicle::m_lastPathOffset
+  IL_0ab9: ldarg.1
+  IL_0aba: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0abf: ldc.i4.s 58
+  IL_0ac1: blt.un IL_0adf
+  IL_0ac6: ldloc.1
+  IL_0ac7: ldloc.s V_40
+  IL_0ac9: ldelema Vehicle
+  IL_0ace: ldarg.1
+  IL_0acf: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0ad4: conv.u2
+  IL_0ad5: stfld System.UInt16 Vehicle::m_trailingVehicle
+  IL_0ada: br IL_0aed
+  IL_0adf: ldloc.1
+  IL_0ae0: ldloc.s V_40
+  IL_0ae2: ldelema Vehicle
+  IL_0ae7: ldc.i4.0
+  IL_0ae8: stfld System.UInt16 Vehicle::m_trailingVehicle
+  IL_0aed: ldarg.1
+  IL_0aee: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0af3: ldc.i4.s 104
+  IL_0af5: blt.un IL_0b13
+  IL_0afa: ldloc.1
+  IL_0afb: ldloc.s V_40
+  IL_0afd: ldelema Vehicle
+  IL_0b02: ldarg.1
+  IL_0b03: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0b08: conv.u2
+  IL_0b09: stfld System.UInt16 Vehicle::m_cargoParent
+  IL_0b0e: br IL_0b21
+  IL_0b13: ldloc.1
+  IL_0b14: ldloc.s V_40
+  IL_0b16: ldelema Vehicle
+  IL_0b1b: ldc.i4.0
+  IL_0b1c: stfld System.UInt16 Vehicle::m_cargoParent
+  IL_0b21: ldarg.1
+  IL_0b22: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0b27: ldc.i4 113012
+  IL_0b2c: blt.un IL_0b4a
+  IL_0b31: ldloc.1
+  IL_0b32: ldloc.s V_40
+  IL_0b34: ldelema Vehicle
+  IL_0b39: ldarg.1
+  IL_0b3a: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  IL_0b3f: conv.u2
+  IL_0b40: stfld System.UInt16 Vehicle::m_custom
+  IL_0b45: br IL_0b58
+  IL_0b4a: ldloc.1
+  IL_0b4b: ldloc.s V_40
+  IL_0b4d: ldelema Vehicle
+  IL_0b52: ldc.i4.0
+  IL_0b53: stfld System.UInt16 Vehicle::m_custom
+  IL_0b58: br IL_0ce7
+  IL_0b5d: ldloc.1
+  IL_0b5e: ldloc.s V_40
+  IL_0b60: ldelema Vehicle
+  IL_0b65: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0b6a: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0b6f: newobj System.Void Vehicle/Frame::.ctor(UnityEngine.Vector3,UnityEngine.Quaternion)
+  IL_0b74: stfld Vehicle/Frame Vehicle::m_frame0
+  IL_0b79: ldloc.1
+  IL_0b7a: ldloc.s V_40
+  IL_0b7c: ldelema Vehicle
+  IL_0b81: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0b86: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0b8b: newobj System.Void Vehicle/Frame::.ctor(UnityEngine.Vector3,UnityEngine.Quaternion)
+  IL_0b90: stfld Vehicle/Frame Vehicle::m_frame1
+  IL_0b95: ldloc.1
+  IL_0b96: ldloc.s V_40
+  IL_0b98: ldelema Vehicle
+  IL_0b9d: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0ba2: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0ba7: newobj System.Void Vehicle/Frame::.ctor(UnityEngine.Vector3,UnityEngine.Quaternion)
+  IL_0bac: stfld Vehicle/Frame Vehicle::m_frame2
+  IL_0bb1: ldloc.1
+  IL_0bb2: ldloc.s V_40
+  IL_0bb4: ldelema Vehicle
+  IL_0bb9: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0bbe: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0bc3: newobj System.Void Vehicle/Frame::.ctor(UnityEngine.Vector3,UnityEngine.Quaternion)
+  IL_0bc8: stfld Vehicle/Frame Vehicle::m_frame3
+  IL_0bcd: ldloc.1
+  IL_0bce: ldloc.s V_40
+  IL_0bd0: ldelema Vehicle
+  IL_0bd5: call UnityEngine.Vector4 UnityEngine.Vector4::get_zero()
+  IL_0bda: stfld UnityEngine.Vector4 Vehicle::m_targetPos0
+  IL_0bdf: ldloc.1
+  IL_0be0: ldloc.s V_40
+  IL_0be2: ldelema Vehicle
+  IL_0be7: call UnityEngine.Vector4 UnityEngine.Vector4::get_zero()
+  IL_0bec: stfld UnityEngine.Vector4 Vehicle::m_targetPos1
+  IL_0bf1: ldloc.1
+  IL_0bf2: ldloc.s V_40
+  IL_0bf4: ldelema Vehicle
+  IL_0bf9: call UnityEngine.Vector4 UnityEngine.Vector4::get_zero()
+  IL_0bfe: stfld UnityEngine.Vector4 Vehicle::m_targetPos2
+  IL_0c03: ldloc.1
+  IL_0c04: ldloc.s V_40
+  IL_0c06: ldelema Vehicle
+  IL_0c0b: call UnityEngine.Vector4 UnityEngine.Vector4::get_zero()
+  IL_0c10: stfld UnityEngine.Vector4 Vehicle::m_targetPos3
+  IL_0c15: ldloc.1
+  IL_0c16: ldloc.s V_40
+  IL_0c18: ldelema Vehicle
+  IL_0c1d: ldc.i4.0
+  IL_0c1e: stfld System.UInt16 Vehicle::m_sourceBuilding
+  IL_0c23: ldloc.1
+  IL_0c24: ldloc.s V_40
+  IL_0c26: ldelema Vehicle
+  IL_0c2b: ldc.i4.0
+  IL_0c2c: stfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0c31: ldloc.1
+  IL_0c32: ldloc.s V_40
+  IL_0c34: ldelema Vehicle
+  IL_0c39: ldc.i4.0
+  IL_0c3a: stfld System.UInt16 Vehicle::m_transportLine
+  IL_0c3f: ldloc.1
+  IL_0c40: ldloc.s V_40
+  IL_0c42: ldelema Vehicle
+  IL_0c47: ldc.i4.0
+  IL_0c48: stfld System.UInt16 Vehicle::m_transferSize
+  IL_0c4d: ldloc.1
+  IL_0c4e: ldloc.s V_40
+  IL_0c50: ldelema Vehicle
+  IL_0c55: ldc.i4.0
+  IL_0c56: stfld System.Byte Vehicle::m_transferType
+  IL_0c5b: ldloc.1
+  IL_0c5c: ldloc.s V_40
+  IL_0c5e: ldelema Vehicle
+  IL_0c63: ldc.i4.0
+  IL_0c64: stfld System.Byte Vehicle::m_waitCounter
+  IL_0c69: ldloc.1
+  IL_0c6a: ldloc.s V_40
+  IL_0c6c: ldelema Vehicle
+  IL_0c71: ldc.i4.0
+  IL_0c72: stfld System.Byte Vehicle::m_blockCounter
+  IL_0c77: ldloc.1
+  IL_0c78: ldloc.s V_40
+  IL_0c7a: ldelema Vehicle
+  IL_0c7f: ldc.i4.0
+  IL_0c80: stfld System.UInt32 Vehicle::m_citizenUnits
+  IL_0c85: ldloc.1
+  IL_0c86: ldloc.s V_40
+  IL_0c88: ldelema Vehicle
+  IL_0c8d: ldc.i4.0
+  IL_0c8e: stfld System.UInt32 Vehicle::m_path
+  IL_0c93: ldloc.1
+  IL_0c94: ldloc.s V_40
+  IL_0c96: ldelema Vehicle
+  IL_0c9b: ldc.i4.0
+  IL_0c9c: stfld System.Byte Vehicle::m_pathPositionIndex
+  IL_0ca1: ldloc.1
+  IL_0ca2: ldloc.s V_40
+  IL_0ca4: ldelema Vehicle
+  IL_0ca9: ldc.i4.0
+  IL_0caa: stfld System.Byte Vehicle::m_lastPathOffset
+  IL_0caf: ldloc.1
+  IL_0cb0: ldloc.s V_40
+  IL_0cb2: ldelema Vehicle
+  IL_0cb7: ldc.i4.0
+  IL_0cb8: stfld System.UInt16 Vehicle::m_trailingVehicle
+  IL_0cbd: ldloc.1
+  IL_0cbe: ldloc.s V_40
+  IL_0cc0: ldelema Vehicle
+  IL_0cc5: ldc.i4.0
+  IL_0cc6: stfld System.UInt16 Vehicle::m_cargoParent
+  IL_0ccb: ldloc.1
+  IL_0ccc: ldloc.s V_40
+  IL_0cce: ldelema Vehicle
+  IL_0cd3: ldc.i4.0
+  IL_0cd4: stfld System.UInt16 Vehicle::m_custom
+  IL_0cd9: ldloc.0
+  IL_0cda: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0cdf: ldloc.s V_40
+  IL_0ce1: conv.u2
+  IL_0ce2: callvirt System.Void Array16`1<Vehicle>::ReleaseItem(System.UInt16)
+  IL_0ce7: ldloc.s V_40
+  IL_0ce9: ldc.i4.1
+  IL_0cea: add
+  IL_0ceb: stloc.s V_40
+  IL_0ced: ldloc.s V_40
+  IL_0cef: ldloc.s V_6
+  IL_0cf1: blt IL_0604
+  IL_0cf6: ldarg.1
+  IL_0cf7: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0cfc: ldc.i4.s 115
+  IL_0cfe: blt.un IL_0e08
+  IL_0d03: ldc.i4.1
+  IL_0d04: stloc.s V_41
+  IL_0d06: br IL_0dfa
+  IL_0d0b: ldloc.2
+  IL_0d0c: ldloc.s V_41
+  IL_0d0e: ldelema VehicleParked
+  IL_0d13: ldc.i4.0
+  IL_0d14: stfld System.UInt16 VehicleParked::m_nextGridParked
+  IL_0d19: ldloc.2
+  IL_0d1a: ldloc.s V_41
+  IL_0d1c: ldelema VehicleParked
+  IL_0d21: ldc.r4 0
+  IL_0d26: stfld System.Single VehicleParked::m_travelDistance
+  IL_0d2b: ldloc.2
+  IL_0d2c: ldloc.s V_41
+  IL_0d2e: ldelema VehicleParked
+  IL_0d33: ldfld System.UInt16 VehicleParked::m_flags
+  IL_0d38: brfalse IL_0db4
+  IL_0d3d: ldloc.2
+  IL_0d3e: ldloc.s V_41
+  IL_0d40: ldelema VehicleParked
+  IL_0d45: ldarg.1
+  IL_0d46: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+  IL_0d4b: stfld UnityEngine.Vector3 VehicleParked::m_position
+  IL_0d50: ldloc.2
+  IL_0d51: ldloc.s V_41
+  IL_0d53: ldelema VehicleParked
+  IL_0d58: ldarg.1
+  IL_0d59: callvirt UnityEngine.Quaternion ColossalFramework.IO.DataSerializer::ReadQuaternion()
+  IL_0d5e: stfld UnityEngine.Quaternion VehicleParked::m_rotation
+  IL_0d63: ldloc.2
+  IL_0d64: ldloc.s V_41
+  IL_0d66: ldelema VehicleParked
+  IL_0d6b: ldarg.1
+  IL_0d6c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+  IL_0d71: stfld System.UInt32 VehicleParked::m_ownerCitizen
+  IL_0d76: ldloc.2
+  IL_0d77: ldloc.s V_41
+  IL_0d79: ldelema VehicleParked
+  IL_0d7e: ldfld System.UInt16 VehicleParked::m_flags
+  IL_0d83: ldc.i4.4
+  IL_0d84: and
+  IL_0d85: brfalse IL_0daf
+  IL_0d8a: ldloc.0
+  IL_0d8b: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_0d90: ldloc.s V_41
+  IL_0d92: ldc.i4.6
+  IL_0d93: shr
+  IL_0d94: ldelema System.UInt64
+  IL_0d99: dup
+  IL_0d9a: ldind.i8
+  IL_0d9b: ldc.i4.1
+  IL_0d9c: conv.i8
+  IL_0d9d: ldloc.s V_41
+  IL_0d9f: ldc.i4.s 63
+  IL_0da1: and
+  IL_0da2: ldc.i4.s 63
+  IL_0da4: and
+  IL_0da5: shl
+  IL_0da6: or
+  IL_0da7: stind.i8
+  IL_0da8: ldloc.0
+  IL_0da9: ldc.i4.1
+  IL_0daa: stfld System.Boolean VehicleManager::m_parkedUpdated
+  IL_0daf: br IL_0df4
+  IL_0db4: ldloc.2
+  IL_0db5: ldloc.s V_41
+  IL_0db7: ldelema VehicleParked
+  IL_0dbc: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0dc1: stfld UnityEngine.Vector3 VehicleParked::m_position
+  IL_0dc6: ldloc.2
+  IL_0dc7: ldloc.s V_41
+  IL_0dc9: ldelema VehicleParked
+  IL_0dce: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0dd3: stfld UnityEngine.Quaternion VehicleParked::m_rotation
+  IL_0dd8: ldloc.2
+  IL_0dd9: ldloc.s V_41
+  IL_0ddb: ldelema VehicleParked
+  IL_0de0: ldc.i4.0
+  IL_0de1: stfld System.UInt32 VehicleParked::m_ownerCitizen
+  IL_0de6: ldloc.0
+  IL_0de7: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_0dec: ldloc.s V_41
+  IL_0dee: conv.u2
+  IL_0def: callvirt System.Void Array16`1<VehicleParked>::ReleaseItem(System.UInt16)
+  IL_0df4: ldloc.s V_41
+  IL_0df6: ldc.i4.1
+  IL_0df7: add
+  IL_0df8: stloc.s V_41
+  IL_0dfa: ldloc.s V_41
+  IL_0dfc: ldloc.s V_7
+  IL_0dfe: blt IL_0d0b
+  IL_0e03: br IL_0e7f
+  IL_0e08: ldc.i4.1
+  IL_0e09: stloc.s V_42
+  IL_0e0b: br IL_0e76
+  IL_0e10: ldloc.2
+  IL_0e11: ldloc.s V_42
+  IL_0e13: ldelema VehicleParked
+  IL_0e18: ldc.i4.0
+  IL_0e19: stfld System.UInt16 VehicleParked::m_nextGridParked
+  IL_0e1e: ldloc.2
+  IL_0e1f: ldloc.s V_42
+  IL_0e21: ldelema VehicleParked
+  IL_0e26: ldc.r4 0
+  IL_0e2b: stfld System.Single VehicleParked::m_travelDistance
+  IL_0e30: ldloc.2
+  IL_0e31: ldloc.s V_42
+  IL_0e33: ldelema VehicleParked
+  IL_0e38: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+  IL_0e3d: stfld UnityEngine.Vector3 VehicleParked::m_position
+  IL_0e42: ldloc.2
+  IL_0e43: ldloc.s V_42
+  IL_0e45: ldelema VehicleParked
+  IL_0e4a: call UnityEngine.Quaternion UnityEngine.Quaternion::get_identity()
+  IL_0e4f: stfld UnityEngine.Quaternion VehicleParked::m_rotation
+  IL_0e54: ldloc.2
+  IL_0e55: ldloc.s V_42
+  IL_0e57: ldelema VehicleParked
+  IL_0e5c: ldc.i4.0
+  IL_0e5d: stfld System.UInt32 VehicleParked::m_ownerCitizen
+  IL_0e62: ldloc.0
+  IL_0e63: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_0e68: ldloc.s V_42
+  IL_0e6a: conv.u2
+  IL_0e6b: callvirt System.Void Array16`1<VehicleParked>::ReleaseItem(System.UInt16)
+  IL_0e70: ldloc.s V_42
+  IL_0e72: ldc.i4.1
+  IL_0e73: add
+  IL_0e74: stloc.s V_42
+  IL_0e76: ldloc.s V_42
+  IL_0e78: ldloc.s V_7
+  IL_0e7a: blt IL_0e10
+  IL_0e7f: ldarg.1
+  IL_0e80: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0e85: ldc.i4 315
+  IL_0e8a: blt.un IL_0eb8
+  IL_0e8f: ldloc.0
+  IL_0e90: ldarg.1
+  IL_0e91: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0e96: stfld System.UInt32 VehicleManager::m_totalTrafficFlow
+  IL_0e9b: ldloc.0
+  IL_0e9c: ldarg.1
+  IL_0e9d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0ea2: stfld System.UInt32 VehicleManager::m_maxTrafficFlow
+  IL_0ea7: ldloc.0
+  IL_0ea8: ldarg.1
+  IL_0ea9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+  IL_0eae: stfld System.UInt32 VehicleManager::m_lastTrafficFlow
+  IL_0eb3: br IL_0ecd
+  IL_0eb8: ldloc.0
+  IL_0eb9: ldc.i4.0
+  IL_0eba: stfld System.UInt32 VehicleManager::m_totalTrafficFlow
+  IL_0ebf: ldloc.0
+  IL_0ec0: ldc.i4.0
+  IL_0ec1: stfld System.UInt32 VehicleManager::m_maxTrafficFlow
+  IL_0ec6: ldloc.0
+  IL_0ec7: ldc.i4.0
+  IL_0ec8: stfld System.UInt32 VehicleManager::m_lastTrafficFlow
+  IL_0ecd: ldarg.1
+  IL_0ece: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_0ed3: ldc.i4 116013
+  IL_0ed8: blt.un IL_0efa
+  IL_0edd: ldloc.0
+  IL_0ede: ldarg.1
+  IL_0edf: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0ee4: stfld System.UInt32 VehicleManager::m_tempVehicleCount
+  IL_0ee9: ldloc.0
+  IL_0eea: ldarg.1
+  IL_0eeb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  IL_0ef0: stfld System.UInt32 VehicleManager::m_finalVehicleCount
+  IL_0ef5: br IL_0f08
+  IL_0efa: ldloc.0
+  IL_0efb: ldc.i4.0
+  IL_0efc: stfld System.UInt32 VehicleManager::m_tempVehicleCount
+  IL_0f01: ldloc.0
+  IL_0f02: ldc.i4.0
+  IL_0f03: stfld System.UInt32 VehicleManager::m_finalVehicleCount
+  IL_0f08: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0f0d: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_0f12: ldarg.1
+  IL_0f13: ldstr "VehicleManager"
+  IL_0f18: callvirt System.Void LoadingProfiler::EndDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0f1d: ret
+=== Method: System.Void VehicleManager/Data::AfterDeserialize(ColossalFramework.IO.DataSerializer) ===
+  IL_0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_000a: ldarg.1
+  IL_000b: ldstr "VehicleManager"
+  IL_0010: callvirt System.Void LoadingProfiler::BeginAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_0015: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+  IL_001a: stloc.0
+  IL_001b: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_0020: stloc.1
+  IL_0021: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_0026: callvirt System.Void LoadingManager::WaitUntilEssentialScenesLoaded()
+  IL_002b: ldloc.1
+  IL_002c: ldc.i4.0
+  IL_002d: stfld System.Boolean VehicleManager::m_vehiclesRefreshed
+  IL_0032: call System.Void PrefabCollection`1<VehicleInfo>::BindPrefabs()
+  IL_0037: ldloc.1
+  IL_0038: callvirt System.Void VehicleManager::RefreshTransferVehicles()
+  IL_003d: ldloc.1
+  IL_003e: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0043: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0048: stloc.2
+  IL_0049: ldloc.1
+  IL_004a: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_004f: ldfld T[] Array16`1<VehicleParked>::m_buffer
+  IL_0054: stloc.3
+  IL_0055: ldloc.2
+  IL_0056: ldlen
+  IL_0057: conv.i4
+  IL_0058: stloc.s V_4
+  IL_005a: ldloc.3
+  IL_005b: ldlen
+  IL_005c: conv.i4
+  IL_005d: stloc.s V_5
+  IL_005f: ldnull
+  IL_0060: stloc.s V_6
+  IL_0062: ldnull
+  IL_0063: stloc.s V_7
+  IL_0065: ldarg.1
+  IL_0066: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+  IL_006b: ldc.i4 303
+  IL_0070: bge.un IL_00ed
+  IL_0075: call System.Int32 PrefabCollection`1<VehicleInfo>::PrefabCount()
+  IL_007a: stloc.s V_8
+  IL_007c: ldc.i4.0
+  IL_007d: stloc.s V_9
+  IL_007f: br IL_00e4
+  IL_0084: ldloc.s V_9
+  IL_0086: call T PrefabCollection`1<VehicleInfo>::GetPrefab(System.UInt32)
+  IL_008b: stloc.s V_10
+  IL_008d: ldloc.s V_10
+  IL_008f: brfalse IL_00de
+  IL_0094: ldloc.s V_10
+  IL_0096: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_009b: ldc.i4.m1
+  IL_009c: beq IL_00de
+  IL_00a1: ldloc.s V_10
+  IL_00a3: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_00a8: call System.String PrefabCollection`1<VehicleInfo>::PrefabName(System.UInt32)
+  IL_00ad: stloc.s V_11
+  IL_00af: ldloc.s V_11
+  IL_00b1: ldstr "Evacuation Bus"
+  IL_00b6: call System.Boolean System.String::op_Equality(System.String,System.String)
+  IL_00bb: brfalse IL_00c9
+  IL_00c0: ldloc.s V_10
+  IL_00c2: stloc.s V_6
+  IL_00c4: br IL_00de
+  IL_00c9: ldloc.s V_11
+  IL_00cb: ldstr "Sedan"
+  IL_00d0: call System.Boolean System.String::op_Equality(System.String,System.String)
+  IL_00d5: brfalse IL_00de
+  IL_00da: ldloc.s V_10
+  IL_00dc: stloc.s V_7
+  IL_00de: ldloc.s V_9
+  IL_00e0: ldc.i4.1
+  IL_00e1: add
+  IL_00e2: stloc.s V_9
+  IL_00e4: ldloc.s V_9
+  IL_00e6: ldloc.s V_8
+  IL_00e8: blt IL_0084
+  IL_00ed: ldc.i4.1
+  IL_00ee: stloc.s V_12
+  IL_00f0: br IL_01bd
+  IL_00f5: ldloc.2
+  IL_00f6: ldloc.s V_12
+  IL_00f8: ldelema Vehicle
+  IL_00fd: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0102: brfalse IL_01b7
+  IL_0107: ldloc.2
+  IL_0108: ldloc.s V_12
+  IL_010a: ldelema Vehicle
+  IL_010f: ldfld System.UInt16 Vehicle::m_trailingVehicle
+  IL_0114: stloc.s V_13
+  IL_0116: ldloc.s V_13
+  IL_0118: brfalse IL_0152
+  IL_011d: ldloc.2
+  IL_011e: ldloc.s V_13
+  IL_0120: ldelema Vehicle
+  IL_0125: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_012a: brfalse IL_0144
+  IL_012f: ldloc.2
+  IL_0130: ldloc.s V_13
+  IL_0132: ldelema Vehicle
+  IL_0137: ldloc.s V_12
+  IL_0139: conv.u2
+  IL_013a: stfld System.UInt16 Vehicle::m_leadingVehicle
+  IL_013f: br IL_0152
+  IL_0144: ldloc.2
+  IL_0145: ldloc.s V_12
+  IL_0147: ldelema Vehicle
+  IL_014c: ldc.i4.0
+  IL_014d: stfld System.UInt16 Vehicle::m_trailingVehicle
+  IL_0152: ldloc.2
+  IL_0153: ldloc.s V_12
+  IL_0155: ldelema Vehicle
+  IL_015a: ldfld System.UInt16 Vehicle::m_cargoParent
+  IL_015f: stloc.s V_14
+  IL_0161: ldloc.s V_14
+  IL_0163: brfalse IL_01b7
+  IL_0168: ldloc.2
+  IL_0169: ldloc.s V_14
+  IL_016b: ldelema Vehicle
+  IL_0170: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0175: brfalse IL_01a9
+  IL_017a: ldloc.2
+  IL_017b: ldloc.s V_12
+  IL_017d: ldelema Vehicle
+  IL_0182: ldloc.2
+  IL_0183: ldloc.s V_14
+  IL_0185: ldelema Vehicle
+  IL_018a: ldfld System.UInt16 Vehicle::m_firstCargo
+  IL_018f: stfld System.UInt16 Vehicle::m_nextCargo
+  IL_0194: ldloc.2
+  IL_0195: ldloc.s V_14
+  IL_0197: ldelema Vehicle
+  IL_019c: ldloc.s V_12
+  IL_019e: conv.u2
+  IL_019f: stfld System.UInt16 Vehicle::m_firstCargo
+  IL_01a4: br IL_01b7
+  IL_01a9: ldloc.2
+  IL_01aa: ldloc.s V_12
+  IL_01ac: ldelema Vehicle
+  IL_01b1: ldc.i4.0
+  IL_01b2: stfld System.UInt16 Vehicle::m_cargoParent
+  IL_01b7: ldloc.s V_12
+  IL_01b9: ldc.i4.1
+  IL_01ba: add
+  IL_01bb: stloc.s V_12
+  IL_01bd: ldloc.s V_12
+  IL_01bf: ldloc.s V_4
+  IL_01c1: blt IL_00f5
+  IL_01c6: ldc.i4.1
+  IL_01c7: stloc.s V_15
+  IL_01c9: br IL_033d
+  IL_01ce: ldloc.2
+  IL_01cf: ldloc.s V_15
+  IL_01d1: ldelema Vehicle
+  IL_01d6: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_01db: brfalse IL_0337
+  IL_01e0: ldloc.2
+  IL_01e1: ldloc.s V_15
+  IL_01e3: ldelema Vehicle
+  IL_01e8: ldfld System.UInt32 Vehicle::m_path
+  IL_01ed: brfalse IL_0222
+  IL_01f2: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+  IL_01f7: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+  IL_01fc: ldfld T[] Array32`1<PathUnit>::m_buffer
+  IL_0201: ldloc.2
+  IL_0202: ldloc.s V_15
+  IL_0204: ldelema Vehicle
+  IL_0209: ldfld System.UInt32 Vehicle::m_path
+  IL_020e: conv.u
+  IL_020f: ldelema PathUnit
+  IL_0214: dup
+  IL_0215: ldfld System.Byte PathUnit::m_referenceCount
+  IL_021a: ldc.i4.1
+  IL_021b: add
+  IL_021c: conv.u1
+  IL_021d: stfld System.Byte PathUnit::m_referenceCount
+  IL_0222: ldloc.2
+  IL_0223: ldloc.s V_15
+  IL_0225: ldelema Vehicle
+  IL_022a: call VehicleInfo Vehicle::get_Info()
+  IL_022f: stloc.s V_16
+  IL_0231: ldloc.s V_16
+  IL_0233: brfalse IL_02a4
+  IL_0238: ldloc.s V_16
+  IL_023a: ldloc.s V_6
+  IL_023c: bne.un IL_024c
+  IL_0241: ldloc.s V_7
+  IL_0243: brfalse IL_024c
+  IL_0248: ldloc.s V_7
+  IL_024a: stloc.s V_16
+  IL_024c: ldloc.2
+  IL_024d: ldloc.s V_15
+  IL_024f: ldelema Vehicle
+  IL_0254: ldloc.s V_16
+  IL_0256: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_025b: conv.u2
+  IL_025c: stfld System.UInt16 Vehicle::m_infoIndex
+  IL_0261: ldloc.s V_16
+  IL_0263: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0268: ldloc.s V_15
+  IL_026a: conv.u2
+  IL_026b: ldloc.2
+  IL_026c: ldloc.s V_15
+  IL_026e: ldelema Vehicle
+  IL_0273: callvirt System.Void VehicleAI::LoadVehicle(System.UInt16,Vehicle&)
+  IL_0278: ldloc.2
+  IL_0279: ldloc.s V_15
+  IL_027b: ldelema Vehicle
+  IL_0280: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0285: ldc.i4.4
+  IL_0286: and
+  IL_0287: brfalse IL_02a4
+  IL_028c: ldloc.1
+  IL_028d: ldloc.s V_15
+  IL_028f: conv.u2
+  IL_0290: ldloc.2
+  IL_0291: ldloc.s V_15
+  IL_0293: ldelema Vehicle
+  IL_0298: ldloc.s V_16
+  IL_029a: ldfld System.Boolean VehicleInfo::m_isLargeVehicle
+  IL_029f: callvirt System.Void VehicleManager::AddToGrid(System.UInt16,Vehicle&,System.Boolean)
+  IL_02a4: ldc.i4.0
+  IL_02a5: stloc.s V_17
+  IL_02a7: ldloc.2
+  IL_02a8: ldloc.s V_15
+  IL_02aa: ldelema Vehicle
+  IL_02af: ldfld System.UInt32 Vehicle::m_citizenUnits
+  IL_02b4: stloc.s V_18
+  IL_02b6: ldc.i4.0
+  IL_02b7: stloc.s V_19
+  IL_02b9: br IL_0320
+  IL_02be: ldloc.0
+  IL_02bf: ldfld Array32`1<CitizenUnit> CitizenManager::m_units
+  IL_02c4: ldfld T[] Array32`1<CitizenUnit>::m_buffer
+  IL_02c9: ldloc.s V_18
+  IL_02cb: conv.u
+  IL_02cc: ldelema CitizenUnit
+  IL_02d1: ldloc.s V_15
+  IL_02d3: conv.u2
+  IL_02d4: ldloca.s V_17
+  IL_02d6: call System.Void CitizenUnit::SetVehicleAfterLoading(System.UInt16,System.Int32&)
+  IL_02db: ldloc.0
+  IL_02dc: ldfld Array32`1<CitizenUnit> CitizenManager::m_units
+  IL_02e1: ldfld T[] Array32`1<CitizenUnit>::m_buffer
+  IL_02e6: ldloc.s V_18
+  IL_02e8: conv.u
+  IL_02e9: ldelema CitizenUnit
+  IL_02ee: ldfld System.UInt32 CitizenUnit::m_nextUnit
+  IL_02f3: stloc.s V_18
+  IL_02f5: ldloc.s V_19
+  IL_02f7: ldc.i4.1
+  IL_02f8: add
+  IL_02f9: dup
+  IL_02fa: stloc.s V_19
+  IL_02fc: ldc.i4 524288
+  IL_0301: ble IL_0320
+  IL_0306: ldc.i4.1
+  IL_0307: ldstr "Invalid list detected!
+"
+  IL_030c: call System.String System.Environment::get_StackTrace()
+  IL_0311: call System.String System.String::Concat(System.String,System.String)
+  IL_0316: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_031b: br IL_0327
+  IL_0320: ldloc.s V_18
+  IL_0322: brtrue IL_02be
+  IL_0327: ldloc.2
+  IL_0328: ldloc.s V_15
+  IL_032a: ldelema Vehicle
+  IL_032f: ldloc.s V_17
+  IL_0331: conv.u2
+  IL_0332: stfld System.UInt16 Vehicle::m_touristCount
+  IL_0337: ldloc.s V_15
+  IL_0339: ldc.i4.1
+  IL_033a: add
+  IL_033b: stloc.s V_15
+  IL_033d: ldloc.s V_15
+  IL_033f: ldloc.s V_4
+  IL_0341: blt IL_01ce
+  IL_0346: ldc.i4.1
+  IL_0347: stloc.s V_20
+  IL_0349: br IL_03e7
+  IL_034e: ldloc.3
+  IL_034f: ldloc.s V_20
+  IL_0351: ldelema VehicleParked
+  IL_0356: ldfld System.UInt16 VehicleParked::m_flags
+  IL_035b: brfalse IL_03e1
+  IL_0360: ldloc.3
+  IL_0361: ldloc.s V_20
+  IL_0363: ldelema VehicleParked
+  IL_0368: call VehicleInfo VehicleParked::get_Info()
+  IL_036d: stloc.s V_21
+  IL_036f: ldloc.s V_21
+  IL_0371: brfalse IL_03b0
+  IL_0376: ldloc.s V_21
+  IL_0378: ldloc.s V_6
+  IL_037a: bne.un IL_038a
+  IL_037f: ldloc.s V_7
+  IL_0381: brfalse IL_038a
+  IL_0386: ldloc.s V_7
+  IL_0388: stloc.s V_21
+  IL_038a: ldloc.3
+  IL_038b: ldloc.s V_20
+  IL_038d: ldelema VehicleParked
+  IL_0392: ldloc.s V_21
+  IL_0394: ldfld System.Int32 PrefabInfo::m_prefabDataIndex
+  IL_0399: conv.u2
+  IL_039a: stfld System.UInt16 VehicleParked::m_infoIndex
+  IL_039f: ldloc.1
+  IL_03a0: ldloc.s V_20
+  IL_03a2: conv.u2
+  IL_03a3: ldloc.3
+  IL_03a4: ldloc.s V_20
+  IL_03a6: ldelema VehicleParked
+  IL_03ab: callvirt System.Void VehicleManager::AddToGrid(System.UInt16,VehicleParked&)
+  IL_03b0: ldloc.3
+  IL_03b1: ldloc.s V_20
+  IL_03b3: ldelema VehicleParked
+  IL_03b8: ldfld System.UInt32 VehicleParked::m_ownerCitizen
+  IL_03bd: stloc.s V_22
+  IL_03bf: ldloc.s V_22
+  IL_03c1: brfalse IL_03e1
+  IL_03c6: ldloc.0
+  IL_03c7: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+  IL_03cc: ldfld T[] Array32`1<Citizen>::m_buffer
+  IL_03d1: ldloc.s V_22
+  IL_03d3: conv.u
+  IL_03d4: ldelema Citizen
+  IL_03d9: ldloc.s V_20
+  IL_03db: conv.u2
+  IL_03dc: stfld System.UInt16 Citizen::m_parkedVehicle
+  IL_03e1: ldloc.s V_20
+  IL_03e3: ldc.i4.1
+  IL_03e4: add
+  IL_03e5: stloc.s V_20
+  IL_03e7: ldloc.s V_20
+  IL_03e9: ldloc.s V_5
+  IL_03eb: blt IL_034e
+  IL_03f0: ldloc.1
+  IL_03f1: ldloc.1
+  IL_03f2: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_03f7: callvirt System.UInt32 Array16`1<Vehicle>::ItemCount()
+  IL_03fc: ldc.i4.1
+  IL_03fd: sub
+  IL_03fe: stfld System.Int32 VehicleManager::m_vehicleCount
+  IL_0403: ldloc.1
+  IL_0404: ldloc.1
+  IL_0405: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_040a: callvirt System.UInt32 Array16`1<VehicleParked>::ItemCount()
+  IL_040f: ldc.i4.1
+  IL_0410: sub
+  IL_0411: stfld System.Int32 VehicleManager::m_parkedCount
+  IL_0416: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+  IL_041b: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  IL_0420: ldarg.1
+  IL_0421: ldstr "VehicleManager"
+  IL_0426: callvirt System.Void LoadingProfiler::EndAfterDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+  IL_042b: ret

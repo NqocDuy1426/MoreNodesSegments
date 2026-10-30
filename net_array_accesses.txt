@@ -1,0 +1,2450 @@
+--- Array access at IL_0098 (stelem.i2) ---
+     IL_008b: ldc.i4.0
+     IL_008c: stloc.s V_11
+     IL_008e: br IL_009f
+     IL_0093: ldloc.s V_4
+     IL_0095: ldloc.s V_11
+     IL_0097: ldc.i4.0
+  -> IL_0098: stelem.i2
+     IL_0099: ldloc.s V_11
+     IL_009b: ldc.i4.1
+--- Array access at IL_00B5 (stelem.i2) ---
+     IL_00a8: ldc.i4.0
+     IL_00a9: stloc.s V_12
+     IL_00ab: br IL_00bc
+     IL_00b0: ldloc.s V_5
+     IL_00b2: ldloc.s V_12
+     IL_00b4: ldc.i4.0
+  -> IL_00b5: stelem.i2
+     IL_00b6: ldloc.s V_12
+     IL_00b8: ldc.i4.1
+--- Array access at IL_00D5 (ldelem.ref) ---
+     IL_00c5: ldc.i4.0
+     IL_00c6: stloc.s V_13
+     IL_00c8: br IL_00e1
+     IL_00cd: ldloc.0
+     IL_00ce: ldfld FastList`1<System.UInt16>[] NetManager::m_serviceSegments
+     IL_00d3: ldloc.s V_13
+  -> IL_00d5: ldelem.ref
+     IL_00d6: callvirt System.Void FastList`1<System.UInt16>::Clear()
+     IL_00db: ldloc.s V_13
+--- Array access at IL_0101 (stelem.i4) ---
+     IL_00f1: stloc.s V_14
+     IL_00f3: br IL_0108
+     IL_00f8: ldloc.0
+     IL_00f9: ldfld System.Int32[] NetManager::m_tileNodesCount
+     IL_00fe: ldloc.s V_14
+     IL_0100: ldc.i4.0
+  -> IL_0101: stelem.i4
+     IL_0102: ldloc.s V_14
+     IL_0104: ldc.i4.1
+--- Array access at IL_0137 (ldelema) ---
+     IL_012a: stloc.s V_15
+     IL_012c: ldc.i4.1
+     IL_012d: stloc.s V_16
+     IL_012f: br IL_014e
+     IL_0134: ldloc.1
+     IL_0135: ldloc.s V_16
+  -> IL_0137: ldelema NetLane
+     IL_013c: ldloc.s V_15
+     IL_013e: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+--- Array access at IL_0169 (ldelema) ---
+     IL_0159: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+     IL_015e: ldc.i4.1
+     IL_015f: stloc.s V_17
+     IL_0161: br IL_0261
+     IL_0166: ldloc.1
+     IL_0167: ldloc.s V_17
+  -> IL_0169: ldelema NetLane
+     IL_016e: ldloca.s V_18
+     IL_0170: initobj ColossalFramework.Math.Bezier3
+--- Array access at IL_0180 (ldelema) ---
+     IL_016e: ldloca.s V_18
+     IL_0170: initobj ColossalFramework.Math.Bezier3
+     IL_0176: ldloc.s V_18
+     IL_0178: stfld ColossalFramework.Math.Bezier3 NetLane::m_bezier
+     IL_017d: ldloc.1
+     IL_017e: ldloc.s V_17
+  -> IL_0180: ldelema NetLane
+     IL_0185: ldc.r4 0
+     IL_018a: stfld System.Single NetLane::m_length
+--- Array access at IL_0192 (ldelema) ---
+     IL_017e: ldloc.s V_17
+     IL_0180: ldelema NetLane
+     IL_0185: ldc.r4 0
+     IL_018a: stfld System.Single NetLane::m_length
+     IL_018f: ldloc.1
+     IL_0190: ldloc.s V_17
+  -> IL_0192: ldelema NetLane
+     IL_0197: ldc.r4 0
+     IL_019c: stfld System.Single NetLane::m_curve
+--- Array access at IL_01A4 (ldelema) ---
+     IL_0190: ldloc.s V_17
+     IL_0192: ldelema NetLane
+     IL_0197: ldc.r4 0
+     IL_019c: stfld System.Single NetLane::m_curve
+     IL_01a1: ldloc.1
+     IL_01a2: ldloc.s V_17
+  -> IL_01a4: ldelema NetLane
+     IL_01a9: ldc.i4.0
+     IL_01aa: stfld System.UInt16 NetLane::m_segment
+--- Array access at IL_01B2 (ldelema) ---
+     IL_01a2: ldloc.s V_17
+     IL_01a4: ldelema NetLane
+     IL_01a9: ldc.i4.0
+     IL_01aa: stfld System.UInt16 NetLane::m_segment
+     IL_01af: ldloc.1
+     IL_01b0: ldloc.s V_17
+  -> IL_01b2: ldelema NetLane
+     IL_01b7: ldc.i4.0
+     IL_01b8: stfld System.UInt16 NetLane::m_nodes
+--- Array access at IL_01C0 (ldelema) ---
+     IL_01b0: ldloc.s V_17
+     IL_01b2: ldelema NetLane
+     IL_01b7: ldc.i4.0
+     IL_01b8: stfld System.UInt16 NetLane::m_nodes
+     IL_01bd: ldloc.1
+     IL_01be: ldloc.s V_17
+  -> IL_01c0: ldelema NetLane
+     IL_01c5: ldc.i4.0
+     IL_01c6: stfld System.Byte NetLane::m_firstTarget
+--- Array access at IL_01CE (ldelema) ---
+     IL_01be: ldloc.s V_17
+     IL_01c0: ldelema NetLane
+     IL_01c5: ldc.i4.0
+     IL_01c6: stfld System.Byte NetLane::m_firstTarget
+     IL_01cb: ldloc.1
+     IL_01cc: ldloc.s V_17
+  -> IL_01ce: ldelema NetLane
+     IL_01d3: ldc.i4.0
+     IL_01d4: stfld System.Byte NetLane::m_lastTarget
+--- Array access at IL_01DC (ldelema) ---
+     IL_01cc: ldloc.s V_17
+     IL_01ce: ldelema NetLane
+     IL_01d3: ldc.i4.0
+     IL_01d4: stfld System.Byte NetLane::m_lastTarget
+     IL_01d9: ldloc.1
+     IL_01da: ldloc.s V_17
+  -> IL_01dc: ldelema NetLane
+     IL_01e1: ldc.i4.0
+     IL_01e2: stfld System.Byte NetLane::m_ticketCost
+--- Array access at IL_01F7 (ldelema) ---
+     IL_01e7: ldarg.1
+     IL_01e8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_01ed: ldc.i4.s 24
+     IL_01ef: blt.un IL_0232
+     IL_01f4: ldloc.1
+     IL_01f5: ldloc.s V_17
+  -> IL_01f7: ldelema NetLane
+     IL_01fc: ldfld System.UInt16 NetLane::m_flags
+     IL_0201: brfalse IL_0232
+--- Array access at IL_0209 (ldelema) ---
+     IL_01f5: ldloc.s V_17
+     IL_01f7: ldelema NetLane
+     IL_01fc: ldfld System.UInt16 NetLane::m_flags
+     IL_0201: brfalse IL_0232
+     IL_0206: ldloc.1
+     IL_0207: ldloc.s V_17
+  -> IL_0209: ldelema NetLane
+     IL_020e: ldarg.1
+     IL_020f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+--- Array access at IL_0235 (ldelema) ---
+     IL_0226: ldarg.1
+     IL_0227: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_022c: pop
+     IL_022d: br IL_025b
+     IL_0232: ldloc.1
+     IL_0233: ldloc.s V_17
+  -> IL_0235: ldelema NetLane
+     IL_023a: ldc.i4.0
+     IL_023b: stfld System.UInt16 NetLane::m_flags
+--- Array access at IL_0243 (ldelema) ---
+     IL_0233: ldloc.s V_17
+     IL_0235: ldelema NetLane
+     IL_023a: ldc.i4.0
+     IL_023b: stfld System.UInt16 NetLane::m_flags
+     IL_0240: ldloc.1
+     IL_0241: ldloc.s V_17
+  -> IL_0243: ldelema NetLane
+     IL_0248: ldc.i4.0
+     IL_0249: stfld System.UInt32 NetLane::m_nextLane
+--- Array access at IL_028D (ldelema) ---
+     IL_0280: stloc.s V_19
+     IL_0282: ldc.i4.1
+     IL_0283: stloc.s V_20
+     IL_0285: br IL_02c9
+     IL_028a: ldloc.1
+     IL_028b: ldloc.s V_20
+  -> IL_028d: ldelema NetLane
+     IL_0292: ldfld System.UInt16 NetLane::m_flags
+     IL_0297: brfalse IL_02b5
+--- Array access at IL_029F (ldelema) ---
+     IL_028b: ldloc.s V_20
+     IL_028d: ldelema NetLane
+     IL_0292: ldfld System.UInt16 NetLane::m_flags
+     IL_0297: brfalse IL_02b5
+     IL_029c: ldloc.1
+     IL_029d: ldloc.s V_20
+  -> IL_029f: ldelema NetLane
+     IL_02a4: ldloc.s V_19
+     IL_02a6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_02B8 (ldelema) ---
+     IL_02a4: ldloc.s V_19
+     IL_02a6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_02ab: stfld System.Byte NetLane::m_reservedPrev
+     IL_02b0: br IL_02c3
+     IL_02b5: ldloc.1
+     IL_02b6: ldloc.s V_20
+  -> IL_02b8: ldelema NetLane
+     IL_02bd: ldc.i4.0
+     IL_02be: stfld System.Byte NetLane::m_reservedPrev
+--- Array access at IL_02E9 (ldelema) ---
+     IL_02d9: br IL_0303
+     IL_02de: ldc.i4.1
+     IL_02df: stloc.s V_21
+     IL_02e1: br IL_02fa
+     IL_02e6: ldloc.1
+     IL_02e7: ldloc.s V_21
+  -> IL_02e9: ldelema NetLane
+     IL_02ee: ldc.i4.0
+     IL_02ef: stfld System.Byte NetLane::m_reservedPrev
+--- Array access at IL_0326 (ldelema) ---
+     IL_0319: stloc.s V_22
+     IL_031b: ldc.i4.1
+     IL_031c: stloc.s V_23
+     IL_031e: br IL_0362
+     IL_0323: ldloc.1
+     IL_0324: ldloc.s V_23
+  -> IL_0326: ldelema NetLane
+     IL_032b: ldfld System.UInt16 NetLane::m_flags
+     IL_0330: brfalse IL_034e
+--- Array access at IL_0338 (ldelema) ---
+     IL_0324: ldloc.s V_23
+     IL_0326: ldelema NetLane
+     IL_032b: ldfld System.UInt16 NetLane::m_flags
+     IL_0330: brfalse IL_034e
+     IL_0335: ldloc.1
+     IL_0336: ldloc.s V_23
+  -> IL_0338: ldelema NetLane
+     IL_033d: ldloc.s V_22
+     IL_033f: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_0351 (ldelema) ---
+     IL_033d: ldloc.s V_22
+     IL_033f: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_0344: stfld System.Byte NetLane::m_reservedNext
+     IL_0349: br IL_035c
+     IL_034e: ldloc.1
+     IL_034f: ldloc.s V_23
+  -> IL_0351: ldelema NetLane
+     IL_0356: ldc.i4.0
+     IL_0357: stfld System.Byte NetLane::m_reservedNext
+--- Array access at IL_0382 (ldelema) ---
+     IL_0372: br IL_039c
+     IL_0377: ldc.i4.1
+     IL_0378: stloc.s V_24
+     IL_037a: br IL_0393
+     IL_037f: ldloc.1
+     IL_0380: ldloc.s V_24
+  -> IL_0382: ldelema NetLane
+     IL_0387: ldc.i4.0
+     IL_0388: stfld System.Byte NetLane::m_reservedNext
+--- Array access at IL_03BF (ldelema) ---
+     IL_03b2: stloc.s V_25
+     IL_03b4: ldc.i4.1
+     IL_03b5: stloc.s V_26
+     IL_03b7: br IL_03fb
+     IL_03bc: ldloc.1
+     IL_03bd: ldloc.s V_26
+  -> IL_03bf: ldelema NetLane
+     IL_03c4: ldfld System.UInt16 NetLane::m_flags
+     IL_03c9: brfalse IL_03e7
+--- Array access at IL_03D1 (ldelema) ---
+     IL_03bd: ldloc.s V_26
+     IL_03bf: ldelema NetLane
+     IL_03c4: ldfld System.UInt16 NetLane::m_flags
+     IL_03c9: brfalse IL_03e7
+     IL_03ce: ldloc.1
+     IL_03cf: ldloc.s V_26
+  -> IL_03d1: ldelema NetLane
+     IL_03d6: ldloc.s V_25
+     IL_03d8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_03EA (ldelema) ---
+     IL_03d6: ldloc.s V_25
+     IL_03d8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_03dd: stfld System.Byte NetLane::m_reservedFrame
+     IL_03e2: br IL_03f5
+     IL_03e7: ldloc.1
+     IL_03e8: ldloc.s V_26
+  -> IL_03ea: ldelema NetLane
+     IL_03ef: ldc.i4.0
+     IL_03f0: stfld System.Byte NetLane::m_reservedFrame
+--- Array access at IL_041B (ldelema) ---
+     IL_040b: br IL_0435
+     IL_0410: ldc.i4.1
+     IL_0411: stloc.s V_27
+     IL_0413: br IL_042c
+     IL_0418: ldloc.1
+     IL_0419: ldloc.s V_27
+  -> IL_041b: ldelema NetLane
+     IL_0420: ldc.i4.0
+     IL_0421: stfld System.Byte NetLane::m_reservedFrame
+--- Array access at IL_0458 (ldelema) ---
+     IL_044b: stloc.s V_28
+     IL_044d: ldc.i4.1
+     IL_044e: stloc.s V_29
+     IL_0450: br IL_0494
+     IL_0455: ldloc.1
+     IL_0456: ldloc.s V_29
+  -> IL_0458: ldelema NetLane
+     IL_045d: ldfld System.UInt16 NetLane::m_flags
+     IL_0462: brfalse IL_0480
+--- Array access at IL_046A (ldelema) ---
+     IL_0456: ldloc.s V_29
+     IL_0458: ldelema NetLane
+     IL_045d: ldfld System.UInt16 NetLane::m_flags
+     IL_0462: brfalse IL_0480
+     IL_0467: ldloc.1
+     IL_0468: ldloc.s V_29
+  -> IL_046a: ldelema NetLane
+     IL_046f: ldloc.s V_28
+     IL_0471: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+--- Array access at IL_0483 (ldelema) ---
+     IL_046f: ldloc.s V_28
+     IL_0471: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+     IL_0476: stfld System.UInt16 NetLane::m_lastReserveID
+     IL_047b: br IL_048e
+     IL_0480: ldloc.1
+     IL_0481: ldloc.s V_29
+  -> IL_0483: ldelema NetLane
+     IL_0488: ldc.i4.0
+     IL_0489: stfld System.UInt16 NetLane::m_lastReserveID
+--- Array access at IL_04B4 (ldelema) ---
+     IL_04a4: br IL_04ce
+     IL_04a9: ldc.i4.1
+     IL_04aa: stloc.s V_30
+     IL_04ac: br IL_04c5
+     IL_04b1: ldloc.1
+     IL_04b2: ldloc.s V_30
+  -> IL_04b4: ldelema NetLane
+     IL_04b9: ldc.i4.0
+     IL_04ba: stfld System.UInt16 NetLane::m_lastReserveID
+--- Array access at IL_04F1 (ldelema) ---
+     IL_04e4: stloc.s V_31
+     IL_04e6: ldc.i4.1
+     IL_04e7: stloc.s V_32
+     IL_04e9: br IL_051c
+     IL_04ee: ldloc.2
+     IL_04ef: ldloc.s V_32
+  -> IL_04f1: ldelema NetNode
+     IL_04f6: ldloc.s V_31
+     IL_04f8: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0505 (ldelema) ---
+     IL_04f1: ldelema NetNode
+     IL_04f6: ldloc.s V_31
+     IL_04f8: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+     IL_04fd: stfld NetNode/Flags NetNode::m_flags
+     IL_0502: ldloc.2
+     IL_0503: ldloc.s V_32
+  -> IL_0505: ldelema NetNode
+     IL_050a: ldloc.s V_31
+     IL_050c: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0554 (ldelema) ---
+     IL_0547: stloc.s V_33
+     IL_0549: ldc.i4.1
+     IL_054a: stloc.s V_34
+     IL_054c: br IL_056b
+     IL_0551: ldloc.2
+     IL_0552: ldloc.s V_34
+  -> IL_0554: ldelema NetNode
+     IL_0559: ldloc.s V_33
+     IL_055b: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0593 (ldelema) ---
+     IL_0586: stloc.s V_35
+     IL_0588: ldc.i4.1
+     IL_0589: stloc.s V_36
+     IL_058b: br IL_05d0
+     IL_0590: ldloc.2
+     IL_0591: ldloc.s V_36
+  -> IL_0593: ldelema NetNode
+     IL_0598: ldloc.s V_35
+     IL_059a: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_05B4 (ldelema) ---
+     IL_05a4: ldarg.1
+     IL_05a5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_05aa: ldc.i4.s 60
+     IL_05ac: bge.un IL_05ca
+     IL_05b1: ldloc.2
+     IL_05b2: ldloc.s V_36
+  -> IL_05b4: ldelema NetNode
+     IL_05b9: dup
+     IL_05ba: ldfld NetNode/Flags NetNode::m_flags
+--- Array access at IL_05EB (ldelema) ---
+     IL_05d7: blt IL_0590
+     IL_05dc: ldc.i4 16384
+     IL_05e1: stloc.s V_37
+     IL_05e3: br IL_05fc
+     IL_05e8: ldloc.2
+     IL_05e9: ldloc.s V_37
+  -> IL_05eb: ldelema NetNode
+     IL_05f0: ldc.i4.0
+     IL_05f1: stfld NetNode/Flags NetNode::m_flags
+--- Array access at IL_062F (ldelema) ---
+     IL_0622: stloc.s V_38
+     IL_0624: ldc.i4.1
+     IL_0625: stloc.s V_39
+     IL_0627: br IL_067b
+     IL_062c: ldloc.2
+     IL_062d: ldloc.s V_39
+  -> IL_062f: ldelema NetNode
+     IL_0634: ldfld NetNode/Flags NetNode::m_flags
+     IL_0639: brfalse IL_0663
+--- Array access at IL_0641 (ldelema) ---
+     IL_062d: ldloc.s V_39
+     IL_062f: ldelema NetNode
+     IL_0634: ldfld NetNode/Flags NetNode::m_flags
+     IL_0639: brfalse IL_0663
+     IL_063e: ldloc.2
+     IL_063f: ldloc.s V_39
+  -> IL_0641: ldelema NetNode
+     IL_0646: ldloc.s V_38
+     IL_0648: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+--- Array access at IL_0666 (ldelema) ---
+     IL_064f: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+     IL_0654: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1,Notification/Problem2)
+     IL_0659: stfld Notification/ProblemStruct NetNode::m_problems
+     IL_065e: br IL_0675
+     IL_0663: ldloc.2
+     IL_0664: ldloc.s V_39
+  -> IL_0666: ldelema NetNode
+     IL_066b: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_0670: stfld Notification/ProblemStruct NetNode::m_problems
+--- Array access at IL_06D2 (ldelema) ---
+     IL_06c5: stloc.s V_40
+     IL_06c7: ldc.i4.1
+     IL_06c8: stloc.s V_41
+     IL_06ca: br IL_0717
+     IL_06cf: ldloc.2
+     IL_06d0: ldloc.s V_41
+  -> IL_06d2: ldelema NetNode
+     IL_06d7: ldfld NetNode/Flags NetNode::m_flags
+     IL_06dc: brfalse IL_06ff
+--- Array access at IL_06E4 (ldelema) ---
+     IL_06d0: ldloc.s V_41
+     IL_06d2: ldelema NetNode
+     IL_06d7: ldfld NetNode/Flags NetNode::m_flags
+     IL_06dc: brfalse IL_06ff
+     IL_06e1: ldloc.2
+     IL_06e2: ldloc.s V_41
+  -> IL_06e4: ldelema NetNode
+     IL_06e9: ldloc.s V_40
+     IL_06eb: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+--- Array access at IL_0702 (ldelema) ---
+     IL_06eb: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+     IL_06f0: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+     IL_06f5: stfld Notification/ProblemStruct NetNode::m_problems
+     IL_06fa: br IL_0711
+     IL_06ff: ldloc.2
+     IL_0700: ldloc.s V_41
+  -> IL_0702: ldelema NetNode
+     IL_0707: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_070c: stfld Notification/ProblemStruct NetNode::m_problems
+--- Array access at IL_074C (ldelema) ---
+     IL_073f: stloc.s V_42
+     IL_0741: ldc.i4.1
+     IL_0742: stloc.s V_43
+     IL_0744: br IL_07ae
+     IL_0749: ldloc.2
+     IL_074a: ldloc.s V_43
+  -> IL_074c: ldelema NetNode
+     IL_0751: ldfld NetNode/Flags NetNode::m_flags
+     IL_0756: brfalse IL_0796
+--- Array access at IL_0780 (ldelema) ---
+     IL_0778: conv.i8
+     IL_0779: and
+     IL_077a: or
+     IL_077b: stloc.s V_44
+     IL_077d: ldloc.2
+     IL_077e: ldloc.s V_43
+  -> IL_0780: ldelema NetNode
+     IL_0785: ldloc.s V_44
+     IL_0787: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+--- Array access at IL_0799 (ldelema) ---
+     IL_0785: ldloc.s V_44
+     IL_0787: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+     IL_078c: stfld Notification/ProblemStruct NetNode::m_problems
+     IL_0791: br IL_07a8
+     IL_0796: ldloc.2
+     IL_0797: ldloc.s V_43
+  -> IL_0799: ldelema NetNode
+     IL_079e: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_07a3: stfld Notification/ProblemStruct NetNode::m_problems
+--- Array access at IL_07CE (ldelema) ---
+     IL_07be: br IL_07ec
+     IL_07c3: ldc.i4.1
+     IL_07c4: stloc.s V_45
+     IL_07c6: br IL_07e3
+     IL_07cb: ldloc.2
+     IL_07cc: ldloc.s V_45
+  -> IL_07ce: ldelema NetNode
+     IL_07d3: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_07d8: stfld Notification/ProblemStruct NetNode::m_problems
+--- Array access at IL_080C (ldelema) ---
+     IL_07ff: stloc.s V_46
+     IL_0801: ldc.i4.1
+     IL_0802: stloc.s V_47
+     IL_0804: br IL_0848
+     IL_0809: ldloc.2
+     IL_080a: ldloc.s V_47
+  -> IL_080c: ldelema NetNode
+     IL_0811: ldfld NetNode/Flags NetNode::m_flags
+     IL_0816: brfalse IL_0834
+--- Array access at IL_081E (ldelema) ---
+     IL_080a: ldloc.s V_47
+     IL_080c: ldelema NetNode
+     IL_0811: ldfld NetNode/Flags NetNode::m_flags
+     IL_0816: brfalse IL_0834
+     IL_081b: ldloc.2
+     IL_081c: ldloc.s V_47
+  -> IL_081e: ldelema NetNode
+     IL_0823: ldloc.s V_46
+     IL_0825: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_0837 (ldelema) ---
+     IL_0823: ldloc.s V_46
+     IL_0825: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_082a: stfld System.Byte NetNode::m_maxWaitTime
+     IL_082f: br IL_0842
+     IL_0834: ldloc.2
+     IL_0835: ldloc.s V_47
+  -> IL_0837: ldelema NetNode
+     IL_083c: ldc.i4.0
+     IL_083d: stfld System.Byte NetNode::m_maxWaitTime
+--- Array access at IL_0868 (ldelema) ---
+     IL_0858: br IL_0882
+     IL_085d: ldc.i4.1
+     IL_085e: stloc.s V_48
+     IL_0860: br IL_0879
+     IL_0865: ldloc.2
+     IL_0866: ldloc.s V_48
+  -> IL_0868: ldelema NetNode
+     IL_086d: ldc.i4.0
+     IL_086e: stfld System.Byte NetNode::m_maxWaitTime
+--- Array access at IL_08A2 (ldelema) ---
+     IL_0895: stloc.s V_49
+     IL_0897: ldc.i4.1
+     IL_0898: stloc.s V_50
+     IL_089a: br IL_0900
+     IL_089f: ldloc.2
+     IL_08a0: ldloc.s V_50
+  -> IL_08a2: ldelema NetNode
+     IL_08a7: ldfld NetNode/Flags NetNode::m_flags
+     IL_08ac: brfalse IL_08de
+--- Array access at IL_08B4 (ldelema) ---
+     IL_08a0: ldloc.s V_50
+     IL_08a2: ldelema NetNode
+     IL_08a7: ldfld NetNode/Flags NetNode::m_flags
+     IL_08ac: brfalse IL_08de
+     IL_08b1: ldloc.2
+     IL_08b2: ldloc.s V_50
+  -> IL_08b4: ldelema NetNode
+     IL_08b9: ldloc.s V_49
+     IL_08bb: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+--- Array access at IL_08C8 (ldelema) ---
+     IL_08b4: ldelema NetNode
+     IL_08b9: ldloc.s V_49
+     IL_08bb: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+     IL_08c0: stfld System.UInt16 NetNode::m_tempCounter
+     IL_08c5: ldloc.2
+     IL_08c6: ldloc.s V_50
+  -> IL_08c8: ldelema NetNode
+     IL_08cd: ldloc.s V_49
+     IL_08cf: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+--- Array access at IL_08E1 (ldelema) ---
+     IL_08cd: ldloc.s V_49
+     IL_08cf: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+     IL_08d4: stfld System.UInt16 NetNode::m_finalCounter
+     IL_08d9: br IL_08fa
+     IL_08de: ldloc.2
+     IL_08df: ldloc.s V_50
+  -> IL_08e1: ldelema NetNode
+     IL_08e6: ldc.i4.0
+     IL_08e7: stfld System.UInt16 NetNode::m_tempCounter
+--- Array access at IL_08EF (ldelema) ---
+     IL_08df: ldloc.s V_50
+     IL_08e1: ldelema NetNode
+     IL_08e6: ldc.i4.0
+     IL_08e7: stfld System.UInt16 NetNode::m_tempCounter
+     IL_08ec: ldloc.2
+     IL_08ed: ldloc.s V_50
+  -> IL_08ef: ldelema NetNode
+     IL_08f4: ldc.i4.0
+     IL_08f5: stfld System.UInt16 NetNode::m_finalCounter
+--- Array access at IL_0920 (ldelema) ---
+     IL_0910: br IL_0948
+     IL_0915: ldc.i4.1
+     IL_0916: stloc.s V_51
+     IL_0918: br IL_093f
+     IL_091d: ldloc.2
+     IL_091e: ldloc.s V_51
+  -> IL_0920: ldelema NetNode
+     IL_0925: ldc.i4.0
+     IL_0926: stfld System.UInt16 NetNode::m_tempCounter
+--- Array access at IL_092E (ldelema) ---
+     IL_091e: ldloc.s V_51
+     IL_0920: ldelema NetNode
+     IL_0925: ldc.i4.0
+     IL_0926: stfld System.UInt16 NetNode::m_tempCounter
+     IL_092b: ldloc.2
+     IL_092c: ldloc.s V_51
+  -> IL_092e: ldelema NetNode
+     IL_0933: ldc.i4.0
+     IL_0934: stfld System.UInt16 NetNode::m_finalCounter
+--- Array access at IL_0953 (ldelema) ---
+     IL_0943: blt IL_091d
+     IL_0948: ldc.i4.1
+     IL_0949: stloc.s V_52
+     IL_094b: br IL_0cdc
+     IL_0950: ldloc.2
+     IL_0951: ldloc.s V_52
+  -> IL_0953: ldelema NetNode
+     IL_0958: ldc.i4.0
+     IL_0959: stfld System.UInt16 NetNode::m_segment0
+--- Array access at IL_0961 (ldelema) ---
+     IL_0951: ldloc.s V_52
+     IL_0953: ldelema NetNode
+     IL_0958: ldc.i4.0
+     IL_0959: stfld System.UInt16 NetNode::m_segment0
+     IL_095e: ldloc.2
+     IL_095f: ldloc.s V_52
+  -> IL_0961: ldelema NetNode
+     IL_0966: ldc.i4.0
+     IL_0967: stfld System.UInt16 NetNode::m_segment1
+--- Array access at IL_096F (ldelema) ---
+     IL_095f: ldloc.s V_52
+     IL_0961: ldelema NetNode
+     IL_0966: ldc.i4.0
+     IL_0967: stfld System.UInt16 NetNode::m_segment1
+     IL_096c: ldloc.2
+     IL_096d: ldloc.s V_52
+  -> IL_096f: ldelema NetNode
+     IL_0974: ldc.i4.0
+     IL_0975: stfld System.UInt16 NetNode::m_segment2
+--- Array access at IL_097D (ldelema) ---
+     IL_096d: ldloc.s V_52
+     IL_096f: ldelema NetNode
+     IL_0974: ldc.i4.0
+     IL_0975: stfld System.UInt16 NetNode::m_segment2
+     IL_097a: ldloc.2
+     IL_097b: ldloc.s V_52
+  -> IL_097d: ldelema NetNode
+     IL_0982: ldc.i4.0
+     IL_0983: stfld System.UInt16 NetNode::m_segment3
+--- Array access at IL_098B (ldelema) ---
+     IL_097b: ldloc.s V_52
+     IL_097d: ldelema NetNode
+     IL_0982: ldc.i4.0
+     IL_0983: stfld System.UInt16 NetNode::m_segment3
+     IL_0988: ldloc.2
+     IL_0989: ldloc.s V_52
+  -> IL_098b: ldelema NetNode
+     IL_0990: ldc.i4.0
+     IL_0991: stfld System.UInt16 NetNode::m_segment4
+--- Array access at IL_0999 (ldelema) ---
+     IL_0989: ldloc.s V_52
+     IL_098b: ldelema NetNode
+     IL_0990: ldc.i4.0
+     IL_0991: stfld System.UInt16 NetNode::m_segment4
+     IL_0996: ldloc.2
+     IL_0997: ldloc.s V_52
+  -> IL_0999: ldelema NetNode
+     IL_099e: ldc.i4.0
+     IL_099f: stfld System.UInt16 NetNode::m_segment5
+--- Array access at IL_09A7 (ldelema) ---
+     IL_0997: ldloc.s V_52
+     IL_0999: ldelema NetNode
+     IL_099e: ldc.i4.0
+     IL_099f: stfld System.UInt16 NetNode::m_segment5
+     IL_09a4: ldloc.2
+     IL_09a5: ldloc.s V_52
+  -> IL_09a7: ldelema NetNode
+     IL_09ac: ldc.i4.0
+     IL_09ad: stfld System.UInt16 NetNode::m_segment6
+--- Array access at IL_09B5 (ldelema) ---
+     IL_09a5: ldloc.s V_52
+     IL_09a7: ldelema NetNode
+     IL_09ac: ldc.i4.0
+     IL_09ad: stfld System.UInt16 NetNode::m_segment6
+     IL_09b2: ldloc.2
+     IL_09b3: ldloc.s V_52
+  -> IL_09b5: ldelema NetNode
+     IL_09ba: ldc.i4.0
+     IL_09bb: stfld System.UInt16 NetNode::m_segment7
+--- Array access at IL_09C3 (ldelema) ---
+     IL_09b3: ldloc.s V_52
+     IL_09b5: ldelema NetNode
+     IL_09ba: ldc.i4.0
+     IL_09bb: stfld System.UInt16 NetNode::m_segment7
+     IL_09c0: ldloc.2
+     IL_09c1: ldloc.s V_52
+  -> IL_09c3: ldelema NetNode
+     IL_09c8: ldc.i4.0
+     IL_09c9: stfld System.UInt16 NetNode::m_nextGridNode
+--- Array access at IL_09D1 (ldelema) ---
+     IL_09c1: ldloc.s V_52
+     IL_09c3: ldelema NetNode
+     IL_09c8: ldc.i4.0
+     IL_09c9: stfld System.UInt16 NetNode::m_nextGridNode
+     IL_09ce: ldloc.2
+     IL_09cf: ldloc.s V_52
+  -> IL_09d1: ldelema NetNode
+     IL_09d6: ldc.i4.0
+     IL_09d7: stfld System.UInt16 NetNode::m_nextLaneNode
+--- Array access at IL_09DF (ldelema) ---
+     IL_09cf: ldloc.s V_52
+     IL_09d1: ldelema NetNode
+     IL_09d6: ldc.i4.0
+     IL_09d7: stfld System.UInt16 NetNode::m_nextLaneNode
+     IL_09dc: ldloc.2
+     IL_09dd: ldloc.s V_52
+  -> IL_09df: ldelema NetNode
+     IL_09e4: ldc.i4.0
+     IL_09e5: stfld System.UInt16 NetNode::m_transportLine
+--- Array access at IL_09ED (ldelema) ---
+     IL_09dd: ldloc.s V_52
+     IL_09df: ldelema NetNode
+     IL_09e4: ldc.i4.0
+     IL_09e5: stfld System.UInt16 NetNode::m_transportLine
+     IL_09ea: ldloc.2
+     IL_09eb: ldloc.s V_52
+  -> IL_09ed: ldelema NetNode
+     IL_09f2: ldc.i4.0
+     IL_09f3: stfld System.Byte NetNode::m_coverage
+--- Array access at IL_09FB (ldelema) ---
+     IL_09eb: ldloc.s V_52
+     IL_09ed: ldelema NetNode
+     IL_09f2: ldc.i4.0
+     IL_09f3: stfld System.Byte NetNode::m_coverage
+     IL_09f8: ldloc.2
+     IL_09f9: ldloc.s V_52
+  -> IL_09fb: ldelema NetNode
+     IL_0a00: call DynamicFlags`1<T> DynamicFlags`1<NetInfo>::get_anyTags()
+     IL_0a05: stfld DynamicFlags`1<NetInfo> NetNode::m_tags
+--- Array access at IL_0A0D (ldelema) ---
+     IL_09f9: ldloc.s V_52
+     IL_09fb: ldelema NetNode
+     IL_0a00: call DynamicFlags`1<T> DynamicFlags`1<NetInfo>::get_anyTags()
+     IL_0a05: stfld DynamicFlags`1<NetInfo> NetNode::m_tags
+     IL_0a0a: ldloc.2
+     IL_0a0b: ldloc.s V_52
+  -> IL_0a0d: ldelema NetNode
+     IL_0a12: ldc.i4.0
+     IL_0a13: stfld System.UInt16 NetNode::m_targetCitizens
+--- Array access at IL_0A1B (ldelema) ---
+     IL_0a0b: ldloc.s V_52
+     IL_0a0d: ldelema NetNode
+     IL_0a12: ldc.i4.0
+     IL_0a13: stfld System.UInt16 NetNode::m_targetCitizens
+     IL_0a18: ldloc.2
+     IL_0a19: ldloc.s V_52
+  -> IL_0a1b: ldelema NetNode
+     IL_0a20: ldfld NetNode/Flags NetNode::m_flags
+     IL_0a25: brfalse IL_0c38
+--- Array access at IL_0A2D (ldelema) ---
+     IL_0a19: ldloc.s V_52
+     IL_0a1b: ldelema NetNode
+     IL_0a20: ldfld NetNode/Flags NetNode::m_flags
+     IL_0a25: brfalse IL_0c38
+     IL_0a2a: ldloc.2
+     IL_0a2b: ldloc.s V_52
+  -> IL_0a2d: ldelema NetNode
+     IL_0a32: ldarg.1
+     IL_0a33: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+--- Array access at IL_0A50 (ldelema) ---
+     IL_0a43: stloc.s V_53
+     IL_0a45: ldc.i4.0
+     IL_0a46: stloc.s V_54
+     IL_0a48: br IL_0a68
+     IL_0a4d: ldloc.2
+     IL_0a4e: ldloc.s V_52
+  -> IL_0a50: ldelema NetNode
+     IL_0a55: ldarg.1
+     IL_0a56: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_0A81 (ldelema) ---
+     IL_0a71: ldarg.1
+     IL_0a72: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0a77: ldc.i4.s 45
+     IL_0a79: blt.un IL_0a96
+     IL_0a7e: ldloc.2
+     IL_0a7f: ldloc.s V_52
+  -> IL_0a81: ldelema NetNode
+     IL_0a86: ldarg.1
+     IL_0a87: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+--- Array access at IL_0A99 (ldelema) ---
+     IL_0a86: ldarg.1
+     IL_0a87: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+     IL_0a8c: stfld System.UInt32 NetNode::m_buildIndex
+     IL_0a91: br IL_0aa4
+     IL_0a96: ldloc.2
+     IL_0a97: ldloc.s V_52
+  -> IL_0a99: ldelema NetNode
+     IL_0a9e: ldc.i4.0
+     IL_0a9f: stfld System.UInt32 NetNode::m_buildIndex
+--- Array access at IL_0AB3 (ldelema) ---
+     IL_0aa4: ldarg.1
+     IL_0aa5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0aaa: ldc.i4.6
+     IL_0aab: blt.un IL_0ac9
+     IL_0ab0: ldloc.2
+     IL_0ab1: ldloc.s V_52
+  -> IL_0ab3: ldelema NetNode
+     IL_0ab8: ldarg.1
+     IL_0ab9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_0ACC (ldelema) ---
+     IL_0ab9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_0abe: conv.u2
+     IL_0abf: stfld System.UInt16 NetNode::m_building
+     IL_0ac4: br IL_0ad7
+     IL_0ac9: ldloc.2
+     IL_0aca: ldloc.s V_52
+  -> IL_0acc: ldelema NetNode
+     IL_0ad1: ldc.i4.0
+     IL_0ad2: stfld System.UInt16 NetNode::m_building
+--- Array access at IL_0AE7 (ldelema) ---
+     IL_0ad7: ldarg.1
+     IL_0ad8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0add: ldc.i4.s 80
+     IL_0adf: blt.un IL_0afd
+     IL_0ae4: ldloc.2
+     IL_0ae5: ldloc.s V_52
+  -> IL_0ae7: ldelema NetNode
+     IL_0aec: ldarg.1
+     IL_0aed: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_0B00 (ldelema) ---
+     IL_0aed: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_0af2: conv.u2
+     IL_0af3: stfld System.UInt16 NetNode::m_nextBuildingNode
+     IL_0af8: br IL_0b0b
+     IL_0afd: ldloc.2
+     IL_0afe: ldloc.s V_52
+  -> IL_0b00: ldelema NetNode
+     IL_0b05: ldc.i4.0
+     IL_0b06: stfld System.UInt16 NetNode::m_nextBuildingNode
+--- Array access at IL_0B1B (ldelema) ---
+     IL_0b0b: ldarg.1
+     IL_0b0c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0b11: ldc.i4.s 48
+     IL_0b13: blt.un IL_0b44
+     IL_0b18: ldloc.2
+     IL_0b19: ldloc.s V_52
+  -> IL_0b1b: ldelema NetNode
+     IL_0b20: ldarg.1
+     IL_0b21: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+--- Array access at IL_0B2E (ldelema) ---
+     IL_0b1b: ldelema NetNode
+     IL_0b20: ldarg.1
+     IL_0b21: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+     IL_0b26: stfld System.UInt32 NetNode::m_lane
+     IL_0b2b: ldloc.2
+     IL_0b2c: ldloc.s V_52
+  -> IL_0b2e: ldelema NetNode
+     IL_0b33: ldarg.1
+     IL_0b34: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+--- Array access at IL_0B47 (ldelema) ---
+     IL_0b34: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+     IL_0b39: conv.u1
+     IL_0b3a: stfld System.Byte NetNode::m_laneOffset
+     IL_0b3f: br IL_0b60
+     IL_0b44: ldloc.2
+     IL_0b45: ldloc.s V_52
+  -> IL_0b47: ldelema NetNode
+     IL_0b4c: ldc.i4.0
+     IL_0b4d: stfld System.UInt32 NetNode::m_lane
+--- Array access at IL_0B55 (ldelema) ---
+     IL_0b45: ldloc.s V_52
+     IL_0b47: ldelema NetNode
+     IL_0b4c: ldc.i4.0
+     IL_0b4d: stfld System.UInt32 NetNode::m_lane
+     IL_0b52: ldloc.2
+     IL_0b53: ldloc.s V_52
+  -> IL_0b55: ldelema NetNode
+     IL_0b5a: ldc.i4.0
+     IL_0b5b: stfld System.Byte NetNode::m_laneOffset
+--- Array access at IL_0B70 (ldelema) ---
+     IL_0b60: ldarg.1
+     IL_0b61: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0b66: ldc.i4.s 57
+     IL_0b68: blt.un IL_0b86
+     IL_0b6d: ldloc.2
+     IL_0b6e: ldloc.s V_52
+  -> IL_0b70: ldelema NetNode
+     IL_0b75: ldarg.1
+     IL_0b76: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+--- Array access at IL_0B89 (ldelema) ---
+     IL_0b76: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+     IL_0b7b: conv.u1
+     IL_0b7c: stfld System.Byte NetNode::m_elevation
+     IL_0b81: br IL_0b94
+     IL_0b86: ldloc.2
+     IL_0b87: ldloc.s V_52
+  -> IL_0b89: ldelema NetNode
+     IL_0b8e: ldc.i4.0
+     IL_0b8f: stfld System.Byte NetNode::m_elevation
+--- Array access at IL_0BA4 (ldelema) ---
+     IL_0b94: ldarg.1
+     IL_0b95: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0b9a: ldc.i4.s 59
+     IL_0b9c: blt.un IL_0bba
+     IL_0ba1: ldloc.2
+     IL_0ba2: ldloc.s V_52
+  -> IL_0ba4: ldelema NetNode
+     IL_0ba9: ldarg.1
+     IL_0baa: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+--- Array access at IL_0BBD (ldelema) ---
+     IL_0baa: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+     IL_0baf: conv.u1
+     IL_0bb0: stfld System.Byte NetNode::m_heightOffset
+     IL_0bb5: br IL_0bc8
+     IL_0bba: ldloc.2
+     IL_0bbb: ldloc.s V_52
+  -> IL_0bbd: ldelema NetNode
+     IL_0bc2: ldc.i4.0
+     IL_0bc3: stfld System.Byte NetNode::m_heightOffset
+--- Array access at IL_0BD8 (ldelema) ---
+     IL_0bc8: ldarg.1
+     IL_0bc9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0bce: ldc.i4.s 80
+     IL_0bd0: blt.un IL_0bee
+     IL_0bd5: ldloc.2
+     IL_0bd6: ldloc.s V_52
+  -> IL_0bd8: ldelema NetNode
+     IL_0bdd: ldarg.1
+     IL_0bde: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+--- Array access at IL_0BF1 (ldelema) ---
+     IL_0bde: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+     IL_0be3: conv.u1
+     IL_0be4: stfld System.Byte NetNode::m_connectCount
+     IL_0be9: br IL_0bfc
+     IL_0bee: ldloc.2
+     IL_0bef: ldloc.s V_52
+  -> IL_0bf1: ldelema NetNode
+     IL_0bf6: ldc.i4.0
+     IL_0bf7: stfld System.Byte NetNode::m_connectCount
+--- Array access at IL_0C0F (ldelema) ---
+     IL_0bfc: ldarg.1
+     IL_0bfd: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_0c02: ldc.i4 121007
+     IL_0c07: blt.un IL_0c25
+     IL_0c0c: ldloc.2
+     IL_0c0d: ldloc.s V_52
+  -> IL_0c0f: ldelema NetNode
+     IL_0c14: ldarg.1
+     IL_0c15: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_0C28 (ldelema) ---
+     IL_0c15: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_0c1a: conv.u2
+     IL_0c1b: stfld System.UInt16 NetNode::m_eventRoute
+     IL_0c20: br IL_0c33
+     IL_0c25: ldloc.2
+     IL_0c26: ldloc.s V_52
+  -> IL_0c28: ldelema NetNode
+     IL_0c2d: ldc.i4.0
+     IL_0c2e: stfld System.UInt16 NetNode::m_eventRoute
+--- Array access at IL_0C3B (ldelema) ---
+     IL_0c28: ldelema NetNode
+     IL_0c2d: ldc.i4.0
+     IL_0c2e: stfld System.UInt16 NetNode::m_eventRoute
+     IL_0c33: br IL_0cd6
+     IL_0c38: ldloc.2
+     IL_0c39: ldloc.s V_52
+  -> IL_0c3b: ldelema NetNode
+     IL_0c40: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_0c45: stfld UnityEngine.Vector3 NetNode::m_position
+--- Array access at IL_0C4D (ldelema) ---
+     IL_0c39: ldloc.s V_52
+     IL_0c3b: ldelema NetNode
+     IL_0c40: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_0c45: stfld UnityEngine.Vector3 NetNode::m_position
+     IL_0c4a: ldloc.2
+     IL_0c4b: ldloc.s V_52
+  -> IL_0c4d: ldelema NetNode
+     IL_0c52: ldc.i4.0
+     IL_0c53: stfld System.UInt16 NetNode::m_nextBuildingNode
+--- Array access at IL_0C5B (ldelema) ---
+     IL_0c4b: ldloc.s V_52
+     IL_0c4d: ldelema NetNode
+     IL_0c52: ldc.i4.0
+     IL_0c53: stfld System.UInt16 NetNode::m_nextBuildingNode
+     IL_0c58: ldloc.2
+     IL_0c59: ldloc.s V_52
+  -> IL_0c5b: ldelema NetNode
+     IL_0c60: ldc.i4.0
+     IL_0c61: stfld System.UInt32 NetNode::m_buildIndex
+--- Array access at IL_0C69 (ldelema) ---
+     IL_0c59: ldloc.s V_52
+     IL_0c5b: ldelema NetNode
+     IL_0c60: ldc.i4.0
+     IL_0c61: stfld System.UInt32 NetNode::m_buildIndex
+     IL_0c66: ldloc.2
+     IL_0c67: ldloc.s V_52
+  -> IL_0c69: ldelema NetNode
+     IL_0c6e: ldc.i4.0
+     IL_0c6f: stfld System.UInt16 NetNode::m_building
+--- Array access at IL_0C77 (ldelema) ---
+     IL_0c67: ldloc.s V_52
+     IL_0c69: ldelema NetNode
+     IL_0c6e: ldc.i4.0
+     IL_0c6f: stfld System.UInt16 NetNode::m_building
+     IL_0c74: ldloc.2
+     IL_0c75: ldloc.s V_52
+  -> IL_0c77: ldelema NetNode
+     IL_0c7c: ldc.i4.0
+     IL_0c7d: stfld System.UInt32 NetNode::m_lane
+--- Array access at IL_0C85 (ldelema) ---
+     IL_0c75: ldloc.s V_52
+     IL_0c77: ldelema NetNode
+     IL_0c7c: ldc.i4.0
+     IL_0c7d: stfld System.UInt32 NetNode::m_lane
+     IL_0c82: ldloc.2
+     IL_0c83: ldloc.s V_52
+  -> IL_0c85: ldelema NetNode
+     IL_0c8a: ldc.i4.0
+     IL_0c8b: stfld System.Byte NetNode::m_laneOffset
+--- Array access at IL_0C93 (ldelema) ---
+     IL_0c83: ldloc.s V_52
+     IL_0c85: ldelema NetNode
+     IL_0c8a: ldc.i4.0
+     IL_0c8b: stfld System.Byte NetNode::m_laneOffset
+     IL_0c90: ldloc.2
+     IL_0c91: ldloc.s V_52
+  -> IL_0c93: ldelema NetNode
+     IL_0c98: ldc.i4.0
+     IL_0c99: stfld System.Byte NetNode::m_elevation
+--- Array access at IL_0CA1 (ldelema) ---
+     IL_0c91: ldloc.s V_52
+     IL_0c93: ldelema NetNode
+     IL_0c98: ldc.i4.0
+     IL_0c99: stfld System.Byte NetNode::m_elevation
+     IL_0c9e: ldloc.2
+     IL_0c9f: ldloc.s V_52
+  -> IL_0ca1: ldelema NetNode
+     IL_0ca6: ldc.i4.0
+     IL_0ca7: stfld System.Byte NetNode::m_heightOffset
+--- Array access at IL_0CAF (ldelema) ---
+     IL_0c9f: ldloc.s V_52
+     IL_0ca1: ldelema NetNode
+     IL_0ca6: ldc.i4.0
+     IL_0ca7: stfld System.Byte NetNode::m_heightOffset
+     IL_0cac: ldloc.2
+     IL_0cad: ldloc.s V_52
+  -> IL_0caf: ldelema NetNode
+     IL_0cb4: ldc.i4.0
+     IL_0cb5: stfld System.Byte NetNode::m_connectCount
+--- Array access at IL_0CBD (ldelema) ---
+     IL_0cad: ldloc.s V_52
+     IL_0caf: ldelema NetNode
+     IL_0cb4: ldc.i4.0
+     IL_0cb5: stfld System.Byte NetNode::m_connectCount
+     IL_0cba: ldloc.2
+     IL_0cbb: ldloc.s V_52
+  -> IL_0cbd: ldelema NetNode
+     IL_0cc2: ldc.i4.0
+     IL_0cc3: stfld System.UInt16 NetNode::m_eventRoute
+--- Array access at IL_0D08 (ldelema) ---
+     IL_0cfb: stloc.s V_55
+     IL_0cfd: ldc.i4.1
+     IL_0cfe: stloc.s V_56
+     IL_0d00: br IL_0d1f
+     IL_0d05: ldloc.3
+     IL_0d06: ldloc.s V_56
+  -> IL_0d08: ldelema NetSegment
+     IL_0d0d: ldloc.s V_55
+     IL_0d0f: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0D47 (ldelema) ---
+     IL_0d3a: stloc.s V_57
+     IL_0d3c: ldc.i4.1
+     IL_0d3d: stloc.s V_58
+     IL_0d3f: br IL_0d5e
+     IL_0d44: ldloc.3
+     IL_0d45: ldloc.s V_58
+  -> IL_0d47: ldelema NetSegment
+     IL_0d4c: ldloc.s V_57
+     IL_0d4e: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0D79 (ldelema) ---
+     IL_0d65: blt IL_0d44
+     IL_0d6a: ldc.i4 32768
+     IL_0d6f: stloc.s V_59
+     IL_0d71: br IL_0d8a
+     IL_0d76: ldloc.3
+     IL_0d77: ldloc.s V_59
+  -> IL_0d79: ldelema NetSegment
+     IL_0d7e: ldc.i4.0
+     IL_0d7f: stfld NetSegment/Flags NetSegment::m_flags
+--- Array access at IL_0DBD (ldelema) ---
+     IL_0db0: stloc.s V_60
+     IL_0db2: ldc.i4.1
+     IL_0db3: stloc.s V_61
+     IL_0db5: br IL_0dd4
+     IL_0dba: ldloc.3
+     IL_0dbb: ldloc.s V_61
+  -> IL_0dbd: ldelema NetSegment
+     IL_0dc2: ldloc.s V_60
+     IL_0dc4: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+--- Array access at IL_0E07 (ldelema) ---
+     IL_0dfa: stloc.s V_62
+     IL_0dfc: ldc.i4.1
+     IL_0dfd: stloc.s V_63
+     IL_0dff: br IL_0e53
+     IL_0e04: ldloc.3
+     IL_0e05: ldloc.s V_63
+  -> IL_0e07: ldelema NetSegment
+     IL_0e0c: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0e11: brfalse IL_0e3b
+--- Array access at IL_0E19 (ldelema) ---
+     IL_0e05: ldloc.s V_63
+     IL_0e07: ldelema NetSegment
+     IL_0e0c: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0e11: brfalse IL_0e3b
+     IL_0e16: ldloc.3
+     IL_0e17: ldloc.s V_63
+  -> IL_0e19: ldelema NetSegment
+     IL_0e1e: ldloc.s V_62
+     IL_0e20: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+--- Array access at IL_0E3E (ldelema) ---
+     IL_0e27: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+     IL_0e2c: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1,Notification/Problem2)
+     IL_0e31: stfld Notification/ProblemStruct NetSegment::m_problems
+     IL_0e36: br IL_0e4d
+     IL_0e3b: ldloc.3
+     IL_0e3c: ldloc.s V_63
+  -> IL_0e3e: ldelema NetSegment
+     IL_0e43: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_0e48: stfld Notification/ProblemStruct NetSegment::m_problems
+--- Array access at IL_0E8B (ldelema) ---
+     IL_0e7e: stloc.s V_64
+     IL_0e80: ldc.i4.1
+     IL_0e81: stloc.s V_65
+     IL_0e83: br IL_0ed0
+     IL_0e88: ldloc.3
+     IL_0e89: ldloc.s V_65
+  -> IL_0e8b: ldelema NetSegment
+     IL_0e90: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0e95: brfalse IL_0eb8
+--- Array access at IL_0E9D (ldelema) ---
+     IL_0e89: ldloc.s V_65
+     IL_0e8b: ldelema NetSegment
+     IL_0e90: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0e95: brfalse IL_0eb8
+     IL_0e9a: ldloc.3
+     IL_0e9b: ldloc.s V_65
+  -> IL_0e9d: ldelema NetSegment
+     IL_0ea2: ldloc.s V_64
+     IL_0ea4: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+--- Array access at IL_0EBB (ldelema) ---
+     IL_0ea4: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+     IL_0ea9: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+     IL_0eae: stfld Notification/ProblemStruct NetSegment::m_problems
+     IL_0eb3: br IL_0eca
+     IL_0eb8: ldloc.3
+     IL_0eb9: ldloc.s V_65
+  -> IL_0ebb: ldelema NetSegment
+     IL_0ec0: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_0ec5: stfld Notification/ProblemStruct NetSegment::m_problems
+--- Array access at IL_0EF0 (ldelema) ---
+     IL_0ee0: br IL_0f0e
+     IL_0ee5: ldc.i4.1
+     IL_0ee6: stloc.s V_66
+     IL_0ee8: br IL_0f05
+     IL_0eed: ldloc.3
+     IL_0eee: ldloc.s V_66
+  -> IL_0ef0: ldelema NetSegment
+     IL_0ef5: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+     IL_0efa: stfld Notification/ProblemStruct NetSegment::m_problems
+--- Array access at IL_0F31 (ldelema) ---
+     IL_0f24: stloc.s V_67
+     IL_0f26: ldc.i4.1
+     IL_0f27: stloc.s V_68
+     IL_0f29: br IL_0f8f
+     IL_0f2e: ldloc.3
+     IL_0f2f: ldloc.s V_68
+  -> IL_0f31: ldelema NetSegment
+     IL_0f36: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0f3b: brfalse IL_0f6d
+--- Array access at IL_0F43 (ldelema) ---
+     IL_0f2f: ldloc.s V_68
+     IL_0f31: ldelema NetSegment
+     IL_0f36: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0f3b: brfalse IL_0f6d
+     IL_0f40: ldloc.3
+     IL_0f41: ldloc.s V_68
+  -> IL_0f43: ldelema NetSegment
+     IL_0f48: ldloc.s V_67
+     IL_0f4a: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+--- Array access at IL_0F57 (ldelema) ---
+     IL_0f43: ldelema NetSegment
+     IL_0f48: ldloc.s V_67
+     IL_0f4a: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+     IL_0f4f: stfld System.Int32 NetSegment::m_trafficLightState0
+     IL_0f54: ldloc.3
+     IL_0f55: ldloc.s V_68
+  -> IL_0f57: ldelema NetSegment
+     IL_0f5c: ldloc.s V_67
+     IL_0f5e: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+--- Array access at IL_0F70 (ldelema) ---
+     IL_0f5c: ldloc.s V_67
+     IL_0f5e: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+     IL_0f63: stfld System.Int32 NetSegment::m_trafficLightState1
+     IL_0f68: br IL_0f89
+     IL_0f6d: ldloc.3
+     IL_0f6e: ldloc.s V_68
+  -> IL_0f70: ldelema NetSegment
+     IL_0f75: ldc.i4.0
+     IL_0f76: stfld System.Int32 NetSegment::m_trafficLightState0
+--- Array access at IL_0F7E (ldelema) ---
+     IL_0f6e: ldloc.s V_68
+     IL_0f70: ldelema NetSegment
+     IL_0f75: ldc.i4.0
+     IL_0f76: stfld System.Int32 NetSegment::m_trafficLightState0
+     IL_0f7b: ldloc.3
+     IL_0f7c: ldloc.s V_68
+  -> IL_0f7e: ldelema NetSegment
+     IL_0f83: ldc.i4.0
+     IL_0f84: stfld System.Int32 NetSegment::m_trafficLightState1
+--- Array access at IL_0FC4 (ldelema) ---
+     IL_0fb7: stloc.s V_69
+     IL_0fb9: ldc.i4.1
+     IL_0fba: stloc.s V_70
+     IL_0fbc: br IL_1022
+     IL_0fc1: ldloc.3
+     IL_0fc2: ldloc.s V_70
+  -> IL_0fc4: ldelema NetSegment
+     IL_0fc9: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0fce: brfalse IL_1000
+--- Array access at IL_0FD6 (ldelema) ---
+     IL_0fc2: ldloc.s V_70
+     IL_0fc4: ldelema NetSegment
+     IL_0fc9: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_0fce: brfalse IL_1000
+     IL_0fd3: ldloc.3
+     IL_0fd4: ldloc.s V_70
+  -> IL_0fd6: ldelema NetSegment
+     IL_0fdb: ldloc.s V_69
+     IL_0fdd: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_0FEA (ldelema) ---
+     IL_0fd6: ldelema NetSegment
+     IL_0fdb: ldloc.s V_69
+     IL_0fdd: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_0fe2: stfld System.Int32 NetSegment::m_trafficLightState0
+     IL_0fe7: ldloc.3
+     IL_0fe8: ldloc.s V_70
+  -> IL_0fea: ldelema NetSegment
+     IL_0fef: ldloc.s V_69
+     IL_0ff1: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_1003 (ldelema) ---
+     IL_0fef: ldloc.s V_69
+     IL_0ff1: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_0ff6: stfld System.Int32 NetSegment::m_trafficLightState1
+     IL_0ffb: br IL_101c
+     IL_1000: ldloc.3
+     IL_1001: ldloc.s V_70
+  -> IL_1003: ldelema NetSegment
+     IL_1008: ldc.i4.0
+     IL_1009: stfld System.Int32 NetSegment::m_trafficLightState0
+--- Array access at IL_1011 (ldelema) ---
+     IL_1001: ldloc.s V_70
+     IL_1003: ldelema NetSegment
+     IL_1008: ldc.i4.0
+     IL_1009: stfld System.Int32 NetSegment::m_trafficLightState0
+     IL_100e: ldloc.3
+     IL_100f: ldloc.s V_70
+  -> IL_1011: ldelema NetSegment
+     IL_1016: ldc.i4.0
+     IL_1017: stfld System.Int32 NetSegment::m_trafficLightState1
+--- Array access at IL_1042 (ldelema) ---
+     IL_1032: br IL_106a
+     IL_1037: ldc.i4.1
+     IL_1038: stloc.s V_71
+     IL_103a: br IL_1061
+     IL_103f: ldloc.3
+     IL_1040: ldloc.s V_71
+  -> IL_1042: ldelema NetSegment
+     IL_1047: ldc.i4.0
+     IL_1048: stfld System.Int32 NetSegment::m_trafficLightState0
+--- Array access at IL_1050 (ldelema) ---
+     IL_1040: ldloc.s V_71
+     IL_1042: ldelema NetSegment
+     IL_1047: ldc.i4.0
+     IL_1048: stfld System.Int32 NetSegment::m_trafficLightState0
+     IL_104d: ldloc.3
+     IL_104e: ldloc.s V_71
+  -> IL_1050: ldelema NetSegment
+     IL_1055: ldc.i4.0
+     IL_1056: stfld System.Int32 NetSegment::m_trafficLightState1
+--- Array access at IL_108D (ldelema) ---
+     IL_1080: stloc.s V_72
+     IL_1082: ldc.i4.1
+     IL_1083: stloc.s V_73
+     IL_1085: br IL_10c9
+     IL_108a: ldloc.3
+     IL_108b: ldloc.s V_73
+  -> IL_108d: ldelema NetSegment
+     IL_1092: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1097: brfalse IL_10b5
+--- Array access at IL_109F (ldelema) ---
+     IL_108b: ldloc.s V_73
+     IL_108d: ldelema NetSegment
+     IL_1092: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1097: brfalse IL_10b5
+     IL_109c: ldloc.3
+     IL_109d: ldloc.s V_73
+  -> IL_109f: ldelema NetSegment
+     IL_10a4: ldloc.s V_72
+     IL_10a6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_10B8 (ldelema) ---
+     IL_10a4: ldloc.s V_72
+     IL_10a6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_10ab: stfld System.Byte NetSegment::m_fireCoverage
+     IL_10b0: br IL_10c3
+     IL_10b5: ldloc.3
+     IL_10b6: ldloc.s V_73
+  -> IL_10b8: ldelema NetSegment
+     IL_10bd: ldc.i4.0
+     IL_10be: stfld System.Byte NetSegment::m_fireCoverage
+--- Array access at IL_10E9 (ldelema) ---
+     IL_10d9: br IL_1103
+     IL_10de: ldc.i4.1
+     IL_10df: stloc.s V_74
+     IL_10e1: br IL_10fa
+     IL_10e6: ldloc.3
+     IL_10e7: ldloc.s V_74
+  -> IL_10e9: ldelema NetSegment
+     IL_10ee: ldc.i4.0
+     IL_10ef: stfld System.Byte NetSegment::m_fireCoverage
+--- Array access at IL_1126 (ldelema) ---
+     IL_1119: stloc.s V_75
+     IL_111b: ldc.i4.1
+     IL_111c: stloc.s V_76
+     IL_111e: br IL_1162
+     IL_1123: ldloc.3
+     IL_1124: ldloc.s V_76
+  -> IL_1126: ldelema NetSegment
+     IL_112b: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1130: brfalse IL_114e
+--- Array access at IL_1138 (ldelema) ---
+     IL_1124: ldloc.s V_76
+     IL_1126: ldelema NetSegment
+     IL_112b: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1130: brfalse IL_114e
+     IL_1135: ldloc.3
+     IL_1136: ldloc.s V_76
+  -> IL_1138: ldelema NetSegment
+     IL_113d: ldloc.s V_75
+     IL_113f: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_1151 (ldelema) ---
+     IL_113d: ldloc.s V_75
+     IL_113f: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_1144: stfld System.Byte NetSegment::m_wetness
+     IL_1149: br IL_115c
+     IL_114e: ldloc.3
+     IL_114f: ldloc.s V_76
+  -> IL_1151: ldelema NetSegment
+     IL_1156: ldc.i4.0
+     IL_1157: stfld System.Byte NetSegment::m_wetness
+--- Array access at IL_1182 (ldelema) ---
+     IL_1172: br IL_119c
+     IL_1177: ldc.i4.1
+     IL_1178: stloc.s V_77
+     IL_117a: br IL_1193
+     IL_117f: ldloc.3
+     IL_1180: ldloc.s V_77
+  -> IL_1182: ldelema NetSegment
+     IL_1187: ldc.i4.0
+     IL_1188: stfld System.Byte NetSegment::m_wetness
+--- Array access at IL_11BF (ldelema) ---
+     IL_11b2: stloc.s V_78
+     IL_11b4: ldc.i4.1
+     IL_11b5: stloc.s V_79
+     IL_11b7: br IL_11fb
+     IL_11bc: ldloc.3
+     IL_11bd: ldloc.s V_79
+  -> IL_11bf: ldelema NetSegment
+     IL_11c4: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_11c9: brfalse IL_11e7
+--- Array access at IL_11D1 (ldelema) ---
+     IL_11bd: ldloc.s V_79
+     IL_11bf: ldelema NetSegment
+     IL_11c4: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_11c9: brfalse IL_11e7
+     IL_11ce: ldloc.3
+     IL_11cf: ldloc.s V_79
+  -> IL_11d1: ldelema NetSegment
+     IL_11d6: ldloc.s V_78
+     IL_11d8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_11EA (ldelema) ---
+     IL_11d6: ldloc.s V_78
+     IL_11d8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_11dd: stfld System.Byte NetSegment::m_condition
+     IL_11e2: br IL_11f5
+     IL_11e7: ldloc.3
+     IL_11e8: ldloc.s V_79
+  -> IL_11ea: ldelema NetSegment
+     IL_11ef: ldc.i4.0
+     IL_11f0: stfld System.Byte NetSegment::m_condition
+--- Array access at IL_121B (ldelema) ---
+     IL_120b: br IL_1235
+     IL_1210: ldc.i4.1
+     IL_1211: stloc.s V_80
+     IL_1213: br IL_122c
+     IL_1218: ldloc.3
+     IL_1219: ldloc.s V_80
+  -> IL_121b: ldelema NetSegment
+     IL_1220: ldc.i4.0
+     IL_1221: stfld System.Byte NetSegment::m_condition
+--- Array access at IL_1258 (ldelema) ---
+     IL_124b: stloc.s V_81
+     IL_124d: ldc.i4.1
+     IL_124e: stloc.s V_82
+     IL_1250: br IL_1294
+     IL_1255: ldloc.3
+     IL_1256: ldloc.s V_82
+  -> IL_1258: ldelema NetSegment
+     IL_125d: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1262: brfalse IL_1280
+--- Array access at IL_126A (ldelema) ---
+     IL_1256: ldloc.s V_82
+     IL_1258: ldelema NetSegment
+     IL_125d: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1262: brfalse IL_1280
+     IL_1267: ldloc.3
+     IL_1268: ldloc.s V_82
+  -> IL_126a: ldelema NetSegment
+     IL_126f: ldloc.s V_81
+     IL_1271: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+--- Array access at IL_1283 (ldelema) ---
+     IL_126f: ldloc.s V_81
+     IL_1271: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+     IL_1276: stfld System.UInt16 NetSegment::m_noiseBuffer
+     IL_127b: br IL_128e
+     IL_1280: ldloc.3
+     IL_1281: ldloc.s V_82
+  -> IL_1283: ldelema NetSegment
+     IL_1288: ldc.i4.0
+     IL_1289: stfld System.UInt16 NetSegment::m_noiseBuffer
+--- Array access at IL_12B4 (ldelema) ---
+     IL_12a4: br IL_12ce
+     IL_12a9: ldc.i4.1
+     IL_12aa: stloc.s V_83
+     IL_12ac: br IL_12c5
+     IL_12b1: ldloc.3
+     IL_12b2: ldloc.s V_83
+  -> IL_12b4: ldelema NetSegment
+     IL_12b9: ldc.i4.0
+     IL_12ba: stfld System.UInt16 NetSegment::m_noiseBuffer
+--- Array access at IL_12F1 (ldelema) ---
+     IL_12e4: stloc.s V_84
+     IL_12e6: ldc.i4.1
+     IL_12e7: stloc.s V_85
+     IL_12e9: br IL_132d
+     IL_12ee: ldloc.3
+     IL_12ef: ldloc.s V_85
+  -> IL_12f1: ldelema NetSegment
+     IL_12f6: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_12fb: brfalse IL_1319
+--- Array access at IL_1303 (ldelema) ---
+     IL_12ef: ldloc.s V_85
+     IL_12f1: ldelema NetSegment
+     IL_12f6: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_12fb: brfalse IL_1319
+     IL_1300: ldloc.3
+     IL_1301: ldloc.s V_85
+  -> IL_1303: ldelema NetSegment
+     IL_1308: ldloc.s V_84
+     IL_130a: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_131C (ldelema) ---
+     IL_1308: ldloc.s V_84
+     IL_130a: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_130f: stfld System.Byte NetSegment::m_noiseDensity
+     IL_1314: br IL_1327
+     IL_1319: ldloc.3
+     IL_131a: ldloc.s V_85
+  -> IL_131c: ldelema NetSegment
+     IL_1321: ldc.i4.0
+     IL_1322: stfld System.Byte NetSegment::m_noiseDensity
+--- Array access at IL_134D (ldelema) ---
+     IL_133d: br IL_1367
+     IL_1342: ldc.i4.1
+     IL_1343: stloc.s V_86
+     IL_1345: br IL_135e
+     IL_134a: ldloc.3
+     IL_134b: ldloc.s V_86
+  -> IL_134d: ldelema NetSegment
+     IL_1352: ldc.i4.0
+     IL_1353: stfld System.Byte NetSegment::m_noiseDensity
+--- Array access at IL_138A (ldelema) ---
+     IL_137d: stloc.s V_87
+     IL_137f: ldc.i4.1
+     IL_1380: stloc.s V_88
+     IL_1382: br IL_13c6
+     IL_1387: ldloc.3
+     IL_1388: ldloc.s V_88
+  -> IL_138a: ldelema NetSegment
+     IL_138f: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1394: brfalse IL_13b2
+--- Array access at IL_139C (ldelema) ---
+     IL_1388: ldloc.s V_88
+     IL_138a: ldelema NetSegment
+     IL_138f: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1394: brfalse IL_13b2
+     IL_1399: ldloc.3
+     IL_139a: ldloc.s V_88
+  -> IL_139c: ldelema NetSegment
+     IL_13a1: ldloc.s V_87
+     IL_13a3: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+--- Array access at IL_13B5 (ldelema) ---
+     IL_13a1: ldloc.s V_87
+     IL_13a3: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+     IL_13a8: stfld System.Byte NetSegment::m_attractiveness
+     IL_13ad: br IL_13c0
+     IL_13b2: ldloc.3
+     IL_13b3: ldloc.s V_88
+  -> IL_13b5: ldelema NetSegment
+     IL_13ba: ldc.i4.0
+     IL_13bb: stfld System.Byte NetSegment::m_attractiveness
+--- Array access at IL_13E6 (ldelema) ---
+     IL_13d6: br IL_1400
+     IL_13db: ldc.i4.1
+     IL_13dc: stloc.s V_89
+     IL_13de: br IL_13f7
+     IL_13e3: ldloc.3
+     IL_13e4: ldloc.s V_89
+  -> IL_13e6: ldelema NetSegment
+     IL_13eb: ldc.i4.0
+     IL_13ec: stfld System.Byte NetSegment::m_attractiveness
+--- Array access at IL_140B (ldelema) ---
+     IL_13fb: blt IL_13e3
+     IL_1400: ldc.i4.1
+     IL_1401: stloc.s V_90
+     IL_1403: br IL_195f
+     IL_1408: ldloc.3
+     IL_1409: ldloc.s V_90
+  -> IL_140b: ldelema NetSegment
+     IL_1410: ldc.i4.0
+     IL_1411: stfld System.UInt16 NetSegment::m_startLeftSegment
+--- Array access at IL_1419 (ldelema) ---
+     IL_1409: ldloc.s V_90
+     IL_140b: ldelema NetSegment
+     IL_1410: ldc.i4.0
+     IL_1411: stfld System.UInt16 NetSegment::m_startLeftSegment
+     IL_1416: ldloc.3
+     IL_1417: ldloc.s V_90
+  -> IL_1419: ldelema NetSegment
+     IL_141e: ldc.i4.0
+     IL_141f: stfld System.UInt16 NetSegment::m_startRightSegment
+--- Array access at IL_1427 (ldelema) ---
+     IL_1417: ldloc.s V_90
+     IL_1419: ldelema NetSegment
+     IL_141e: ldc.i4.0
+     IL_141f: stfld System.UInt16 NetSegment::m_startRightSegment
+     IL_1424: ldloc.3
+     IL_1425: ldloc.s V_90
+  -> IL_1427: ldelema NetSegment
+     IL_142c: ldc.i4.0
+     IL_142d: stfld System.UInt16 NetSegment::m_endLeftSegment
+--- Array access at IL_1435 (ldelema) ---
+     IL_1425: ldloc.s V_90
+     IL_1427: ldelema NetSegment
+     IL_142c: ldc.i4.0
+     IL_142d: stfld System.UInt16 NetSegment::m_endLeftSegment
+     IL_1432: ldloc.3
+     IL_1433: ldloc.s V_90
+  -> IL_1435: ldelema NetSegment
+     IL_143a: ldc.i4.0
+     IL_143b: stfld System.UInt16 NetSegment::m_endRightSegment
+--- Array access at IL_1443 (ldelema) ---
+     IL_1433: ldloc.s V_90
+     IL_1435: ldelema NetSegment
+     IL_143a: ldc.i4.0
+     IL_143b: stfld System.UInt16 NetSegment::m_endRightSegment
+     IL_1440: ldloc.3
+     IL_1441: ldloc.s V_90
+  -> IL_1443: ldelema NetSegment
+     IL_1448: ldc.r4 0
+     IL_144d: stfld System.Single NetSegment::m_averageLength
+--- Array access at IL_1455 (ldelema) ---
+     IL_1441: ldloc.s V_90
+     IL_1443: ldelema NetSegment
+     IL_1448: ldc.r4 0
+     IL_144d: stfld System.Single NetSegment::m_averageLength
+     IL_1452: ldloc.3
+     IL_1453: ldloc.s V_90
+  -> IL_1455: ldelema NetSegment
+     IL_145a: ldc.i4.0
+     IL_145b: stfld System.UInt16 NetSegment::m_nextGridSegment
+--- Array access at IL_1463 (ldelema) ---
+     IL_1453: ldloc.s V_90
+     IL_1455: ldelema NetSegment
+     IL_145a: ldc.i4.0
+     IL_145b: stfld System.UInt16 NetSegment::m_nextGridSegment
+     IL_1460: ldloc.3
+     IL_1461: ldloc.s V_90
+  -> IL_1463: ldelema NetSegment
+     IL_1468: ldc.i4.0
+     IL_1469: stfld System.Byte NetSegment::m_cornerAngleStart
+--- Array access at IL_1471 (ldelema) ---
+     IL_1461: ldloc.s V_90
+     IL_1463: ldelema NetSegment
+     IL_1468: ldc.i4.0
+     IL_1469: stfld System.Byte NetSegment::m_cornerAngleStart
+     IL_146e: ldloc.3
+     IL_146f: ldloc.s V_90
+  -> IL_1471: ldelema NetSegment
+     IL_1476: ldc.i4.0
+     IL_1477: stfld System.Byte NetSegment::m_cornerAngleEnd
+--- Array access at IL_147F (ldelema) ---
+     IL_146f: ldloc.s V_90
+     IL_1471: ldelema NetSegment
+     IL_1476: ldc.i4.0
+     IL_1477: stfld System.Byte NetSegment::m_cornerAngleEnd
+     IL_147c: ldloc.3
+     IL_147d: ldloc.s V_90
+  -> IL_147f: ldelema NetSegment
+     IL_1484: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1489: brfalse IL_1811
+--- Array access at IL_1491 (ldelema) ---
+     IL_147d: ldloc.s V_90
+     IL_147f: ldelema NetSegment
+     IL_1484: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1489: brfalse IL_1811
+     IL_148e: ldloc.3
+     IL_148f: ldloc.s V_90
+  -> IL_1491: ldelema NetSegment
+     IL_1496: dup
+     IL_1497: ldfld NetSegment/Flags NetSegment::m_flags
+--- Array access at IL_14AA (ldelema) ---
+     IL_1497: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_149c: ldc.i4 -1025
+     IL_14a1: and
+     IL_14a2: stfld NetSegment/Flags NetSegment::m_flags
+     IL_14a7: ldloc.3
+     IL_14a8: ldloc.s V_90
+  -> IL_14aa: ldelema NetSegment
+     IL_14af: ldarg.1
+     IL_14b0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+--- Array access at IL_14CA (ldelema) ---
+     IL_14ba: ldarg.1
+     IL_14bb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_14c0: ldc.i4.s 46
+     IL_14c2: blt.un IL_14df
+     IL_14c7: ldloc.3
+     IL_14c8: ldloc.s V_90
+  -> IL_14ca: ldelema NetSegment
+     IL_14cf: ldarg.1
+     IL_14d0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+--- Array access at IL_14E2 (ldelema) ---
+     IL_14cf: ldarg.1
+     IL_14d0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+     IL_14d5: stfld System.UInt32 NetSegment::m_modifiedIndex
+     IL_14da: br IL_14f9
+     IL_14df: ldloc.3
+     IL_14e0: ldloc.s V_90
+  -> IL_14e2: ldelema NetSegment
+     IL_14e7: ldloc.3
+     IL_14e8: ldloc.s V_90
+--- Array access at IL_14EA (ldelema) ---
+     IL_14da: br IL_14f9
+     IL_14df: ldloc.3
+     IL_14e0: ldloc.s V_90
+     IL_14e2: ldelema NetSegment
+     IL_14e7: ldloc.3
+     IL_14e8: ldloc.s V_90
+  -> IL_14ea: ldelema NetSegment
+     IL_14ef: ldfld System.UInt32 NetSegment::m_buildIndex
+     IL_14f4: stfld System.UInt32 NetSegment::m_modifiedIndex
+--- Array access at IL_1509 (ldelema) ---
+     IL_14f9: ldarg.1
+     IL_14fa: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_14ff: ldc.i4.s 24
+     IL_1501: blt.un IL_151e
+     IL_1506: ldloc.3
+     IL_1507: ldloc.s V_90
+  -> IL_1509: ldelema NetSegment
+     IL_150e: ldarg.1
+     IL_150f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+--- Array access at IL_1521 (ldelema) ---
+     IL_150e: ldarg.1
+     IL_150f: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+     IL_1514: stfld System.UInt32 NetSegment::m_lanes
+     IL_1519: br IL_152c
+     IL_151e: ldloc.3
+     IL_151f: ldloc.s V_90
+  -> IL_1521: ldelema NetSegment
+     IL_1526: ldc.i4.0
+     IL_1527: stfld System.UInt32 NetSegment::m_lanes
+--- Array access at IL_153C (ldelema) ---
+     IL_152c: ldarg.1
+     IL_152d: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_1532: ldc.i4.s 50
+     IL_1534: blt.un IL_1551
+     IL_1539: ldloc.3
+     IL_153a: ldloc.s V_90
+  -> IL_153c: ldelema NetSegment
+     IL_1541: ldarg.1
+     IL_1542: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+--- Array access at IL_1554 (ldelema) ---
+     IL_1541: ldarg.1
+     IL_1542: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+     IL_1547: stfld System.UInt32 NetSegment::m_path
+     IL_154c: br IL_155f
+     IL_1551: ldloc.3
+     IL_1552: ldloc.s V_90
+  -> IL_1554: ldelema NetSegment
+     IL_1559: ldc.i4.0
+     IL_155a: stfld System.UInt32 NetSegment::m_path
+--- Array access at IL_1562 (ldelema) ---
+     IL_1552: ldloc.s V_90
+     IL_1554: ldelema NetSegment
+     IL_1559: ldc.i4.0
+     IL_155a: stfld System.UInt32 NetSegment::m_path
+     IL_155f: ldloc.3
+     IL_1560: ldloc.s V_90
+  -> IL_1562: ldelema NetSegment
+     IL_1567: ldarg.1
+     IL_1568: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+--- Array access at IL_1575 (ldelema) ---
+     IL_1562: ldelema NetSegment
+     IL_1567: ldarg.1
+     IL_1568: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+     IL_156d: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+     IL_1572: ldloc.3
+     IL_1573: ldloc.s V_90
+  -> IL_1575: ldelema NetSegment
+     IL_157a: ldarg.1
+     IL_157b: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+--- Array access at IL_1588 (ldelema) ---
+     IL_1575: ldelema NetSegment
+     IL_157a: ldarg.1
+     IL_157b: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+     IL_1580: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+     IL_1585: ldloc.3
+     IL_1586: ldloc.s V_90
+  -> IL_1588: ldelema NetSegment
+     IL_158d: ldarg.1
+     IL_158e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_159C (ldelema) ---
+     IL_158d: ldarg.1
+     IL_158e: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_1593: conv.u2
+     IL_1594: stfld System.UInt16 NetSegment::m_startNode
+     IL_1599: ldloc.3
+     IL_159a: ldloc.s V_90
+  -> IL_159c: ldelema NetSegment
+     IL_15a1: ldarg.1
+     IL_15a2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_15B0 (ldelema) ---
+     IL_15a1: ldarg.1
+     IL_15a2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_15a7: conv.u2
+     IL_15a8: stfld System.UInt16 NetSegment::m_endNode
+     IL_15ad: ldloc.3
+     IL_15ae: ldloc.s V_90
+  -> IL_15b0: ldelema NetSegment
+     IL_15b5: ldarg.1
+     IL_15b6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_15C4 (ldelema) ---
+     IL_15b5: ldarg.1
+     IL_15b6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_15bb: conv.u2
+     IL_15bc: stfld System.UInt16 NetSegment::m_blockStartLeft
+     IL_15c1: ldloc.3
+     IL_15c2: ldloc.s V_90
+  -> IL_15c4: ldelema NetSegment
+     IL_15c9: ldarg.1
+     IL_15ca: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_15D8 (ldelema) ---
+     IL_15c9: ldarg.1
+     IL_15ca: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_15cf: conv.u2
+     IL_15d0: stfld System.UInt16 NetSegment::m_blockStartRight
+     IL_15d5: ldloc.3
+     IL_15d6: ldloc.s V_90
+  -> IL_15d8: ldelema NetSegment
+     IL_15dd: ldarg.1
+     IL_15de: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_15EC (ldelema) ---
+     IL_15dd: ldarg.1
+     IL_15de: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_15e3: conv.u2
+     IL_15e4: stfld System.UInt16 NetSegment::m_blockEndLeft
+     IL_15e9: ldloc.3
+     IL_15ea: ldloc.s V_90
+  -> IL_15ec: ldelema NetSegment
+     IL_15f1: ldarg.1
+     IL_15f2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_160D (ldelema) ---
+     IL_15fd: ldarg.1
+     IL_15fe: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_1603: ldc.i4.s 77
+     IL_1605: blt.un IL_1637
+     IL_160a: ldloc.3
+     IL_160b: ldloc.s V_90
+  -> IL_160d: ldelema NetSegment
+     IL_1612: ldarg.1
+     IL_1613: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_1621 (ldelema) ---
+     IL_1612: ldarg.1
+     IL_1613: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_1618: conv.u2
+     IL_1619: stfld System.UInt16 NetSegment::m_trafficBuffer
+     IL_161e: ldloc.3
+     IL_161f: ldloc.s V_90
+  -> IL_1621: ldelema NetSegment
+     IL_1626: ldarg.1
+     IL_1627: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+--- Array access at IL_163A (ldelema) ---
+     IL_1627: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+     IL_162c: conv.u1
+     IL_162d: stfld System.Byte NetSegment::m_trafficDensity
+     IL_1632: br IL_1653
+     IL_1637: ldloc.3
+     IL_1638: ldloc.s V_90
+  -> IL_163a: ldelema NetSegment
+     IL_163f: ldc.i4.0
+     IL_1640: stfld System.UInt16 NetSegment::m_trafficBuffer
+--- Array access at IL_1648 (ldelema) ---
+     IL_1638: ldloc.s V_90
+     IL_163a: ldelema NetSegment
+     IL_163f: ldc.i4.0
+     IL_1640: stfld System.UInt16 NetSegment::m_trafficBuffer
+     IL_1645: ldloc.3
+     IL_1646: ldloc.s V_90
+  -> IL_1648: ldelema NetSegment
+     IL_164d: ldc.i4.0
+     IL_164e: stfld System.Byte NetSegment::m_trafficDensity
+--- Array access at IL_1666 (ldelema) ---
+     IL_1653: ldarg.1
+     IL_1654: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_1659: ldc.i4 312
+     IL_165e: blt.un IL_167c
+     IL_1663: ldloc.3
+     IL_1664: ldloc.s V_90
+  -> IL_1666: ldelema NetSegment
+     IL_166b: ldarg.1
+     IL_166c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_167F (ldelema) ---
+     IL_166c: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_1671: conv.u2
+     IL_1672: stfld System.UInt16 NetSegment::m_nameSeed
+     IL_1677: br IL_168a
+     IL_167c: ldloc.3
+     IL_167d: ldloc.s V_90
+  -> IL_167f: ldelema NetSegment
+     IL_1684: ldc.i4.0
+     IL_1685: stfld System.UInt16 NetSegment::m_nameSeed
+--- Array access at IL_169D (ldelema) ---
+     IL_168a: ldarg.1
+     IL_168b: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_1690: ldc.i4 109007
+     IL_1695: bge.un IL_16b4
+     IL_169a: ldloc.3
+     IL_169b: ldloc.s V_90
+  -> IL_169d: ldelema NetSegment
+     IL_16a2: ldloc.3
+     IL_16a3: ldloc.s V_90
+--- Array access at IL_16A5 (ldelema) ---
+     IL_1695: bge.un IL_16b4
+     IL_169a: ldloc.3
+     IL_169b: ldloc.s V_90
+     IL_169d: ldelema NetSegment
+     IL_16a2: ldloc.3
+     IL_16a3: ldloc.s V_90
+  -> IL_16a5: ldelema NetSegment
+     IL_16aa: ldfld System.Byte NetSegment::m_trafficDensity
+     IL_16af: stfld System.Byte NetSegment::m_noiseDensity
+--- Array access at IL_16C7 (ldelema) ---
+     IL_16b4: ldarg.1
+     IL_16b5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_16ba: ldc.i4 113015
+     IL_16bf: blt.un IL_16dc
+     IL_16c4: ldloc.3
+     IL_16c5: ldloc.s V_90
+  -> IL_16c7: ldelema NetSegment
+     IL_16cc: ldarg.1
+     IL_16cd: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+--- Array access at IL_16DF (ldelema) ---
+     IL_16cc: ldarg.1
+     IL_16cd: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+     IL_16d2: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+     IL_16d7: br IL_16ea
+     IL_16dc: ldloc.3
+     IL_16dd: ldloc.s V_90
+  -> IL_16df: ldelema NetSegment
+     IL_16e4: ldc.i4.0
+     IL_16e5: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+--- Array access at IL_16FD (ldelema) ---
+     IL_16ea: ldarg.1
+     IL_16eb: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_16f0: ldc.i4 114002
+     IL_16f5: blt.un IL_1722
+     IL_16fa: ldloc.3
+     IL_16fb: ldloc.s V_90
+  -> IL_16fd: ldelema NetSegment
+     IL_1702: ldarg.1
+     IL_1703: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+--- Array access at IL_1725 (ldelema) ---
+     IL_170e: br IL_1718
+     IL_1713: ldc.i4 65535
+     IL_1718: stfld System.UInt16 NetSegment::m_treeInfoIndex
+     IL_171d: br IL_1734
+     IL_1722: ldloc.3
+     IL_1723: ldloc.s V_90
+  -> IL_1725: ldelema NetSegment
+     IL_172a: ldc.i4 65535
+     IL_172f: stfld System.UInt16 NetSegment::m_treeInfoIndex
+--- Array access at IL_1747 (ldelema) ---
+     IL_1734: ldarg.1
+     IL_1735: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_173a: ldc.i4 120003
+     IL_173f: blt.un IL_178f
+     IL_1744: ldloc.3
+     IL_1745: ldloc.s V_90
+  -> IL_1747: ldelema NetSegment
+     IL_174c: ldarg.1
+     IL_174d: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+--- Array access at IL_176A (ldelema) ---
+     IL_1757: ldc.i4.0
+     IL_1758: br IL_1762
+     IL_175d: ldc.i4 65535
+     IL_1762: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_1767: ldloc.3
+     IL_1768: ldloc.s V_90
+  -> IL_176a: ldelema NetSegment
+     IL_176f: ldarg.1
+     IL_1770: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+--- Array access at IL_1792 (ldelema) ---
+     IL_177b: br IL_1785
+     IL_1780: ldc.i4 65535
+     IL_1785: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+     IL_178a: br IL_17b3
+     IL_178f: ldloc.3
+     IL_1790: ldloc.s V_90
+  -> IL_1792: ldelema NetSegment
+     IL_1797: ldc.i4 65535
+     IL_179c: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+--- Array access at IL_17A4 (ldelema) ---
+     IL_1790: ldloc.s V_90
+     IL_1792: ldelema NetSegment
+     IL_1797: ldc.i4 65535
+     IL_179c: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_17a1: ldloc.3
+     IL_17a2: ldloc.s V_90
+  -> IL_17a4: ldelema NetSegment
+     IL_17a9: ldc.i4 65535
+     IL_17ae: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+--- Array access at IL_17C6 (ldelema) ---
+     IL_17b3: ldarg.1
+     IL_17b4: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+     IL_17b9: ldc.i4 121005
+     IL_17be: blt.un IL_17f0
+     IL_17c3: ldloc.3
+     IL_17c4: ldloc.s V_90
+  -> IL_17c6: ldelema NetSegment
+     IL_17cb: ldarg.1
+     IL_17cc: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_17DA (ldelema) ---
+     IL_17cb: ldarg.1
+     IL_17cc: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_17d1: conv.u2
+     IL_17d2: stfld System.UInt16 NetSegment::m_eventRoute
+     IL_17d7: ldloc.3
+     IL_17d8: ldloc.s V_90
+  -> IL_17da: ldelema NetSegment
+     IL_17df: ldarg.1
+     IL_17e0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+--- Array access at IL_17F3 (ldelema) ---
+     IL_17e0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+     IL_17e5: conv.u2
+     IL_17e6: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+     IL_17eb: br IL_180c
+     IL_17f0: ldloc.3
+     IL_17f1: ldloc.s V_90
+  -> IL_17f3: ldelema NetSegment
+     IL_17f8: ldc.i4.0
+     IL_17f9: stfld System.UInt16 NetSegment::m_eventRoute
+--- Array access at IL_1801 (ldelema) ---
+     IL_17f1: ldloc.s V_90
+     IL_17f3: ldelema NetSegment
+     IL_17f8: ldc.i4.0
+     IL_17f9: stfld System.UInt16 NetSegment::m_eventRoute
+     IL_17fe: ldloc.3
+     IL_17ff: ldloc.s V_90
+  -> IL_1801: ldelema NetSegment
+     IL_1806: ldc.i4.0
+     IL_1807: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+--- Array access at IL_1814 (ldelema) ---
+     IL_1801: ldelema NetSegment
+     IL_1806: ldc.i4.0
+     IL_1807: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+     IL_180c: br IL_1959
+     IL_1811: ldloc.3
+     IL_1812: ldloc.s V_90
+  -> IL_1814: ldelema NetSegment
+     IL_1819: ldc.i4.0
+     IL_181a: stfld System.UInt32 NetSegment::m_buildIndex
+--- Array access at IL_1822 (ldelema) ---
+     IL_1812: ldloc.s V_90
+     IL_1814: ldelema NetSegment
+     IL_1819: ldc.i4.0
+     IL_181a: stfld System.UInt32 NetSegment::m_buildIndex
+     IL_181f: ldloc.3
+     IL_1820: ldloc.s V_90
+  -> IL_1822: ldelema NetSegment
+     IL_1827: ldc.i4.0
+     IL_1828: stfld System.UInt32 NetSegment::m_modifiedIndex
+--- Array access at IL_1830 (ldelema) ---
+     IL_1820: ldloc.s V_90
+     IL_1822: ldelema NetSegment
+     IL_1827: ldc.i4.0
+     IL_1828: stfld System.UInt32 NetSegment::m_modifiedIndex
+     IL_182d: ldloc.3
+     IL_182e: ldloc.s V_90
+  -> IL_1830: ldelema NetSegment
+     IL_1835: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_183a: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+--- Array access at IL_1842 (ldelema) ---
+     IL_182e: ldloc.s V_90
+     IL_1830: ldelema NetSegment
+     IL_1835: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_183a: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+     IL_183f: ldloc.3
+     IL_1840: ldloc.s V_90
+  -> IL_1842: ldelema NetSegment
+     IL_1847: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_184c: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+--- Array access at IL_1854 (ldelema) ---
+     IL_1840: ldloc.s V_90
+     IL_1842: ldelema NetSegment
+     IL_1847: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+     IL_184c: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+     IL_1851: ldloc.3
+     IL_1852: ldloc.s V_90
+  -> IL_1854: ldelema NetSegment
+     IL_1859: ldc.i4.0
+     IL_185a: stfld System.UInt16 NetSegment::m_startNode
+--- Array access at IL_1862 (ldelema) ---
+     IL_1852: ldloc.s V_90
+     IL_1854: ldelema NetSegment
+     IL_1859: ldc.i4.0
+     IL_185a: stfld System.UInt16 NetSegment::m_startNode
+     IL_185f: ldloc.3
+     IL_1860: ldloc.s V_90
+  -> IL_1862: ldelema NetSegment
+     IL_1867: ldc.i4.0
+     IL_1868: stfld System.UInt16 NetSegment::m_endNode
+--- Array access at IL_1870 (ldelema) ---
+     IL_1860: ldloc.s V_90
+     IL_1862: ldelema NetSegment
+     IL_1867: ldc.i4.0
+     IL_1868: stfld System.UInt16 NetSegment::m_endNode
+     IL_186d: ldloc.3
+     IL_186e: ldloc.s V_90
+  -> IL_1870: ldelema NetSegment
+     IL_1875: ldc.i4.0
+     IL_1876: stfld System.UInt16 NetSegment::m_blockStartLeft
+--- Array access at IL_187E (ldelema) ---
+     IL_186e: ldloc.s V_90
+     IL_1870: ldelema NetSegment
+     IL_1875: ldc.i4.0
+     IL_1876: stfld System.UInt16 NetSegment::m_blockStartLeft
+     IL_187b: ldloc.3
+     IL_187c: ldloc.s V_90
+  -> IL_187e: ldelema NetSegment
+     IL_1883: ldc.i4.0
+     IL_1884: stfld System.UInt16 NetSegment::m_blockStartRight
+--- Array access at IL_188C (ldelema) ---
+     IL_187c: ldloc.s V_90
+     IL_187e: ldelema NetSegment
+     IL_1883: ldc.i4.0
+     IL_1884: stfld System.UInt16 NetSegment::m_blockStartRight
+     IL_1889: ldloc.3
+     IL_188a: ldloc.s V_90
+  -> IL_188c: ldelema NetSegment
+     IL_1891: ldc.i4.0
+     IL_1892: stfld System.UInt16 NetSegment::m_blockEndLeft
+--- Array access at IL_189A (ldelema) ---
+     IL_188a: ldloc.s V_90
+     IL_188c: ldelema NetSegment
+     IL_1891: ldc.i4.0
+     IL_1892: stfld System.UInt16 NetSegment::m_blockEndLeft
+     IL_1897: ldloc.3
+     IL_1898: ldloc.s V_90
+  -> IL_189a: ldelema NetSegment
+     IL_189f: ldc.i4.0
+     IL_18a0: stfld System.UInt16 NetSegment::m_blockEndRight
+--- Array access at IL_18A8 (ldelema) ---
+     IL_1898: ldloc.s V_90
+     IL_189a: ldelema NetSegment
+     IL_189f: ldc.i4.0
+     IL_18a0: stfld System.UInt16 NetSegment::m_blockEndRight
+     IL_18a5: ldloc.3
+     IL_18a6: ldloc.s V_90
+  -> IL_18a8: ldelema NetSegment
+     IL_18ad: ldc.i4.0
+     IL_18ae: stfld System.UInt32 NetSegment::m_lanes
+--- Array access at IL_18B6 (ldelema) ---
+     IL_18a6: ldloc.s V_90
+     IL_18a8: ldelema NetSegment
+     IL_18ad: ldc.i4.0
+     IL_18ae: stfld System.UInt32 NetSegment::m_lanes
+     IL_18b3: ldloc.3
+     IL_18b4: ldloc.s V_90
+  -> IL_18b6: ldelema NetSegment
+     IL_18bb: ldc.i4.0
+     IL_18bc: stfld System.UInt32 NetSegment::m_path
+--- Array access at IL_18C4 (ldelema) ---
+     IL_18b4: ldloc.s V_90
+     IL_18b6: ldelema NetSegment
+     IL_18bb: ldc.i4.0
+     IL_18bc: stfld System.UInt32 NetSegment::m_path
+     IL_18c1: ldloc.3
+     IL_18c2: ldloc.s V_90
+  -> IL_18c4: ldelema NetSegment
+     IL_18c9: ldc.i4.0
+     IL_18ca: stfld System.UInt16 NetSegment::m_trafficBuffer
+--- Array access at IL_18D2 (ldelema) ---
+     IL_18c2: ldloc.s V_90
+     IL_18c4: ldelema NetSegment
+     IL_18c9: ldc.i4.0
+     IL_18ca: stfld System.UInt16 NetSegment::m_trafficBuffer
+     IL_18cf: ldloc.3
+     IL_18d0: ldloc.s V_90
+  -> IL_18d2: ldelema NetSegment
+     IL_18d7: ldc.i4.0
+     IL_18d8: stfld System.Byte NetSegment::m_trafficDensity
+--- Array access at IL_18E0 (ldelema) ---
+     IL_18d0: ldloc.s V_90
+     IL_18d2: ldelema NetSegment
+     IL_18d7: ldc.i4.0
+     IL_18d8: stfld System.Byte NetSegment::m_trafficDensity
+     IL_18dd: ldloc.3
+     IL_18de: ldloc.s V_90
+  -> IL_18e0: ldelema NetSegment
+     IL_18e5: ldc.i4.0
+     IL_18e6: stfld System.UInt16 NetSegment::m_nameSeed
+--- Array access at IL_18EE (ldelema) ---
+     IL_18de: ldloc.s V_90
+     IL_18e0: ldelema NetSegment
+     IL_18e5: ldc.i4.0
+     IL_18e6: stfld System.UInt16 NetSegment::m_nameSeed
+     IL_18eb: ldloc.3
+     IL_18ec: ldloc.s V_90
+  -> IL_18ee: ldelema NetSegment
+     IL_18f3: ldc.i4.0
+     IL_18f4: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+--- Array access at IL_18FC (ldelema) ---
+     IL_18ec: ldloc.s V_90
+     IL_18ee: ldelema NetSegment
+     IL_18f3: ldc.i4.0
+     IL_18f4: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+     IL_18f9: ldloc.3
+     IL_18fa: ldloc.s V_90
+  -> IL_18fc: ldelema NetSegment
+     IL_1901: ldc.i4 65535
+     IL_1906: stfld System.UInt16 NetSegment::m_treeInfoIndex
+--- Array access at IL_190E (ldelema) ---
+     IL_18fa: ldloc.s V_90
+     IL_18fc: ldelema NetSegment
+     IL_1901: ldc.i4 65535
+     IL_1906: stfld System.UInt16 NetSegment::m_treeInfoIndex
+     IL_190b: ldloc.3
+     IL_190c: ldloc.s V_90
+  -> IL_190e: ldelema NetSegment
+     IL_1913: ldc.i4 65535
+     IL_1918: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+--- Array access at IL_1920 (ldelema) ---
+     IL_190c: ldloc.s V_90
+     IL_190e: ldelema NetSegment
+     IL_1913: ldc.i4 65535
+     IL_1918: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_191d: ldloc.3
+     IL_191e: ldloc.s V_90
+  -> IL_1920: ldelema NetSegment
+     IL_1925: ldc.i4 65535
+     IL_192a: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+--- Array access at IL_1932 (ldelema) ---
+     IL_191e: ldloc.s V_90
+     IL_1920: ldelema NetSegment
+     IL_1925: ldc.i4 65535
+     IL_192a: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+     IL_192f: ldloc.3
+     IL_1930: ldloc.s V_90
+  -> IL_1932: ldelema NetSegment
+     IL_1937: ldc.i4.0
+     IL_1938: stfld System.UInt16 NetSegment::m_eventRoute
+--- Array access at IL_1940 (ldelema) ---
+     IL_1930: ldloc.s V_90
+     IL_1932: ldelema NetSegment
+     IL_1937: ldc.i4.0
+     IL_1938: stfld System.UInt16 NetSegment::m_eventRoute
+     IL_193d: ldloc.3
+     IL_193e: ldloc.s V_90
+  -> IL_1940: ldelema NetSegment
+     IL_1945: ldc.i4.0
+     IL_1946: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+--- Array access at IL_19F4 (ldelema) ---
+     IL_19e4: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+     IL_19e9: ldc.i4.1
+     IL_19ea: stloc.s V_93
+     IL_19ec: br IL_1a1d
+     IL_19f1: ldloc.2
+     IL_19f2: ldloc.s V_93
+  -> IL_19f4: ldelema NetNode
+     IL_19f9: ldfld NetNode/Flags NetNode::m_flags
+     IL_19fe: brfalse IL_1a17
+--- Array access at IL_1A06 (ldelema) ---
+     IL_19f2: ldloc.s V_93
+     IL_19f4: ldelema NetNode
+     IL_19f9: ldfld NetNode/Flags NetNode::m_flags
+     IL_19fe: brfalse IL_1a17
+     IL_1a03: ldloc.2
+     IL_1a04: ldloc.s V_93
+  -> IL_1a06: ldelema NetNode
+     IL_1a0b: ldc.i4.1
+     IL_1a0c: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+--- Array access at IL_1A31 (ldelema) ---
+     IL_1a21: blt IL_19f1
+     IL_1a26: ldc.i4.1
+     IL_1a27: stloc.s V_94
+     IL_1a29: br IL_1a5a
+     IL_1a2e: ldloc.3
+     IL_1a2f: ldloc.s V_94
+  -> IL_1a31: ldelema NetSegment
+     IL_1a36: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1a3b: brfalse IL_1a54
+--- Array access at IL_1A43 (ldelema) ---
+     IL_1a2f: ldloc.s V_94
+     IL_1a31: ldelema NetSegment
+     IL_1a36: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1a3b: brfalse IL_1a54
+     IL_1a40: ldloc.3
+     IL_1a41: ldloc.s V_94
+  -> IL_1a43: ldelema NetSegment
+     IL_1a48: ldc.i4.1
+     IL_1a49: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+--- Array access at IL_1A7A (stelem.i4) ---
+     IL_1a6b: ldarg.0
+     IL_1a6c: ldfld System.UInt32[] NetManager/Data::m_guideInfoIndex
+     IL_1a71: ldloc.s V_95
+     IL_1a73: conv.u
+     IL_1a74: ldc.i4.0
+     IL_1a75: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+  -> IL_1a7a: stelem.i4
+     IL_1a7b: ldloc.s V_95
+     IL_1a7d: ldc.i4.1
+--- Array access at IL_1AA1 (stelem.i4) ---
+     IL_1a92: ldarg.0
+     IL_1a93: ldfld System.UInt32[] NetManager/Data::m_milestoneInfoIndex
+     IL_1a98: ldloc.s V_96
+     IL_1a9a: conv.u
+     IL_1a9b: ldc.i4.0
+     IL_1a9c: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+  -> IL_1aa1: stelem.i4
+     IL_1aa2: ldloc.s V_96
+     IL_1aa4: ldc.i4.1
+--- Array access at IL_1AD8 (ldelema) ---
+     IL_1ac8: call System.Void PrefabCollection`1<TreeInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+     IL_1acd: ldc.i4.1
+     IL_1ace: stloc.s V_97
+     IL_1ad0: br IL_1b18
+     IL_1ad5: ldloc.3
+     IL_1ad6: ldloc.s V_97
+  -> IL_1ad8: ldelema NetSegment
+     IL_1add: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1ae2: brfalse IL_1b12
+--- Array access at IL_1AEA (ldelema) ---
+     IL_1ad6: ldloc.s V_97
+     IL_1ad8: ldelema NetSegment
+     IL_1add: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1ae2: brfalse IL_1b12
+     IL_1ae7: ldloc.3
+     IL_1ae8: ldloc.s V_97
+  -> IL_1aea: ldelema NetSegment
+     IL_1aef: ldfld System.UInt16 NetSegment::m_treeInfoIndex
+     IL_1af4: ldc.i4 65535
+--- Array access at IL_1B01 (ldelema) ---
+     IL_1aea: ldelema NetSegment
+     IL_1aef: ldfld System.UInt16 NetSegment::m_treeInfoIndex
+     IL_1af4: ldc.i4 65535
+     IL_1af9: beq IL_1b12
+     IL_1afe: ldloc.3
+     IL_1aff: ldloc.s V_97
+  -> IL_1b01: ldelema NetSegment
+     IL_1b06: ldc.i4.1
+     IL_1b07: call System.UInt32 PrefabCollection`1<TreeInfo>::Deserialize(System.Boolean)
+--- Array access at IL_1B37 (ldelema) ---
+     IL_1b27: br IL_1b55
+     IL_1b2c: ldc.i4.1
+     IL_1b2d: stloc.s V_98
+     IL_1b2f: br IL_1b4c
+     IL_1b34: ldloc.3
+     IL_1b35: ldloc.s V_98
+  -> IL_1b37: ldelema NetSegment
+     IL_1b3c: ldc.i4 65535
+     IL_1b41: stfld System.UInt16 NetSegment::m_treeInfoIndex
+--- Array access at IL_1B77 (ldelema) ---
+     IL_1b67: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+     IL_1b6c: ldc.i4.1
+     IL_1b6d: stloc.s V_99
+     IL_1b6f: br IL_1bb7
+     IL_1b74: ldloc.3
+     IL_1b75: ldloc.s V_99
+  -> IL_1b77: ldelema NetSegment
+     IL_1b7c: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1b81: brfalse IL_1bb1
+--- Array access at IL_1B89 (ldelema) ---
+     IL_1b75: ldloc.s V_99
+     IL_1b77: ldelema NetSegment
+     IL_1b7c: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1b81: brfalse IL_1bb1
+     IL_1b86: ldloc.3
+     IL_1b87: ldloc.s V_99
+  -> IL_1b89: ldelema NetSegment
+     IL_1b8e: ldfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_1b93: ldc.i4 65535
+--- Array access at IL_1BA0 (ldelema) ---
+     IL_1b89: ldelema NetSegment
+     IL_1b8e: ldfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_1b93: ldc.i4 65535
+     IL_1b98: beq IL_1bb1
+     IL_1b9d: ldloc.3
+     IL_1b9e: ldloc.s V_99
+  -> IL_1ba0: ldelema NetSegment
+     IL_1ba5: ldc.i4.1
+     IL_1ba6: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+--- Array access at IL_1BD9 (ldelema) ---
+     IL_1bc9: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+     IL_1bce: ldc.i4.1
+     IL_1bcf: stloc.s V_100
+     IL_1bd1: br IL_1c19
+     IL_1bd6: ldloc.3
+     IL_1bd7: ldloc.s V_100
+  -> IL_1bd9: ldelema NetSegment
+     IL_1bde: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1be3: brfalse IL_1c13
+--- Array access at IL_1BEB (ldelema) ---
+     IL_1bd7: ldloc.s V_100
+     IL_1bd9: ldelema NetSegment
+     IL_1bde: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_1be3: brfalse IL_1c13
+     IL_1be8: ldloc.3
+     IL_1be9: ldloc.s V_100
+  -> IL_1beb: ldelema NetSegment
+     IL_1bf0: ldfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+     IL_1bf5: ldc.i4 65535
+--- Array access at IL_1C02 (ldelema) ---
+     IL_1beb: ldelema NetSegment
+     IL_1bf0: ldfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+     IL_1bf5: ldc.i4 65535
+     IL_1bfa: beq IL_1c13
+     IL_1bff: ldloc.3
+     IL_1c00: ldloc.s V_100
+  -> IL_1c02: ldelema NetSegment
+     IL_1c07: ldc.i4.1
+     IL_1c08: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+--- Array access at IL_1C39 (ldelema) ---
+     IL_1c29: br IL_1c69
+     IL_1c2e: ldc.i4.1
+     IL_1c2f: stloc.s V_101
+     IL_1c31: br IL_1c60
+     IL_1c36: ldloc.3
+     IL_1c37: ldloc.s V_101
+  -> IL_1c39: ldelema NetSegment
+     IL_1c3e: ldc.i4 65535
+     IL_1c43: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+--- Array access at IL_1C4B (ldelema) ---
+     IL_1c37: ldloc.s V_101
+     IL_1c39: ldelema NetSegment
+     IL_1c3e: ldc.i4 65535
+     IL_1c43: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+     IL_1c48: ldloc.3
+     IL_1c49: ldloc.s V_101
+  -> IL_1c4b: ldelema NetSegment
+     IL_1c50: ldc.i4 65535
+     IL_1c55: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+--- Array access at IL_1C80 (stelem.ref) ---
+     IL_1c71: ldarg.0
+     IL_1c72: ldfld NetTypeGuide[] NetManager/Data::m_netNotUsedGuides
+     IL_1c77: ldloc.s V_102
+     IL_1c79: conv.u
+     IL_1c7a: ldarg.1
+     IL_1c7b: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetTypeGuide>()
+  -> IL_1c80: stelem.ref
+     IL_1c81: ldloc.s V_102
+     IL_1c83: ldc.i4.1
+--- Array access at IL_1CA7 (stelem.ref) ---
+     IL_1c98: ldarg.0
+     IL_1c99: ldfld MilestoneInfo/Data[] NetManager/Data::m_UnlockMilestones
+     IL_1c9e: ldloc.s V_103
+     IL_1ca0: conv.u
+     IL_1ca1: ldarg.1
+     IL_1ca2: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<MilestoneInfo/Data>()
+  -> IL_1ca7: stelem.ref
+     IL_1ca8: ldloc.s V_103
+     IL_1caa: ldc.i4.1
+--- Array access at IL_1FE3 (stelem.i8) ---
+     IL_1fcf: br IL_1fea
+     IL_1fd4: ldloc.0
+     IL_1fd5: ldfld System.UInt64[] NetManager::m_adjustedSegments
+     IL_1fda: ldloc.s V_106
+     IL_1fdc: ldloc.s V_105
+     IL_1fde: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+  -> IL_1fe3: stelem.i8
+     IL_1fe4: ldloc.s V_106
+     IL_1fe6: ldc.i4.1
+--- Array access at IL_2008 (stelem.i8) ---
+     IL_1ff9: br IL_200f
+     IL_1ffe: ldloc.0
+     IL_1fff: ldfld System.UInt64[] NetManager::m_adjustedSegments
+     IL_2004: ldloc.s V_107
+     IL_2006: ldc.i4.0
+     IL_2007: conv.i8
+  -> IL_2008: stelem.i8
+     IL_2009: ldloc.s V_107
+     IL_200b: ldc.i4.1
+--- Array access at IL_2030 (ldelema) ---
+     IL_2020: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+     IL_2025: ldc.i4.1
+     IL_2026: stloc.s V_108
+     IL_2028: br IL_2056
+     IL_202d: ldloc.2
+     IL_202e: ldloc.s V_108
+  -> IL_2030: ldelema NetNode
+     IL_2035: ldfld NetNode/Flags NetNode::m_flags
+     IL_203a: brfalse IL_2050
+--- Array access at IL_2046 (ldelema) ---
+     IL_203a: brfalse IL_2050
+     IL_203f: ldloc.0
+     IL_2040: ldloc.s V_108
+     IL_2042: conv.u2
+     IL_2043: ldloc.2
+     IL_2044: ldloc.s V_108
+  -> IL_2046: ldelema NetNode
+     IL_204b: callvirt System.Void NetManager::InitializeNode(System.UInt16,NetNode&)
+     IL_2050: ldloc.s V_108
+--- Array access at IL_206A (ldelema) ---
+     IL_205a: blt IL_202d
+     IL_205f: ldc.i4.1
+     IL_2060: stloc.s V_109
+     IL_2062: br IL_2090
+     IL_2067: ldloc.3
+     IL_2068: ldloc.s V_109
+  -> IL_206a: ldelema NetSegment
+     IL_206f: ldfld NetSegment/Flags NetSegment::m_flags
+     IL_2074: brfalse IL_208a
+--- Array access at IL_2080 (ldelema) ---
+     IL_2074: brfalse IL_208a
+     IL_2079: ldloc.0
+     IL_207a: ldloc.s V_109
+     IL_207c: conv.u2
+     IL_207d: ldloc.3
+     IL_207e: ldloc.s V_109
+  -> IL_2080: ldelema NetSegment
+     IL_2085: callvirt System.Void NetManager::InitializeSegment(System.UInt16,NetSegment&)
+     IL_208a: ldloc.s V_109

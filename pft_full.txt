@@ -1,0 +1,189 @@
+METHOD: System.Void TrafficManager.Custom.PathFinding.CustomPathFind::PathFindThread()
+  IL_0000: ldarg.0
+  IL_0001: ldfld System.Object TrafficManager.Custom.PathFinding.CustomPathFind::queueLock_
+  IL_0006: stloc.0
+  IL_0007: ldloc.0
+  IL_0008: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_000d: br.s IL_001b
+  IL_000f: ldarg.0
+  IL_0010: ldfld System.Object TrafficManager.Custom.PathFinding.CustomPathFind::queueLock_
+  IL_0015: call System.Boolean System.Threading.Monitor::Wait(System.Object)
+  IL_001a: pop
+  IL_001b: ldarg.0
+  IL_001c: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::queueFirst_
+  IL_0021: brtrue.s IL_002b
+  IL_0023: ldarg.0
+  IL_0024: ldfld System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::terminated_
+  IL_0029: brfalse.s IL_000f
+  IL_002b: ldarg.0
+  IL_002c: ldfld System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::terminated_
+  IL_0031: brfalse.s IL_0038
+  IL_0033: leave IL_023a
+  IL_0038: ldarg.0
+  IL_0039: ldarg.0
+  IL_003a: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::queueFirst_
+  IL_003f: stfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_0044: ldarg.0
+  IL_0045: ldsfld TrafficManager.Custom.PathFinding.CustomPathManager TrafficManager.Custom.PathFinding.CustomPathManager::_instance
+  IL_004a: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+  IL_004f: ldarg.0
+  IL_0050: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_0055: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+  IL_005a: ldfld System.UInt32 TrafficManager.API.Traffic.Data.PathUnitQueueItem::nextPathUnitId
+  IL_005f: stfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::queueFirst_
+  IL_0064: ldarg.0
+  IL_0065: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::queueFirst_
+  IL_006a: brtrue.s IL_007e
+  IL_006c: ldarg.0
+  IL_006d: ldc.i4.0
+  IL_006e: stfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::queueLast_
+  IL_0073: ldarg.0
+  IL_0074: ldc.i4.0
+  IL_0075: volatile.
+  IL_0077: stfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+  IL_007c: br.s IL_0090
+  IL_007e: ldarg.0
+  IL_007f: ldarg.0
+  IL_0080: volatile.
+  IL_0082: ldfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+  IL_0087: ldc.i4.1
+  IL_0088: sub
+  IL_0089: volatile.
+  IL_008b: stfld System.Int32 modreq(System.Runtime.CompilerServices.IsVolatile) PathFind::m_queuedPathFindCount
+  IL_0090: ldsfld TrafficManager.Custom.PathFinding.CustomPathManager TrafficManager.Custom.PathFinding.CustomPathManager::_instance
+  IL_0095: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+  IL_009a: ldarg.0
+  IL_009b: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_00a0: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+  IL_00a5: ldc.i4.0
+  IL_00a6: stfld System.UInt32 TrafficManager.API.Traffic.Data.PathUnitQueueItem::nextPathUnitId
+  IL_00ab: ldarg.0
+  IL_00ac: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_00b1: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_00b6: ldarg.0
+  IL_00b7: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_00bc: ldelema PathUnit
+  IL_00c1: ldarg.0
+  IL_00c2: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_00c7: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_00cc: ldarg.0
+  IL_00cd: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_00d2: ldelema PathUnit
+  IL_00d7: ldfld System.Byte PathUnit::m_pathFindFlags
+  IL_00dc: ldc.i4.s -2
+  IL_00de: and
+  IL_00df: ldc.i4.2
+  IL_00e0: or
+  IL_00e1: conv.u1
+  IL_00e2: stfld System.Byte PathUnit::m_pathFindFlags
+  IL_00e7: ldarg.0
+  IL_00e8: ldsfld TrafficManager.Custom.PathFinding.CustomPathManager TrafficManager.Custom.PathFinding.CustomPathManager::_instance
+  IL_00ed: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+  IL_00f2: ldarg.0
+  IL_00f3: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_00f8: ldelem.any TrafficManager.API.Traffic.Data.PathUnitQueueItem
+  IL_00fd: stfld TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+  IL_0102: leave.s IL_010b
+  IL_0104: ldloc.0
+  IL_0105: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_010a: endfinally
+  IL_010b: nop
+  IL_010c: ldarg.0
+  IL_010d: ldfld ThreadProfiler TrafficManager.Custom.PathFinding.CustomPathFind::m_pathfindProfiler
+  IL_0112: callvirt System.Void ThreadProfiler::BeginStep()
+  IL_0117: ldarg.0
+  IL_0118: ldarg.0
+  IL_0119: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_011e: ldarg.0
+  IL_011f: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_0124: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_0129: ldarg.0
+  IL_012a: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_012f: ldelema PathUnit
+  IL_0134: call System.Void TrafficManager.Custom.PathFinding.CustomPathFind::PathFindImplementation(System.UInt32,PathUnit&)
+  IL_0139: leave.s IL_0147
+  IL_013b: ldarg.0
+  IL_013c: ldfld ThreadProfiler TrafficManager.Custom.PathFinding.CustomPathFind::m_pathfindProfiler
+  IL_0141: callvirt System.Void ThreadProfiler::EndStep()
+  IL_0146: endfinally
+  IL_0147: leave.s IL_0194
+  IL_0149: stloc.1
+  IL_014a: ldloc.1
+  IL_014b: call System.Void ColossalFramework.UI.UIView::ForwardException(System.Exception)
+  IL_0150: ldc.i4.1
+  IL_0151: ldstr "Path find error: "
+  IL_0156: ldloc.1
+  IL_0157: callvirt System.String System.Exception::get_Message()
+  IL_015c: ldstr "
+"
+  IL_0161: ldloc.1
+  IL_0162: callvirt System.String System.Exception::get_StackTrace()
+  IL_0167: call System.String System.String::Concat(System.String,System.String,System.String,System.String)
+  IL_016c: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0171: ldarg.0
+  IL_0172: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_0177: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_017c: ldarg.0
+  IL_017d: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_0182: ldelema PathUnit
+  IL_0187: ldflda System.Byte PathUnit::m_pathFindFlags
+  IL_018c: dup
+  IL_018d: ldind.u1
+  IL_018e: ldc.i4.8
+  IL_018f: or
+  IL_0190: conv.u1
+  IL_0191: stind.i1
+  IL_0192: leave.s IL_0194
+  IL_0194: ldarg.0
+  IL_0195: ldfld System.Object TrafficManager.Custom.PathFinding.CustomPathFind::queueLock_
+  IL_019a: stloc.0
+  IL_019b: ldloc.0
+  IL_019c: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_01a1: ldarg.0
+  IL_01a2: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_01a7: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_01ac: ldarg.0
+  IL_01ad: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_01b2: ldelema PathUnit
+  IL_01b7: ldarg.0
+  IL_01b8: ldfld Array32`1<PathUnit> TrafficManager.Custom.PathFinding.CustomPathFind::pathUnits_
+  IL_01bd: ldfld !0[] Array32`1<PathUnit>::m_buffer
+  IL_01c2: ldarg.0
+  IL_01c3: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_01c8: ldelema PathUnit
+  IL_01cd: ldfld System.Byte PathUnit::m_pathFindFlags
+  IL_01d2: ldc.i4.s -3
+  IL_01d4: and
+  IL_01d5: conv.u1
+  IL_01d6: stfld System.Byte PathUnit::m_pathFindFlags
+  IL_01db: ldarg.0
+  IL_01dc: ldfld System.Object TrafficManager.Custom.PathFinding.CustomPathFind::bufferLock_
+  IL_01e1: stloc.2
+  IL_01e2: ldloc.2
+  IL_01e3: call System.Void System.Threading.Monitor::Enter(System.Object)
+  IL_01e8: ldsfld TrafficManager.Custom.PathFinding.CustomPathManager TrafficManager.Custom.PathFinding.CustomPathManager::_instance
+  IL_01ed: ldfld TrafficManager.API.Traffic.Data.PathUnitQueueItem[] TrafficManager.Custom.PathFinding.CustomPathManager::QueueItems
+  IL_01f2: ldarg.0
+  IL_01f3: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_01f8: ldelema TrafficManager.API.Traffic.Data.PathUnitQueueItem
+  IL_01fd: ldc.i4.0
+  IL_01fe: stfld System.Boolean TrafficManager.API.Traffic.Data.PathUnitQueueItem::queued
+  IL_0203: ldsfld TrafficManager.Custom.PathFinding.CustomPathManager TrafficManager.Custom.PathFinding.CustomPathManager::_instance
+  IL_0208: ldarg.0
+  IL_0209: ldfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_020e: callvirt System.Void TrafficManager.Custom.PathFinding.CustomPathManager::CustomReleasePath(System.UInt32)
+  IL_0213: leave.s IL_021c
+  IL_0215: ldloc.2
+  IL_0216: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_021b: endfinally
+  IL_021c: ldarg.0
+  IL_021d: ldc.i4.0
+  IL_021e: stfld System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::calculating_
+  IL_0223: ldarg.0
+  IL_0224: ldfld System.Object TrafficManager.Custom.PathFinding.CustomPathFind::queueLock_
+  IL_0229: call System.Void System.Threading.Monitor::Pulse(System.Object)
+  IL_022e: leave IL_0000
+  IL_0233: ldloc.0
+  IL_0234: call System.Void System.Threading.Monitor::Exit(System.Object)
+  IL_0239: endfinally
+  IL_023a: ret

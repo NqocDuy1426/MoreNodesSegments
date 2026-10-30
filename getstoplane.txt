@@ -1,0 +1,35 @@
+Method: System.Boolean TransportLineAI::GetStopLane(PathUnit/Position&,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+IL_0000: ldarg.0 
+IL_0001: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_0006: brfalse IL_0051
+IL_000b: ldarg.1 
+IL_000c: brtrue IL_0013
+IL_0011: ldc.i4.1 
+IL_0012: ret 
+IL_0013: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0018: stloc.2 
+IL_0019: ldloc.2 
+IL_001a: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_001f: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0024: ldarg.0 
+IL_0025: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_002a: ldelema NetSegment
+IL_002f: ldarg.0 
+IL_0030: ldfld System.Byte PathUnit/Position::m_lane
+IL_0035: ldc.i4.s 33
+IL_0037: ldarg.1 
+IL_0038: ldarg.2 
+IL_0039: ldloca.s V_0
+IL_003b: ldloca.s V_1
+IL_003d: call System.Boolean NetSegment::GetClosestLane(System.Int32,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32&,System.UInt32&)
+IL_0042: brfalse IL_0051
+IL_0047: ldarg.0 
+IL_0048: ldloc.0 
+IL_0049: conv.u1 
+IL_004a: stfld System.Byte PathUnit/Position::m_lane
+IL_004f: ldc.i4.1 
+IL_0050: ret 
+IL_0051: ldarg.0 
+IL_0052: initobj PathUnit/Position
+IL_0058: ldc.i4.0 
+IL_0059: ret 

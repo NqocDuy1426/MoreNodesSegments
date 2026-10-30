@@ -1,0 +1,202 @@
+=== CarAI.SimulationStep(3) ===
+IL_0000: ldarg.2
+IL_0001: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0006: ldc.i4 256
+IL_000b: and
+IL_000c: brfalse IL_00c0
+IL_0011: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_0016: stloc.0
+IL_0017: ldloc.0
+IL_0018: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_001d: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_0022: ldarg.2
+IL_0023: ldfld System.UInt32 Vehicle::m_path
+IL_0028: conv.u
+IL_0029: ldelema PathUnit
+IL_002e: ldfld System.Byte PathUnit::m_pathFindFlags
+IL_0033: stloc.1
+IL_0034: ldloc.1
+IL_0035: ldc.i4.4
+IL_0036: and
+IL_0037: brfalse IL_0081
+IL_003c: ldarg.2
+IL_003d: ldc.i4 255
+IL_0042: stfld System.Byte Vehicle::m_pathPositionIndex
+IL_0047: ldarg.2
+IL_0048: dup
+IL_0049: ldfld Vehicle/Flags Vehicle::m_flags
+IL_004e: ldc.i4 -257
+IL_0053: and
+IL_0054: stfld Vehicle/Flags Vehicle::m_flags
+IL_0059: ldarg.2
+IL_005a: dup
+IL_005b: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0060: ldc.i4 -2049
+IL_0065: and
+IL_0066: stfld Vehicle/Flags Vehicle::m_flags
+IL_006b: ldarg.0
+IL_006c: ldarg.1
+IL_006d: ldarg.2
+IL_006e: callvirt System.Void CarAI::PathfindSuccess(System.UInt16,Vehicle&)
+IL_0073: ldarg.0
+IL_0074: ldarg.1
+IL_0075: ldarg.2
+IL_0076: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+IL_007b: pop
+IL_007c: br IL_00bb
+IL_0081: ldloc.1
+IL_0082: ldc.i4.8
+IL_0083: and
+IL_0084: brfalse IL_00bb
+IL_0089: ldarg.2
+IL_008a: dup
+IL_008b: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0090: ldc.i4 -257
+IL_0095: and
+IL_0096: stfld Vehicle/Flags Vehicle::m_flags
+IL_009b: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_00a0: ldarg.2
+IL_00a1: ldfld System.UInt32 Vehicle::m_path
+IL_00a6: callvirt System.Void PathManager::ReleasePath(System.UInt32)
+IL_00ab: ldarg.2
+IL_00ac: ldc.i4.0
+IL_00ad: stfld System.UInt32 Vehicle::m_path
+IL_00b2: ldarg.0
+IL_00b3: ldarg.1
+IL_00b4: ldarg.2
+IL_00b5: callvirt System.Void CarAI::PathfindFailure(System.UInt16,Vehicle&)
+IL_00ba: ret
+IL_00bb: br IL_00da
+IL_00c0: ldarg.2
+IL_00c1: ldfld Vehicle/Flags Vehicle::m_flags
+IL_00c6: ldc.i4 65536
+IL_00cb: and
+IL_00cc: brfalse IL_00da
+IL_00d1: ldarg.0
+IL_00d2: ldarg.1
+IL_00d3: ldarg.2
+IL_00d4: callvirt System.Boolean VehicleAI::TrySpawn(System.UInt16,Vehicle&)
+IL_00d9: pop
+IL_00da: ldarg.2
+IL_00db: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+IL_00e0: stloc.2
+IL_00e1: ldarg.3
+IL_00e2: ldloc.2
+IL_00e3: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_00e8: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_00ed: ldc.r4 1210000
+IL_00f2: blt.un IL_00fe
+IL_00f7: ldc.i4.2
+IL_00f8: stloc.3
+IL_00f9: br IL_012b
+IL_00fe: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0103: ldflda SimulationManager/ViewData SimulationManager::m_simulationView
+IL_0108: ldfld UnityEngine.Vector3 SimulationManager/ViewData::m_position
+IL_010d: ldloc.2
+IL_010e: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0113: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+IL_0118: ldc.r4 250000
+IL_011d: blt.un IL_0129
+IL_0122: ldc.i4.1
+IL_0123: stloc.3
+IL_0124: br IL_012b
+IL_0129: ldc.i4.0
+IL_012a: stloc.3
+IL_012b: ldarg.0
+IL_012c: ldarg.1
+IL_012d: ldarg.2
+IL_012e: ldarg.1
+IL_012f: ldarg.2
+IL_0130: ldloc.3
+IL_0131: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+IL_0136: ldarg.2
+IL_0137: ldfld System.UInt16 Vehicle::m_leadingVehicle
+IL_013c: brtrue IL_01f1
+IL_0141: ldarg.2
+IL_0142: ldfld System.UInt16 Vehicle::m_trailingVehicle
+IL_0147: brfalse IL_01f1
+IL_014c: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+IL_0151: stloc.s V_4
+IL_0153: ldarg.2
+IL_0154: ldfld System.UInt16 Vehicle::m_trailingVehicle
+IL_0159: stloc.s V_5
+IL_015b: ldc.i4.0
+IL_015c: stloc.s V_6
+IL_015e: br IL_01ea
+IL_0163: ldloc.s V_4
+IL_0165: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+IL_016a: ldfld T[] Array16`1<Vehicle>::m_buffer
+IL_016f: ldloc.s V_5
+IL_0171: ldelema Vehicle
+IL_0176: ldfld System.UInt16 Vehicle::m_trailingVehicle
+IL_017b: stloc.s V_7
+IL_017d: ldloc.s V_4
+IL_017f: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+IL_0184: ldfld T[] Array16`1<Vehicle>::m_buffer
+IL_0189: ldloc.s V_5
+IL_018b: ldelema Vehicle
+IL_0190: call VehicleInfo Vehicle::get_Info()
+IL_0195: stloc.s V_8
+IL_0197: ldloc.s V_8
+IL_0199: ldfld VehicleAI VehicleInfo::m_vehicleAI
+IL_019e: ldloc.s V_5
+IL_01a0: ldloc.s V_4
+IL_01a2: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+IL_01a7: ldfld T[] Array16`1<Vehicle>::m_buffer
+IL_01ac: ldloc.s V_5
+IL_01ae: ldelema Vehicle
+IL_01b3: ldarg.1
+IL_01b4: ldarg.2
+IL_01b5: ldloc.3
+IL_01b6: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,System.UInt16,Vehicle&,System.Int32)
+IL_01bb: ldloc.s V_7
+IL_01bd: stloc.s V_5
+IL_01bf: ldloc.s V_6
+IL_01c1: ldc.i4.1
+IL_01c2: add
+IL_01c3: dup
+IL_01c4: stloc.s V_6
+IL_01c6: ldc.i4 16384
+IL_01cb: ble IL_01ea
+IL_01d0: ldc.i4.1
+IL_01d1: ldstr "Invalid list detected!
+"
+IL_01d6: call System.String System.Environment::get_StackTrace()
+IL_01db: call System.String System.String::Concat(System.String,System.String)
+IL_01e0: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+IL_01e5: br IL_01f1
+IL_01ea: ldloc.s V_5
+IL_01ec: brtrue IL_0163
+IL_01f1: ldarg.0
+IL_01f2: ldfld VehicleInfo VehicleAI::m_info
+IL_01f7: ldfld ItemClass VehicleInfo::m_class
+IL_01fc: ldfld ItemClass/Service ItemClass::m_service
+IL_0201: call System.Int32 ItemClass::GetPrivateServiceIndex(ItemClass/Service)
+IL_0206: stloc.s V_9
+IL_0208: ldloc.s V_9
+IL_020a: ldc.i4.m1
+IL_020b: beq IL_0217
+IL_0210: ldc.i4.s 100
+IL_0212: br IL_021c
+IL_0217: ldc.i4 150
+IL_021c: stloc.s V_10
+IL_021e: ldarg.2
+IL_021f: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0224: ldc.i4 65796
+IL_0229: and
+IL_022a: brtrue IL_024a
+IL_022f: ldarg.2
+IL_0230: ldfld System.UInt16 Vehicle::m_cargoParent
+IL_0235: brtrue IL_024a
+IL_023a: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+IL_023f: ldarg.1
+IL_0240: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+IL_0245: br IL_0262
+IL_024a: ldarg.2
+IL_024b: ldfld System.Byte Vehicle::m_blockCounter
+IL_0250: ldloc.s V_10
+IL_0252: bne.un IL_0262
+IL_0257: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+IL_025c: ldarg.1
+IL_025d: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+IL_0262: ret

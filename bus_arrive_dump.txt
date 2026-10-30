@@ -1,0 +1,139 @@
+Method: ArriveAtTarget
+  IL_0000: ldarg.2
+  IL_0001: ldfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0006: brfalse IL_001c
+  IL_000b: ldarg.2
+  IL_000c: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0011: ldc.i4 134217728
+  IL_0016: and
+  IL_0017: brfalse IL_0029
+  IL_001c: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_0021: ldarg.1
+  IL_0022: callvirt System.Void VehicleManager::ReleaseVehicle(System.UInt16)
+  IL_0027: ldc.i4.1
+  IL_0028: ret
+  IL_0029: ldc.i4.0
+  IL_002a: stloc.0
+  IL_002b: ldarg.2
+  IL_002c: ldfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0031: stloc.1
+  IL_0032: ldarg.2
+  IL_0033: ldfld System.UInt16 Vehicle::m_transportLine
+  IL_0038: brfalse IL_004e
+  IL_003d: ldarg.2
+  IL_003e: ldfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0043: call System.UInt16 TransportLine::GetNextStop(System.UInt16)
+  IL_0048: stloc.0
+  IL_0049: br IL_00ac
+  IL_004e: ldarg.2
+  IL_004f: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0054: ldc.i4 3145728
+  IL_0059: and
+  IL_005a: brfalse IL_00ac
+  IL_005f: ldarg.2
+  IL_0060: ldfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0065: call System.UInt16 TransportLine::GetNextStop(System.UInt16)
+  IL_006a: stloc.0
+  IL_006b: ldloc.0
+  IL_006c: brtrue IL_00ac
+  IL_0071: ldarg.2
+  IL_0072: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+  IL_0077: stloc.2
+  IL_0078: ldloca.s V_2
+  IL_007a: ldfld System.Single UnityEngine.Vector3::x
+  IL_007f: call System.Single UnityEngine.Mathf::Abs(System.Single)
+  IL_0084: ldloca.s V_2
+  IL_0086: ldfld System.Single UnityEngine.Vector3::z
+  IL_008b: call System.Single UnityEngine.Mathf::Abs(System.Single)
+  IL_0090: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+  IL_0095: ldc.r4 4800
+  IL_009a: clt
+  IL_009c: stloc.3
+  IL_009d: ldloc.3
+  IL_009e: brfalse IL_00ac
+  IL_00a3: ldarg.0
+  IL_00a4: ldarg.1
+  IL_00a5: ldarg.2
+  IL_00a6: call System.UInt16 BusAI::FindOutgoingConnectionStop(System.UInt16,Vehicle&)
+  IL_00ab: stloc.0
+  IL_00ac: ldarg.0
+  IL_00ad: ldarg.1
+  IL_00ae: ldarg.2
+  IL_00af: ldloc.1
+  IL_00b0: ldloc.0
+  IL_00b1: call System.Void BusAI::UnloadPassengers(System.UInt16,Vehicle&,System.UInt16,System.UInt16)
+  IL_00b6: ldloc.0
+  IL_00b7: brtrue IL_012c
+  IL_00bc: ldarg.2
+  IL_00bd: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_00c2: ldc.i4 3145728
+  IL_00c7: and
+  IL_00c8: brtrue IL_011e
+  IL_00cd: ldarg.2
+  IL_00ce: dup
+  IL_00cf: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_00d4: ldc.i4 262144
+  IL_00d9: or
+  IL_00da: stfld Vehicle/Flags Vehicle::m_flags
+  IL_00df: ldarg.0
+  IL_00e0: ldarg.1
+  IL_00e1: ldarg.2
+  IL_00e2: callvirt System.Boolean VehicleAI::StartPathFind(System.UInt16,Vehicle&)
+  IL_00e7: brtrue IL_00ee
+  IL_00ec: ldc.i4.1
+  IL_00ed: ret
+  IL_00ee: ldarg.2
+  IL_00ef: dup
+  IL_00f0: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_00f5: ldc.i4 -2049
+  IL_00fa: and
+  IL_00fb: stfld Vehicle/Flags Vehicle::m_flags
+  IL_0100: ldarg.2
+  IL_0101: dup
+  IL_0102: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0107: ldc.i4 512
+  IL_010c: or
+  IL_010d: stfld Vehicle/Flags Vehicle::m_flags
+  IL_0112: ldarg.2
+  IL_0113: ldc.i4.0
+  IL_0114: stfld System.Byte Vehicle::m_waitCounter
+  IL_0119: br IL_0127
+  IL_011e: ldarg.0
+  IL_011f: ldarg.1
+  IL_0120: ldarg.2
+  IL_0121: call System.Boolean BusAI::ArriveAtSource(System.UInt16,Vehicle&)
+  IL_0126: pop
+  IL_0127: br IL_0177
+  IL_012c: ldarg.2
+  IL_012d: ldloc.0
+  IL_012e: stfld System.UInt16 Vehicle::m_targetBuilding
+  IL_0133: ldarg.0
+  IL_0134: ldarg.1
+  IL_0135: ldarg.2
+  IL_0136: callvirt System.Boolean VehicleAI::StartPathFind(System.UInt16,Vehicle&)
+  IL_013b: brtrue IL_0142
+  IL_0140: ldc.i4.1
+  IL_0141: ret
+  IL_0142: ldarg.0
+  IL_0143: ldarg.1
+  IL_0144: ldarg.2
+  IL_0145: ldloc.1
+  IL_0146: ldloc.0
+  IL_0147: call System.Void BusAI::LoadPassengers(System.UInt16,Vehicle&,System.UInt16,System.UInt16)
+  IL_014c: ldarg.2
+  IL_014d: dup
+  IL_014e: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0153: ldc.i4 -2049
+  IL_0158: and
+  IL_0159: stfld Vehicle/Flags Vehicle::m_flags
+  IL_015e: ldarg.2
+  IL_015f: dup
+  IL_0160: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0165: ldc.i4 512
+  IL_016a: or
+  IL_016b: stfld Vehicle/Flags Vehicle::m_flags
+  IL_0170: ldarg.2
+  IL_0171: ldc.i4.0
+  IL_0172: stfld System.Byte Vehicle::m_waitCounter
+  IL_0177: ldc.i4.0
+  IL_0178: ret

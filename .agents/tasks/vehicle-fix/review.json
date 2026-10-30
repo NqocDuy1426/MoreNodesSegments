@@ -1,0 +1,54 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "issue": "ArrayGuardianV2 thread runs unconditionally",
+      "severity": "medium",
+      "description": "Background thread wakes every 5s even when no city is loaded. Add an isLevelLoaded flag and pause monitoring between OnLevelUnloading and OnLevelLoaded.",
+      "confidence": "confirmed"
+    },
+    {
+      "issue": "speedLimitDefaultValue not validated",
+      "severity": "low",
+      "description": "Hardcoded to 139 without checking game constants. Verify against NetInfo.SpeedToKmh conversion or expose as a configuration parameter with the spec's stated default.",
+      "confidence": "likely"
+    },
+    {
+      "issue": "StuckVehicleRecovery Level 2 uses non-existent API",
+      "severity": "high",
+      "description": "vehicle.SetTargetPos(0, newPos) doesn't exist in Cities: Skylines Vehicle struct. Replace with direct position manipulation via vehicle.m_targetPos0 = newPos or remove Level 2 entirely and rely on Level 1 and Level 3.",
+      "confidence": "confirmed"
+    },
+    {
+      "issue": "PathFindValidator blocks main thread",
+      "severity": "medium",
+      "description": "Full buffer scan (up to 262144 entries) on level load with no yielding. Split into chunks with yield return null or move to a background job, or reduce scan frequency to only check paths for vehicles currently in the stuck recovery dictionary.",
+      "confidence": "confirmed"
+    },
+    {
+      "issue": "VehiclePoolMonitor false positive in small cities",
+      "severity": "medium",
+      "description": "10 consecutive static counts triggers throttling repair even when count is legitimately stable. Add a minimum count threshold (e.g., 100 vehicles) before applying the static-count heuristic.",
+      "confidence": "likely"
+    },
+    {
+      "issue": "DiagnosticsUI commands not registered",
+      "severity": "low",
+      "description": "Console commands (mnc.status, etc.) are defined but never registered with the game's debug console. Hook into DebugOutputPanel or document that commands are manual-invocation only.",
+      "confidence": "confirmed"
+    },
+    {
+      "issue": "SimulationStep patch overhead on every frame",
+      "severity": "low",
+      "description": "Postfix fires every frame even though work happens only every 60-64 frames. Use Harmony [HarmonyPatch] attribute with custom condition or move frame-gating to a Prefix that returns false to skip the original method when no work is needed (though Postfix can't be skipped this way — consider a Transpiler or accept the overhead).",
+      "confidence": "confirmed"
+    },
+    {
+      "issue": "TMPEBufferSync no staleness check",
+      "severity": "low",
+      "description": "Overwrites TM:PE buffer references without verifying the game buffer hasn't been replaced since last sync. Cache System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(liveBuffer) and compare before syncing to detect buffer replacements.",
+      "confidence": "possible"
+    }
+  ],
+  "reviewDoc": "/Users/nqocduy/CS_MoreNetworkCapacity_Renew/.agents/tasks/vehicle-fix/code-review.md"
+}

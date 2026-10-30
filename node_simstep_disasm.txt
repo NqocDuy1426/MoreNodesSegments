@@ -1,0 +1,139 @@
+IL_0000: ldarg.0
+IL_0001: ldarg.1
+IL_0002: ldarg.2
+IL_0003: call System.Void PlayerNetAI::SimulationStep(System.UInt16,NetNode&)
+IL_0008: ldarg.2
+IL_0009: ldfld NetNode/Flags NetNode::m_flags
+IL_000e: ldc.i4 8388608
+IL_0013: and
+IL_0014: brfalse IL_0042
+IL_0019: ldarg.2
+IL_001a: ldfld NetNode/Flags NetNode::m_flags
+IL_001f: ldc.i4 2097152
+IL_0024: and
+IL_0025: brfalse IL_0036
+IL_002a: ldarg.1
+IL_002b: ldarg.2
+IL_002c: call System.Void TrainTrackBaseAI::LevelCrossingSimulationStep(System.UInt16,NetNode&)
+IL_0031: br IL_003d
+IL_0036: ldarg.1
+IL_0037: ldarg.2
+IL_0038: call System.Void RoadBaseAI::TrafficLightSimulationStep(System.UInt16,NetNode&)
+IL_003d: br IL_0057
+IL_0042: ldarg.2
+IL_0043: ldfld NetNode/Flags2 NetNode::m_flags2
+IL_0048: ldc.i4.1
+IL_0049: and
+IL_004a: brfalse IL_0057
+IL_004f: ldarg.1
+IL_0050: ldarg.2
+IL_0051: ldnull
+IL_0052: call System.Void PedestrianZoneRoadAI::BollardsSimulationStep(System.UInt16,NetNode&,System.Boolean[])
+IL_0057: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_005c: stloc.0
+IL_005d: ldc.i4.0
+IL_005e: stloc.1
+IL_005f: ldarg.0
+IL_0060: ldarg.2
+IL_0061: call NetInfo NetNode::get_Info()
+IL_0066: ldarg.2
+IL_0067: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_006c: call System.Int32 RoadBaseAI::GetNoiseAccumulation(NetInfo,UnityEngine.Vector3)
+IL_0071: stloc.2
+IL_0072: ldloc.2
+IL_0073: brfalse IL_00c9
+IL_0078: ldc.i4.0
+IL_0079: stloc.3
+IL_007a: ldc.i4.0
+IL_007b: stloc.s V_4
+IL_007d: br IL_00b7
+IL_0082: ldarg.2
+IL_0083: ldloc.s V_4
+IL_0085: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_008a: stloc.s V_5
+IL_008c: ldloc.s V_5
+IL_008e: brfalse IL_00b1
+IL_0093: ldloc.1
+IL_0094: ldloc.0
+IL_0095: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_009a: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_009f: ldloc.s V_5
+IL_00a1: ldelema NetSegment
+IL_00a6: ldfld System.Byte NetSegment::m_noiseDensity
+IL_00ab: add
+IL_00ac: stloc.1
+IL_00ad: ldloc.3
+IL_00ae: ldc.i4.1
+IL_00af: add
+IL_00b0: stloc.3
+IL_00b1: ldloc.s V_4
+IL_00b3: ldc.i4.1
+IL_00b4: add
+IL_00b5: stloc.s V_4
+IL_00b7: ldloc.s V_4
+IL_00b9: ldc.i4.8
+IL_00ba: blt IL_0082
+IL_00bf: ldloc.3
+IL_00c0: brfalse IL_00c9
+IL_00c5: ldloc.1
+IL_00c6: ldloc.3
+IL_00c7: div
+IL_00c8: stloc.1
+IL_00c9: ldc.i4.s 100
+IL_00cb: ldloc.1
+IL_00cc: ldc.i4.s 100
+IL_00ce: sub
+IL_00cf: ldloc.1
+IL_00d0: ldc.i4.s 100
+IL_00d2: sub
+IL_00d3: mul
+IL_00d4: ldc.i4.s 100
+IL_00d6: div
+IL_00d7: sub
+IL_00d8: stloc.s V_6
+IL_00da: ldloc.2
+IL_00db: ldloc.s V_6
+IL_00dd: mul
+IL_00de: ldc.i4.s 100
+IL_00e0: div
+IL_00e1: stloc.2
+IL_00e2: ldloc.2
+IL_00e3: brfalse IL_0101
+IL_00e8: call !0 ColossalFramework.Singleton`1<ImmaterialResourceManager>::get_instance()
+IL_00ed: ldc.i4.8
+IL_00ee: ldloc.2
+IL_00ef: ldarg.2
+IL_00f0: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_00f5: ldarg.0
+IL_00f6: ldfld System.Single RoadBaseAI::m_noiseRadius
+IL_00fb: callvirt System.Int32 ImmaterialResourceManager::AddResource(ImmaterialResourceManager/Resource,System.Int32,UnityEngine.Vector3,System.Single)
+IL_0100: pop
+IL_0101: ldarg.2
+IL_0102: ldfld Notification/ProblemStruct NetNode::m_problems
+IL_0107: ldc.i4 4096
+IL_010c: conv.i8
+IL_010d: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/Problem1)
+IL_0112: stloc.s V_7
+IL_0114: ldloca.s V_7
+IL_0116: call System.Boolean Notification/ProblemStruct::get_IsNotNone()
+IL_011b: brfalse IL_015a
+IL_0120: ldarg.2
+IL_0121: ldfld NetNode/Flags NetNode::m_flags
+IL_0126: ldc.i4.4
+IL_0127: and
+IL_0128: brfalse IL_015a
+IL_012d: call !0 ColossalFramework.Singleton`1<GuideManager>::get_instance()
+IL_0132: ldfld Properties SimulationManagerBase`2<GuideManager,GuideController>::m_properties
+IL_0137: stloc.s V_8
+IL_0139: ldloc.s V_8
+IL_013b: brfalse IL_015a
+IL_0140: ldloc.0
+IL_0141: ldfld NetNodeInstanceGuide NetManager::m_outsideNodeNotConnected
+IL_0146: ldloc.s V_8
+IL_0148: ldfld GuideInfo GuideController::m_outsideNotConnected
+IL_014d: ldarg.1
+IL_014e: ldc.i4 4096
+IL_0153: conv.i8
+IL_0154: ldc.i4.0
+IL_0155: callvirt System.Void NetNodeInstanceGuide::Activate(GuideInfo,System.UInt16,Notification/Problem1,System.Boolean)
+IL_015a: ret

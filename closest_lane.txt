@@ -1,0 +1,55 @@
+
+Method: System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0007: ldfld Array32`1<NetLane> NetManager::m_lanes
+  IL_000c: ldfld T[] Array32`1<NetLane>::m_buffer
+  IL_002b: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0036: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0041: call NetInfo NetSegment::get_Info()
+  IL_0048: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0059: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0069: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0079: callvirt System.Boolean NetInfo/Lane::CheckType(NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+  IL_0091: call System.Void NetLane::GetClosestPosition(UnityEngine.Vector3,UnityEngine.Vector3&,System.Single&)
+  IL_0099: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_009e: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+  IL_00d1: ldfld System.UInt32 NetLane::m_nextLane
+  IL_00e1: ldfld NetInfo/Lane[] NetInfo::m_lanes
+
+Method: System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,UnityEngine.Vector3&,System.UInt32&,System.Int32&,System.Single&)
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0007: ldfld Array32`1<NetLane> NetManager::m_lanes
+  IL_000c: ldfld T[] Array32`1<NetLane>::m_buffer
+  IL_002b: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0036: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0041: call NetInfo NetSegment::get_Info()
+  IL_0048: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0059: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0069: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_007b: callvirt System.Boolean NetInfo/Lane::CheckType(NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType)
+  IL_0093: call System.Void NetLane::GetClosestPosition(UnityEngine.Vector3,UnityEngine.Vector3&,System.Single&)
+  IL_009b: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_00a0: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+  IL_00d3: ldfld System.UInt32 NetLane::m_nextLane
+  IL_00e3: ldfld NetInfo/Lane[] NetInfo::m_lanes
+
+Method: System.Boolean NetSegment::GetClosestLanePosition(UnityEngine.Vector3,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,System.Boolean,UnityEngine.Vector3&,System.Int32&,System.Single&,UnityEngine.Vector3&,System.Int32&,System.Single&)
+  IL_0000: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_0007: ldfld Array32`1<NetLane> NetManager::m_lanes
+  IL_000c: ldfld T[] Array32`1<NetLane>::m_buffer
+  IL_003b: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0046: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0051: call NetInfo NetSegment::get_Info()
+  IL_0058: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0070: ldfld System.UInt32 NetSegment::m_lanes
+  IL_0080: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_0092: callvirt System.Boolean NetInfo/Lane::CheckType(NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType)
+  IL_009e: ldfld System.Boolean NetInfo/Lane::m_allowConnect
+  IL_00bd: call System.Void NetLane::GetClosestPosition(UnityEngine.Vector3,UnityEngine.Vector3&,System.Single&)
+  IL_00c5: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_00ca: call System.Single UnityEngine.Vector3::SqrMagnitude(UnityEngine.Vector3)
+  IL_00d3: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+  IL_00e0: ldfld NetInfo/Direction NetInfo/Lane::m_finalDirection
+  IL_0138: ldfld System.UInt32 NetLane::m_nextLane
+  IL_0148: ldfld NetInfo/Lane[] NetInfo::m_lanes
+  IL_01a4: ldfld System.Boolean NetInfo::m_canCrossLanes

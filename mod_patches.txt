@@ -1,0 +1,207 @@
+==================================================
+HARMONY PATCHES IN: AdaptiveRoads.dll
+==================================================
+[PATCH] AdaptiveRoads.Patches.BuilidingManger_SimulationStep_Patch -> BuildingManager SimulationStepImpl 
+[PATCH] AdaptiveRoads.Patches.ReadTypeMetadataPatch -> 
+[PATCH] AdaptiveRoads.Patches.HideCrosswalksPatch -> 
+[PATCH] AdaptiveRoads.Patches.LoadingWrapperPatch -> LoadingWrapper OnLevelLoaded 
+[PATCH] AdaptiveRoads.Patches.DPT_Refresh -> 
+[PATCH] AdaptiveRoads.Patches.GetNodeInfoPriorityPatch -> 
+[PATCH] AdaptiveRoads.Patches.VehicleSuperElevation.TrainAI_SimulationStepPatch -> 
+[PATCH] AdaptiveRoads.Patches.TMPE.GetDefaultEnteringBlockedJunctionAllowed -> 
+[PATCH] AdaptiveRoads.Patches.TMPE.GetDefaultPedestrianCrossingAllowed -> 
+[PATCH] AdaptiveRoads.Patches.TMPE.GetDefaultUturnAllowed -> 
+[PATCH] AdaptiveRoads.Patches.Segment.CalculateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Segment.NetManager_UpdateSegmentFlags -> NetManager 
+[PATCH] AdaptiveRoads.Patches.Segment.NetManager_UpdateSegmentFlags -> UpdateSegmentFlags 
+[PATCH] AdaptiveRoads.Patches.Segment.NetTool_RenderSegmentPatch -> NetTool RenderSegment 
+[PATCH] AdaptiveRoads.Patches.Segment.PopulateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Segment.RenderInstance -> 
+[PATCH] AdaptiveRoads.Patches.Segment.RenderSegmentsPatch -> 
+[PATCH] AdaptiveRoads.Patches.Segment.RenderInstanceOverlayPatch -> 
+[PATCH] AdaptiveRoads.Patches.Segment.UpdateStartSegments -> NetSegment UpdateStartSegments 
+[PATCH] AdaptiveRoads.Patches.Segment.UpdateEndSegments -> NetSegment UpdateEndSegments 
+[PATCH] AdaptiveRoads.Patches.Track.OnImportFinished -> REModelCrossImportSet OnImportFinished 
+[PATCH] AdaptiveRoads.Patches.Track.REModelCrossImportSet_Validate -> REModelCrossImportSet Validate 
+[PATCH] AdaptiveRoads.Patches.Track.NetManager_InitRenderDataImpl -> NetManager InitRenderDataImpl 
+[PATCH] AdaptiveRoads.Patches.Track.NeTTool_RenderSegment -> NetTool RenderSegment 
+[PATCH] AdaptiveRoads.Patches.Track.RefreshLODPatch -> NetInfo RefreshLevelOfDetail 
+[PATCH] AdaptiveRoads.Patches.Track.NetLanePatches.PropDisplacementPatch -> 
+[PATCH] AdaptiveRoads.Patches.RenderShift.NetToolPatch0 -> 
+[PATCH] AdaptiveRoads.Patches.RenderShift.NetToolPatch -> 
+[PATCH] AdaptiveRoads.Patches.QuayRoads.SegmentModifyMaskPatch -> 
+[PATCH] AdaptiveRoads.Patches.QuayRoads.SegmentModifyMaskPatchT -> 
+[PATCH] AdaptiveRoads.Patches.QuayRoads.NodeModifyMaskPatch -> 
+[PATCH] AdaptiveRoads.Patches.QuayRoads.NodeModifyMaskPatchT -> 
+[PATCH] AdaptiveRoads.Patches.QuayRoads.TerrainUpdatedPatch -> 
+[PATCH] AdaptiveRoads.Patches.Parking.ParkingAnglePatch -> PassengerCarAI FindParkingSpaceRoadSide 
+[PATCH] AdaptiveRoads.Patches.Parking.GapPatch -> 
+[PATCH] AdaptiveRoads.Patches.Corner.CalculateCorner_ShiftPatch -> 
+[PATCH] AdaptiveRoads.Patches.AsymPavements.RefreshEndDataPatch -> NetNode RefreshEndData 
+[PATCH] AdaptiveRoads.Patches.Node.CalculateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Node.CalculateNodeHelper -> 
+[PATCH] AdaptiveRoads.Patches.Node.NetManager_UpdateNodeFlags -> NetManager 
+[PATCH] AdaptiveRoads.Patches.Node.NetManager_UpdateNodeFlags -> UpdateNodeFlags 
+[PATCH] AdaptiveRoads.Patches.Node.NetTool_RenderNodePatch -> NetTool RenderNode 
+[PATCH] AdaptiveRoads.Patches.Node.PopulateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Node.RenderInstance -> 
+[PATCH] AdaptiveRoads.Patches.Node.RenderInstanceOverlayPatch -> 
+[PATCH] AdaptiveRoads.Patches.Node.UpdateBuilding -> NetNode UpdateBuilding 
+[PATCH] AdaptiveRoads.Patches.Node.Corner.CalculateCorner_SharpPatch -> 
+[PATCH] AdaptiveRoads.Patches.Node.ConnectGroup.CalculateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Node.ConnectGroup.CalculateNodePatch -> NetNode CalculateNode 
+[PATCH] AdaptiveRoads.Patches.Node.ConnectGroup.PopulateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Node.ConnectGroup.RenderInstance -> 
+[PATCH] AdaptiveRoads.Patches.Node.AntiFlickering.RenderInstance -> 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.NetInfo_InitializePrefabPatch -> NetInfo InitializePrefab 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AddArrayElementPatch -> AssetEditorRoadUtils 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.CreateArrayField -> RoadEditorPanel CreateArrayField 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.CreateField -> 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.EnsureKeepLast -> RoadEditorCollapsiblePanel EnsureKeepLast 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AddModelImportFieldPatch -> RoadEditorPanel AddModelImportField 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.SelectReference -> RERefSet SelectReference 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.ProcessInputFix -> ColossalFramework.UI.UIInput/MouseHandler ProcessInput 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.REPropertySet_SetTarget -> REPropertySet SetTarget 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.RoadEditorCollapsiblePanel_OnEnable -> RoadEditorCollapsiblePanel 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.RoadEditorCollapsiblePanel_OnEnable -> OnEnable 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.DPT_OnEnable -> 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.DPT_OnSelectButtonClick -> 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.RoadEditorMainPanel_AddTab_Patch -> RoadEditorMainPanel AddTab 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.RoadEditorPanel_Initialize_Patch -> RoadEditorPanel Initialize 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.SaveAssetPanel_Refresh -> SaveAssetPanel Refresh Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AddCustomFields -> RoadEditorPanel 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.CustomCreateDummyInstance -> AssetEditorRoadUtils CustomCreateDummyInstance 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.GetMaterial -> AssetEditorRoadUtils GetMaterial 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.GetMeshName -> AssetEditorRoadUtils GetMeshName 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.GetShaderName -> AssetEditorRoadUtils GetShaderName 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.HasModels -> RoadEditorCrossImportPanel HasModels 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.OnModelImported -> REModelImport OnModelImported 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.RefreshCaption -> RoadEditorPanel RefreshCaption 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.Track.RoadEditorCrossImportPanelPatch -> RoadEditorCrossImportPanel 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches.RefreshAssetListpatch -> AssetImporterAssetImport RefreshAssetList 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches.RefreshAssetListpatch -> Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.model.ImportAssetPatch -> ImportAsset Import 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.model.ImportScalePatch -> 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.model.PaddingTogglePatch -> AssetImporterAssetImport SetDefaultScale 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.model.PadLodPatch -> AssetImporterTextureLoader LoadTextures 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.model.ReleaseModelPatch -> AssetEditorRoadUtils ReleaseModel Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetTemplatePatches.RefreshCoroutinePatch -> 
+[PATCH] AdaptiveRoads.Patches.Lane.CalculateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Lane.PopulateGroupData -> 
+[PATCH] AdaptiveRoads.Patches.Lane.RefreshInstance -> NetLane RefreshInstance 
+[PATCH] AdaptiveRoads.Patches.Lane.RenderDestroyedInstance -> 
+[PATCH] AdaptiveRoads.Patches.Lane.RenderInstance -> 
+[PATCH] AdaptiveRoads.Patches.Lane.RenderInstanceOverlayPatch -> 
+[PATCH] AdaptiveRoads.Patches.Lane.RenderInstance_JunctionDistancePatch -> 
+[PATCH] AdaptiveRoads.Patches.metadata.GetUniqueNetInfoName -> AssetEditorRoadUtils GetUniqueNetInfoName 
+[PATCH] AdaptiveRoads.Patches.metadata.AddCustomFields -> RoadEditorPanel 
+[PATCH] AdaptiveRoads.Patches.metadata.AssetImporterWizard_Complete -> AssetImporterWizard Complete 
+[PATCH] AdaptiveRoads.Patches.metadata.OnImportFinished -> REModelCrossImportSet OnImportFinished 
+[PATCH] AdaptiveRoads.Patches.metadata.OnLoadPatch -> LoadAssetPanel OnLoad 
+[PATCH] AdaptiveRoads.Patches.metadata.REModelCrossImportSet_Validate -> REModelCrossImportSet Validate 
+[PATCH] AdaptiveRoads.Patches.AssetPatches.AssetImporterWizard_Complete -> AssetImporterWizard Complete 
+[PATCH] AdaptiveRoads.Patches.AssetPatches.OnLoadPatch -> LoadAssetPanel OnLoad 
+[PATCH] AdaptiveRoads.Patches.AssetPatches.SaveAssetPatch -> SaveAssetPanel SaveAsset 
+[PATCH] AdaptiveRoads.Patches.AssetPatches.SavePostfix -> ColossalFramework.Packaging.Package Save Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] AdaptiveRoads.Patches.AssetPatches.Instantiate -> AssetEditorRoadUtils Instantiate 
+==================================================
+HARMONY PATCHES IN: NetworkSkins.dll
+==================================================
+[PATCH] NetNodeTerrainUpdatedPatch -> NetNode TerrainUpdated 
+[PATCH] NetNodeUpdateJunctionTerrainPatch -> NetNode UpdateJunctionTerrain 
+[PATCH] NetworkSkins.Patches._NetNode.NetNodeCalculateNodePatch -> NetNode CalculateNode 
+[PATCH] NetworkSkins.Patches.TrainTrackBridgeAI.TrainTrackBridgeAiGetNodeBuildingPatch -> TrainTrackBridgeAI GetNodeBuilding 
+[PATCH] NetworkSkins.Patches.SimulationManager.SimulationManagerManagersUpdateDataPatch -> SimulationManager Managers_UpdateData 
+[PATCH] NetworkSkins.Patches.RoadBridgeAI.RoadBridgeAiGetNodeBuildingPatch -> RoadBridgeAI GetNodeBuilding 
+[PATCH] NetworkSkins.Patches.PedestrianBridgeAI.PedestrianBridgeAiGetNodeBuildingPatch -> PedestrianBridgeAI GetNodeBuilding 
+[PATCH] NetworkSkins.Patches.ParallelRoadTool.HarmonyUtilsIsNameMatchingPatch -> 
+[PATCH] NetworkSkins.Patches.NetTool.NetToolCreateNodePatch -> 
+[PATCH] NetworkSkins.Patches.NetTool.NetToolMoveMiddleNodePatch -> NetTool MoveMiddleNode 
+[PATCH] NetworkSkins.Patches.NetTool.NetToolSplitSegmentPatch -> NetTool SplitSegment 
+[PATCH] NetworkSkins.Patches.NetSegment.NetSegmentCalculateGroupDataPatch -> 
+[PATCH] NetworkSkins.Patches.NetSegment.NetSegmentPopulateGroupDataPatch -> 
+[PATCH] NetworkSkins.Patches.NetSegment.NetSegmentRenderInstancePatch -> 
+[PATCH] NetworkSkins.Patches.NetSegment.NetSegmentRenderSegmentsPatch -> 
+[PATCH] NetworkSkins.Patches.NetSegment.NetSegmentTerrainUpdatedPatch -> NetSegment TerrainUpdated 
+[PATCH] NetworkSkins.Patches.NetManager.NetManagerCreateSegmentPatch -> 
+[PATCH] NetworkSkins.Patches.NetManager.NetManagerReleaseNodeImplementationPatch -> 
+[PATCH] NetworkSkins.Patches.NetManager.NetManagerReleaseSegmentImplementationPatch -> 
+[PATCH] NetworkSkins.Patches.NetManager.NetManagerUpdateColorMapPatch -> NetManager UpdateColorMap 
+[PATCH] NetworkSkins.Patches.MonorailTrackAI.MonorailTrackAiGetNodeBuildingPatch -> MonorailTrackAI GetNodeBuilding 
+[PATCH] NetworkSkins.Patches.MetroTrackBridgeAI.MetroTrackBridgeAiGetNodeBuildingPatch -> MetroTrackBridgeAI GetNodeBuilding 
+[PATCH] NetworkSkins.Patches.LoadingWrapper.NATLOnLevelLoadedPatch -> LoadingWrapper OnLevelLoaded 
+==================================================
+HARMONY PATCHES IN: NodeControllerRenewal.dll
+==================================================
+==================================================
+HARMONY PATCHES IN: NetworkAnarchy.dll
+==================================================
+[PATCH] NetworkAnarchy.CP_OnSelected -> ChirpOptionsPanel OnSelected 
+[PATCH] NetworkAnarchy.Patches.BT_CheckSpace -> BuildingTool CheckSpace 
+[PATCH] NetworkAnarchy.Patches.BT_CheckCollidingBuildings -> BuildingTool CheckCollidingBuildings 
+[PATCH] NetworkAnarchy.Patches.BM_OverlapQuad -> BuildingManager 
+[PATCH] NetworkAnarchy.Patches.BM_OverlapQuad -> OverlapQuad 
+[PATCH] NetworkAnarchy.Patches.BM_OverlapQuad -> Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.NM_OverlapQuad -> NetManager 
+[PATCH] NetworkAnarchy.Patches.NM_OverlapQuad -> OverlapQuad 
+[PATCH] NetworkAnarchy.Patches.NM_OverlapQuad -> Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.NN_TestNodeBuilding -> NetNode 
+[PATCH] NetworkAnarchy.Patches.NN_TestNodeBuilding -> TestNodeBuilding 
+[PATCH] NetworkAnarchy.Patches.ZB_CalculateImplementation1 -> ZoneBlock 
+[PATCH] NetworkAnarchy.Patches.ZB_CalculateImplementation1 -> CalculateImplementation1 
+[PATCH] NetworkAnarchy.Patches.ZB_CalculateImplementation1 -> Mono.Cecil.CustomAttributeArgument[] Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.RAI_GetInfo -> RoadAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.PPAI_GetInfo -> PedestrianPathAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.PWAI_GetInfo -> PedestrianWayAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.TTAI_GetInfo -> TrainTrackAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.MTAI_GetInfo -> MetroTrackAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.PatchRenderSegment -> NetTool 
+[PATCH] NetworkAnarchy.Patches.PatchRenderSegment -> RenderSegment 
+[PATCH] NetworkAnarchy.Patches.DT_GetService -> DefaultTool GetService 
+[PATCH] NetworkAnarchy.Patches.IM_SetCurrentMode -> InfoManager SetCurrentMode 
+[PATCH] NetworkAnarchy.Patches.NT_CheckStartAndEnd -> NetTool CheckStartAndEnd 
+[PATCH] NetworkAnarchy.Patches.NT_CanAddSegment -> NetTool CanAddSegment 
+[PATCH] NetworkAnarchy.Patches.NT_CanAddNode -> NetTool CanAddNode 
+[PATCH] NetworkAnarchy.Patches.NT_CanAddNode -> Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.NT_CheckCollidingSegments -> NetTool CheckCollidingSegments 
+[PATCH] NetworkAnarchy.Patches.NT_CanCreateSegment -> NetTool CanCreateSegment 
+[PATCH] NetworkAnarchy.Patches.NT_CanCreateSegment -> Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.NT_TestNodeBuilding -> NetTool TestNodeBuilding 
+[PATCH] NetworkAnarchy.Patches.NT_CheckNodeHeights -> NetTool CheckNodeHeights 
+[PATCH] NetworkAnarchy.Patches.NT_CreateNode -> NetTool CreateNode 
+[PATCH] NetworkAnarchy.Patches.NT_CreateNode -> Mono.Cecil.CustomAttributeArgument[] Mono.Cecil.CustomAttributeArgument[] 
+[PATCH] NetworkAnarchy.Patches.NAI_LinearMiddleHeight -> NetAI LinearMiddleHeight 
+[PATCH] NetworkAnarchy.Patches.NAI_BuildOnWater -> NetAI BuildOnWater 
+[PATCH] NetworkAnarchy.Patches.NAI_GetMinSegmentLength -> NetAI GetMinSegmentLength 
+[PATCH] NetworkAnarchy.Patches.NI_GetMinNodeDistance -> NetInfo GetMinNodeDistance 
+[PATCH] NetworkAnarchy.Patches.RAI_GetElevationLimits -> RoadAI GetElevationLimits 
+[PATCH] NetworkAnarchy.Patches.RAI_CheckBuildPosition -> RoadAI CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.PPAI_GetElevationLimits -> PedestrianPathAI GetElevationLimits 
+[PATCH] NetworkAnarchy.Patches.PPAI_CheckBuildPosition -> PedestrianPathAI CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.PWAI_GetElevationLimits -> PedestrianWayAI GetElevationLimits 
+[PATCH] NetworkAnarchy.Patches.PWAI_CheckBuildPosition -> PedestrianWayAI CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.TTAI_GetElevationLimits -> TrainTrackAI GetElevationLimits 
+[PATCH] NetworkAnarchy.Patches.TTAI_CheckBuildPosition -> TrainTrackAI CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.DWAI_CheckBuildPosition -> DecorationWallAI CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.DWAI_GetInfo -> DecorationWallAI GetInfo 
+[PATCH] NetworkAnarchy.Patches.SPAI_CheckBuildPosition -> ShipPathAI 
+[PATCH] NetworkAnarchy.Patches.SPAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.QAI_GetInfo -> QuayAI 
+[PATCH] NetworkAnarchy.Patches.QAI_GetInfo -> GetInfo 
+[PATCH] NetworkAnarchy.Patches.QAI_CheckBuildPosition -> QuayAI 
+[PATCH] NetworkAnarchy.Patches.QAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.FWAI_CheckBuildPosition -> FloodWallAI 
+[PATCH] NetworkAnarchy.Patches.FWAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.FWAI_GetInfo -> FloodWallAI 
+[PATCH] NetworkAnarchy.Patches.FWAI_GetInfo -> GetInfo 
+[PATCH] NetworkAnarchy.Patches.HAI_CheckBuildPosition -> HarborAI 
+[PATCH] NetworkAnarchy.Patches.HAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.CHAI_CheckBuildPosition -> CargoHarborAI 
+[PATCH] NetworkAnarchy.Patches.CHAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.FHAI_CheckBuildPosition -> FishingHarborAI 
+[PATCH] NetworkAnarchy.Patches.FHAI_CheckBuildPosition -> CheckBuildPosition 
+[PATCH] NetworkAnarchy.Patches.CAI_GetInfo -> CanalAI 
+[PATCH] NetworkAnarchy.Patches.CAI_GetInfo -> GetInfo 
+==================================================
+HARMONY PATCHES IN: IntersectionMarkingTool.dll
+==================================================

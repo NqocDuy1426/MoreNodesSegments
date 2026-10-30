@@ -1,0 +1,37 @@
+
+=== System.Boolean TrafficManager.Manager.Impl.VehicleBehaviorManager::MayChangeSegment(System.UInt16,Vehicle&,System.Single,PathUnit/Position&,NetSegment&,System.UInt16,System.UInt32,PathUnit/Position&,System.UInt16,NetNode&,System.UInt32,PathUnit/Position&,System.UInt16,System.Single&) ===
+IL_0000: ldarg.0
+IL_0001: ldarg.1
+IL_0002: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+IL_0007: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+IL_000c: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+IL_0011: ldarg.1
+IL_0012: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+IL_0017: ldarg.2
+IL_0018: ldarg.3
+IL_0019: ldarg.s prevPos
+IL_001b: ldarg.s prevSegment
+IL_001d: ldarg.s prevTargetNodeId
+IL_001f: ldarg.s prevLaneID
+IL_0021: ldarg.s position
+IL_0023: ldarg.s targetNodeId
+IL_0025: ldarg.s targetNode
+IL_0027: ldarg.s laneID
+IL_0029: ldarg.s nextPosition
+IL_002b: ldarg.s nextTargetNodeId
+IL_002d: ldarg.s maxSpeed
+IL_002f: call TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState TrafficManager.Manager.Impl.VehicleBehaviorManager::MayChangeSegment(System.UInt16,TrafficManager.API.Traffic.Data.ExtVehicle&,Vehicle&,System.Single,PathUnit/Position&,NetSegment&,System.UInt16,System.UInt32,PathUnit/Position&,System.UInt16,NetNode&,System.UInt32,PathUnit/Position&,System.UInt16,System.Single&)
+IL_0034: stloc.0
+IL_0035: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+IL_003a: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+IL_003f: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+IL_0044: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+IL_0049: callvirt TrafficManager.API.Traffic.Data.ExtVehicle[] TrafficManager.API.Manager.IExtVehicleManager::get_ExtVehicles()
+IL_004e: ldarg.1
+IL_004f: ldelema TrafficManager.API.Traffic.Data.ExtVehicle
+IL_0054: ldloc.0
+IL_0055: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::SetJunctionTransitState(TrafficManager.API.Traffic.Data.ExtVehicle&,TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState)
+IL_005a: ldloc.0
+IL_005b: ldc.i4.3
+IL_005c: ceq
+IL_005e: ret

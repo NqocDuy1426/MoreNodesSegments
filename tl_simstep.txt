@@ -1,0 +1,1063 @@
+=== TransportLine.SimulationStep ===
+  IL_0000: ldarg.0 
+  IL_0001: call TransportInfo TransportLine::get_Info()
+  IL_0006: stloc.0 
+  IL_0007: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_000C: stloc.1 
+  IL_000D: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_0012: stloc.2 
+  IL_0013: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+  IL_0018: stloc.3 
+  IL_0019: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+  IL_001E: stloc.s V_4
+  IL_0020: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+  IL_0025: stloc.s V_5
+  IL_0027: ldc.i8 4611687117939015680
+  IL_0030: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0035: stloc.s V_6
+  IL_0037: ldarg.0 
+  IL_0038: ldfld System.UInt16 TransportLine::m_stops
+  IL_003D: brfalse IL_0062: ldloc.2
+  IL_0042: ldloc.1 
+  IL_0043: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0048: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_004D: ldarg.0 
+  IL_004E: ldfld System.UInt16 TransportLine::m_stops
+  IL_0053: ldelema NetNode
+  IL_0058: ldfld Notification/ProblemStruct NetNode::m_problems
+  IL_005D: stloc.s V_4
+  IL_005F: ldloc.s V_4
+  IL_0061: stloc.3 
+  IL_0062: ldloc.2 
+  IL_0063: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0068: ldc.i4 4095
+  IL_006D: and 
+  IL_006E: ldc.i4 3840
+  IL_0073: clt.un 
+  IL_0075: ldc.i4.0 
+  IL_0076: ceq 
+  IL_0078: stloc.s V_7
+  IL_007A: ldc.r4 0
+  IL_007F: stloc.s V_8
+  IL_0081: ldc.i4.0 
+  IL_0082: stloc.s V_9
+  IL_0084: ldarg.0 
+  IL_0085: call System.Boolean TransportLine::get_Complete()
+  IL_008A: brfalse IL_09e1: ldarg.0
+  IL_008F: ldc.i4.0 
+  IL_0090: stloc.s V_10
+  IL_0092: ldc.i4.0 
+  IL_0093: stloc.s V_11
+  IL_0095: ldc.i4.0 
+  IL_0096: stloc.s V_12
+  IL_0098: ldarg.0 
+  IL_0099: ldfld System.UInt16 TransportLine::m_vehicles
+  IL_009E: brfalse IL_0161: ldloc.2
+  IL_00A3: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_00A8: stloc.s V_13
+  IL_00AA: ldarg.0 
+  IL_00AB: ldfld System.UInt16 TransportLine::m_vehicles
+  IL_00B0: stloc.s V_14
+  IL_00B2: ldc.i4.0 
+  IL_00B3: stloc.s V_15
+  IL_00B5: br IL_015a: ldloc.s V_14
+  IL_00BA: ldloc.s V_13
+  IL_00BC: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_00C1: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_00C6: ldloc.s V_14
+  IL_00C8: ldelema Vehicle
+  IL_00CD: ldfld System.UInt16 Vehicle::m_nextLineVehicle
+  IL_00D2: stloc.s V_16
+  IL_00D4: ldloc.s V_10
+  IL_00D6: ldc.i4.1 
+  IL_00D7: add 
+  IL_00D8: stloc.s V_10
+  IL_00DA: ldloc.s V_11
+  IL_00DC: ldloc.s V_13
+  IL_00DE: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_00E3: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_00E8: ldloc.s V_14
+  IL_00EA: ldelema Vehicle
+  IL_00EF: call VehicleInfo Vehicle::get_Info()
+  IL_00F4: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_00F9: ldc.i4.1 
+  IL_00FA: callvirt System.Int32 VehicleAI::GetPassengerCapacity(System.Boolean)
+  IL_00FF: add 
+  IL_0100: stloc.s V_11
+  IL_0102: ldloc.s V_13
+  IL_0104: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0109: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_010E: ldloc.s V_14
+  IL_0110: ldelema Vehicle
+  IL_0115: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_011A: ldc.i4 262144
+  IL_011F: and 
+  IL_0120: brtrue IL_012b: ldloc.s V_16
+  IL_0125: ldloc.s V_12
+  IL_0127: ldc.i4.1 
+  IL_0128: add 
+  IL_0129: stloc.s V_12
+  IL_012B: ldloc.s V_16
+  IL_012D: stloc.s V_14
+  IL_012F: ldloc.s V_15
+  IL_0131: ldc.i4.1 
+  IL_0132: add 
+  IL_0133: dup 
+  IL_0134: stloc.s V_15
+  IL_0136: ldc.i4 16384
+  IL_013B: ble IL_015a: ldloc.s V_14
+  IL_0140: ldc.i4.1 
+  IL_0141: ldstr Invalid list detected!
+
+  IL_0146: call System.String System.Environment::get_StackTrace()
+  IL_014B: call System.String System.String::Concat(System.String,System.String)
+  IL_0150: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0155: br IL_0161: ldloc.2
+  IL_015A: ldloc.s V_14
+  IL_015C: brtrue IL_00ba: ldloc.s V_13
+  IL_0161: ldloc.2 
+  IL_0162: ldfld System.Boolean SimulationManager::m_isNightTime
+  IL_0167: brfalse IL_0182: ldarg.0
+  IL_016C: ldarg.0 
+  IL_016D: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0172: ldc.i4 8192
+  IL_0177: and 
+  IL_0178: ldc.i4.0 
+  IL_0179: ceq 
+  IL_017B: stloc.s V_17
+  IL_017D: br IL_0193: ldc.i4.0
+  IL_0182: ldarg.0 
+  IL_0183: ldfld TransportLine/Flags TransportLine::m_flags
+  IL_0188: ldc.i4 4096
+  IL_018D: and 
+  IL_018E: ldc.i4.0 
+  IL_018F: ceq 
+  IL_0191: stloc.s V_17
+  IL_0193: ldc.i4.0 
+  IL_0194: stloc.s V_18
+  IL_0196: ldc.i4.0 
+  IL_0197: stloc.s V_19
+  IL_0199: ldc.i4.0 
+  IL_019A: stloc.s V_20
+  IL_019C: ldc.i4.0 
+  IL_019D: stloc.s V_21
+  IL_019F: ldarg.0 
+  IL_01A0: ldfld System.UInt16 TransportLine::m_stops
+  IL_01A5: brfalse IL_0407: ldloc.s V_9
+  IL_01AA: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+  IL_01AF: stloc.s V_22
+  IL_01B1: ldarg.0 
+  IL_01B2: ldfld System.UInt16 TransportLine::m_stops
+  IL_01B7: stloc.s V_23
+  IL_01B9: ldloc.s V_23
+  IL_01BB: stloc.s V_24
+  IL_01BD: ldc.i4.0 
+  IL_01BE: stloc.s V_25
+  IL_01C0: br IL_0400: ldloc.s V_24
+  IL_01C5: ldc.i4.0 
+  IL_01C6: stloc.s V_26
+  IL_01C8: ldloc.s V_17
+  IL_01CA: brfalse IL_01f4: ldloc.1
+  IL_01CF: ldloc.1 
+  IL_01D0: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_01D5: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_01DA: ldloc.s V_24
+  IL_01DC: ldelema NetNode
+  IL_01E1: dup 
+  IL_01E2: ldfld NetNode/Flags NetNode::m_flags
+  IL_01E7: ldc.i4.s -9
+  IL_01E9: and 
+  IL_01EA: stfld NetNode/Flags NetNode::m_flags
+  IL_01EF: br IL_0213: ldloc.s V_5
+  IL_01F4: ldloc.1 
+  IL_01F5: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_01FA: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_01FF: ldloc.s V_24
+  IL_0201: ldelema NetNode
+  IL_0206: dup 
+  IL_0207: ldfld NetNode/Flags NetNode::m_flags
+  IL_020C: ldc.i4.8 
+  IL_020D: or 
+  IL_020E: stfld NetNode/Flags NetNode::m_flags
+  IL_0213: ldloc.s V_5
+  IL_0215: ldloc.1 
+  IL_0216: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_021B: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0220: ldloc.s V_24
+  IL_0222: ldelema NetNode
+  IL_0227: ldfld Notification/ProblemStruct NetNode::m_problems
+  IL_022C: ldloc.s V_4
+  IL_022E: call Notification/ProblemStruct Notification/ProblemStruct::op_ExclusiveOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0233: ldloc.s V_6
+  IL_0235: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_023A: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_023F: stloc.s V_5
+  IL_0241: ldc.i4.0 
+  IL_0242: stloc.s V_27
+  IL_0244: br IL_0342: ldloc.s V_27
+  IL_0249: ldloc.1 
+  IL_024A: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_024F: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0254: ldloc.s V_24
+  IL_0256: ldelema NetNode
+  IL_025B: ldloc.s V_27
+  IL_025D: call System.UInt16 NetNode::GetSegment(System.Int32)
+  IL_0262: stloc.s V_28
+  IL_0264: ldloc.s V_28
+  IL_0266: brfalse IL_033c: ldloc.s V_27
+  IL_026B: ldloc.1 
+  IL_026C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0271: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0276: ldloc.s V_28
+  IL_0278: ldelema NetSegment
+  IL_027D: ldfld System.UInt16 NetSegment::m_startNode
+  IL_0282: ldloc.s V_24
+  IL_0284: bne.un IL_033c: ldloc.s V_27
+  IL_0289: ldloc.s V_19
+  IL_028B: ldloc.1 
+  IL_028C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0291: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0296: ldloc.s V_28
+  IL_0298: ldelema NetSegment
+  IL_029D: ldfld System.Int32 NetSegment::m_trafficLightState0
+  IL_02A2: ldloc.1 
+  IL_02A3: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02A8: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02AD: ldloc.s V_28
+  IL_02AF: ldelema NetSegment
+  IL_02B4: ldfld System.Int32 NetSegment::m_trafficLightState1
+  IL_02B9: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_02BE: add 
+  IL_02BF: stloc.s V_19
+  IL_02C1: ldloc.s V_8
+  IL_02C3: ldloc.1 
+  IL_02C4: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02C9: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02CE: ldloc.s V_28
+  IL_02D0: ldelema NetSegment
+  IL_02D5: ldfld System.Single NetSegment::m_averageLength
+  IL_02DA: add 
+  IL_02DB: stloc.s V_8
+  IL_02DD: ldloc.s V_20
+  IL_02DF: ldloc.1 
+  IL_02E0: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02E5: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_02EA: ldloc.s V_28
+  IL_02EC: ldelema NetSegment
+  IL_02F1: ldfld System.UInt16 NetSegment::m_trafficBuffer
+  IL_02F6: add 
+  IL_02F7: stloc.s V_20
+  IL_02F9: ldloc.1 
+  IL_02FA: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_02FF: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0304: ldloc.s V_28
+  IL_0306: ldelema NetSegment
+  IL_030B: ldfld System.UInt16 NetSegment::m_endNode
+  IL_0310: stloc.s V_26
+  IL_0312: ldloc.1 
+  IL_0313: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0318: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_031D: ldloc.s V_28
+  IL_031F: ldelema NetSegment
+  IL_0324: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0329: ldc.i4 1024
+  IL_032E: and 
+  IL_032F: brtrue IL_0337: br IL_034a
+  IL_0334: ldc.i4.1 
+  IL_0335: stloc.s V_9
+  IL_0337: br IL_034a: ldloc.1
+  IL_033C: ldloc.s V_27
+  IL_033E: ldc.i4.1 
+  IL_033F: add 
+  IL_0340: stloc.s V_27
+  IL_0342: ldloc.s V_27
+  IL_0344: ldc.i4.8 
+  IL_0345: blt IL_0249: ldloc.1
+  IL_034A: ldloc.1 
+  IL_034B: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0350: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0355: ldloc.s V_24
+  IL_0357: ldelema NetNode
+  IL_035C: ldfld System.UInt16 NetNode::m_targetCitizens
+  IL_0361: stloc.s V_29
+  IL_0363: ldc.i4.0 
+  IL_0364: stloc.s V_30
+  IL_0366: br IL_03b6: ldloc.s V_29
+  IL_036B: ldloc.s V_21
+  IL_036D: ldc.i4.1 
+  IL_036E: add 
+  IL_036F: stloc.s V_21
+  IL_0371: ldloc.s V_22
+  IL_0373: ldfld Array16`1<CitizenInstance> CitizenManager::m_instances
+  IL_0378: ldfld T[] Array16`1<CitizenInstance>::m_buffer
+  IL_037D: ldloc.s V_29
+  IL_037F: ldelema CitizenInstance
+  IL_0384: ldfld System.UInt16 CitizenInstance::m_nextTargetInstance
+  IL_0389: stloc.s V_29
+  IL_038B: ldloc.s V_30
+  IL_038D: ldc.i4.1 
+  IL_038E: add 
+  IL_038F: dup 
+  IL_0390: stloc.s V_30
+  IL_0392: ldc.i4 32768
+  IL_0397: blt IL_03b6: ldloc.s V_29
+  IL_039C: ldc.i4.1 
+  IL_039D: ldstr Invalid list detected!
+
+  IL_03A2: call System.String System.Environment::get_StackTrace()
+  IL_03A7: call System.String System.String::Concat(System.String,System.String)
+  IL_03AC: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_03B1: br IL_03bd: ldloc.s V_18
+  IL_03B6: ldloc.s V_29
+  IL_03B8: brtrue IL_036b: ldloc.s V_21
+  IL_03BD: ldloc.s V_18
+  IL_03BF: ldc.i4.1 
+  IL_03C0: add 
+  IL_03C1: stloc.s V_18
+  IL_03C3: ldloc.s V_26
+  IL_03C5: stloc.s V_24
+  IL_03C7: ldloc.s V_24
+  IL_03C9: ldloc.s V_23
+  IL_03CB: bne.un IL_03d5: ldloc.s V_25
+  IL_03D0: br IL_0407: ldloc.s V_9
+  IL_03D5: ldloc.s V_25
+  IL_03D7: ldc.i4.1 
+  IL_03D8: add 
+  IL_03D9: dup 
+  IL_03DA: stloc.s V_25
+  IL_03DC: ldc.i4 32768
+  IL_03E1: blt IL_0400: ldloc.s V_24
+  IL_03E6: ldc.i4.1 
+  IL_03E7: ldstr Invalid list detected!
+
+  IL_03EC: call System.String System.Environment::get_StackTrace()
+  IL_03F1: call System.String System.String::Concat(System.String,System.String)
+  IL_03F6: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_03FB: br IL_0407: ldloc.s V_9
+  IL_0400: ldloc.s V_24
+  IL_0402: brtrue IL_01c5: ldc.i4.0
+  IL_0407: ldloc.s V_9
+  IL_0409: brtrue IL_0416: ldloc.s V_18
+  IL_040E: ldarg.0 
+  IL_040F: ldloc.s V_8
+  IL_0411: stfld System.Single TransportLine::m_totalLength
+  IL_0416: ldloc.s V_18
+  IL_0418: brfalse IL_043c: ldloc.s V_10
+  IL_041D: ldarg.0 
+  IL_041E: ldc.r4 255
+  IL_0423: ldloc.s V_19
+  IL_0425: conv.i8 
+  IL_0426: ldloc.s V_18
+  IL_0428: ldc.i4.1 
+  IL_0429: shr.un 
+  IL_042A: conv.u8 
+  IL_042B: add 
+  IL_042C: ldloc.s V_18
+  IL_042E: conv.u8 
+  IL_042F: div 
+  IL_0430: conv.r4 
+  IL_0431: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+  IL_0436: conv.u1 
+  IL_0437: stfld System.Byte TransportLine::m_averageInterval
+  IL_043C: ldloc.s V_10
+  IL_043E: ldloc.0 
+  IL_043F: ldfld System.Int32 TransportInfo::m_maintenanceCostPerVehicle
+  IL_0444: mul 
+  IL_0445: ldloc.s V_11
+  IL_0447: conv.r4 
+  IL_0448: ldloc.0 
+  IL_0449: ldfld System.Single TransportInfo::m_maintenanceCostPerPassenger
+  IL_044E: mul 
+  IL_044F: conv.i4 
+  IL_0450: add 
+  IL_0451: stloc.s V_31
+  IL_0453: ldloc.s V_31
+  IL_0455: brfalse IL_046e: ldloc.0
+  IL_045A: call !0 ColossalFramework.Singleton`1<EconomyManager>::get_instance()
+  IL_045F: ldc.i4.1 
+  IL_0460: ldloc.s V_31
+  IL_0462: ldloc.0 
+  IL_0463: ldfld ItemClass TransportInfo::m_class
+  IL_0468: callvirt System.Int32 EconomyManager::FetchResource(EconomyManager/Resource,System.Int32,ItemClass)
+  IL_046D: pop 
+  IL_046E: ldloc.0 
+  IL_046F: ldfld TransferManager/TransferReason TransportInfo::m_vehicleReason
+  IL_0474: stloc.s V_32
+  IL_0476: ldloc.s V_32
+  IL_0478: ldc.i4.s 12
+  IL_047A: bne.un IL_054f: ldloc.s V_32
+  IL_047F: ldarg.0 
+  IL_0480: ldarg.1 
+  IL_0481: call VehicleInfo TransportLine::GetLineVehicle(System.UInt16)
+  IL_0486: stloc.s V_33
+  IL_0488: ldloc.s V_33
+  IL_048A: brfalse IL_04cc: ldloc.s V_33
+  IL_048F: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+  IL_0494: ldarg.1 
+  IL_0495: callvirt TransportLine/DepotLevels BuildingManager::GetDepotLevels(System.UInt16)
+  IL_049A: stloc.s V_34
+  IL_049C: ldloc.s V_33
+  IL_049E: ldfld ItemClass VehicleInfo::m_class
+  IL_04A3: ldfld ItemClass/Level ItemClass::m_level
+  IL_04A8: ldc.i4.1 
+  IL_04A9: beq IL_04bb: ldloca.s V_34
+  IL_04AE: ldloca.s V_34
+  IL_04B0: ldc.i4.0 
+  IL_04B1: call System.Boolean TransportLine/DepotLevels::Includes(ItemClass/Level)
+  IL_04B6: brtrue IL_04cc: ldloc.s V_33
+  IL_04BB: ldloca.s V_34
+  IL_04BD: ldc.i4.1 
+  IL_04BE: call System.Boolean TransportLine/DepotLevels::Includes(ItemClass/Level)
+  IL_04C3: brfalse IL_04cc: ldloc.s V_33
+  IL_04C8: ldc.i4.s 113
+  IL_04CA: stloc.s V_32
+  IL_04CC: ldloc.s V_33
+  IL_04CE: brtrue IL_054f: ldloc.s V_32
+  IL_04D3: call !0 ColossalFramework.Singleton`1<BuildingManager>::get_instance()
+  IL_04D8: ldarg.1 
+  IL_04D9: callvirt TransportLine/DepotLevels BuildingManager::GetDepotLevels(System.UInt16)
+  IL_04DE: stloc.s V_35
+  IL_04E0: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_04E5: callvirt System.Int32[] VehicleManager::GetBusTypeWeights()
+  IL_04EA: stloc.s V_36
+  IL_04EC: ldloca.s V_35
+  IL_04EE: ldc.i4.0 
+  IL_04EF: call System.Boolean TransportLine/DepotLevels::Includes(ItemClass/Level)
+  IL_04F4: brfalse IL_053e: ldloca.s V_35
+  IL_04F9: ldloca.s V_35
+  IL_04FB: ldc.i4.1 
+  IL_04FC: call System.Boolean TransportLine/DepotLevels::Includes(ItemClass/Level)
+  IL_0501: brfalse IL_053e: ldloca.s V_35
+  IL_0506: ldloc.2 
+  IL_0507: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_050C: ldc.i4.s 100
+  IL_050E: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_0513: ldc.i4.s 100
+  IL_0515: ldloc.s V_36
+  IL_0517: ldc.i4.0 
+  IL_0518: ldelem.i4 
+  IL_0519: ldloc.s V_36
+  IL_051B: ldc.i4.1 
+  IL_051C: ldelem.i4 
+  IL_051D: add 
+  IL_051E: ldc.i4.1 
+  IL_051F: call System.Int32 System.Math::Max(System.Int32,System.Int32)
+  IL_0524: div 
+  IL_0525: ldloc.s V_36
+  IL_0527: ldc.i4.1 
+  IL_0528: ldelem.i4 
+  IL_0529: ldc.i4.1 
+  IL_052A: call System.Int32 System.Math::Max(System.Int32,System.Int32)
+  IL_052F: mul 
+  IL_0530: bge IL_0539: br IL_054f
+  IL_0535: ldc.i4.s 113
+  IL_0537: stloc.s V_32
+  IL_0539: br IL_054f: ldloc.s V_32
+  IL_053E: ldloca.s V_35
+  IL_0540: ldc.i4.1 
+  IL_0541: call System.Boolean TransportLine/DepotLevels::Includes(ItemClass/Level)
+  IL_0546: brfalse IL_054f: ldloc.s V_32
+  IL_054B: ldc.i4.s 113
+  IL_054D: stloc.s V_32
+  IL_054F: ldloc.s V_32
+  IL_0551: ldc.i4 255
+  IL_0556: beq IL_06a0: ldloc.0
+  IL_055B: ldloc.s V_17
+  IL_055D: brfalse IL_057f: ldc.i4.0
+  IL_0562: ldloc.s V_9
+  IL_0564: brfalse IL_0572: ldarg.0
+  IL_0569: ldloc.s V_12
+  IL_056B: stloc.s V_37
+  IL_056D: br IL_057a: br IL_0582
+  IL_0572: ldarg.0 
+  IL_0573: call System.Int32 TransportLine::CalculateTargetVehicleCount()
+  IL_0578: stloc.s V_37
+  IL_057A: br IL_0582: ldloc.s V_18
+  IL_057F: ldc.i4.0 
+  IL_0580: stloc.s V_37
+  IL_0582: ldloc.s V_18
+  IL_0584: brfalse IL_0611: ldloc.s V_12
+  IL_0589: ldloc.s V_10
+  IL_058B: ldloc.s V_37
+  IL_058D: bge IL_0611: ldloc.s V_12
+  IL_0592: ldloc.2 
+  IL_0593: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_0598: ldloc.s V_18
+  IL_059A: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_059F: stloc.s V_38
+  IL_05A1: ldarg.0 
+  IL_05A2: ldloc.s V_38
+  IL_05A4: call System.UInt16 TransportLine::GetStop(System.Int32)
+  IL_05A9: stloc.s V_39
+  IL_05AB: ldloc.s V_39
+  IL_05AD: brfalse IL_060c: br IL_06a0
+  IL_05B2: ldloca.s V_40
+  IL_05B4: initobj TransferManager/TransferOffer
+  IL_05BA: ldloca.s V_40
+  IL_05BC: ldloc.s V_37
+  IL_05BE: ldloc.s V_10
+  IL_05C0: sub 
+  IL_05C1: ldc.i4.1 
+  IL_05C2: add 
+  IL_05C3: call System.Void TransferManager/TransferOffer::set_Priority(System.Int32)
+  IL_05C8: ldloca.s V_40
+  IL_05CA: ldarg.1 
+  IL_05CB: call System.Void TransferManager/TransferOffer::set_TransportLine(System.UInt16)
+  IL_05D0: ldloca.s V_40
+  IL_05D2: ldloc.1 
+  IL_05D3: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_05D8: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_05DD: ldloc.s V_39
+  IL_05DF: ldelema NetNode
+  IL_05E4: ldfld UnityEngine.Vector3 NetNode::m_position
+  IL_05E9: call System.Void TransferManager/TransferOffer::set_Position(UnityEngine.Vector3)
+  IL_05EE: ldloca.s V_40
+  IL_05F0: ldc.i4.1 
+  IL_05F1: call System.Void TransferManager/TransferOffer::set_Amount(System.Int32)
+  IL_05F6: ldloca.s V_40
+  IL_05F8: ldc.i4.0 
+  IL_05F9: call System.Void TransferManager/TransferOffer::set_Active(System.Boolean)
+  IL_05FE: call !0 ColossalFramework.Singleton`1<TransferManager>::get_instance()
+  IL_0603: ldloc.s V_32
+  IL_0605: ldloc.s V_40
+  IL_0607: callvirt System.Void TransferManager::AddIncomingOffer(TransferManager/TransferReason,TransferManager/TransferOffer)
+  IL_060C: br IL_06a0: ldloc.0
+  IL_0611: ldloc.s V_12
+  IL_0613: ldloc.s V_37
+  IL_0615: ble IL_06a0: ldloc.0
+  IL_061A: ldloc.2 
+  IL_061B: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_0620: ldloc.s V_12
+  IL_0622: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_0627: stloc.s V_41
+  IL_0629: ldarg.0 
+  IL_062A: ldloc.s V_41
+  IL_062C: call System.UInt16 TransportLine::GetActiveVehicle(System.Int32)
+  IL_0631: stloc.s V_42
+  IL_0633: ldloc.s V_42
+  IL_0635: brfalse IL_06a0: ldloc.0
+  IL_063A: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_063F: stloc.s V_43
+  IL_0641: ldloc.s V_43
+  IL_0643: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0648: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_064D: ldloc.s V_42
+  IL_064F: ldelema Vehicle
+  IL_0654: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0659: ldc.i4 262144
+  IL_065E: and 
+  IL_065F: brtrue IL_06a0: ldloc.0
+  IL_0664: ldloc.s V_43
+  IL_0666: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_066B: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0670: ldloc.s V_42
+  IL_0672: ldelema Vehicle
+  IL_0677: call VehicleInfo Vehicle::get_Info()
+  IL_067C: stloc.s V_44
+  IL_067E: ldloc.s V_44
+  IL_0680: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0685: ldloc.s V_42
+  IL_0687: ldloc.s V_43
+  IL_0689: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_068E: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0693: ldloc.s V_42
+  IL_0695: ldelema Vehicle
+  IL_069A: ldc.i4.0 
+  IL_069B: callvirt System.Void VehicleAI::SetTransportLine(System.UInt16,Vehicle&,System.UInt16)
+  IL_06A0: ldloc.0 
+  IL_06A1: ldfld TransferManager/TransferReason TransportInfo::m_citizenReason
+  IL_06A6: stloc.s V_45
+  IL_06A8: ldloc.s V_45
+  IL_06AA: ldc.i4 255
+  IL_06AF: beq IL_09dc: br IL_0bff
+  IL_06B4: ldloc.s V_45
+  IL_06B6: ldc.i4.s 36
+  IL_06B8: bne.un IL_0710: ldloc.s V_45
+  IL_06BD: ldloc.2 
+  IL_06BE: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_06C3: ldc.i4.4 
+  IL_06C4: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_06C9: stloc.s V_46
+  IL_06CB: ldloc.s V_46
+  IL_06CD: switch Mono.Cecil.Cil.Instruction[]
+  IL_06E2: br IL_070b: br IL_07cc
+  IL_06E7: ldc.i4.s 36
+  IL_06E9: stloc.s V_45
+  IL_06EB: br IL_070b: br IL_07cc
+  IL_06F0: ldc.i4.s 58
+  IL_06F2: stloc.s V_45
+  IL_06F4: br IL_070b: br IL_07cc
+  IL_06F9: ldc.i4.s 59
+  IL_06FB: stloc.s V_45
+  IL_06FD: br IL_070b: br IL_07cc
+  IL_0702: ldc.i4.s 60
+  IL_0704: stloc.s V_45
+  IL_0706: br IL_070b: br IL_07cc
+  IL_070B: br IL_07cc: ldloc.s V_32
+  IL_0710: ldloc.s V_45
+  IL_0712: ldc.i4.s 88
+  IL_0714: bne.un IL_07cc: ldloc.s V_32
+  IL_0719: ldloc.2 
+  IL_071A: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_071F: ldc.i4.s 20
+  IL_0721: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_0726: stloc.s V_47
+  IL_0728: ldloc.s V_47
+  IL_072A: switch Mono.Cecil.Cil.Instruction[]
+  IL_077F: br IL_07cc: ldloc.s V_32
+  IL_0784: ldc.i4.s 88
+  IL_0786: stloc.s V_45
+  IL_0788: br IL_07cc: ldloc.s V_32
+  IL_078D: ldc.i4.s 89
+  IL_078F: stloc.s V_45
+  IL_0791: br IL_07cc: ldloc.s V_32
+  IL_0796: ldc.i4.s 90
+  IL_0798: stloc.s V_45
+  IL_079A: br IL_07cc: ldloc.s V_32
+  IL_079F: ldc.i4.s 91
+  IL_07A1: stloc.s V_45
+  IL_07A3: br IL_07cc: ldloc.s V_32
+  IL_07A8: ldc.i4.s 36
+  IL_07AA: stloc.s V_45
+  IL_07AC: br IL_07cc: ldloc.s V_32
+  IL_07B1: ldc.i4.s 58
+  IL_07B3: stloc.s V_45
+  IL_07B5: br IL_07cc: ldloc.s V_32
+  IL_07BA: ldc.i4.s 59
+  IL_07BC: stloc.s V_45
+  IL_07BE: br IL_07cc: ldloc.s V_32
+  IL_07C3: ldc.i4.s 60
+  IL_07C5: stloc.s V_45
+  IL_07C7: br IL_07cc: ldloc.s V_32
+  IL_07CC: ldloc.s V_32
+  IL_07CE: ldc.i4 255
+  IL_07D3: bne.un IL_08e8: ldc.i4.0
+  IL_07D8: ldarg.0 
+  IL_07D9: ldfld System.Single TransportLine::m_totalLength
+  IL_07DE: ldc.r4 1920
+  IL_07E3: bgt.un IL_0809: ldarg.0
+  IL_07E8: ldloc.s V_9
+  IL_07EA: brtrue IL_0804: br IL_08c0
+  IL_07EF: ldloc.3 
+  IL_07F0: ldc.i8 1099511627776
+  IL_07F9: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_07FE: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0803: stloc.3 
+  IL_0804: br IL_08c0: ldloc.s V_7
+  IL_0809: ldarg.0 
+  IL_080A: ldfld System.Single TransportLine::m_totalLength
+  IL_080F: ldc.r4 3840
+  IL_0814: bgt.un IL_0847: ldarg.0
+  IL_0819: ldloc.s V_9
+  IL_081B: brtrue IL_0835: ldloc.s V_20
+  IL_0820: ldloc.3 
+  IL_0821: ldc.i8 1099511627776
+  IL_082A: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_082F: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0834: stloc.3 
+  IL_0835: ldloc.s V_20
+  IL_0837: ldc.i4.s 17
+  IL_0839: mul 
+  IL_083A: ldc.i4.s 10
+  IL_083C: add 
+  IL_083D: ldc.i4.s 20
+  IL_083F: div 
+  IL_0840: stloc.s V_20
+  IL_0842: br IL_08c0: ldloc.s V_7
+  IL_0847: ldarg.0 
+  IL_0848: ldfld System.Single TransportLine::m_totalLength
+  IL_084D: ldc.r4 5760
+  IL_0852: bgt.un IL_0898: ldloc.s V_9
+  IL_0857: ldloc.s V_9
+  IL_0859: brtrue IL_0886: ldloc.s V_20
+  IL_085E: ldloc.3 
+  IL_085F: ldc.i8 1099511627776
+  IL_0868: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_086D: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0872: ldc.i8 1099511627776
+  IL_087B: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0880: call Notification/ProblemStruct Notification::AddProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0885: stloc.3 
+  IL_0886: ldloc.s V_20
+  IL_0888: ldc.i4.s 14
+  IL_088A: mul 
+  IL_088B: ldc.i4.s 10
+  IL_088D: add 
+  IL_088E: ldc.i4.s 20
+  IL_0890: div 
+  IL_0891: stloc.s V_20
+  IL_0893: br IL_08c0: ldloc.s V_7
+  IL_0898: ldloc.s V_9
+  IL_089A: brtrue IL_08b4: ldloc.s V_20
+  IL_089F: ldloc.3 
+  IL_08A0: ldc.i8 4611687117939015680
+  IL_08A9: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_08AE: call Notification/ProblemStruct Notification::AddProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_08B3: stloc.3 
+  IL_08B4: ldloc.s V_20
+  IL_08B6: ldc.i4.8 
+  IL_08B7: mul 
+  IL_08B8: ldc.i4.s 10
+  IL_08BA: add 
+  IL_08BB: ldc.i4.s 20
+  IL_08BD: div 
+  IL_08BE: stloc.s V_20
+  IL_08C0: ldloc.s V_7
+  IL_08C2: brfalse IL_08e3: br IL_090c
+  IL_08C7: call !0 ColossalFramework.Singleton`1<StatisticsManager>::get_instance()
+  IL_08CC: ldc.i4.s 58
+  IL_08CE: callvirt StatisticBase StatisticsManager::Acquire<StatisticInt32>(StatisticType)
+  IL_08D3: ldarg.0 
+  IL_08D4: ldfld System.Single TransportLine::m_totalLength
+  IL_08D9: call System.Int32 UnityEngine.Mathf::RoundToInt(System.Single)
+  IL_08DE: callvirt System.Void StatisticBase::Add(System.Int32)
+  IL_08E3: br IL_090c: ldloc.s V_17
+  IL_08E8: ldc.i4.0 
+  IL_08E9: ldloc.s V_20
+  IL_08EB: ldc.i4.s 50
+  IL_08ED: add 
+  IL_08EE: ldarg.0 
+  IL_08EF: ldfld System.UInt16 TransportLine::m_ticketPrice
+  IL_08F4: ldc.i4.s 50
+  IL_08F6: mul 
+  IL_08F7: ldc.i4.1 
+  IL_08F8: ldloc.0 
+  IL_08F9: ldfld System.Int32 TransportInfo::m_ticketPrice
+  IL_08FE: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_0903: div 
+  IL_0904: sub 
+  IL_0905: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_090A: stloc.s V_20
+  IL_090C: ldloc.s V_17
+  IL_090E: brfalse IL_0942: ldc.i4.0
+  IL_0913: ldloc.s V_9
+  IL_0915: brfalse IL_0923: ldc.i4.1
+  IL_091A: ldloc.s V_21
+  IL_091C: stloc.s V_48
+  IL_091E: br IL_093d: br IL_0945
+  IL_0923: ldc.i4.1 
+  IL_0924: ldloc.0 
+  IL_0925: ldfld System.Int32 TransportInfo::m_citizenPullRequirement
+  IL_092A: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_092F: stloc.s V_49
+  IL_0931: ldloc.s V_20
+  IL_0933: ldloc.s V_49
+  IL_0935: add 
+  IL_0936: ldc.i4.1 
+  IL_0937: sub 
+  IL_0938: ldloc.s V_49
+  IL_093A: div 
+  IL_093B: stloc.s V_48
+  IL_093D: br IL_0945: ldloc.s V_18
+  IL_0942: ldc.i4.0 
+  IL_0943: stloc.s V_48
+  IL_0945: ldloc.s V_18
+  IL_0947: brfalse IL_09dc: br IL_0bff
+  IL_094C: ldloc.s V_21
+  IL_094E: ldloc.s V_48
+  IL_0950: bge IL_09dc: br IL_0bff
+  IL_0955: ldloc.2 
+  IL_0956: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+  IL_095B: ldloc.s V_18
+  IL_095D: call System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+  IL_0962: stloc.s V_50
+  IL_0964: ldarg.0 
+  IL_0965: ldloc.s V_50
+  IL_0967: call System.UInt16 TransportLine::GetStop(System.Int32)
+  IL_096C: stloc.s V_51
+  IL_096E: ldloc.s V_51
+  IL_0970: brfalse IL_09dc: br IL_0bff
+  IL_0975: ldloca.s V_52
+  IL_0977: initobj TransferManager/TransferOffer
+  IL_097D: ldloca.s V_52
+  IL_097F: ldc.i4.1 
+  IL_0980: ldloc.s V_48
+  IL_0982: ldloc.s V_21
+  IL_0984: sub 
+  IL_0985: ldc.i4.8 
+  IL_0986: mul 
+  IL_0987: ldloc.s V_48
+  IL_0989: div 
+  IL_098A: call System.Int32 UnityEngine.Mathf::Max(System.Int32,System.Int32)
+  IL_098F: call System.Void TransferManager/TransferOffer::set_Priority(System.Int32)
+  IL_0994: ldloca.s V_52
+  IL_0996: ldarg.1 
+  IL_0997: call System.Void TransferManager/TransferOffer::set_TransportLine(System.UInt16)
+  IL_099C: ldloca.s V_52
+  IL_099E: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  IL_09A3: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_09A8: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_09AD: ldloc.s V_51
+  IL_09AF: ldelema NetNode
+  IL_09B4: ldfld UnityEngine.Vector3 NetNode::m_position
+  IL_09B9: call System.Void TransferManager/TransferOffer::set_Position(UnityEngine.Vector3)
+  IL_09BE: ldloca.s V_52
+  IL_09C0: ldc.i4.1 
+  IL_09C1: call System.Void TransferManager/TransferOffer::set_Amount(System.Int32)
+  IL_09C6: ldloca.s V_52
+  IL_09C8: ldc.i4.0 
+  IL_09C9: call System.Void TransferManager/TransferOffer::set_Active(System.Boolean)
+  IL_09CE: call !0 ColossalFramework.Singleton`1<TransferManager>::get_instance()
+  IL_09D3: ldloc.s V_45
+  IL_09D5: ldloc.s V_52
+  IL_09D7: callvirt System.Void TransferManager::AddOutgoingOffer(TransferManager/TransferReason,TransferManager/TransferOffer)
+  IL_09DC: br IL_0bff: ldloc.s V_5
+  IL_09E1: ldarg.0 
+  IL_09E2: ldfld System.UInt16 TransportLine::m_stops
+  IL_09E7: brfalse IL_0b2a: ldloc.s V_9
+  IL_09EC: ldarg.0 
+  IL_09ED: ldfld System.UInt16 TransportLine::m_stops
+  IL_09F2: stloc.s V_53
+  IL_09F4: ldloc.s V_53
+  IL_09F6: stloc.s V_54
+  IL_09F8: ldc.i4.0 
+  IL_09F9: stloc.s V_55
+  IL_09FB: br IL_0b23: ldloc.s V_54
+  IL_0A00: ldc.i4.0 
+  IL_0A01: stloc.s V_56
+  IL_0A03: ldloc.s V_5
+  IL_0A05: ldloc.1 
+  IL_0A06: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0A0B: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0A10: ldloc.s V_54
+  IL_0A12: ldelema NetNode
+  IL_0A17: ldfld Notification/ProblemStruct NetNode::m_problems
+  IL_0A1C: ldloc.s V_4
+  IL_0A1E: call Notification/ProblemStruct Notification/ProblemStruct::op_ExclusiveOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0A23: ldloc.s V_6
+  IL_0A25: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0A2A: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0A2F: stloc.s V_5
+  IL_0A31: ldc.i4.0 
+  IL_0A32: stloc.s V_57
+  IL_0A34: br IL_0ade: ldloc.s V_57
+  IL_0A39: ldloc.1 
+  IL_0A3A: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0A3F: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0A44: ldloc.s V_54
+  IL_0A46: ldelema NetNode
+  IL_0A4B: ldloc.s V_57
+  IL_0A4D: call System.UInt16 NetNode::GetSegment(System.Int32)
+  IL_0A52: stloc.s V_58
+  IL_0A54: ldloc.s V_58
+  IL_0A56: brfalse IL_0ad8: ldloc.s V_57
+  IL_0A5B: ldloc.1 
+  IL_0A5C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0A61: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0A66: ldloc.s V_58
+  IL_0A68: ldelema NetSegment
+  IL_0A6D: ldfld System.UInt16 NetSegment::m_startNode
+  IL_0A72: ldloc.s V_54
+  IL_0A74: bne.un IL_0ad8: ldloc.s V_57
+  IL_0A79: ldloc.s V_8
+  IL_0A7B: ldloc.1 
+  IL_0A7C: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0A81: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0A86: ldloc.s V_58
+  IL_0A88: ldelema NetSegment
+  IL_0A8D: ldfld System.Single NetSegment::m_averageLength
+  IL_0A92: add 
+  IL_0A93: stloc.s V_8
+  IL_0A95: ldloc.1 
+  IL_0A96: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0A9B: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0AA0: ldloc.s V_58
+  IL_0AA2: ldelema NetSegment
+  IL_0AA7: ldfld System.UInt16 NetSegment::m_endNode
+  IL_0AAC: stloc.s V_56
+  IL_0AAE: ldloc.1 
+  IL_0AAF: ldfld Array16`1<NetSegment> NetManager::m_segments
+  IL_0AB4: ldfld T[] Array16`1<NetSegment>::m_buffer
+  IL_0AB9: ldloc.s V_58
+  IL_0ABB: ldelema NetSegment
+  IL_0AC0: ldfld NetSegment/Flags NetSegment::m_flags
+  IL_0AC5: ldc.i4 1024
+  IL_0ACA: and 
+  IL_0ACB: brtrue IL_0ad3: br IL_0ae6
+  IL_0AD0: ldc.i4.1 
+  IL_0AD1: stloc.s V_9
+  IL_0AD3: br IL_0ae6: ldloc.s V_56
+  IL_0AD8: ldloc.s V_57
+  IL_0ADA: ldc.i4.1 
+  IL_0ADB: add 
+  IL_0ADC: stloc.s V_57
+  IL_0ADE: ldloc.s V_57
+  IL_0AE0: ldc.i4.8 
+  IL_0AE1: blt IL_0a39: ldloc.1
+  IL_0AE6: ldloc.s V_56
+  IL_0AE8: stloc.s V_54
+  IL_0AEA: ldloc.s V_54
+  IL_0AEC: ldloc.s V_53
+  IL_0AEE: bne.un IL_0af8: ldloc.s V_55
+  IL_0AF3: br IL_0b2a: ldloc.s V_9
+  IL_0AF8: ldloc.s V_55
+  IL_0AFA: ldc.i4.1 
+  IL_0AFB: add 
+  IL_0AFC: dup 
+  IL_0AFD: stloc.s V_55
+  IL_0AFF: ldc.i4 32768
+  IL_0B04: blt IL_0b23: ldloc.s V_54
+  IL_0B09: ldc.i4.1 
+  IL_0B0A: ldstr Invalid list detected!
+
+  IL_0B0F: call System.String System.Environment::get_StackTrace()
+  IL_0B14: call System.String System.String::Concat(System.String,System.String)
+  IL_0B19: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0B1E: br IL_0b2a: ldloc.s V_9
+  IL_0B23: ldloc.s V_54
+  IL_0B25: brtrue IL_0a00: ldc.i4.0
+  IL_0B2A: ldloc.s V_9
+  IL_0B2C: brtrue IL_0bff: ldloc.s V_5
+  IL_0B31: ldarg.0 
+  IL_0B32: ldloc.s V_8
+  IL_0B34: stfld System.Single TransportLine::m_totalLength
+  IL_0B39: ldloc.0 
+  IL_0B3A: ldfld TransferManager/TransferReason TransportInfo::m_citizenReason
+  IL_0B3F: ldc.i4 255
+  IL_0B44: beq IL_0bff: ldloc.s V_5
+  IL_0B49: ldloc.0 
+  IL_0B4A: ldfld TransferManager/TransferReason TransportInfo::m_vehicleReason
+  IL_0B4F: ldc.i4 255
+  IL_0B54: bne.un IL_0bff: ldloc.s V_5
+  IL_0B59: ldarg.0 
+  IL_0B5A: ldfld System.Single TransportLine::m_totalLength
+  IL_0B5F: ldc.r4 1920
+  IL_0B64: bgt.un IL_0b83: ldarg.0
+  IL_0B69: ldloc.3 
+  IL_0B6A: ldc.i8 1099511627776
+  IL_0B73: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0B78: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0B7D: stloc.3 
+  IL_0B7E: br IL_0bff: ldloc.s V_5
+  IL_0B83: ldarg.0 
+  IL_0B84: ldfld System.Single TransportLine::m_totalLength
+  IL_0B89: ldc.r4 3840
+  IL_0B8E: bgt.un IL_0bad: ldarg.0
+  IL_0B93: ldloc.3 
+  IL_0B94: ldc.i8 1099511627776
+  IL_0B9D: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0BA2: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0BA7: stloc.3 
+  IL_0BA8: br IL_0bff: ldloc.s V_5
+  IL_0BAD: ldarg.0 
+  IL_0BAE: ldfld System.Single TransportLine::m_totalLength
+  IL_0BB3: ldc.r4 5760
+  IL_0BB8: bgt.un IL_0bea: ldloc.3
+  IL_0BBD: ldloc.3 
+  IL_0BBE: ldc.i8 1099511627776
+  IL_0BC7: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0BCC: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0BD1: ldc.i8 1099511627776
+  IL_0BDA: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0BDF: call Notification/ProblemStruct Notification::AddProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0BE4: stloc.3 
+  IL_0BE5: br IL_0bff: ldloc.s V_5
+  IL_0BEA: ldloc.3 
+  IL_0BEB: ldc.i8 4611687117939015680
+  IL_0BF4: call Notification/ProblemStruct Notification/ProblemStruct::op_Implicit(Notification/Problem1)
+  IL_0BF9: call Notification/ProblemStruct Notification::AddProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0BFE: stloc.3 
+  IL_0BFF: ldloc.s V_5
+  IL_0C01: ldloc.3 
+  IL_0C02: ldloc.s V_4
+  IL_0C04: call Notification/ProblemStruct Notification/ProblemStruct::op_ExclusiveOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C09: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseOr(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C0E: stloc.s V_5
+  IL_0C10: ldarg.0 
+  IL_0C11: ldfld System.UInt16 TransportLine::m_stops
+  IL_0C16: brfalse IL_0d14: ldloc.s V_7
+  IL_0C1B: ldloca.s V_5
+  IL_0C1D: call System.Boolean Notification/ProblemStruct::get_IsNotNone()
+  IL_0C22: brfalse IL_0d14: ldloc.s V_7
+  IL_0C27: ldarg.0 
+  IL_0C28: ldfld System.UInt16 TransportLine::m_stops
+  IL_0C2D: stloc.s V_59
+  IL_0C2F: ldloc.s V_59
+  IL_0C31: stloc.s V_60
+  IL_0C33: ldc.i4.0 
+  IL_0C34: stloc.s V_61
+  IL_0C36: br IL_0d0d: ldloc.s V_60
+  IL_0C3B: ldloc.1 
+  IL_0C3C: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0C41: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0C46: ldloc.s V_60
+  IL_0C48: ldelema NetNode
+  IL_0C4D: ldfld Notification/ProblemStruct NetNode::m_problems
+  IL_0C52: stloc.s V_4
+  IL_0C54: ldloc.s V_4
+  IL_0C56: stloc.s V_62
+  IL_0C58: ldloc.s V_62
+  IL_0C5A: ldloc.s V_6
+  IL_0C5C: call Notification/ProblemStruct Notification::RemoveProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C61: stloc.s V_62
+  IL_0C63: ldloc.3 
+  IL_0C64: ldloc.s V_6
+  IL_0C66: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C6B: ldc.i8 4611686018427387903
+  IL_0C74: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/Problem1)
+  IL_0C79: stloc.s V_63
+  IL_0C7B: ldloca.s V_63
+  IL_0C7D: call System.Boolean Notification/ProblemStruct::get_IsNotNone()
+  IL_0C82: brfalse IL_0c98: ldloc.s V_4
+  IL_0C87: ldloc.s V_62
+  IL_0C89: ldloc.3 
+  IL_0C8A: ldloc.s V_6
+  IL_0C8C: call Notification/ProblemStruct Notification/ProblemStruct::op_BitwiseAnd(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C91: call Notification/ProblemStruct Notification::AddProblems(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0C96: stloc.s V_62
+  IL_0C98: ldloc.s V_4
+  IL_0C9A: ldloc.s V_62
+  IL_0C9C: call System.Boolean Notification/ProblemStruct::op_Inequality(Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0CA1: brfalse IL_0ccb: ldloc.s V_60
+  IL_0CA6: ldloc.1 
+  IL_0CA7: ldfld Array16`1<NetNode> NetManager::m_nodes
+  IL_0CAC: ldfld T[] Array16`1<NetNode>::m_buffer
+  IL_0CB1: ldloc.s V_60
+  IL_0CB3: ldelema NetNode
+  IL_0CB8: ldloc.s V_62
+  IL_0CBA: stfld Notification/ProblemStruct NetNode::m_problems
+  IL_0CBF: ldloc.1 
+  IL_0CC0: ldloc.s V_60
+  IL_0CC2: ldloc.s V_4
+  IL_0CC4: ldloc.s V_62
+  IL_0CC6: callvirt System.Void NetManager::UpdateNodeNotifications(System.UInt16,Notification/ProblemStruct,Notification/ProblemStruct)
+  IL_0CCB: ldloc.s V_60
+  IL_0CCD: call System.UInt16 TransportLine::GetNextStop(System.UInt16)
+  IL_0CD2: stloc.s V_60
+  IL_0CD4: ldloc.s V_60
+  IL_0CD6: ldloc.s V_59
+  IL_0CD8: bne.un IL_0ce2: ldloc.s V_61
+  IL_0CDD: br IL_0d14: ldloc.s V_7
+  IL_0CE2: ldloc.s V_61
+  IL_0CE4: ldc.i4.1 
+  IL_0CE5: add 
+  IL_0CE6: dup 
+  IL_0CE7: stloc.s V_61
+  IL_0CE9: ldc.i4 32768
+  IL_0CEE: blt IL_0d0d: ldloc.s V_60
+  IL_0CF3: ldc.i4.1 
+  IL_0CF4: ldstr Invalid list detected!
+
+  IL_0CF9: call System.String System.Environment::get_StackTrace()
+  IL_0CFE: call System.String System.String::Concat(System.String,System.String)
+  IL_0D03: call System.Void ColossalFramework.CODebugBase`1<LogChannel>::Error(!0,System.String)
+  IL_0D08: br IL_0d14: ldloc.s V_7
+  IL_0D0D: ldloc.s V_60
+  IL_0D0F: brtrue IL_0c3b: ldloc.1
+  IL_0D14: ldloc.s V_7
+  IL_0D16: brfalse IL_0d51: ret
+  IL_0D1B: ldarg.0 
+  IL_0D1C: ldflda TransportPassengerData TransportLine::m_passengers
+  IL_0D21: call System.Void TransportPassengerData::Update()
+  IL_0D26: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  IL_0D2B: ldfld TransportPassengerData[] TransportManager::m_passengers
+  IL_0D30: ldloc.0 
+  IL_0D31: ldfld TransportInfo/TransportType TransportInfo::m_transportType
+  IL_0D36: ldelema TransportPassengerData
+  IL_0D3B: ldarg.0 
+  IL_0D3C: ldflda TransportPassengerData TransportLine::m_passengers
+  IL_0D41: call System.Void TransportPassengerData::Add(TransportPassengerData&)
+  IL_0D46: ldarg.0 
+  IL_0D47: ldflda TransportPassengerData TransportLine::m_passengers
+  IL_0D4C: call System.Void TransportPassengerData::Reset()
+  IL_0D51: ret 

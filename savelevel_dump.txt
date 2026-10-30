@@ -1,0 +1,353 @@
+Method: LoadingManager/AutoSaveTimer LoadingManager::get_autoSaveTimer()
+  0      ldarg.0      
+  1      ldfld        LoadingManager/AutoSaveTimer LoadingManager::m_AutoSaveTimer
+  6      ret          
+Method: UnityEngine.Coroutine LoadingManager::SaveLevel(System.String)
+  0      ldarg.0      
+  1      volatile.    
+  3      ldfld        System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_simulationDataLoaded
+  8      brfalse      IL_0049: ldnull
+  13     ldarg.0      
+  14     volatile.    
+  16     ldfld        System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_applicationQuitting
+  21     brtrue       IL_0049: ldnull
+  26     ldarg.0      
+  27     ldfld        LoadingProfiler LoadingManager::m_loadingProfilerMain
+  32     callvirt     System.Void LoadingProfiler::Reset()
+  37     ldarg.0      
+  38     ldfld        LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+  43     callvirt     System.Void LoadingProfiler::Reset()
+  48     ldarg.0      
+  49     ldfld        LoadingProfiler LoadingManager::m_loadingProfilerScenes
+  54     callvirt     System.Void LoadingProfiler::Reset()
+  59     ldarg.0      
+  60     ldarg.0      
+  61     ldarg.1      
+  62     call         System.Collections.IEnumerator LoadingManager::SaveLevelCoroutine(System.String)
+  67     call         UnityEngine.Coroutine UnityEngine.MonoBehaviour::StartCoroutine(System.Collections.IEnumerator)
+  72     ret          
+  73     ldnull       
+  74     ret          
+Method: System.Collections.IEnumerator LoadingManager::SaveLevelCoroutine(System.String)
+  0      newobj       System.Void LoadingManager/<SaveLevelCoroutine>c__Iterator2::.ctor()
+  5      stloc.0      
+  6      ldloc.0      
+  7      ldarg.1      
+  8      stfld        System.String LoadingManager/<SaveLevelCoroutine>c__Iterator2::filename
+  13     ldloc.0      
+  14     ldarg.0      
+  15     stfld        LoadingManager LoadingManager/<SaveLevelCoroutine>c__Iterator2::$this
+  20     ldloc.0      
+  21     ret          
+Method: System.Collections.IEnumerator LoadingManager::SaveSimulationData(System.String)
+  0      newobj       System.Void LoadingManager/<SaveSimulationData>c__IteratorC::.ctor()
+  5      stloc.0      
+  6      ldloc.0      
+  7      ldarg.1      
+  8      stfld        System.String LoadingManager/<SaveSimulationData>c__IteratorC::filename
+  13     ldloc.0      
+  14     ldarg.0      
+  15     stfld        LoadingManager LoadingManager/<SaveSimulationData>c__IteratorC::$this
+  20     ldloc.0      
+  21     ret          
+Nested: LoadingManager/AutoSaveTimer
+  Method: System.Void LoadingManager/AutoSaveTimer::.ctor()
+    0      ldarg.0      
+    1      ldsfld       System.String Settings::autoSave
+    6      ldsfld       System.String Settings::gameSettingsFile
+    11     ldsfld       System.Boolean DefaultSettings::autoSave
+    16     ldc.i4.1     
+    17     newobj       System.Void ColossalFramework.SavedBool::.ctor(System.String,System.String,System.Boolean,System.Boolean)
+    22     stfld        ColossalFramework.SavedBool LoadingManager/AutoSaveTimer::m_AutoSave
+    27     ldarg.0      
+    28     ldsfld       System.String Settings::autoSaveInterval
+    33     ldsfld       System.String Settings::gameSettingsFile
+    38     ldsfld       System.Int32 DefaultSettings::autoSaveInterval
+    43     ldc.i4.1     
+    44     newobj       System.Void ColossalFramework.SavedInt::.ctor(System.String,System.String,System.Int32,System.Boolean)
+    49     stfld        ColossalFramework.SavedInt LoadingManager/AutoSaveTimer::m_AutoSaveInterval
+    54     ldarg.0      
+    55     ldsfld       System.String Settings::editorAutoSave
+    60     ldsfld       System.String Settings::gameSettingsFile
+    65     ldsfld       System.Boolean DefaultSettings::editorAutoSave
+    70     ldc.i4.1     
+    71     newobj       System.Void ColossalFramework.SavedBool::.ctor(System.String,System.String,System.Boolean,System.Boolean)
+    76     stfld        ColossalFramework.SavedBool LoadingManager/AutoSaveTimer::m_EditorAutoSave
+    81     ldarg.0      
+    82     ldsfld       System.String Settings::editorAutoSaveInterval
+    87     ldsfld       System.String Settings::gameSettingsFile
+    92     ldsfld       System.Int32 DefaultSettings::editorAutoSaveInterval
+    97     ldc.i4.1     
+    98     newobj       System.Void ColossalFramework.SavedInt::.ctor(System.String,System.String,System.Int32,System.Boolean)
+    103    stfld        ColossalFramework.SavedInt LoadingManager/AutoSaveTimer::m_EditorAutoSaveInterval
+    108    ldarg.0      
+    109    call         System.Void System.Object::.ctor()
+    114    ret          
+  Method: System.Collections.IEnumerator LoadingManager/AutoSaveTimer::AutoSaveRoutine()
+    0      newobj       System.Void LoadingManager/AutoSaveTimer/<AutoSaveRoutine>c__Iterator0::.ctor()
+    5      stloc.0      
+    6      ldloc.0      
+    7      ldarg.0      
+    8      stfld        LoadingManager/AutoSaveTimer LoadingManager/AutoSaveTimer/<AutoSaveRoutine>c__Iterator0::$this
+    13     ldloc.0      
+    14     ret          
+  Method: System.Void LoadingManager/AutoSaveTimer::Pause()
+    0      ldarg.0      
+    1      dup          
+    2      ldfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    7      ldc.i4.1     
+    8      add          
+    9      stfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    14     ret          
+  Method: System.Void LoadingManager/AutoSaveTimer::UnPause()
+    0      ldarg.0      
+    1      dup          
+    2      ldfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    7      ldc.i4.1     
+    8      sub          
+    9      stfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    14     ldarg.0      
+    15     ldfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    20     ldc.i4.0     
+    21     bge          IL_0021: ret
+    26     ldarg.0      
+    27     ldc.i4.0     
+    28     stfld        System.Int32 LoadingManager/AutoSaveTimer::m_Paused
+    33     ret          
+  Method: System.Void LoadingManager/AutoSaveTimer::Start()
+    0      ldarg.0      
+    1      call         System.Void LoadingManager/AutoSaveTimer::Stop()
+    6      call         !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+    11     ldfld        Properties SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+    16     ldfld        ItemClass/Availability ToolController::m_mode
+    21     ldc.i4.1     
+    22     bne.un       IL_002b: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+    27     ldarg.0      
+    28     ldfld        ColossalFramework.SavedBool LoadingManager/AutoSaveTimer::m_AutoSave
+    33     callvirt     System.Boolean ColossalFramework.SavedBool::get_value()
+    38     brtrue       IL_0055: call System.Boolean ColossalFramework.Singleton`1<LoadingManager>::get_exists()
+    43     call         !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+    48     ldfld        Properties SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+    53     ldfld        ItemClass/Availability ToolController::m_mode
+    58     ldc.i4       254
+    63     and          
+    64     brfalse      IL_008d: ret
+    69     ldarg.0      
+    70     ldfld        ColossalFramework.SavedBool LoadingManager/AutoSaveTimer::m_EditorAutoSave
+    75     callvirt     System.Boolean ColossalFramework.SavedBool::get_value()
+    80     brfalse      IL_008d: ret
+    85     call         System.Boolean ColossalFramework.Singleton`1<LoadingManager>::get_exists()
+    90     brfalse      IL_008d: ret
+    95     call         !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+    100    volatile.    
+    102    ldfld        System.Boolean modreq(System.Runtime.CompilerServices.IsVolatile) LoadingManager::m_loadingComplete
+    107    brfalse      IL_008d: ret
+    112    ldarg.0      
+    113    ldc.i4.1     
+    114    stfld        System.Boolean LoadingManager/AutoSaveTimer::m_Running
+    119    ldarg.0      
+    120    call         !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+    125    ldarg.0      
+    126    call         System.Collections.IEnumerator LoadingManager/AutoSaveTimer::AutoSaveRoutine()
+    131    callvirt     UnityEngine.Coroutine UnityEngine.MonoBehaviour::StartCoroutine(System.Collections.IEnumerator)
+    136    stfld        UnityEngine.Coroutine LoadingManager/AutoSaveTimer::m_AutoSaveCoroutine
+    141    ret          
+  Method: System.Void LoadingManager/AutoSaveTimer::Stop()
+    0      call         System.Boolean ColossalFramework.Singleton`1<LoadingManager>::get_exists()
+    5      brfalse      IL_0033: ret
+    10     ldarg.0      
+    11     ldfld        UnityEngine.Coroutine LoadingManager/AutoSaveTimer::m_AutoSaveCoroutine
+    16     brfalse      IL_0033: ret
+    21     ldarg.0      
+    22     ldc.i4.0     
+    23     stfld        System.Boolean LoadingManager/AutoSaveTimer::m_Running
+    28     call         !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+    33     ldarg.0      
+    34     ldfld        UnityEngine.Coroutine LoadingManager/AutoSaveTimer::m_AutoSaveCoroutine
+    39     callvirt     System.Void UnityEngine.MonoBehaviour::StopCoroutine(UnityEngine.Coroutine)
+    44     ldarg.0      
+    45     ldnull       
+    46     stfld        UnityEngine.Coroutine LoadingManager/AutoSaveTimer::m_AutoSaveCoroutine
+    51     ret          
+Nested: LoadingManager/<SaveLevelCoroutine>c__Iterator2
+  Method: System.Void LoadingManager/<SaveLevelCoroutine>c__Iterator2::.ctor()
+    0      ldarg.0      
+    1      call         System.Void System.Object::.ctor()
+    6      ret          
+  Method: System.Boolean LoadingManager/<SaveLevelCoroutine>c__Iterator2::MoveNext()
+    0      ldarg.0      
+    1      ldfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    6      stloc.0      
+    7      ldarg.0      
+    8      ldc.i4.m1    
+    9      stfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    14     ldloc.0      
+    15     switch       Mono.Cecil.Cil.Instruction[]
+    32     br           IL_00b2: ldc.i4.0
+    37     ldarg.0      
+    38     ldc.i4.0     
+    39     box          System.Int32
+    44     stfld        System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::$current
+    49     ldarg.0      
+    50     ldfld        System.Boolean LoadingManager/<SaveLevelCoroutine>c__Iterator2::$disposing
+    55     brtrue.s     IL_0040: br IL_00b4
+    57     ldarg.0      
+    58     ldc.i4.1     
+    59     stfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    64     br           IL_00b4: ldc.i4.1
+    69     ldarg.0      
+    70     call         !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    75     ldstr        Saving
+    80     ldarg.0      
+    81     ldfld        LoadingManager LoadingManager/<SaveLevelCoroutine>c__Iterator2::$this
+    86     ldarg.0      
+    87     ldfld        System.String LoadingManager/<SaveLevelCoroutine>c__Iterator2::filename
+    92     call         System.Collections.IEnumerator LoadingManager::SaveSimulationData(System.String)
+    97     callvirt     AsyncTask SimulationManager::AddAction(System.String,System.Collections.IEnumerator)
+    102    stfld        AsyncTask LoadingManager/<SaveLevelCoroutine>c__Iterator2::<task>__0
+    107    ldarg.0      
+    108    ldfld        AsyncTask LoadingManager/<SaveLevelCoroutine>c__Iterator2::<task>__0
+    113    call         System.Void LoadSaveStatus::set_activeTask(AsyncTaskBase)
+    118    br           IL_009b: ldarg.0
+    123    ldarg.0      
+    124    ldc.i4.0     
+    125    box          System.Int32
+    130    stfld        System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::$current
+    135    ldarg.0      
+    136    ldfld        System.Boolean LoadingManager/<SaveLevelCoroutine>c__Iterator2::$disposing
+    141    brtrue.s     IL_0096: br IL_00b4
+    143    ldarg.0      
+    144    ldc.i4.2     
+    145    stfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    150    br           IL_00b4: ldc.i4.1
+    155    ldarg.0      
+    156    ldfld        AsyncTask LoadingManager/<SaveLevelCoroutine>c__Iterator2::<task>__0
+    161    callvirt     System.Boolean AsyncTaskBase::get_completedOrFailed()
+    166    brfalse      IL_007b: ldarg.0
+    171    ldarg.0      
+    172    ldc.i4.m1    
+    173    stfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    178    ldc.i4.0     
+    179    ret          
+    180    ldc.i4.1     
+    181    ret          
+  Method: System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::System.Collections.Generic.IEnumerator<object>.get_Current()
+    0      ldarg.0      
+    1      ldfld        System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::$current
+    6      ret          
+  Method: System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::System.Collections.IEnumerator.get_Current()
+    0      ldarg.0      
+    1      ldfld        System.Object LoadingManager/<SaveLevelCoroutine>c__Iterator2::$current
+    6      ret          
+  Method: System.Void LoadingManager/<SaveLevelCoroutine>c__Iterator2::Dispose()
+    0      ldarg.0      
+    1      ldc.i4.1     
+    2      stfld        System.Boolean LoadingManager/<SaveLevelCoroutine>c__Iterator2::$disposing
+    7      ldarg.0      
+    8      ldc.i4.m1    
+    9      stfld        System.Int32 LoadingManager/<SaveLevelCoroutine>c__Iterator2::$PC
+    14     ret          
+  Method: System.Void LoadingManager/<SaveLevelCoroutine>c__Iterator2::Reset()
+    0      newobj       System.Void System.NotSupportedException::.ctor()
+    5      throw        
+Nested: LoadingManager/<SaveSimulationData>c__IteratorC
+  Method: System.Void LoadingManager/<SaveSimulationData>c__IteratorC::.ctor()
+    0      ldarg.0      
+    1      call         System.Void System.Object::.ctor()
+    6      ret          
+  Method: System.Boolean LoadingManager/<SaveSimulationData>c__IteratorC::MoveNext()
+    0      ldarg.0      
+    1      ldfld        System.Int32 LoadingManager/<SaveSimulationData>c__IteratorC::$PC
+    6      stloc.0      
+    7      ldarg.0      
+    8      ldc.i4.m1    
+    9      stfld        System.Int32 LoadingManager/<SaveSimulationData>c__IteratorC::$PC
+    14     ldloc.0      
+    15     switch       Mono.Cecil.Cil.Instruction[]
+    28     br           IL_00f2: ldc.i4.0
+    33     ldarg.0      
+    34     ldfld        LoadingManager LoadingManager/<SaveSimulationData>c__IteratorC::$this
+    39     ldfld        LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+    44     ldstr        Serialize
+    49     callvirt     System.Void LoadingProfiler::BeginLoading(System.String)
+    54     ldarg.0      
+    55     ldfld        System.String LoadingManager/<SaveSimulationData>c__IteratorC::filename
+    60     call         System.Boolean System.String::IsNullOrEmpty(System.String)
+    65     brtrue       IL_00bb: ldarg.0
+    70     ldarg.0      
+    71     ldfld        System.String LoadingManager/<SaveSimulationData>c__IteratorC::filename
+    76     ldc.i4.2     
+    77     newobj       System.Void System.IO.FileStream::.ctor(System.String,System.IO.FileMode)
+    82     stloc.1      
+    83     ldloc.1      
+    84     ldc.i4.0     
+    85     call         System.UInt32 BuildConfig::get_SAVE_DATA_FORMAT_VERSION()
+    90     call         !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+    95     ldfld        SimulationMetaData SimulationManager::m_metaData
+    100    call         System.Void ColossalFramework.IO.DataSerializer::Serialize(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode,System.UInt32,ColossalFramework.IO.IDataContainer)
+    105    ldloc.1      
+    106    ldc.i4.0     
+    107    call         System.UInt32 BuildConfig::get_SAVE_DATA_FORMAT_VERSION()
+    112    newobj       System.Void SimulationManager/Data::.ctor()
+    117    call         System.Void ColossalFramework.IO.DataSerializer::Serialize(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode,System.UInt32,ColossalFramework.IO.IDataContainer)
+    122    leave        IL_0093: leave IL_00a5
+    127    pop          
+    128    ldloc.1      
+    129    callvirt     System.Void System.IO.Stream::Close()
+    134    ldarg.0      
+    135    ldfld        System.String LoadingManager/<SaveSimulationData>c__IteratorC::filename
+    140    call         System.Void System.IO.File::Delete(System.String)
+    145    rethrow      
+    147    leave        IL_00a5: ldc.i4.4
+    152    ldloc.1      
+    153    brfalse      IL_00a4: endfinally
+    158    ldloc.1      
+    159    callvirt     System.Void System.IDisposable::Dispose()
+    164    endfinally   
+    165    ldc.i4.4     
+    166    ldstr        Saved simulation data to: 
+    171    ldarg.0      
+    172    ldfld        System.String LoadingManager/<SaveSimulationData>c__IteratorC::filename
+    177    call         System.String System.String::Concat(System.String,System.String)
+    182    call         System.Void ColossalFramework.CODebugBase`1<LogChannel>::Log(!0,System.String)
+    187    ldarg.0      
+    188    ldfld        LoadingManager LoadingManager/<SaveSimulationData>c__IteratorC::$this
+    193    ldfld        LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+    198    callvirt     System.Void LoadingProfiler::EndLoading()
+    203    ldarg.0      
+    204    ldc.i4.0     
+    205    box          System.Int32
+    210    stfld        System.Object LoadingManager/<SaveSimulationData>c__IteratorC::$current
+    215    ldarg.0      
+    216    ldfld        System.Boolean LoadingManager/<SaveSimulationData>c__IteratorC::$disposing
+    221    brtrue.s     IL_00e6: br IL_00f4
+    223    ldarg.0      
+    224    ldc.i4.1     
+    225    stfld        System.Int32 LoadingManager/<SaveSimulationData>c__IteratorC::$PC
+    230    br           IL_00f4: ldc.i4.1
+    235    ldarg.0      
+    236    ldc.i4.m1    
+    237    stfld        System.Int32 LoadingManager/<SaveSimulationData>c__IteratorC::$PC
+    242    ldc.i4.0     
+    243    ret          
+    244    ldc.i4.1     
+    245    ret          
+  Method: System.Object LoadingManager/<SaveSimulationData>c__IteratorC::System.Collections.Generic.IEnumerator<object>.get_Current()
+    0      ldarg.0      
+    1      ldfld        System.Object LoadingManager/<SaveSimulationData>c__IteratorC::$current
+    6      ret          
+  Method: System.Object LoadingManager/<SaveSimulationData>c__IteratorC::System.Collections.IEnumerator.get_Current()
+    0      ldarg.0      
+    1      ldfld        System.Object LoadingManager/<SaveSimulationData>c__IteratorC::$current
+    6      ret          
+  Method: System.Void LoadingManager/<SaveSimulationData>c__IteratorC::Dispose()
+    0      ldarg.0      
+    1      ldc.i4.1     
+    2      stfld        System.Boolean LoadingManager/<SaveSimulationData>c__IteratorC::$disposing
+    7      ldarg.0      
+    8      ldc.i4.m1    
+    9      stfld        System.Int32 LoadingManager/<SaveSimulationData>c__IteratorC::$PC
+    14     ret          
+  Method: System.Void LoadingManager/<SaveSimulationData>c__IteratorC::Reset()
+    0      newobj       System.Void System.NotSupportedException::.ctor()
+    5      throw        

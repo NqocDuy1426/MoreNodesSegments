@@ -1,0 +1,101 @@
+Deserialize method: T ColossalFramework.IO.DataSerializer::Deserialize(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode)
+  0000 ldarg.0 
+  0001 ldarg.1 
+  0002 ldnull 
+  0003 call T ColossalFramework.IO.DataSerializer::Deserialize<T>(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode,ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  0008 ret 
+Deserialize method: T ColossalFramework.IO.DataSerializer::Deserialize(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode,ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  0000 ldloca.s V_0
+  0002 initobj T
+  0008 ldarg.0 
+  0009 ldarg.1 
+  000a ldc.i4.0 
+  000b newobj System.Void ColossalFramework.IO.DataSerializer::.ctor(System.IO.Stream,ColossalFramework.IO.DataSerializer/Mode,System.Boolean)
+  0010 stloc.1 
+  0011 ldloc.1 
+  0012 callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  0017 stloc.2 
+  0018 ldloc.1 
+  0019 callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+  001e stloc.3 
+  001f ldloc.2 
+  0020 ldc.i4.s 16
+  0022 shl 
+  0023 ldloc.3 
+  0024 or 
+  0025 stloc.s V_4
+  0027 ldloc.3 
+  0028 ldc.i4 322
+  002d bgt.un.s IL_0043: ldloc.2
+  002f ldloc.2 
+  0030 ldc.i4.6 
+  0031 bgt.un.s IL_0043: ldloc.2
+  0033 ldloc.1 
+  0034 ldloc.2 
+  0035 stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_altVersion
+  003a ldloc.1 
+  003b ldloc.3 
+  003c stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_version
+  0041 br.s IL_0077: ldloc.1
+  0043 ldloc.2 
+  0044 ldc.i4 32768
+  0049 and 
+  004a brfalse.s IL_0068: ldloc.1
+  004c ldloc.1 
+  004d ldloc.1 
+  004e callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+  0053 stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_altVersion
+  0058 ldloc.1 
+  0059 ldloc.s V_4
+  005b ldc.i4 2147483647
+  0060 and 
+  0061 stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_version
+  0066 br.s IL_0077: ldloc.1
+  0068 ldloc.1 
+  0069 ldc.i4.0 
+  006a stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_altVersion
+  006f ldloc.1 
+  0070 ldloc.s V_4
+  0072 stfld System.UInt32 ColossalFramework.IO.DataSerializer::m_version
+  0077 ldloc.1 
+  0078 ldarg.2 
+  0079 callvirt T ColossalFramework.IO.DataSerializer::ReadObject<T>(ColossalFramework.IO.DataSerializer/LegacyResolverHandler)
+  007e stloc.0 
+  007f ldc.i4.0 
+  0080 stloc.s V_5
+  0082 br.s IL_009c: ldloc.s V_5
+  0084 ldloc.1 
+  0085 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  008a ldloc.s V_5
+  008c dup 
+  008d ldc.i4.1 
+  008e add 
+  008f stloc.s V_5
+  0091 callvirt !0 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Item(System.Int32)
+  0096 ldloc.1 
+  0097 callvirt System.Void ColossalFramework.IO.IDataContainer::Deserialize(ColossalFramework.IO.DataSerializer)
+  009c ldloc.s V_5
+  009e ldloc.1 
+  009f ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  00a4 callvirt System.Int32 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Count()
+  00a9 blt.s IL_0084: ldloc.1
+  00ab ldc.i4.0 
+  00ac stloc.s V_5
+  00ae br.s IL_00c8: ldloc.s V_5
+  00b0 ldloc.1 
+  00b1 ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  00b6 ldloc.s V_5
+  00b8 dup 
+  00b9 ldc.i4.1 
+  00ba add 
+  00bb stloc.s V_5
+  00bd callvirt !0 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Item(System.Int32)
+  00c2 ldloc.1 
+  00c3 callvirt System.Void ColossalFramework.IO.IDataContainer::AfterDeserialize(ColossalFramework.IO.DataSerializer)
+  00c8 ldloc.s V_5
+  00ca ldloc.1 
+  00cb ldfld System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer> ColossalFramework.IO.DataSerializer::m_objectList
+  00d0 callvirt System.Int32 System.Collections.Generic.List`1<ColossalFramework.IO.IDataContainer>::get_Count()
+  00d5 blt.s IL_00b0: ldloc.1
+  00d7 ldloc.0 
+  00d8 ret 

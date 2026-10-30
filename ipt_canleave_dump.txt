@@ -1,0 +1,131 @@
+Type: ExpressBusServices.ReversePatch_VehicleAI_CanLeave Method: BaseVehicleAI_CanLeave
+  IL_0000: ldstr "This is a stub that is not available at this moment."
+  IL_0005: newobj System.Void System.NotImplementedException::.ctor(System.String)
+  IL_000a: throw
+Type: ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch Method: PatchCanLeave
+  IL_0000: ldarg.0
+  IL_0001: ldstr "CanLeave"
+  IL_0006: ldc.i4.0
+  IL_0007: ldnull
+  IL_0008: ldnull
+  IL_0009: ldnull
+  IL_000a: ldc.i4.m1
+  IL_000b: newobj System.Void ImprovedPublicTransport.Util.PatchUtil/MethodDefinition::.ctor(System.Type,System.String,System.Reflection.BindingFlags,System.Type[],System.String[],System.String[],System.Int32)
+  IL_0010: ldtoken ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch
+  IL_0015: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_001a: ldstr "Prefix"
+  IL_001f: ldc.i4.0
+  IL_0020: ldnull
+  IL_0021: ldnull
+  IL_0022: ldnull
+  IL_0023: ldc.i4 400
+  IL_0028: newobj System.Void ImprovedPublicTransport.Util.PatchUtil/MethodDefinition::.ctor(System.Type,System.String,System.Reflection.BindingFlags,System.Type[],System.String[],System.String[],System.Int32)
+  IL_002d: ldtoken ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch
+  IL_0032: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0037: ldstr "Postfix"
+  IL_003c: ldc.i4.0
+  IL_003d: ldnull
+  IL_003e: ldnull
+  IL_003f: ldnull
+  IL_0040: ldc.i4 400
+  IL_0045: newobj System.Void ImprovedPublicTransport.Util.PatchUtil/MethodDefinition::.ctor(System.Type,System.String,System.Reflection.BindingFlags,System.Type[],System.String[],System.String[],System.Int32)
+  IL_004a: ldtoken ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch
+  IL_004f: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0054: ldstr "Transpile"
+  IL_0059: ldc.i4.0
+  IL_005a: ldnull
+  IL_005b: ldnull
+  IL_005c: ldnull
+  IL_005d: ldc.i4 400
+  IL_0062: newobj System.Void ImprovedPublicTransport.Util.PatchUtil/MethodDefinition::.ctor(System.Type,System.String,System.Reflection.BindingFlags,System.Type[],System.String[],System.String[],System.Int32)
+  IL_0067: call System.Void ImprovedPublicTransport.Util.PatchUtil::Patch(ImprovedPublicTransport.Util.PatchUtil/MethodDefinition,ImprovedPublicTransport.Util.PatchUtil/MethodDefinition,ImprovedPublicTransport.Util.PatchUtil/MethodDefinition,ImprovedPublicTransport.Util.PatchUtil/MethodDefinition)
+  IL_006c: ret
+Type: ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch Method: UnpatchCanLeave
+  IL_0000: ldarg.0
+  IL_0001: ldstr "CanLeave"
+  IL_0006: ldc.i4.0
+  IL_0007: ldnull
+  IL_0008: ldnull
+  IL_0009: ldnull
+  IL_000a: ldc.i4.m1
+  IL_000b: newobj System.Void ImprovedPublicTransport.Util.PatchUtil/MethodDefinition::.ctor(System.Type,System.String,System.Reflection.BindingFlags,System.Type[],System.String[],System.String[],System.Int32)
+  IL_0010: call System.Void ImprovedPublicTransport.Util.PatchUtil::Unpatch(ImprovedPublicTransport.Util.PatchUtil/MethodDefinition)
+  IL_0015: ret
+Type: ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch Method: TransportLineCanLeaveStopWrapper
+  IL_0000: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+  IL_0005: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_000a: ldfld !0[] Array16`1<Vehicle>::m_buffer
+  IL_000f: ldsfld System.UInt16 ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch::currentVehicleID
+  IL_0014: ldelem.any Vehicle
+  IL_0019: stloc.0
+  IL_001a: ldloca.s V_0
+  IL_001c: call VehicleInfo Vehicle::get_Info()
+  IL_0021: dup
+  IL_0022: brtrue.s IL_0028
+  IL_0024: pop
+  IL_0025: ldc.i4.0
+  IL_0026: br.s IL_0052
+  IL_0028: ldfld ItemClass VehicleInfo::m_class
+  IL_002d: dup
+  IL_002e: brtrue.s IL_003c
+  IL_0030: pop
+  IL_0031: ldloca.s V_2
+  IL_0033: initobj System.Nullable`1<ItemClass/Service>
+  IL_0039: ldloc.2
+  IL_003a: br.s IL_0046
+  IL_003c: ldfld ItemClass/Service ItemClass::m_service
+  IL_0041: newobj System.Void System.Nullable`1<ItemClass/Service>::.ctor(!0)
+  IL_0046: stloc.2
+  IL_0047: ldloca.s V_2
+  IL_0049: call !0 System.Nullable`1<ItemClass/Service>::GetValueOrDefault()
+  IL_004e: ldc.i4.s 20
+  IL_0050: ceq
+  IL_0052: brtrue.s IL_0082
+  IL_0054: ldloc.0
+  IL_0055: ldfld System.UInt16 Vehicle::m_nextLineVehicle
+  IL_005a: brtrue.s IL_0084
+  IL_005c: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  IL_0061: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_0066: ldfld !0[] Array16`1<TransportLine>::m_buffer
+  IL_006b: ldloc.0
+  IL_006c: ldfld System.UInt16 Vehicle::m_transportLine
+  IL_0071: ldelema TransportLine
+  IL_0076: ldfld System.UInt16 TransportLine::m_vehicles
+  IL_007b: ldsfld System.UInt16 ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch::currentStop
+  IL_0080: bne.un.s IL_0084
+  IL_0082: ldc.i4.1
+  IL_0083: ret
+  IL_0084: ldsfld System.UInt16 ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch::currentStop
+  IL_0089: brfalse.s IL_00ae
+  IL_008b: ldsfld ImprovedPublicTransport.Data.NodeData[] ImprovedPublicTransport.Data.CachedNodeData::m_cachedNodeData
+  IL_0090: ldsfld System.UInt16 ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch::currentStop
+  IL_0095: ldelema ImprovedPublicTransport.Data.NodeData
+  IL_009a: call System.Boolean ImprovedPublicTransport.Data.NodeData::get_Unbunching()
+  IL_009f: brfalse.s IL_00ae
+  IL_00a1: ldloc.0
+  IL_00a2: ldfld System.UInt16 Vehicle::m_transportLine
+  IL_00a7: call System.Boolean ImprovedPublicTransport.Data.CachedTransportLineData::GetUnbunchingState(System.UInt16)
+  IL_00ac: brtrue.s IL_00b0
+  IL_00ae: ldc.i4.1
+  IL_00af: ret
+  IL_00b0: call !0 ColossalFramework.Singleton`1<TransportManager>::get_instance()
+  IL_00b5: ldfld Array16`1<TransportLine> TransportManager::m_lines
+  IL_00ba: ldfld !0[] Array16`1<TransportLine>::m_buffer
+  IL_00bf: ldloc.0
+  IL_00c0: ldfld System.UInt16 Vehicle::m_transportLine
+  IL_00c5: ldelema TransportLine
+  IL_00ca: ldloc.0
+  IL_00cb: ldfld System.UInt16 Vehicle::m_targetBuilding
+  IL_00d0: ldloc.0
+  IL_00d1: ldfld System.Byte Vehicle::m_waitCounter
+  IL_00d6: call System.Boolean TransportLine::CanLeaveStop(System.UInt16,System.Int32)
+  IL_00db: stloc.1
+  IL_00dc: ldsfld ImprovedPublicTransport.Data.VehicleData[] ImprovedPublicTransport.Data.CachedVehicleData::m_cachedVehicleData
+  IL_00e1: ldsfld System.UInt16 ImprovedPublicTransport.HarmonyPatches.XYZVehicleAIPatches.CanLeavePatch::currentVehicleID
+  IL_00e6: ldelema ImprovedPublicTransport.Data.VehicleData
+  IL_00eb: ldloc.1
+  IL_00ec: ldc.i4.0
+  IL_00ed: ceq
+  IL_00ef: call System.Void ImprovedPublicTransport.Data.VehicleData::set_IsUnbunchingInProgress(System.Boolean)
+  IL_00f4: ldloc.1
+  IL_00f5: ret

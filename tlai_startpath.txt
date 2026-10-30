@@ -1,0 +1,373 @@
+Type: TransportLineAI
+Method: System.Boolean TransportLineAI::StartPathFind(System.UInt16,NetSegment&,ItemClass/Service,ItemClass/Service,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Boolean)
+IL_0000: ldarg.1 
+IL_0001: ldfld System.UInt32 NetSegment::m_path
+IL_0006: brfalse IL_0022
+IL_000b: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_0010: ldarg.1 
+IL_0011: ldfld System.UInt32 NetSegment::m_path
+IL_0016: callvirt System.Void PathManager::ReleasePath(System.UInt32)
+IL_001b: ldarg.1 
+IL_001c: ldc.i4.0 
+IL_001d: stfld System.UInt32 NetSegment::m_path
+IL_0022: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0027: stloc.0 
+IL_0028: ldloc.0 
+IL_0029: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_002e: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0033: ldarg.1 
+IL_0034: ldfld System.UInt16 NetSegment::m_startNode
+IL_0039: ldelema NetNode
+IL_003e: ldfld NetNode/Flags NetNode::m_flags
+IL_0043: ldc.i4 32768
+IL_0048: and 
+IL_0049: brfalse IL_00a7
+IL_004e: ldc.i4.0 
+IL_004f: stloc.1 
+IL_0050: br IL_00a0
+IL_0055: ldloc.0 
+IL_0056: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_005b: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0060: ldarg.1 
+IL_0061: ldfld System.UInt16 NetSegment::m_startNode
+IL_0066: ldelema NetNode
+IL_006b: ldloc.1 
+IL_006c: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_0071: stloc.2 
+IL_0072: ldloc.2 
+IL_0073: brfalse IL_009c
+IL_0078: ldloc.2 
+IL_0079: ldarg.0 
+IL_007a: beq IL_009c
+IL_007f: ldloc.0 
+IL_0080: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0085: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_008a: ldloc.2 
+IL_008b: ldelema NetSegment
+IL_0090: ldfld System.UInt32 NetSegment::m_path
+IL_0095: brfalse IL_009c
+IL_009a: ldc.i4.1 
+IL_009b: ret 
+IL_009c: ldloc.1 
+IL_009d: ldc.i4.1 
+IL_009e: add 
+IL_009f: stloc.1 
+IL_00a0: ldloc.1 
+IL_00a1: ldc.i4.8 
+IL_00a2: blt IL_0055
+IL_00a7: ldloc.0 
+IL_00a8: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00ad: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00b2: ldarg.1 
+IL_00b3: ldfld System.UInt16 NetSegment::m_endNode
+IL_00b8: ldelema NetNode
+IL_00bd: ldfld NetNode/Flags NetNode::m_flags
+IL_00c2: ldc.i4 32768
+IL_00c7: and 
+IL_00c8: brfalse IL_012a
+IL_00cd: ldc.i4.0 
+IL_00ce: stloc.3 
+IL_00cf: br IL_0123
+IL_00d4: ldloc.0 
+IL_00d5: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_00da: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_00df: ldarg.1 
+IL_00e0: ldfld System.UInt16 NetSegment::m_endNode
+IL_00e5: ldelema NetNode
+IL_00ea: ldloc.3 
+IL_00eb: call System.UInt16 NetNode::GetSegment(System.Int32)
+IL_00f0: stloc.s V_4
+IL_00f2: ldloc.s V_4
+IL_00f4: brfalse IL_011f
+IL_00f9: ldloc.s V_4
+IL_00fb: ldarg.0 
+IL_00fc: beq IL_011f
+IL_0101: ldloc.0 
+IL_0102: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_0107: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_010c: ldloc.s V_4
+IL_010e: ldelema NetSegment
+IL_0113: ldfld System.UInt32 NetSegment::m_path
+IL_0118: brfalse IL_011f
+IL_011d: ldc.i4.1 
+IL_011e: ret 
+IL_011f: ldloc.3 
+IL_0120: ldc.i4.1 
+IL_0121: add 
+IL_0122: stloc.3 
+IL_0123: ldloc.3 
+IL_0124: ldc.i4.8 
+IL_0125: blt IL_00d4
+IL_012a: ldloc.0 
+IL_012b: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0130: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0135: ldarg.1 
+IL_0136: ldfld System.UInt16 NetSegment::m_startNode
+IL_013b: ldelema NetNode
+IL_0140: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0145: stloc.s V_5
+IL_0147: ldloc.0 
+IL_0148: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_014d: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0152: ldarg.1 
+IL_0153: ldfld System.UInt16 NetSegment::m_endNode
+IL_0158: ldelema NetNode
+IL_015d: ldfld UnityEngine.Vector3 NetNode::m_position
+IL_0162: stloc.s V_6
+IL_0164: ldloc.s V_5
+IL_0166: ldarg.2 
+IL_0167: ldarg.3 
+IL_0168: ldc.i4.2 
+IL_0169: ldc.i4.0 
+IL_016a: ldc.i4.0 
+IL_016b: conv.i8 
+IL_016c: ldarg.s vehicleType
+IL_016e: ldc.i4.1 
+IL_016f: ldc.i4.0 
+IL_0170: ldc.r4 32
+IL_0175: ldc.i4.0 
+IL_0176: ldc.i4.1 
+IL_0177: ldloca.s V_7
+IL_0179: ldloca.s V_8
+IL_017b: ldloca.s V_11
+IL_017d: ldloca.s V_12
+IL_017f: call System.Boolean PathManager::FindPathPosition(UnityEngine.Vector3,ItemClass/Service,ItemClass/Service,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,System.Boolean,System.Boolean,System.Single,System.Boolean,System.Boolean,PathUnit/Position&,PathUnit/Position&,System.Single&,System.Single&)
+IL_0184: brtrue IL_0192
+IL_0189: ldarg.0 
+IL_018a: ldarg.1 
+IL_018b: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_0190: ldc.i4.1 
+IL_0191: ret 
+IL_0192: ldloc.s V_6
+IL_0194: ldarg.2 
+IL_0195: ldarg.3 
+IL_0196: ldc.i4.2 
+IL_0197: ldc.i4.0 
+IL_0198: ldc.i4.0 
+IL_0199: conv.i8 
+IL_019a: ldarg.s vehicleType
+IL_019c: ldc.i4.1 
+IL_019d: ldc.i4.0 
+IL_019e: ldc.r4 32
+IL_01a3: ldc.i4.0 
+IL_01a4: ldc.i4.1 
+IL_01a5: ldloca.s V_9
+IL_01a7: ldloca.s V_10
+IL_01a9: ldloca.s V_13
+IL_01ab: ldloca.s V_14
+IL_01ad: call System.Boolean PathManager::FindPathPosition(UnityEngine.Vector3,ItemClass/Service,ItemClass/Service,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,VehicleInfo/VehicleType,System.Boolean,System.Boolean,System.Single,System.Boolean,System.Boolean,PathUnit/Position&,PathUnit/Position&,System.Single&,System.Single&)
+IL_01b2: brtrue IL_01c0
+IL_01b7: ldarg.0 
+IL_01b8: ldarg.1 
+IL_01b9: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_01be: ldc.i4.1 
+IL_01bf: ret 
+IL_01c0: ldloc.0 
+IL_01c1: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01c6: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_01cb: ldarg.1 
+IL_01cc: ldfld System.UInt16 NetSegment::m_startNode
+IL_01d1: ldelema NetNode
+IL_01d6: ldfld NetNode/Flags NetNode::m_flags
+IL_01db: ldc.i4 8192
+IL_01e0: and 
+IL_01e1: brfalse IL_01ee
+IL_01e6: ldloca.s V_8
+IL_01e8: initobj PathUnit/Position
+IL_01ee: ldloc.0 
+IL_01ef: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_01f4: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_01f9: ldarg.1 
+IL_01fa: ldfld System.UInt16 NetSegment::m_endNode
+IL_01ff: ldelema NetNode
+IL_0204: ldfld NetNode/Flags NetNode::m_flags
+IL_0209: ldc.i4 8192
+IL_020e: and 
+IL_020f: brfalse IL_021c
+IL_0214: ldloca.s V_10
+IL_0216: initobj PathUnit/Position
+IL_021c: ldarg.s vehicleType
+IL_021e: brfalse IL_0258
+IL_0223: ldloca.s V_7
+IL_0225: ldc.i4 128
+IL_022a: stfld System.Byte PathUnit/Position::m_offset
+IL_022f: ldloca.s V_8
+IL_0231: ldc.i4 128
+IL_0236: stfld System.Byte PathUnit/Position::m_offset
+IL_023b: ldloca.s V_9
+IL_023d: ldc.i4 128
+IL_0242: stfld System.Byte PathUnit/Position::m_offset
+IL_0247: ldloca.s V_10
+IL_0249: ldc.i4 128
+IL_024e: stfld System.Byte PathUnit/Position::m_offset
+IL_0253: br IL_02c0
+IL_0258: ldloca.s V_7
+IL_025a: ldloca.s V_7
+IL_025c: ldfld System.Byte PathUnit/Position::m_offset
+IL_0261: ldc.i4.1 
+IL_0262: ldc.i4 254
+IL_0267: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+IL_026c: conv.u1 
+IL_026d: stfld System.Byte PathUnit/Position::m_offset
+IL_0272: ldloca.s V_8
+IL_0274: ldloca.s V_8
+IL_0276: ldfld System.Byte PathUnit/Position::m_offset
+IL_027b: ldc.i4.1 
+IL_027c: ldc.i4 254
+IL_0281: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+IL_0286: conv.u1 
+IL_0287: stfld System.Byte PathUnit/Position::m_offset
+IL_028c: ldloca.s V_9
+IL_028e: ldloca.s V_9
+IL_0290: ldfld System.Byte PathUnit/Position::m_offset
+IL_0295: ldc.i4.1 
+IL_0296: ldc.i4 254
+IL_029b: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+IL_02a0: conv.u1 
+IL_02a1: stfld System.Byte PathUnit/Position::m_offset
+IL_02a6: ldloca.s V_10
+IL_02a8: ldloca.s V_10
+IL_02aa: ldfld System.Byte PathUnit/Position::m_offset
+IL_02af: ldc.i4.1 
+IL_02b0: ldc.i4 254
+IL_02b5: call System.Int32 UnityEngine.Mathf::Clamp(System.Int32,System.Int32,System.Int32)
+IL_02ba: conv.u1 
+IL_02bb: stfld System.Byte PathUnit/Position::m_offset
+IL_02c0: ldloca.s V_7
+IL_02c2: ldarg.s vehicleType
+IL_02c4: ldarg.s vehicleCategory
+IL_02c6: call System.Boolean TransportLineAI::GetStopLane(PathUnit/Position&,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+IL_02cb: stloc.s V_15
+IL_02cd: ldloca.s V_8
+IL_02cf: ldarg.s vehicleType
+IL_02d1: ldarg.s vehicleCategory
+IL_02d3: call System.Boolean TransportLineAI::GetStopLane(PathUnit/Position&,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+IL_02d8: stloc.s V_16
+IL_02da: ldloca.s V_9
+IL_02dc: ldarg.s vehicleType
+IL_02de: ldarg.s vehicleCategory
+IL_02e0: call System.Boolean TransportLineAI::GetStopLane(PathUnit/Position&,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+IL_02e5: stloc.s V_17
+IL_02e7: ldloca.s V_10
+IL_02e9: ldarg.s vehicleType
+IL_02eb: ldarg.s vehicleCategory
+IL_02ed: call System.Boolean TransportLineAI::GetStopLane(PathUnit/Position&,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory)
+IL_02f2: stloc.s V_18
+IL_02f4: ldloc.s V_15
+IL_02f6: brtrue IL_0302
+IL_02fb: ldloc.s V_16
+IL_02fd: brfalse IL_0310
+IL_0302: ldloc.s V_17
+IL_0304: brtrue IL_0319
+IL_0309: ldloc.s V_18
+IL_030b: brtrue IL_0319
+IL_0310: ldarg.0 
+IL_0311: ldarg.1 
+IL_0312: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_0317: ldc.i4.1 
+IL_0318: ret 
+IL_0319: ldarg.s vehicleType
+IL_031b: brtrue IL_032f
+IL_0320: ldc.i4.2 
+IL_0321: stloc.s V_19
+IL_0323: ldc.r4 160000
+IL_0328: stloc.s V_20
+IL_032a: br IL_033a
+IL_032f: ldc.i4.s 33
+IL_0331: stloc.s V_19
+IL_0333: ldc.r4 20000
+IL_0338: stloc.s V_20
+IL_033a: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_033f: ldloca.s V_21
+IL_0341: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0346: ldflda ColossalFramework.Math.Randomizer SimulationManager::m_randomizer
+IL_034b: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0350: ldfld System.UInt32 SimulationManager::m_currentBuildIndex
+IL_0355: ldloc.s V_7
+IL_0357: ldloc.s V_8
+IL_0359: ldloc.s V_9
+IL_035b: ldloc.s V_10
+IL_035d: ldloc.s V_19
+IL_035f: ldarg.s vehicleType
+IL_0361: ldarg.s vehicleCategory
+IL_0363: ldloc.s V_20
+IL_0365: ldc.i4.0 
+IL_0366: ldc.i4.1 
+IL_0367: ldc.i4.1 
+IL_0368: ldarg.s skipQueue
+IL_036a: callvirt System.Boolean PathManager::CreatePath(System.UInt32&,ColossalFramework.Math.Randomizer&,System.UInt32,PathUnit/Position,PathUnit/Position,PathUnit/Position,PathUnit/Position,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Single,System.Boolean,System.Boolean,System.Boolean,System.Boolean)
+IL_036f: brfalse IL_0466
+IL_0374: ldloca.s V_7
+IL_0376: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_037b: brfalse IL_03b8
+IL_0380: ldloca.s V_8
+IL_0382: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_0387: brfalse IL_03b8
+IL_038c: ldloc.0 
+IL_038d: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0392: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0397: ldarg.1 
+IL_0398: ldfld System.UInt16 NetSegment::m_startNode
+IL_039d: ldelema NetNode
+IL_03a2: dup 
+IL_03a3: ldfld NetNode/Flags NetNode::m_flags
+IL_03a8: ldc.i4 32768
+IL_03ad: or 
+IL_03ae: stfld NetNode/Flags NetNode::m_flags
+IL_03b3: br IL_03df
+IL_03b8: ldloc.0 
+IL_03b9: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_03be: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_03c3: ldarg.1 
+IL_03c4: ldfld System.UInt16 NetSegment::m_startNode
+IL_03c9: ldelema NetNode
+IL_03ce: dup 
+IL_03cf: ldfld NetNode/Flags NetNode::m_flags
+IL_03d4: ldc.i4 -32769
+IL_03d9: and 
+IL_03da: stfld NetNode/Flags NetNode::m_flags
+IL_03df: ldloca.s V_9
+IL_03e1: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_03e6: brfalse IL_0423
+IL_03eb: ldloca.s V_10
+IL_03ed: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_03f2: brfalse IL_0423
+IL_03f7: ldloc.0 
+IL_03f8: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_03fd: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_0402: ldarg.1 
+IL_0403: ldfld System.UInt16 NetSegment::m_endNode
+IL_0408: ldelema NetNode
+IL_040d: dup 
+IL_040e: ldfld NetNode/Flags NetNode::m_flags
+IL_0413: ldc.i4 32768
+IL_0418: or 
+IL_0419: stfld NetNode/Flags NetNode::m_flags
+IL_041e: br IL_044a
+IL_0423: ldloc.0 
+IL_0424: ldfld Array16`1<NetNode> NetManager::m_nodes
+IL_0429: ldfld T[] Array16`1<NetNode>::m_buffer
+IL_042e: ldarg.1 
+IL_042f: ldfld System.UInt16 NetSegment::m_endNode
+IL_0434: ldelema NetNode
+IL_0439: dup 
+IL_043a: ldfld NetNode/Flags NetNode::m_flags
+IL_043f: ldc.i4 -32769
+IL_0444: and 
+IL_0445: stfld NetNode/Flags NetNode::m_flags
+IL_044a: ldarg.1 
+IL_044b: ldloc.s V_21
+IL_044d: stfld System.UInt32 NetSegment::m_path
+IL_0452: ldarg.1 
+IL_0453: dup 
+IL_0454: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0459: ldc.i4 256
+IL_045e: or 
+IL_045f: stfld NetSegment/Flags NetSegment::m_flags
+IL_0464: ldc.i4.0 
+IL_0465: ret 
+IL_0466: ldarg.0 
+IL_0467: ldarg.1 
+IL_0468: call System.Void TransportLineAI::CheckSegmentProblems(System.UInt16,NetSegment&)
+IL_046d: ldc.i4.1 
+IL_046e: ret 

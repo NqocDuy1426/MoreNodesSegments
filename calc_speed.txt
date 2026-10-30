@@ -1,0 +1,115 @@
+=== CalcLaneRelativeMeanSpeed ===
+  IL_0000: ldarg.0 
+  IL_0001: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0006: ldarg.1 
+  IL_0007: ldelem.ref 
+  IL_0008: brfalse.s IL_0017: ldc.i4 10000
+  IL_000A: ldarg.2 
+  IL_000B: ldarg.0 
+  IL_000C: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0011: ldarg.1 
+  IL_0012: ldelem.ref 
+  IL_0013: ldlen 
+  IL_0014: conv.i4 
+  IL_0015: blt.s IL_001d: ldarg.0
+  IL_0017: ldc.i4 10000
+  IL_001C: ret 
+  IL_001D: ldarg.0 
+  IL_001E: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0023: ldarg.1 
+  IL_0024: ldelem.ref 
+  IL_0025: ldarg.2 
+  IL_0026: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_002B: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::trafficBuffer
+  IL_0030: stloc.0 
+  IL_0031: ldc.i4 10000
+  IL_0036: stloc.1 
+  IL_0037: ldloc.0 
+  IL_0038: ldc.i4.0 
+  IL_0039: ble IL_0102: ldloc.1
+  IL_003E: ldc.i4.s 24
+  IL_0040: call TrafficManager.State.SavedGameOptions TrafficManager.State.SavedGameOptions::get_Instance()
+  IL_0045: ldfld System.Boolean TrafficManager.State.SavedGameOptions::customSpeedLimitsEnabled
+  IL_004A: brtrue.s IL_0055: ldsfld TrafficManager.Manager.Impl.SpeedLimitManager TrafficManager.Manager.Impl.SpeedLimitManager::Instance
+  IL_004C: ldarg.s laneInfo
+  IL_004E: ldfld System.Single NetInfo/Lane::m_speedLimit
+  IL_0053: br.s IL_0064: ldc.r4 8
+  IL_0055: ldsfld TrafficManager.Manager.Impl.SpeedLimitManager TrafficManager.Manager.Impl.SpeedLimitManager::Instance
+  IL_005A: ldarg.1 
+  IL_005B: ldarg.2 
+  IL_005C: ldarg.3 
+  IL_005D: ldarg.s laneInfo
+  IL_005F: callvirt System.Single TrafficManager.Manager.Impl.SpeedLimitManager::GetGameSpeedLimit(System.UInt16,System.Byte,System.UInt32,NetInfo/Lane)
+  IL_0064: ldc.r4 8
+  IL_0069: mul 
+  IL_006A: conv.u4 
+  IL_006B: call System.UInt32 System.Math::Min(System.UInt32,System.UInt32)
+  IL_0070: stloc.2 
+  IL_0071: ldloc.2 
+  IL_0072: ldc.i4.0 
+  IL_0073: bgt.un.s IL_0077: ldc.i4 10000
+  IL_0075: ldc.i4.1 
+  IL_0076: stloc.2 
+  IL_0077: ldc.i4 10000
+  IL_007C: ldarg.0 
+  IL_007D: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_0082: ldarg.1 
+  IL_0083: ldelem.ref 
+  IL_0084: ldarg.2 
+  IL_0085: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_008A: ldfld System.UInt32 TrafficManager.API.Traffic.Data.LaneTrafficData::accumulatedSpeeds
+  IL_008F: ldc.i4 10000
+  IL_0094: mul 
+  IL_0095: ldloc.0 
+  IL_0096: div.un 
+  IL_0097: ldloc.2 
+  IL_0098: div.un 
+  IL_0099: call System.UInt32 System.Math::Min(System.UInt32,System.UInt32)
+  IL_009E: conv.u2 
+  IL_009F: stloc.1 
+  IL_00A0: ldloc.1 
+  IL_00A1: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+  IL_00A6: ldfld TrafficManager.State.ConfigData.DynamicLaneSelection TrafficManager.State.GlobalConfig::DynamicLaneSelection
+  IL_00AB: ldfld System.UInt16 TrafficManager.State.ConfigData.DynamicLaneSelection::VolumeMeasurementRelSpeedThreshold
+  IL_00B0: ldc.i4.s 100
+  IL_00B2: mul 
+  IL_00B3: blt.un.s IL_0102: ldloc.1
+  IL_00B5: ldarg.0 
+  IL_00B6: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_00BB: ldarg.1 
+  IL_00BC: ldelem.ref 
+  IL_00BD: ldarg.2 
+  IL_00BE: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_00C3: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::lastTrafficBuffer
+  IL_00C8: stloc.3 
+  IL_00C9: ldarg.0 
+  IL_00CA: call TrafficManager.API.Traffic.Data.LaneTrafficData[][] TrafficManager.Manager.Impl.TrafficMeasurementManager::get_LaneTrafficData()
+  IL_00CF: ldarg.1 
+  IL_00D0: ldelem.ref 
+  IL_00D1: ldarg.2 
+  IL_00D2: ldelema TrafficManager.API.Traffic.Data.LaneTrafficData
+  IL_00D7: ldfld System.UInt16 TrafficManager.API.Traffic.Data.LaneTrafficData::maxTrafficBuffer
+  IL_00DC: stloc.s V_4
+  IL_00DE: ldc.r4 1
+  IL_00E3: ldloc.3 
+  IL_00E4: conv.r4 
+  IL_00E5: ldloc.s V_4
+  IL_00E7: conv.r4 
+  IL_00E8: div 
+  IL_00E9: sub 
+  IL_00EA: call System.Single UnityEngine.Mathf::Clamp01(System.Single)
+  IL_00EF: stloc.s V_5
+  IL_00F1: ldloc.1 
+  IL_00F2: ldloc.s V_5
+  IL_00F4: ldc.i4 10000
+  IL_00F9: ldloc.1 
+  IL_00FA: sub 
+  IL_00FB: conv.r.un 
+  IL_00FC: conv.r4 
+  IL_00FD: mul 
+  IL_00FE: conv.u4 
+  IL_00FF: add 
+  IL_0100: conv.u2 
+  IL_0101: stloc.1 
+  IL_0102: ldloc.1 
+  IL_0103: ret 

@@ -1,0 +1,181 @@
+Method: System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::IsConflictingVehicle(System.Boolean,UnityEngine.Vector3,System.Single,System.UInt16,Vehicle&,PathUnit/Position&,System.UInt16,System.Boolean,PathUnit/Position&,System.Boolean,TrafficManager.API.Traffic.Data.ExtSegmentEnd&,CSUtil.Commons.ArrowDirection,System.UInt16,Vehicle&,TrafficManager.API.Traffic.Data.ExtVehicle&,System.Boolean,TrafficManager.API.Traffic.Data.ExtSegmentEnd&,TrafficManager.TrafficLight.Impl.CustomSegmentLights,CSUtil.Commons.ArrowDirection)
+  IL_0000: ldarg.1
+  IL_0001: pop
+  IL_0002: ldarg.s incomingState
+  IL_0004: ldfld TrafficManager.API.Traffic.Enums.ExtVehicleFlags TrafficManager.API.Traffic.Data.ExtVehicle::flags
+  IL_0009: ldc.i4.2
+  IL_000a: and
+  IL_000b: brtrue.s IL_003e
+  IL_000d: ldarg.1
+  IL_000e: brfalse.s IL_003c
+  IL_0010: ldstr "TrafficPriorityManager.IsConflictingVehicle({0}, "
+  IL_0015: ldarg.s vehicleId
+  IL_0017: box System.UInt16
+  IL_001c: call System.String System.String::Format(System.String,System.Object)
+  IL_0021: ldstr "{0}): Incoming vehicle is not spawned."
+  IL_0026: ldarg.s incomingVehicleId
+  IL_0028: box System.UInt16
+  IL_002d: call System.String System.String::Format(System.String,System.Object)
+  IL_0032: call System.String System.String::Concat(System.String,System.String)
+  IL_0037: call System.Void CSUtil.Commons.Log::Warning(System.String)
+  IL_003c: ldc.i4.0
+  IL_003d: ret
+  IL_003e: ldarg.s incomingVehicle
+  IL_0040: call VehicleInfo Vehicle::get_Info()
+  IL_0045: ldfld VehicleInfo/VehicleType VehicleInfo::m_vehicleType
+  IL_004a: ldc.i4 2048
+  IL_004f: bne.un.s IL_0053
+  IL_0051: ldc.i4.0
+  IL_0052: ret
+  IL_0053: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_0058: callvirt TrafficManager.API.Manager.IExtSegmentEndManager TrafficManager.API.Manager.IManagerFactory::get_ExtSegmentEndManager()
+  IL_005d: ldarg.s incomingEnd
+  IL_005f: ldarg.s incomingState
+  IL_0061: ldfld System.UInt16 TrafficManager.API.Traffic.Data.ExtVehicle::nextSegmentId
+  IL_0066: callvirt CSUtil.Commons.ArrowDirection TrafficManager.API.Manager.IExtSegmentEndManager::GetDirection(TrafficManager.API.Traffic.Data.ExtSegmentEnd&,System.UInt16)
+  IL_006b: stloc.0
+  IL_006c: ldarg.s incomingLights
+  IL_006e: brfalse.s IL_008a
+  IL_0070: ldarg.s incomingLights
+  IL_0072: ldarg.s incomingState
+  IL_0074: ldfld System.Byte TrafficManager.API.Traffic.Data.ExtVehicle::currentLaneIndex
+  IL_0079: callvirt TrafficManager.TrafficLight.Impl.CustomSegmentLight TrafficManager.TrafficLight.Impl.CustomSegmentLights::GetCustomLight(System.Byte)
+  IL_007e: ldarg.1
+  IL_007f: pop
+  IL_0080: ldloc.0
+  IL_0081: callvirt System.Boolean TrafficManager.TrafficLight.Impl.CustomSegmentLight::IsRed(CSUtil.Commons.ArrowDirection)
+  IL_0086: brfalse.s IL_008a
+  IL_0088: ldc.i4.0
+  IL_0089: ret
+  IL_008a: ldarg.s incomingState
+  IL_008c: ldfld TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState TrafficManager.API.Traffic.Data.ExtVehicle::junctionTransitState
+  IL_0091: brfalse IL_01d0
+  IL_0096: ldarg.s incomingVehicle
+  IL_0098: call UnityEngine.Vector3 Vehicle::GetLastFrameVelocity()
+  IL_009d: stloc.1
+  IL_009e: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_00a3: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+  IL_00a8: ldarg.s incomingState
+  IL_00aa: callvirt System.Boolean TrafficManager.API.Manager.IExtVehicleManager::IsJunctionTransitStateNew(TrafficManager.API.Traffic.Data.ExtVehicle&)
+  IL_00af: stloc.2
+  IL_00b0: ldarg.s incomingState
+  IL_00b2: ldfld TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState TrafficManager.API.Traffic.Data.ExtVehicle::junctionTransitState
+  IL_00b7: ldc.i4.1
+  IL_00b8: beq.s IL_00c7
+  IL_00ba: ldarg.s incomingState
+  IL_00bc: ldfld TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState TrafficManager.API.Traffic.Data.ExtVehicle::junctionTransitState
+  IL_00c1: ldc.i4.3
+  IL_00c2: bne.un IL_0197
+  IL_00c7: ldarg.s incomingState
+  IL_00c9: ldfld TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.ExtVehicle::vehicleType
+  IL_00ce: ldc.i4.s 63
+  IL_00d0: and
+  IL_00d1: brfalse.s IL_0108
+  IL_00d3: ldloca.s V_1
+  IL_00d5: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+  IL_00da: stloc.s V_5
+  IL_00dc: ldloc.2
+  IL_00dd: brtrue.s IL_0108
+  IL_00df: ldloc.s V_5
+  IL_00e1: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+  IL_00e6: ldfld TrafficManager.State.ConfigData.PriorityRules TrafficManager.State.GlobalConfig::PriorityRules
+  IL_00eb: ldfld System.Single TrafficManager.State.ConfigData.PriorityRules::MaxStopVelocity
+  IL_00f0: bgt.un.s IL_0108
+  IL_00f2: call TrafficManager.API.Manager.IManagerFactory TrafficManager.Constants::get_ManagerFactory()
+  IL_00f7: callvirt TrafficManager.API.Manager.IExtVehicleManager TrafficManager.API.Manager.IManagerFactory::get_ExtVehicleManager()
+  IL_00fc: ldarg.s incomingState
+  IL_00fe: ldc.i4.4
+  IL_00ff: callvirt System.Void TrafficManager.API.Manager.IExtVehicleManager::SetJunctionTransitState(TrafficManager.API.Traffic.Data.ExtVehicle&,TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState)
+  IL_0104: ldc.i4.1
+  IL_0105: stloc.2
+  IL_0106: ldc.i4.0
+  IL_0107: ret
+  IL_0108: ldarg.s incomingVehicle
+  IL_010a: call UnityEngine.Vector3 Vehicle::GetLastFramePosition()
+  IL_010f: stloc.3
+  IL_0110: ldarg.2
+  IL_0111: ldloc.3
+  IL_0112: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_0117: stloc.s V_4
+  IL_0119: ldloc.s V_4
+  IL_011b: ldloc.1
+  IL_011c: call System.Single UnityEngine.Vector3::Dot(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_0121: ldc.r4 0
+  IL_0126: bgt.un.s IL_012a
+  IL_0128: ldc.i4.0
+  IL_0129: ret
+  IL_012a: ldarg.3
+  IL_012b: call System.Boolean System.Single::IsInfinity(System.Single)
+  IL_0130: brtrue.s IL_0197
+  IL_0132: ldarg.3
+  IL_0133: call System.Boolean System.Single::IsNaN(System.Single)
+  IL_0138: brtrue.s IL_0197
+  IL_013a: ldloca.s V_4
+  IL_013c: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+  IL_0141: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+  IL_0146: ldfld TrafficManager.State.ConfigData.PriorityRules TrafficManager.State.GlobalConfig::PriorityRules
+  IL_014b: ldfld System.Single TrafficManager.State.ConfigData.PriorityRules::MaxPriorityCheckSqrDist
+  IL_0150: ble.un.s IL_0197
+  IL_0152: ldloca.s V_1
+  IL_0154: call System.Single UnityEngine.Vector3::get_magnitude()
+  IL_0159: stloc.s V_6
+  IL_015b: ldloca.s V_4
+  IL_015d: call System.Single UnityEngine.Vector3::get_magnitude()
+  IL_0162: stloc.s V_7
+  IL_0164: ldloc.s V_6
+  IL_0166: ldc.r4 0
+  IL_016b: bgt.s IL_0174
+  IL_016d: ldc.r4 Infinity
+  IL_0172: br.s IL_0179
+  IL_0174: ldloc.s V_7
+  IL_0176: ldloc.s V_6
+  IL_0178: div
+  IL_0179: ldarg.3
+  IL_017a: sub
+  IL_017b: call System.Single UnityEngine.Mathf::Abs(System.Single)
+  IL_0180: call TrafficManager.State.GlobalConfig TrafficManager.State.GlobalConfig::get_Instance()
+  IL_0185: ldfld TrafficManager.State.ConfigData.PriorityRules TrafficManager.State.GlobalConfig::PriorityRules
+  IL_018a: ldfld System.Single TrafficManager.State.ConfigData.PriorityRules::MaxPriorityApproachTime
+  IL_018f: ble.un.s IL_0195
+  IL_0191: ldarg.1
+  IL_0192: pop
+  IL_0193: ldc.i4.0
+  IL_0194: ret
+  IL_0195: ldarg.1
+  IL_0196: pop
+  IL_0197: ldloc.2
+  IL_0198: brtrue.s IL_01a8
+  IL_019a: ldarg.s incomingState
+  IL_019c: ldfld TrafficManager.API.Traffic.Enums.VehicleJunctionTransitState TrafficManager.API.Traffic.Data.ExtVehicle::junctionTransitState
+  IL_01a1: ldc.i4.4
+  IL_01a2: bne.un.s IL_01a8
+  IL_01a4: ldarg.1
+  IL_01a5: pop
+  IL_01a6: ldc.i4.0
+  IL_01a7: ret
+  IL_01a8: ldarg.0
+  IL_01a9: ldarg.1
+  IL_01aa: ldarg.s vehicleId
+  IL_01ac: ldarg.s vehicle
+  IL_01ae: ldarg.s curPos
+  IL_01b0: ldarg.s transitNodeId
+  IL_01b2: ldarg.s startNode
+  IL_01b4: ldarg.s nextPos
+  IL_01b6: ldarg.s onMain
+  IL_01b8: ldarg.s targetToDir
+  IL_01ba: ldarg.s incomingVehicleId
+  IL_01bc: ldarg.s incomingVehicle
+  IL_01be: ldarg.s incomingState
+  IL_01c0: ldarg.s incomingOnMain
+  IL_01c2: ldarg.s incomingFromDir
+  IL_01c4: ldloc.0
+  IL_01c5: call System.Boolean TrafficManager.Manager.Impl.TrafficPriorityManager::HasVehiclePriority(System.Boolean,System.UInt16,Vehicle&,PathUnit/Position&,System.UInt16,System.Boolean,PathUnit/Position&,System.Boolean,CSUtil.Commons.ArrowDirection,System.UInt16,Vehicle&,TrafficManager.API.Traffic.Data.ExtVehicle&,System.Boolean,CSUtil.Commons.ArrowDirection,CSUtil.Commons.ArrowDirection)
+  IL_01ca: brfalse.s IL_01ce
+  IL_01cc: ldc.i4.0
+  IL_01cd: ret
+  IL_01ce: ldc.i4.1
+  IL_01cf: ret
+  IL_01d0: ldarg.1
+  IL_01d1: pop
+  IL_01d2: ldc.i4.0
+  IL_01d3: ret

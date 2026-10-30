@@ -1,0 +1,15 @@
+using System;
+using System.Linq;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
+
+class Program {
+    static void Main() {
+        var tmpe = AssemblyDefinition.ReadAssembly("/Users/nqocduy/Library/Application Support/Steam/steamapps/workshop/content/255710/1637663252/TrafficManager.dll");
+        var rm = tmpe.MainModule.Types.FirstOrDefault(t => t.Name == "RoutingManager");
+        var m1 = rm.Methods.FirstOrDefault(m => m.Name == "RecalculateLaneEndRoutingData");
+        foreach (var ins in m1.Body.Instructions.Skip(45).Take(40)) {
+            Console.WriteLine($"  {ins.Offset:X4} {ins.OpCode} {ins.Operand}");
+        }
+    }
+}

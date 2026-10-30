@@ -1,0 +1,1226 @@
+Instructions: 2834
+Offset 0x0098: stelem.i2 
+    0x008E: br IL_009f: ldloc.s V_11
+    0x0093: ldloc.s V_4
+    0x0095: ldloc.s V_11
+    0x0097: ldc.i4.0 
+Offset 0x00B5: stelem.i2 
+    0x00AB: br IL_00bc: ldloc.s V_12
+    0x00B0: ldloc.s V_5
+    0x00B2: ldloc.s V_12
+    0x00B4: ldc.i4.0 
+Offset 0x00D5: ldelem.ref 
+    0x00C8: br IL_00e1: ldloc.s V_13
+    0x00CD: ldloc.0 
+    0x00CE: ldfld FastList`1<System.UInt16>[] NetManager::m_serviceSegments
+    0x00D3: ldloc.s V_13
+Offset 0x0101: stelem.i4 
+    0x00F8: ldloc.0 
+    0x00F9: ldfld System.Int32[] NetManager::m_tileNodesCount
+    0x00FE: ldloc.s V_14
+    0x0100: ldc.i4.0 
+Offset 0x0137: ldelema NetLane
+    0x012D: stloc.s V_16
+    0x012F: br IL_014e: ldloc.s V_16
+    0x0134: ldloc.1 
+    0x0135: ldloc.s V_16
+Offset 0x0169: ldelema NetLane
+    0x015F: stloc.s V_17
+    0x0161: br IL_0261: ldloc.s V_17
+    0x0166: ldloc.1 
+    0x0167: ldloc.s V_17
+Offset 0x0180: ldelema NetLane
+    0x0176: ldloc.s V_18
+    0x0178: stfld ColossalFramework.Math.Bezier3 NetLane::m_bezier
+    0x017D: ldloc.1 
+    0x017E: ldloc.s V_17
+Offset 0x0192: ldelema NetLane
+    0x0185: ldc.r4 0
+    0x018A: stfld System.Single NetLane::m_length
+    0x018F: ldloc.1 
+    0x0190: ldloc.s V_17
+Offset 0x01A4: ldelema NetLane
+    0x0197: ldc.r4 0
+    0x019C: stfld System.Single NetLane::m_curve
+    0x01A1: ldloc.1 
+    0x01A2: ldloc.s V_17
+Offset 0x01B2: ldelema NetLane
+    0x01A9: ldc.i4.0 
+    0x01AA: stfld System.UInt16 NetLane::m_segment
+    0x01AF: ldloc.1 
+    0x01B0: ldloc.s V_17
+Offset 0x01C0: ldelema NetLane
+    0x01B7: ldc.i4.0 
+    0x01B8: stfld System.UInt16 NetLane::m_nodes
+    0x01BD: ldloc.1 
+    0x01BE: ldloc.s V_17
+Offset 0x01CE: ldelema NetLane
+    0x01C5: ldc.i4.0 
+    0x01C6: stfld System.Byte NetLane::m_firstTarget
+    0x01CB: ldloc.1 
+    0x01CC: ldloc.s V_17
+Offset 0x01DC: ldelema NetLane
+    0x01D3: ldc.i4.0 
+    0x01D4: stfld System.Byte NetLane::m_lastTarget
+    0x01D9: ldloc.1 
+    0x01DA: ldloc.s V_17
+Offset 0x01F7: ldelema NetLane
+    0x01ED: ldc.i4.s 24
+    0x01EF: blt.un IL_0232: ldloc.1
+    0x01F4: ldloc.1 
+    0x01F5: ldloc.s V_17
+Offset 0x0209: ldelema NetLane
+    0x01FC: ldfld System.UInt16 NetLane::m_flags
+    0x0201: brfalse IL_0232: ldloc.1
+    0x0206: ldloc.1 
+    0x0207: ldloc.s V_17
+Offset 0x0235: ldelema NetLane
+    0x022C: pop 
+    0x022D: br IL_025b: ldloc.s V_17
+    0x0232: ldloc.1 
+    0x0233: ldloc.s V_17
+Offset 0x0243: ldelema NetLane
+    0x023A: ldc.i4.0 
+    0x023B: stfld System.UInt16 NetLane::m_flags
+    0x0240: ldloc.1 
+    0x0241: ldloc.s V_17
+Offset 0x028D: ldelema NetLane
+    0x0283: stloc.s V_20
+    0x0285: br IL_02c9: ldloc.s V_20
+    0x028A: ldloc.1 
+    0x028B: ldloc.s V_20
+Offset 0x029F: ldelema NetLane
+    0x0292: ldfld System.UInt16 NetLane::m_flags
+    0x0297: brfalse IL_02b5: ldloc.1
+    0x029C: ldloc.1 
+    0x029D: ldloc.s V_20
+Offset 0x02B8: ldelema NetLane
+    0x02AB: stfld System.Byte NetLane::m_reservedPrev
+    0x02B0: br IL_02c3: ldloc.s V_20
+    0x02B5: ldloc.1 
+    0x02B6: ldloc.s V_20
+Offset 0x02E9: ldelema NetLane
+    0x02DF: stloc.s V_21
+    0x02E1: br IL_02fa: ldloc.s V_21
+    0x02E6: ldloc.1 
+    0x02E7: ldloc.s V_21
+Offset 0x0326: ldelema NetLane
+    0x031C: stloc.s V_23
+    0x031E: br IL_0362: ldloc.s V_23
+    0x0323: ldloc.1 
+    0x0324: ldloc.s V_23
+Offset 0x0338: ldelema NetLane
+    0x032B: ldfld System.UInt16 NetLane::m_flags
+    0x0330: brfalse IL_034e: ldloc.1
+    0x0335: ldloc.1 
+    0x0336: ldloc.s V_23
+Offset 0x0351: ldelema NetLane
+    0x0344: stfld System.Byte NetLane::m_reservedNext
+    0x0349: br IL_035c: ldloc.s V_23
+    0x034E: ldloc.1 
+    0x034F: ldloc.s V_23
+Offset 0x0382: ldelema NetLane
+    0x0378: stloc.s V_24
+    0x037A: br IL_0393: ldloc.s V_24
+    0x037F: ldloc.1 
+    0x0380: ldloc.s V_24
+Offset 0x03BF: ldelema NetLane
+    0x03B5: stloc.s V_26
+    0x03B7: br IL_03fb: ldloc.s V_26
+    0x03BC: ldloc.1 
+    0x03BD: ldloc.s V_26
+Offset 0x03D1: ldelema NetLane
+    0x03C4: ldfld System.UInt16 NetLane::m_flags
+    0x03C9: brfalse IL_03e7: ldloc.1
+    0x03CE: ldloc.1 
+    0x03CF: ldloc.s V_26
+Offset 0x03EA: ldelema NetLane
+    0x03DD: stfld System.Byte NetLane::m_reservedFrame
+    0x03E2: br IL_03f5: ldloc.s V_26
+    0x03E7: ldloc.1 
+    0x03E8: ldloc.s V_26
+Offset 0x041B: ldelema NetLane
+    0x0411: stloc.s V_27
+    0x0413: br IL_042c: ldloc.s V_27
+    0x0418: ldloc.1 
+    0x0419: ldloc.s V_27
+Offset 0x0458: ldelema NetLane
+    0x044E: stloc.s V_29
+    0x0450: br IL_0494: ldloc.s V_29
+    0x0455: ldloc.1 
+    0x0456: ldloc.s V_29
+Offset 0x046A: ldelema NetLane
+    0x045D: ldfld System.UInt16 NetLane::m_flags
+    0x0462: brfalse IL_0480: ldloc.1
+    0x0467: ldloc.1 
+    0x0468: ldloc.s V_29
+Offset 0x0483: ldelema NetLane
+    0x0476: stfld System.UInt16 NetLane::m_lastReserveID
+    0x047B: br IL_048e: ldloc.s V_29
+    0x0480: ldloc.1 
+    0x0481: ldloc.s V_29
+Offset 0x04B4: ldelema NetLane
+    0x04AA: stloc.s V_30
+    0x04AC: br IL_04c5: ldloc.s V_30
+    0x04B1: ldloc.1 
+    0x04B2: ldloc.s V_30
+Offset 0x04F1: ldelema NetNode
+    0x04E7: stloc.s V_32
+    0x04E9: br IL_051c: ldloc.s V_32
+    0x04EE: ldloc.2 
+    0x04EF: ldloc.s V_32
+Offset 0x0505: ldelema NetNode
+    0x04F8: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+    0x04FD: stfld NetNode/Flags NetNode::m_flags
+    0x0502: ldloc.2 
+    0x0503: ldloc.s V_32
+Offset 0x0554: ldelema NetNode
+    0x054A: stloc.s V_34
+    0x054C: br IL_056b: ldloc.s V_34
+    0x0551: ldloc.2 
+    0x0552: ldloc.s V_34
+Offset 0x0593: ldelema NetNode
+    0x0589: stloc.s V_36
+    0x058B: br IL_05d0: ldloc.s V_36
+    0x0590: ldloc.2 
+    0x0591: ldloc.s V_36
+Offset 0x05B4: ldelema NetNode
+    0x05AA: ldc.i4.s 60
+    0x05AC: bge.un IL_05ca: ldloc.s V_36
+    0x05B1: ldloc.2 
+    0x05B2: ldloc.s V_36
+Offset 0x05EB: ldelema NetNode
+    0x05E1: stloc.s V_37
+    0x05E3: br IL_05fc: ldloc.s V_37
+    0x05E8: ldloc.2 
+    0x05E9: ldloc.s V_37
+Offset 0x062F: ldelema NetNode
+    0x0625: stloc.s V_39
+    0x0627: br IL_067b: ldloc.s V_39
+    0x062C: ldloc.2 
+    0x062D: ldloc.s V_39
+Offset 0x0641: ldelema NetNode
+    0x0634: ldfld NetNode/Flags NetNode::m_flags
+    0x0639: brfalse IL_0663: ldloc.2
+    0x063E: ldloc.2 
+    0x063F: ldloc.s V_39
+Offset 0x0666: ldelema NetNode
+    0x0659: stfld Notification/ProblemStruct NetNode::m_problems
+    0x065E: br IL_0675: ldloc.s V_39
+    0x0663: ldloc.2 
+    0x0664: ldloc.s V_39
+Offset 0x06D2: ldelema NetNode
+    0x06C8: stloc.s V_41
+    0x06CA: br IL_0717: ldloc.s V_41
+    0x06CF: ldloc.2 
+    0x06D0: ldloc.s V_41
+Offset 0x06E4: ldelema NetNode
+    0x06D7: ldfld NetNode/Flags NetNode::m_flags
+    0x06DC: brfalse IL_06ff: ldloc.2
+    0x06E1: ldloc.2 
+    0x06E2: ldloc.s V_41
+Offset 0x0702: ldelema NetNode
+    0x06F5: stfld Notification/ProblemStruct NetNode::m_problems
+    0x06FA: br IL_0711: ldloc.s V_41
+    0x06FF: ldloc.2 
+    0x0700: ldloc.s V_41
+Offset 0x074C: ldelema NetNode
+    0x0742: stloc.s V_43
+    0x0744: br IL_07ae: ldloc.s V_43
+    0x0749: ldloc.2 
+    0x074A: ldloc.s V_43
+Offset 0x0780: ldelema NetNode
+    0x077A: or 
+    0x077B: stloc.s V_44
+    0x077D: ldloc.2 
+    0x077E: ldloc.s V_43
+Offset 0x0799: ldelema NetNode
+    0x078C: stfld Notification/ProblemStruct NetNode::m_problems
+    0x0791: br IL_07a8: ldloc.s V_43
+    0x0796: ldloc.2 
+    0x0797: ldloc.s V_43
+Offset 0x07CE: ldelema NetNode
+    0x07C4: stloc.s V_45
+    0x07C6: br IL_07e3: ldloc.s V_45
+    0x07CB: ldloc.2 
+    0x07CC: ldloc.s V_45
+Offset 0x080C: ldelema NetNode
+    0x0802: stloc.s V_47
+    0x0804: br IL_0848: ldloc.s V_47
+    0x0809: ldloc.2 
+    0x080A: ldloc.s V_47
+Offset 0x081E: ldelema NetNode
+    0x0811: ldfld NetNode/Flags NetNode::m_flags
+    0x0816: brfalse IL_0834: ldloc.2
+    0x081B: ldloc.2 
+    0x081C: ldloc.s V_47
+Offset 0x0837: ldelema NetNode
+    0x082A: stfld System.Byte NetNode::m_maxWaitTime
+    0x082F: br IL_0842: ldloc.s V_47
+    0x0834: ldloc.2 
+    0x0835: ldloc.s V_47
+Offset 0x0868: ldelema NetNode
+    0x085E: stloc.s V_48
+    0x0860: br IL_0879: ldloc.s V_48
+    0x0865: ldloc.2 
+    0x0866: ldloc.s V_48
+Offset 0x08A2: ldelema NetNode
+    0x0898: stloc.s V_50
+    0x089A: br IL_0900: ldloc.s V_50
+    0x089F: ldloc.2 
+    0x08A0: ldloc.s V_50
+Offset 0x08B4: ldelema NetNode
+    0x08A7: ldfld NetNode/Flags NetNode::m_flags
+    0x08AC: brfalse IL_08de: ldloc.2
+    0x08B1: ldloc.2 
+    0x08B2: ldloc.s V_50
+Offset 0x08C8: ldelema NetNode
+    0x08BB: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+    0x08C0: stfld System.UInt16 NetNode::m_tempCounter
+    0x08C5: ldloc.2 
+    0x08C6: ldloc.s V_50
+Offset 0x08E1: ldelema NetNode
+    0x08D4: stfld System.UInt16 NetNode::m_finalCounter
+    0x08D9: br IL_08fa: ldloc.s V_50
+    0x08DE: ldloc.2 
+    0x08DF: ldloc.s V_50
+Offset 0x08EF: ldelema NetNode
+    0x08E6: ldc.i4.0 
+    0x08E7: stfld System.UInt16 NetNode::m_tempCounter
+    0x08EC: ldloc.2 
+    0x08ED: ldloc.s V_50
+Offset 0x0920: ldelema NetNode
+    0x0916: stloc.s V_51
+    0x0918: br IL_093f: ldloc.s V_51
+    0x091D: ldloc.2 
+    0x091E: ldloc.s V_51
+Offset 0x092E: ldelema NetNode
+    0x0925: ldc.i4.0 
+    0x0926: stfld System.UInt16 NetNode::m_tempCounter
+    0x092B: ldloc.2 
+    0x092C: ldloc.s V_51
+Offset 0x0953: ldelema NetNode
+    0x0949: stloc.s V_52
+    0x094B: br IL_0cdc: ldloc.s V_52
+    0x0950: ldloc.2 
+    0x0951: ldloc.s V_52
+Offset 0x0961: ldelema NetNode
+    0x0958: ldc.i4.0 
+    0x0959: stfld System.UInt16 NetNode::m_segment0
+    0x095E: ldloc.2 
+    0x095F: ldloc.s V_52
+Offset 0x096F: ldelema NetNode
+    0x0966: ldc.i4.0 
+    0x0967: stfld System.UInt16 NetNode::m_segment1
+    0x096C: ldloc.2 
+    0x096D: ldloc.s V_52
+Offset 0x097D: ldelema NetNode
+    0x0974: ldc.i4.0 
+    0x0975: stfld System.UInt16 NetNode::m_segment2
+    0x097A: ldloc.2 
+    0x097B: ldloc.s V_52
+Offset 0x098B: ldelema NetNode
+    0x0982: ldc.i4.0 
+    0x0983: stfld System.UInt16 NetNode::m_segment3
+    0x0988: ldloc.2 
+    0x0989: ldloc.s V_52
+Offset 0x0999: ldelema NetNode
+    0x0990: ldc.i4.0 
+    0x0991: stfld System.UInt16 NetNode::m_segment4
+    0x0996: ldloc.2 
+    0x0997: ldloc.s V_52
+Offset 0x09A7: ldelema NetNode
+    0x099E: ldc.i4.0 
+    0x099F: stfld System.UInt16 NetNode::m_segment5
+    0x09A4: ldloc.2 
+    0x09A5: ldloc.s V_52
+Offset 0x09B5: ldelema NetNode
+    0x09AC: ldc.i4.0 
+    0x09AD: stfld System.UInt16 NetNode::m_segment6
+    0x09B2: ldloc.2 
+    0x09B3: ldloc.s V_52
+Offset 0x09C3: ldelema NetNode
+    0x09BA: ldc.i4.0 
+    0x09BB: stfld System.UInt16 NetNode::m_segment7
+    0x09C0: ldloc.2 
+    0x09C1: ldloc.s V_52
+Offset 0x09D1: ldelema NetNode
+    0x09C8: ldc.i4.0 
+    0x09C9: stfld System.UInt16 NetNode::m_nextGridNode
+    0x09CE: ldloc.2 
+    0x09CF: ldloc.s V_52
+Offset 0x09DF: ldelema NetNode
+    0x09D6: ldc.i4.0 
+    0x09D7: stfld System.UInt16 NetNode::m_nextLaneNode
+    0x09DC: ldloc.2 
+    0x09DD: ldloc.s V_52
+Offset 0x09ED: ldelema NetNode
+    0x09E4: ldc.i4.0 
+    0x09E5: stfld System.UInt16 NetNode::m_transportLine
+    0x09EA: ldloc.2 
+    0x09EB: ldloc.s V_52
+Offset 0x09FB: ldelema NetNode
+    0x09F2: ldc.i4.0 
+    0x09F3: stfld System.Byte NetNode::m_coverage
+    0x09F8: ldloc.2 
+    0x09F9: ldloc.s V_52
+Offset 0x0A0D: ldelema NetNode
+    0x0A00: call DynamicFlags`1<T> DynamicFlags`1<NetInfo>::get_anyTags()
+    0x0A05: stfld DynamicFlags`1<NetInfo> NetNode::m_tags
+    0x0A0A: ldloc.2 
+    0x0A0B: ldloc.s V_52
+Offset 0x0A1B: ldelema NetNode
+    0x0A12: ldc.i4.0 
+    0x0A13: stfld System.UInt16 NetNode::m_targetCitizens
+    0x0A18: ldloc.2 
+    0x0A19: ldloc.s V_52
+Offset 0x0A2D: ldelema NetNode
+    0x0A20: ldfld NetNode/Flags NetNode::m_flags
+    0x0A25: brfalse IL_0c38: ldloc.2
+    0x0A2A: ldloc.2 
+    0x0A2B: ldloc.s V_52
+Offset 0x0A50: ldelema NetNode
+    0x0A46: stloc.s V_54
+    0x0A48: br IL_0a68: ldloc.s V_54
+    0x0A4D: ldloc.2 
+    0x0A4E: ldloc.s V_52
+Offset 0x0A81: ldelema NetNode
+    0x0A77: ldc.i4.s 45
+    0x0A79: blt.un IL_0a96: ldloc.2
+    0x0A7E: ldloc.2 
+    0x0A7F: ldloc.s V_52
+Offset 0x0A99: ldelema NetNode
+    0x0A8C: stfld System.UInt32 NetNode::m_buildIndex
+    0x0A91: br IL_0aa4: ldarg.1
+    0x0A96: ldloc.2 
+    0x0A97: ldloc.s V_52
+Offset 0x0AB3: ldelema NetNode
+    0x0AAA: ldc.i4.6 
+    0x0AAB: blt.un IL_0ac9: ldloc.2
+    0x0AB0: ldloc.2 
+    0x0AB1: ldloc.s V_52
+Offset 0x0ACC: ldelema NetNode
+    0x0ABF: stfld System.UInt16 NetNode::m_building
+    0x0AC4: br IL_0ad7: ldarg.1
+    0x0AC9: ldloc.2 
+    0x0ACA: ldloc.s V_52
+Offset 0x0AE7: ldelema NetNode
+    0x0ADD: ldc.i4.s 80
+    0x0ADF: blt.un IL_0afd: ldloc.2
+    0x0AE4: ldloc.2 
+    0x0AE5: ldloc.s V_52
+Offset 0x0B00: ldelema NetNode
+    0x0AF3: stfld System.UInt16 NetNode::m_nextBuildingNode
+    0x0AF8: br IL_0b0b: ldarg.1
+    0x0AFD: ldloc.2 
+    0x0AFE: ldloc.s V_52
+Offset 0x0B1B: ldelema NetNode
+    0x0B11: ldc.i4.s 48
+    0x0B13: blt.un IL_0b44: ldloc.2
+    0x0B18: ldloc.2 
+    0x0B19: ldloc.s V_52
+Offset 0x0B2E: ldelema NetNode
+    0x0B21: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+    0x0B26: stfld System.UInt32 NetNode::m_lane
+    0x0B2B: ldloc.2 
+    0x0B2C: ldloc.s V_52
+Offset 0x0B47: ldelema NetNode
+    0x0B3A: stfld System.Byte NetNode::m_laneOffset
+    0x0B3F: br IL_0b60: ldarg.1
+    0x0B44: ldloc.2 
+    0x0B45: ldloc.s V_52
+Offset 0x0B55: ldelema NetNode
+    0x0B4C: ldc.i4.0 
+    0x0B4D: stfld System.UInt32 NetNode::m_lane
+    0x0B52: ldloc.2 
+    0x0B53: ldloc.s V_52
+Offset 0x0B70: ldelema NetNode
+    0x0B66: ldc.i4.s 57
+    0x0B68: blt.un IL_0b86: ldloc.2
+    0x0B6D: ldloc.2 
+    0x0B6E: ldloc.s V_52
+Offset 0x0B89: ldelema NetNode
+    0x0B7C: stfld System.Byte NetNode::m_elevation
+    0x0B81: br IL_0b94: ldarg.1
+    0x0B86: ldloc.2 
+    0x0B87: ldloc.s V_52
+Offset 0x0BA4: ldelema NetNode
+    0x0B9A: ldc.i4.s 59
+    0x0B9C: blt.un IL_0bba: ldloc.2
+    0x0BA1: ldloc.2 
+    0x0BA2: ldloc.s V_52
+Offset 0x0BBD: ldelema NetNode
+    0x0BB0: stfld System.Byte NetNode::m_heightOffset
+    0x0BB5: br IL_0bc8: ldarg.1
+    0x0BBA: ldloc.2 
+    0x0BBB: ldloc.s V_52
+Offset 0x0BD8: ldelema NetNode
+    0x0BCE: ldc.i4.s 80
+    0x0BD0: blt.un IL_0bee: ldloc.2
+    0x0BD5: ldloc.2 
+    0x0BD6: ldloc.s V_52
+Offset 0x0BF1: ldelema NetNode
+    0x0BE4: stfld System.Byte NetNode::m_connectCount
+    0x0BE9: br IL_0bfc: ldarg.1
+    0x0BEE: ldloc.2 
+    0x0BEF: ldloc.s V_52
+Offset 0x0C0F: ldelema NetNode
+    0x0C02: ldc.i4 121007
+    0x0C07: blt.un IL_0c25: ldloc.2
+    0x0C0C: ldloc.2 
+    0x0C0D: ldloc.s V_52
+Offset 0x0C28: ldelema NetNode
+    0x0C1B: stfld System.UInt16 NetNode::m_eventRoute
+    0x0C20: br IL_0c33: br IL_0cd6
+    0x0C25: ldloc.2 
+    0x0C26: ldloc.s V_52
+Offset 0x0C3B: ldelema NetNode
+    0x0C2E: stfld System.UInt16 NetNode::m_eventRoute
+    0x0C33: br IL_0cd6: ldloc.s V_52
+    0x0C38: ldloc.2 
+    0x0C39: ldloc.s V_52
+Offset 0x0C4D: ldelema NetNode
+    0x0C40: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+    0x0C45: stfld UnityEngine.Vector3 NetNode::m_position
+    0x0C4A: ldloc.2 
+    0x0C4B: ldloc.s V_52
+Offset 0x0C5B: ldelema NetNode
+    0x0C52: ldc.i4.0 
+    0x0C53: stfld System.UInt16 NetNode::m_nextBuildingNode
+    0x0C58: ldloc.2 
+    0x0C59: ldloc.s V_52
+Offset 0x0C69: ldelema NetNode
+    0x0C60: ldc.i4.0 
+    0x0C61: stfld System.UInt32 NetNode::m_buildIndex
+    0x0C66: ldloc.2 
+    0x0C67: ldloc.s V_52
+Offset 0x0C77: ldelema NetNode
+    0x0C6E: ldc.i4.0 
+    0x0C6F: stfld System.UInt16 NetNode::m_building
+    0x0C74: ldloc.2 
+    0x0C75: ldloc.s V_52
+Offset 0x0C85: ldelema NetNode
+    0x0C7C: ldc.i4.0 
+    0x0C7D: stfld System.UInt32 NetNode::m_lane
+    0x0C82: ldloc.2 
+    0x0C83: ldloc.s V_52
+Offset 0x0C93: ldelema NetNode
+    0x0C8A: ldc.i4.0 
+    0x0C8B: stfld System.Byte NetNode::m_laneOffset
+    0x0C90: ldloc.2 
+    0x0C91: ldloc.s V_52
+Offset 0x0CA1: ldelema NetNode
+    0x0C98: ldc.i4.0 
+    0x0C99: stfld System.Byte NetNode::m_elevation
+    0x0C9E: ldloc.2 
+    0x0C9F: ldloc.s V_52
+Offset 0x0CAF: ldelema NetNode
+    0x0CA6: ldc.i4.0 
+    0x0CA7: stfld System.Byte NetNode::m_heightOffset
+    0x0CAC: ldloc.2 
+    0x0CAD: ldloc.s V_52
+Offset 0x0CBD: ldelema NetNode
+    0x0CB4: ldc.i4.0 
+    0x0CB5: stfld System.Byte NetNode::m_connectCount
+    0x0CBA: ldloc.2 
+    0x0CBB: ldloc.s V_52
+Offset 0x0D08: ldelema NetSegment
+    0x0CFE: stloc.s V_56
+    0x0D00: br IL_0d1f: ldloc.s V_56
+    0x0D05: ldloc.3 
+    0x0D06: ldloc.s V_56
+Offset 0x0D47: ldelema NetSegment
+    0x0D3D: stloc.s V_58
+    0x0D3F: br IL_0d5e: ldloc.s V_58
+    0x0D44: ldloc.3 
+    0x0D45: ldloc.s V_58
+Offset 0x0D79: ldelema NetSegment
+    0x0D6F: stloc.s V_59
+    0x0D71: br IL_0d8a: ldloc.s V_59
+    0x0D76: ldloc.3 
+    0x0D77: ldloc.s V_59
+Offset 0x0DBD: ldelema NetSegment
+    0x0DB3: stloc.s V_61
+    0x0DB5: br IL_0dd4: ldloc.s V_61
+    0x0DBA: ldloc.3 
+    0x0DBB: ldloc.s V_61
+Offset 0x0E07: ldelema NetSegment
+    0x0DFD: stloc.s V_63
+    0x0DFF: br IL_0e53: ldloc.s V_63
+    0x0E04: ldloc.3 
+    0x0E05: ldloc.s V_63
+Offset 0x0E19: ldelema NetSegment
+    0x0E0C: ldfld NetSegment/Flags NetSegment::m_flags
+    0x0E11: brfalse IL_0e3b: ldloc.3
+    0x0E16: ldloc.3 
+    0x0E17: ldloc.s V_63
+Offset 0x0E3E: ldelema NetSegment
+    0x0E31: stfld Notification/ProblemStruct NetSegment::m_problems
+    0x0E36: br IL_0e4d: ldloc.s V_63
+    0x0E3B: ldloc.3 
+    0x0E3C: ldloc.s V_63
+Offset 0x0E8B: ldelema NetSegment
+    0x0E81: stloc.s V_65
+    0x0E83: br IL_0ed0: ldloc.s V_65
+    0x0E88: ldloc.3 
+    0x0E89: ldloc.s V_65
+Offset 0x0E9D: ldelema NetSegment
+    0x0E90: ldfld NetSegment/Flags NetSegment::m_flags
+    0x0E95: brfalse IL_0eb8: ldloc.3
+    0x0E9A: ldloc.3 
+    0x0E9B: ldloc.s V_65
+Offset 0x0EBB: ldelema NetSegment
+    0x0EAE: stfld Notification/ProblemStruct NetSegment::m_problems
+    0x0EB3: br IL_0eca: ldloc.s V_65
+    0x0EB8: ldloc.3 
+    0x0EB9: ldloc.s V_65
+Offset 0x0EF0: ldelema NetSegment
+    0x0EE6: stloc.s V_66
+    0x0EE8: br IL_0f05: ldloc.s V_66
+    0x0EED: ldloc.3 
+    0x0EEE: ldloc.s V_66
+Offset 0x0F31: ldelema NetSegment
+    0x0F27: stloc.s V_68
+    0x0F29: br IL_0f8f: ldloc.s V_68
+    0x0F2E: ldloc.3 
+    0x0F2F: ldloc.s V_68
+Offset 0x0F43: ldelema NetSegment
+    0x0F36: ldfld NetSegment/Flags NetSegment::m_flags
+    0x0F3B: brfalse IL_0f6d: ldloc.3
+    0x0F40: ldloc.3 
+    0x0F41: ldloc.s V_68
+Offset 0x0F57: ldelema NetSegment
+    0x0F4A: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+    0x0F4F: stfld System.Int32 NetSegment::m_trafficLightState0
+    0x0F54: ldloc.3 
+    0x0F55: ldloc.s V_68
+Offset 0x0F70: ldelema NetSegment
+    0x0F63: stfld System.Int32 NetSegment::m_trafficLightState1
+    0x0F68: br IL_0f89: ldloc.s V_68
+    0x0F6D: ldloc.3 
+    0x0F6E: ldloc.s V_68
+Offset 0x0F7E: ldelema NetSegment
+    0x0F75: ldc.i4.0 
+    0x0F76: stfld System.Int32 NetSegment::m_trafficLightState0
+    0x0F7B: ldloc.3 
+    0x0F7C: ldloc.s V_68
+Offset 0x0FC4: ldelema NetSegment
+    0x0FBA: stloc.s V_70
+    0x0FBC: br IL_1022: ldloc.s V_70
+    0x0FC1: ldloc.3 
+    0x0FC2: ldloc.s V_70
+Offset 0x0FD6: ldelema NetSegment
+    0x0FC9: ldfld NetSegment/Flags NetSegment::m_flags
+    0x0FCE: brfalse IL_1000: ldloc.3
+    0x0FD3: ldloc.3 
+    0x0FD4: ldloc.s V_70
+Offset 0x0FEA: ldelema NetSegment
+    0x0FDD: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+    0x0FE2: stfld System.Int32 NetSegment::m_trafficLightState0
+    0x0FE7: ldloc.3 
+    0x0FE8: ldloc.s V_70
+Offset 0x1003: ldelema NetSegment
+    0x0FF6: stfld System.Int32 NetSegment::m_trafficLightState1
+    0x0FFB: br IL_101c: ldloc.s V_70
+    0x1000: ldloc.3 
+    0x1001: ldloc.s V_70
+Offset 0x1011: ldelema NetSegment
+    0x1008: ldc.i4.0 
+    0x1009: stfld System.Int32 NetSegment::m_trafficLightState0
+    0x100E: ldloc.3 
+    0x100F: ldloc.s V_70
+Offset 0x1042: ldelema NetSegment
+    0x1038: stloc.s V_71
+    0x103A: br IL_1061: ldloc.s V_71
+    0x103F: ldloc.3 
+    0x1040: ldloc.s V_71
+Offset 0x1050: ldelema NetSegment
+    0x1047: ldc.i4.0 
+    0x1048: stfld System.Int32 NetSegment::m_trafficLightState0
+    0x104D: ldloc.3 
+    0x104E: ldloc.s V_71
+Offset 0x108D: ldelema NetSegment
+    0x1083: stloc.s V_73
+    0x1085: br IL_10c9: ldloc.s V_73
+    0x108A: ldloc.3 
+    0x108B: ldloc.s V_73
+Offset 0x109F: ldelema NetSegment
+    0x1092: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1097: brfalse IL_10b5: ldloc.3
+    0x109C: ldloc.3 
+    0x109D: ldloc.s V_73
+Offset 0x10B8: ldelema NetSegment
+    0x10AB: stfld System.Byte NetSegment::m_fireCoverage
+    0x10B0: br IL_10c3: ldloc.s V_73
+    0x10B5: ldloc.3 
+    0x10B6: ldloc.s V_73
+Offset 0x10E9: ldelema NetSegment
+    0x10DF: stloc.s V_74
+    0x10E1: br IL_10fa: ldloc.s V_74
+    0x10E6: ldloc.3 
+    0x10E7: ldloc.s V_74
+Offset 0x1126: ldelema NetSegment
+    0x111C: stloc.s V_76
+    0x111E: br IL_1162: ldloc.s V_76
+    0x1123: ldloc.3 
+    0x1124: ldloc.s V_76
+Offset 0x1138: ldelema NetSegment
+    0x112B: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1130: brfalse IL_114e: ldloc.3
+    0x1135: ldloc.3 
+    0x1136: ldloc.s V_76
+Offset 0x1151: ldelema NetSegment
+    0x1144: stfld System.Byte NetSegment::m_wetness
+    0x1149: br IL_115c: ldloc.s V_76
+    0x114E: ldloc.3 
+    0x114F: ldloc.s V_76
+Offset 0x1182: ldelema NetSegment
+    0x1178: stloc.s V_77
+    0x117A: br IL_1193: ldloc.s V_77
+    0x117F: ldloc.3 
+    0x1180: ldloc.s V_77
+Offset 0x11BF: ldelema NetSegment
+    0x11B5: stloc.s V_79
+    0x11B7: br IL_11fb: ldloc.s V_79
+    0x11BC: ldloc.3 
+    0x11BD: ldloc.s V_79
+Offset 0x11D1: ldelema NetSegment
+    0x11C4: ldfld NetSegment/Flags NetSegment::m_flags
+    0x11C9: brfalse IL_11e7: ldloc.3
+    0x11CE: ldloc.3 
+    0x11CF: ldloc.s V_79
+Offset 0x11EA: ldelema NetSegment
+    0x11DD: stfld System.Byte NetSegment::m_condition
+    0x11E2: br IL_11f5: ldloc.s V_79
+    0x11E7: ldloc.3 
+    0x11E8: ldloc.s V_79
+Offset 0x121B: ldelema NetSegment
+    0x1211: stloc.s V_80
+    0x1213: br IL_122c: ldloc.s V_80
+    0x1218: ldloc.3 
+    0x1219: ldloc.s V_80
+Offset 0x1258: ldelema NetSegment
+    0x124E: stloc.s V_82
+    0x1250: br IL_1294: ldloc.s V_82
+    0x1255: ldloc.3 
+    0x1256: ldloc.s V_82
+Offset 0x126A: ldelema NetSegment
+    0x125D: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1262: brfalse IL_1280: ldloc.3
+    0x1267: ldloc.3 
+    0x1268: ldloc.s V_82
+Offset 0x1283: ldelema NetSegment
+    0x1276: stfld System.UInt16 NetSegment::m_noiseBuffer
+    0x127B: br IL_128e: ldloc.s V_82
+    0x1280: ldloc.3 
+    0x1281: ldloc.s V_82
+Offset 0x12B4: ldelema NetSegment
+    0x12AA: stloc.s V_83
+    0x12AC: br IL_12c5: ldloc.s V_83
+    0x12B1: ldloc.3 
+    0x12B2: ldloc.s V_83
+Offset 0x12F1: ldelema NetSegment
+    0x12E7: stloc.s V_85
+    0x12E9: br IL_132d: ldloc.s V_85
+    0x12EE: ldloc.3 
+    0x12EF: ldloc.s V_85
+Offset 0x1303: ldelema NetSegment
+    0x12F6: ldfld NetSegment/Flags NetSegment::m_flags
+    0x12FB: brfalse IL_1319: ldloc.3
+    0x1300: ldloc.3 
+    0x1301: ldloc.s V_85
+Offset 0x131C: ldelema NetSegment
+    0x130F: stfld System.Byte NetSegment::m_noiseDensity
+    0x1314: br IL_1327: ldloc.s V_85
+    0x1319: ldloc.3 
+    0x131A: ldloc.s V_85
+Offset 0x134D: ldelema NetSegment
+    0x1343: stloc.s V_86
+    0x1345: br IL_135e: ldloc.s V_86
+    0x134A: ldloc.3 
+    0x134B: ldloc.s V_86
+Offset 0x138A: ldelema NetSegment
+    0x1380: stloc.s V_88
+    0x1382: br IL_13c6: ldloc.s V_88
+    0x1387: ldloc.3 
+    0x1388: ldloc.s V_88
+Offset 0x139C: ldelema NetSegment
+    0x138F: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1394: brfalse IL_13b2: ldloc.3
+    0x1399: ldloc.3 
+    0x139A: ldloc.s V_88
+Offset 0x13B5: ldelema NetSegment
+    0x13A8: stfld System.Byte NetSegment::m_attractiveness
+    0x13AD: br IL_13c0: ldloc.s V_88
+    0x13B2: ldloc.3 
+    0x13B3: ldloc.s V_88
+Offset 0x13E6: ldelema NetSegment
+    0x13DC: stloc.s V_89
+    0x13DE: br IL_13f7: ldloc.s V_89
+    0x13E3: ldloc.3 
+    0x13E4: ldloc.s V_89
+Offset 0x140B: ldelema NetSegment
+    0x1401: stloc.s V_90
+    0x1403: br IL_195f: ldloc.s V_90
+    0x1408: ldloc.3 
+    0x1409: ldloc.s V_90
+Offset 0x1419: ldelema NetSegment
+    0x1410: ldc.i4.0 
+    0x1411: stfld System.UInt16 NetSegment::m_startLeftSegment
+    0x1416: ldloc.3 
+    0x1417: ldloc.s V_90
+Offset 0x1427: ldelema NetSegment
+    0x141E: ldc.i4.0 
+    0x141F: stfld System.UInt16 NetSegment::m_startRightSegment
+    0x1424: ldloc.3 
+    0x1425: ldloc.s V_90
+Offset 0x1435: ldelema NetSegment
+    0x142C: ldc.i4.0 
+    0x142D: stfld System.UInt16 NetSegment::m_endLeftSegment
+    0x1432: ldloc.3 
+    0x1433: ldloc.s V_90
+Offset 0x1443: ldelema NetSegment
+    0x143A: ldc.i4.0 
+    0x143B: stfld System.UInt16 NetSegment::m_endRightSegment
+    0x1440: ldloc.3 
+    0x1441: ldloc.s V_90
+Offset 0x1455: ldelema NetSegment
+    0x1448: ldc.r4 0
+    0x144D: stfld System.Single NetSegment::m_averageLength
+    0x1452: ldloc.3 
+    0x1453: ldloc.s V_90
+Offset 0x1463: ldelema NetSegment
+    0x145A: ldc.i4.0 
+    0x145B: stfld System.UInt16 NetSegment::m_nextGridSegment
+    0x1460: ldloc.3 
+    0x1461: ldloc.s V_90
+Offset 0x1471: ldelema NetSegment
+    0x1468: ldc.i4.0 
+    0x1469: stfld System.Byte NetSegment::m_cornerAngleStart
+    0x146E: ldloc.3 
+    0x146F: ldloc.s V_90
+Offset 0x147F: ldelema NetSegment
+    0x1476: ldc.i4.0 
+    0x1477: stfld System.Byte NetSegment::m_cornerAngleEnd
+    0x147C: ldloc.3 
+    0x147D: ldloc.s V_90
+Offset 0x1491: ldelema NetSegment
+    0x1484: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1489: brfalse IL_1811: ldloc.3
+    0x148E: ldloc.3 
+    0x148F: ldloc.s V_90
+Offset 0x14AA: ldelema NetSegment
+    0x14A1: and 
+    0x14A2: stfld NetSegment/Flags NetSegment::m_flags
+    0x14A7: ldloc.3 
+    0x14A8: ldloc.s V_90
+Offset 0x14CA: ldelema NetSegment
+    0x14C0: ldc.i4.s 46
+    0x14C2: blt.un IL_14df: ldloc.3
+    0x14C7: ldloc.3 
+    0x14C8: ldloc.s V_90
+Offset 0x14E2: ldelema NetSegment
+    0x14D5: stfld System.UInt32 NetSegment::m_modifiedIndex
+    0x14DA: br IL_14f9: ldarg.1
+    0x14DF: ldloc.3 
+    0x14E0: ldloc.s V_90
+Offset 0x14EA: ldelema NetSegment
+    0x14E0: ldloc.s V_90
+    0x14E2: ldelema NetSegment
+    0x14E7: ldloc.3 
+    0x14E8: ldloc.s V_90
+Offset 0x1509: ldelema NetSegment
+    0x14FF: ldc.i4.s 24
+    0x1501: blt.un IL_151e: ldloc.3
+    0x1506: ldloc.3 
+    0x1507: ldloc.s V_90
+Offset 0x1521: ldelema NetSegment
+    0x1514: stfld System.UInt32 NetSegment::m_lanes
+    0x1519: br IL_152c: ldarg.1
+    0x151E: ldloc.3 
+    0x151F: ldloc.s V_90
+Offset 0x153C: ldelema NetSegment
+    0x1532: ldc.i4.s 50
+    0x1534: blt.un IL_1551: ldloc.3
+    0x1539: ldloc.3 
+    0x153A: ldloc.s V_90
+Offset 0x1554: ldelema NetSegment
+    0x1547: stfld System.UInt32 NetSegment::m_path
+    0x154C: br IL_155f: ldloc.3
+    0x1551: ldloc.3 
+    0x1552: ldloc.s V_90
+Offset 0x1562: ldelema NetSegment
+    0x1559: ldc.i4.0 
+    0x155A: stfld System.UInt32 NetSegment::m_path
+    0x155F: ldloc.3 
+    0x1560: ldloc.s V_90
+Offset 0x1575: ldelema NetSegment
+    0x1568: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+    0x156D: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+    0x1572: ldloc.3 
+    0x1573: ldloc.s V_90
+Offset 0x1588: ldelema NetSegment
+    0x157B: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+    0x1580: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+    0x1585: ldloc.3 
+    0x1586: ldloc.s V_90
+Offset 0x159C: ldelema NetSegment
+    0x1593: conv.u2 
+    0x1594: stfld System.UInt16 NetSegment::m_startNode
+    0x1599: ldloc.3 
+    0x159A: ldloc.s V_90
+Offset 0x15B0: ldelema NetSegment
+    0x15A7: conv.u2 
+    0x15A8: stfld System.UInt16 NetSegment::m_endNode
+    0x15AD: ldloc.3 
+    0x15AE: ldloc.s V_90
+Offset 0x15C4: ldelema NetSegment
+    0x15BB: conv.u2 
+    0x15BC: stfld System.UInt16 NetSegment::m_blockStartLeft
+    0x15C1: ldloc.3 
+    0x15C2: ldloc.s V_90
+Offset 0x15D8: ldelema NetSegment
+    0x15CF: conv.u2 
+    0x15D0: stfld System.UInt16 NetSegment::m_blockStartRight
+    0x15D5: ldloc.3 
+    0x15D6: ldloc.s V_90
+Offset 0x15EC: ldelema NetSegment
+    0x15E3: conv.u2 
+    0x15E4: stfld System.UInt16 NetSegment::m_blockEndLeft
+    0x15E9: ldloc.3 
+    0x15EA: ldloc.s V_90
+Offset 0x160D: ldelema NetSegment
+    0x1603: ldc.i4.s 77
+    0x1605: blt.un IL_1637: ldloc.3
+    0x160A: ldloc.3 
+    0x160B: ldloc.s V_90
+Offset 0x1621: ldelema NetSegment
+    0x1618: conv.u2 
+    0x1619: stfld System.UInt16 NetSegment::m_trafficBuffer
+    0x161E: ldloc.3 
+    0x161F: ldloc.s V_90
+Offset 0x163A: ldelema NetSegment
+    0x162D: stfld System.Byte NetSegment::m_trafficDensity
+    0x1632: br IL_1653: ldarg.1
+    0x1637: ldloc.3 
+    0x1638: ldloc.s V_90
+Offset 0x1648: ldelema NetSegment
+    0x163F: ldc.i4.0 
+    0x1640: stfld System.UInt16 NetSegment::m_trafficBuffer
+    0x1645: ldloc.3 
+    0x1646: ldloc.s V_90
+Offset 0x1666: ldelema NetSegment
+    0x1659: ldc.i4 312
+    0x165E: blt.un IL_167c: ldloc.3
+    0x1663: ldloc.3 
+    0x1664: ldloc.s V_90
+Offset 0x167F: ldelema NetSegment
+    0x1672: stfld System.UInt16 NetSegment::m_nameSeed
+    0x1677: br IL_168a: ldarg.1
+    0x167C: ldloc.3 
+    0x167D: ldloc.s V_90
+Offset 0x169D: ldelema NetSegment
+    0x1690: ldc.i4 109007
+    0x1695: bge.un IL_16b4: ldarg.1
+    0x169A: ldloc.3 
+    0x169B: ldloc.s V_90
+Offset 0x16A5: ldelema NetSegment
+    0x169B: ldloc.s V_90
+    0x169D: ldelema NetSegment
+    0x16A2: ldloc.3 
+    0x16A3: ldloc.s V_90
+Offset 0x16C7: ldelema NetSegment
+    0x16BA: ldc.i4 113015
+    0x16BF: blt.un IL_16dc: ldloc.3
+    0x16C4: ldloc.3 
+    0x16C5: ldloc.s V_90
+Offset 0x16DF: ldelema NetSegment
+    0x16D2: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+    0x16D7: br IL_16ea: ldarg.1
+    0x16DC: ldloc.3 
+    0x16DD: ldloc.s V_90
+Offset 0x16FD: ldelema NetSegment
+    0x16F0: ldc.i4 114002
+    0x16F5: blt.un IL_1722: ldloc.3
+    0x16FA: ldloc.3 
+    0x16FB: ldloc.s V_90
+Offset 0x1725: ldelema NetSegment
+    0x1718: stfld System.UInt16 NetSegment::m_treeInfoIndex
+    0x171D: br IL_1734: ldarg.1
+    0x1722: ldloc.3 
+    0x1723: ldloc.s V_90
+Offset 0x1747: ldelema NetSegment
+    0x173A: ldc.i4 120003
+    0x173F: blt.un IL_178f: ldloc.3
+    0x1744: ldloc.3 
+    0x1745: ldloc.s V_90
+Offset 0x176A: ldelema NetSegment
+    0x175D: ldc.i4 65535
+    0x1762: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+    0x1767: ldloc.3 
+    0x1768: ldloc.s V_90
+Offset 0x1792: ldelema NetSegment
+    0x1785: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+    0x178A: br IL_17b3: ldarg.1
+    0x178F: ldloc.3 
+    0x1790: ldloc.s V_90
+Offset 0x17A4: ldelema NetSegment
+    0x1797: ldc.i4 65535
+    0x179C: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+    0x17A1: ldloc.3 
+    0x17A2: ldloc.s V_90
+Offset 0x17C6: ldelema NetSegment
+    0x17B9: ldc.i4 121005
+    0x17BE: blt.un IL_17f0: ldloc.3
+    0x17C3: ldloc.3 
+    0x17C4: ldloc.s V_90
+Offset 0x17DA: ldelema NetSegment
+    0x17D1: conv.u2 
+    0x17D2: stfld System.UInt16 NetSegment::m_eventRoute
+    0x17D7: ldloc.3 
+    0x17D8: ldloc.s V_90
+Offset 0x17F3: ldelema NetSegment
+    0x17E6: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+    0x17EB: br IL_180c: br IL_1959
+    0x17F0: ldloc.3 
+    0x17F1: ldloc.s V_90
+Offset 0x1801: ldelema NetSegment
+    0x17F8: ldc.i4.0 
+    0x17F9: stfld System.UInt16 NetSegment::m_eventRoute
+    0x17FE: ldloc.3 
+    0x17FF: ldloc.s V_90
+Offset 0x1814: ldelema NetSegment
+    0x1807: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+    0x180C: br IL_1959: ldloc.s V_90
+    0x1811: ldloc.3 
+    0x1812: ldloc.s V_90
+Offset 0x1822: ldelema NetSegment
+    0x1819: ldc.i4.0 
+    0x181A: stfld System.UInt32 NetSegment::m_buildIndex
+    0x181F: ldloc.3 
+    0x1820: ldloc.s V_90
+Offset 0x1830: ldelema NetSegment
+    0x1827: ldc.i4.0 
+    0x1828: stfld System.UInt32 NetSegment::m_modifiedIndex
+    0x182D: ldloc.3 
+    0x182E: ldloc.s V_90
+Offset 0x1842: ldelema NetSegment
+    0x1835: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+    0x183A: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+    0x183F: ldloc.3 
+    0x1840: ldloc.s V_90
+Offset 0x1854: ldelema NetSegment
+    0x1847: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+    0x184C: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+    0x1851: ldloc.3 
+    0x1852: ldloc.s V_90
+Offset 0x1862: ldelema NetSegment
+    0x1859: ldc.i4.0 
+    0x185A: stfld System.UInt16 NetSegment::m_startNode
+    0x185F: ldloc.3 
+    0x1860: ldloc.s V_90
+Offset 0x1870: ldelema NetSegment
+    0x1867: ldc.i4.0 
+    0x1868: stfld System.UInt16 NetSegment::m_endNode
+    0x186D: ldloc.3 
+    0x186E: ldloc.s V_90
+Offset 0x187E: ldelema NetSegment
+    0x1875: ldc.i4.0 
+    0x1876: stfld System.UInt16 NetSegment::m_blockStartLeft
+    0x187B: ldloc.3 
+    0x187C: ldloc.s V_90
+Offset 0x188C: ldelema NetSegment
+    0x1883: ldc.i4.0 
+    0x1884: stfld System.UInt16 NetSegment::m_blockStartRight
+    0x1889: ldloc.3 
+    0x188A: ldloc.s V_90
+Offset 0x189A: ldelema NetSegment
+    0x1891: ldc.i4.0 
+    0x1892: stfld System.UInt16 NetSegment::m_blockEndLeft
+    0x1897: ldloc.3 
+    0x1898: ldloc.s V_90
+Offset 0x18A8: ldelema NetSegment
+    0x189F: ldc.i4.0 
+    0x18A0: stfld System.UInt16 NetSegment::m_blockEndRight
+    0x18A5: ldloc.3 
+    0x18A6: ldloc.s V_90
+Offset 0x18B6: ldelema NetSegment
+    0x18AD: ldc.i4.0 
+    0x18AE: stfld System.UInt32 NetSegment::m_lanes
+    0x18B3: ldloc.3 
+    0x18B4: ldloc.s V_90
+Offset 0x18C4: ldelema NetSegment
+    0x18BB: ldc.i4.0 
+    0x18BC: stfld System.UInt32 NetSegment::m_path
+    0x18C1: ldloc.3 
+    0x18C2: ldloc.s V_90
+Offset 0x18D2: ldelema NetSegment
+    0x18C9: ldc.i4.0 
+    0x18CA: stfld System.UInt16 NetSegment::m_trafficBuffer
+    0x18CF: ldloc.3 
+    0x18D0: ldloc.s V_90
+Offset 0x18E0: ldelema NetSegment
+    0x18D7: ldc.i4.0 
+    0x18D8: stfld System.Byte NetSegment::m_trafficDensity
+    0x18DD: ldloc.3 
+    0x18DE: ldloc.s V_90
+Offset 0x18EE: ldelema NetSegment
+    0x18E5: ldc.i4.0 
+    0x18E6: stfld System.UInt16 NetSegment::m_nameSeed
+    0x18EB: ldloc.3 
+    0x18EC: ldloc.s V_90
+Offset 0x18FC: ldelema NetSegment
+    0x18F3: ldc.i4.0 
+    0x18F4: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+    0x18F9: ldloc.3 
+    0x18FA: ldloc.s V_90
+Offset 0x190E: ldelema NetSegment
+    0x1901: ldc.i4 65535
+    0x1906: stfld System.UInt16 NetSegment::m_treeInfoIndex
+    0x190B: ldloc.3 
+    0x190C: ldloc.s V_90
+Offset 0x1920: ldelema NetSegment
+    0x1913: ldc.i4 65535
+    0x1918: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+    0x191D: ldloc.3 
+    0x191E: ldloc.s V_90
+Offset 0x1932: ldelema NetSegment
+    0x1925: ldc.i4 65535
+    0x192A: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+    0x192F: ldloc.3 
+    0x1930: ldloc.s V_90
+Offset 0x1940: ldelema NetSegment
+    0x1937: ldc.i4.0 
+    0x1938: stfld System.UInt16 NetSegment::m_eventRoute
+    0x193D: ldloc.3 
+    0x193E: ldloc.s V_90
+Offset 0x19F4: ldelema NetNode
+    0x19EA: stloc.s V_93
+    0x19EC: br IL_1a1d: ldloc.s V_93
+    0x19F1: ldloc.2 
+    0x19F2: ldloc.s V_93
+Offset 0x1A06: ldelema NetNode
+    0x19F9: ldfld NetNode/Flags NetNode::m_flags
+    0x19FE: brfalse IL_1a17: ldloc.s V_93
+    0x1A03: ldloc.2 
+    0x1A04: ldloc.s V_93
+Offset 0x1A31: ldelema NetSegment
+    0x1A27: stloc.s V_94
+    0x1A29: br IL_1a5a: ldloc.s V_94
+    0x1A2E: ldloc.3 
+    0x1A2F: ldloc.s V_94
+Offset 0x1A43: ldelema NetSegment
+    0x1A36: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1A3B: brfalse IL_1a54: ldloc.s V_94
+    0x1A40: ldloc.3 
+    0x1A41: ldloc.s V_94
+Offset 0x1A7A: stelem.i4 
+    0x1A71: ldloc.s V_95
+    0x1A73: conv.u 
+    0x1A74: ldc.i4.0 
+    0x1A75: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+Offset 0x1AA1: stelem.i4 
+    0x1A98: ldloc.s V_96
+    0x1A9A: conv.u 
+    0x1A9B: ldc.i4.0 
+    0x1A9C: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+Offset 0x1AD8: ldelema NetSegment
+    0x1ACE: stloc.s V_97
+    0x1AD0: br IL_1b18: ldloc.s V_97
+    0x1AD5: ldloc.3 
+    0x1AD6: ldloc.s V_97
+Offset 0x1AEA: ldelema NetSegment
+    0x1ADD: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1AE2: brfalse IL_1b12: ldloc.s V_97
+    0x1AE7: ldloc.3 
+    0x1AE8: ldloc.s V_97
+Offset 0x1B01: ldelema NetSegment
+    0x1AF4: ldc.i4 65535
+    0x1AF9: beq IL_1b12: ldloc.s V_97
+    0x1AFE: ldloc.3 
+    0x1AFF: ldloc.s V_97
+Offset 0x1B37: ldelema NetSegment
+    0x1B2D: stloc.s V_98
+    0x1B2F: br IL_1b4c: ldloc.s V_98
+    0x1B34: ldloc.3 
+    0x1B35: ldloc.s V_98
+Offset 0x1B77: ldelema NetSegment
+    0x1B6D: stloc.s V_99
+    0x1B6F: br IL_1bb7: ldloc.s V_99
+    0x1B74: ldloc.3 
+    0x1B75: ldloc.s V_99
+Offset 0x1B89: ldelema NetSegment
+    0x1B7C: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1B81: brfalse IL_1bb1: ldloc.s V_99
+    0x1B86: ldloc.3 
+    0x1B87: ldloc.s V_99
+Offset 0x1BA0: ldelema NetSegment
+    0x1B93: ldc.i4 65535
+    0x1B98: beq IL_1bb1: ldloc.s V_99
+    0x1B9D: ldloc.3 
+    0x1B9E: ldloc.s V_99
+Offset 0x1BD9: ldelema NetSegment
+    0x1BCF: stloc.s V_100
+    0x1BD1: br IL_1c19: ldloc.s V_100
+    0x1BD6: ldloc.3 
+    0x1BD7: ldloc.s V_100
+Offset 0x1BEB: ldelema NetSegment
+    0x1BDE: ldfld NetSegment/Flags NetSegment::m_flags
+    0x1BE3: brfalse IL_1c13: ldloc.s V_100
+    0x1BE8: ldloc.3 
+    0x1BE9: ldloc.s V_100
+Offset 0x1C02: ldelema NetSegment
+    0x1BF5: ldc.i4 65535
+    0x1BFA: beq IL_1c13: ldloc.s V_100
+    0x1BFF: ldloc.3 
+    0x1C00: ldloc.s V_100
+Offset 0x1C39: ldelema NetSegment
+    0x1C2F: stloc.s V_101
+    0x1C31: br IL_1c60: ldloc.s V_101
+    0x1C36: ldloc.3 
+    0x1C37: ldloc.s V_101
+Offset 0x1C4B: ldelema NetSegment
+    0x1C3E: ldc.i4 65535
+    0x1C43: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+    0x1C48: ldloc.3 
+    0x1C49: ldloc.s V_101
+Offset 0x1C80: stelem.ref 
+    0x1C77: ldloc.s V_102
+    0x1C79: conv.u 
+    0x1C7A: ldarg.1 
+    0x1C7B: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetTypeGuide>()
+Offset 0x1CA7: stelem.ref 
+    0x1C9E: ldloc.s V_103
+    0x1CA0: conv.u 
+    0x1CA1: ldarg.1 
+    0x1CA2: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<MilestoneInfo/Data>()
+Offset 0x1FE3: stelem.i8 
+    0x1FD5: ldfld System.UInt64[] NetManager::m_adjustedSegments
+    0x1FDA: ldloc.s V_106
+    0x1FDC: ldloc.s V_105
+    0x1FDE: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+Offset 0x2008: stelem.i8 
+    0x1FFF: ldfld System.UInt64[] NetManager::m_adjustedSegments
+    0x2004: ldloc.s V_107
+    0x2006: ldc.i4.0 
+    0x2007: conv.i8 
+Offset 0x2030: ldelema NetNode
+    0x2026: stloc.s V_108
+    0x2028: br IL_2056: ldloc.s V_108
+    0x202D: ldloc.2 
+    0x202E: ldloc.s V_108
+Offset 0x2046: ldelema NetNode
+    0x2040: ldloc.s V_108
+    0x2042: conv.u2 
+    0x2043: ldloc.2 
+    0x2044: ldloc.s V_108
+Offset 0x206A: ldelema NetSegment
+    0x2060: stloc.s V_109
+    0x2062: br IL_2090: ldloc.s V_109
+    0x2067: ldloc.3 
+    0x2068: ldloc.s V_109
+Offset 0x2080: ldelema NetSegment
+    0x207A: ldloc.s V_109
+    0x207C: conv.u2 
+    0x207D: ldloc.3 
+    0x207E: ldloc.s V_109

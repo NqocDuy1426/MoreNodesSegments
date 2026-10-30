@@ -1865,8 +1865,8 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.36)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.36 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.37)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.37 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
@@ -2040,9 +2040,9 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 44: Universal Simulation Manager Armor, NetworkSkins & Assembly Isolation (v5.0.36)
+        // TEST GROUP 44: Mono SIGSEGV Defense - Unpatch External Mods from Managers_* (v5.0.37)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 44: Universal Simulation Manager Armor, NetworkSkins & Assembly Isolation (v5.0.36) ---");
+        Console.WriteLine("\n--- Test Group 44: Mono SIGSEGV Defense - Unpatch External Mods from Managers_*, NetworkSkins Safe Hook & Assembly Isolation (v5.0.37) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -2052,21 +2052,36 @@ class TestSuite
                                     !renewCode.Contains("curPos + 2 * 1024 * 1024");
             Assert(hasCleanTagArmor, "SafeHandleDeserializeTag reads exact shared tag and suppresses mismatch without stream seeking or scanning");
 
-            // 44.2 Universal Simulation Manager Armor intercepts Managers_* methods, runs NetworkSkins pre-update, skips generic no-ops, and returns false
-            bool hasSimManagerArmor = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
-                                      renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
-                                      renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
-                                      renewCode.Contains("InvokeNetworkSkinsPreUpdateData") &&
-                                      renewCode.Contains("s_noOpUpdateDataManagers") &&
-                                      renewCode.Contains("m.DeclaringType.Name.StartsWith(\"SimulationManagerBase\")");
-            Assert(hasSimManagerArmor, "SimulationManager.Managers_* armored at Priority.First, protects NetworkSkins & skips generic no-ops");
+            // 44.2 Unpatch external mods from Managers_* (NOT replace the loop) + lightweight NetworkSkins prefix returns true
+            bool hasUnpatchLogic = renewCode.Contains("harmony.Unpatch(smMethod, patchMethods[pi])") &&
+                                   renewCode.Contains("Vanilla CIL-compiled manager loop will handle dispatch safely") &&
+                                   renewCode.Contains("Managers_UpdateData") &&
+                                   renewCode.Contains("Managers_LateUpdateData") &&
+                                   renewCode.Contains("Managers_EarlyUpdateData");
+            Assert(hasUnpatchLogic, "External mod patches (NetworkSkins etc.) removed from Managers_UpdateData/LateUpdateData/EarlyUpdateData to prevent Mono SIGSEGV");
 
-            // 44.3 Assembly resolve strictly separates EManagersLib and EManagersLib.API
+            // 44.3 Lightweight Managers_UpdateData prefix calls NetworkSkins OnPreUpdateData and returns true (lets vanilla loop run)
+            bool hasLightweightPrefix = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
+                                        renewCode.Contains("InvokeNetworkSkinsPreUpdateData(mode)") &&
+                                        renewCode.Contains("return true; // Let vanilla CIL loop run");
+            Assert(hasLightweightPrefix, "Managers_UpdateData prefix is lightweight: calls NetworkSkins.OnPreUpdateData safely, returns true to let vanilla CIL loop run");
+
+            // 44.4 NO SafeExecute methods or generic no-op dictionaries (all removed - proven to crash via reflection too)
+            bool noReflectionLoop = !renewCode.Contains("SafeExecuteUpdateData") &&
+                                    !renewCode.Contains("SafeExecuteLateUpdateData") &&
+                                    !renewCode.Contains("SafeExecuteEarlyUpdateData") &&
+                                    !renewCode.Contains("s_noOpUpdateDataManagers") &&
+                                    !renewCode.Contains("s_concreteUpdateDataMethods") &&
+                                    !renewCode.Contains("SimulationManager_Managers_LateUpdateData_Prefix") &&
+                                    !renewCode.Contains("SimulationManager_Managers_EarlyUpdateData_Prefix");
+            Assert(noReflectionLoop, "No SafeExecute* methods, no generic dictionaries, no LateUpdateData/EarlyUpdateData prefixes (reflection Invoke also crashes Mono)");
+
+            // 44.5 Assembly resolve strictly separates EManagersLib and EManagersLib.API
             bool strictEManagersLib = renewCode.Contains("if (a.GetName().Name == \"EManagersLib\") return a;") &&
                                       !renewCode.Contains("if (a.GetName().Name == \"EManagersLib.API\" || a.GetName().Name == \"EManagersLib\") return a;");
             Assert(strictEManagersLib, "AssemblyResolve cleanly isolates EManagersLib from EManagersLib.API to prevent TypeLoadException");
 
-            // 44.4 Material.HasProperty null safety armor
+            // 44.6 Material.HasProperty null safety armor
             bool hasMatArmor = renewCode.Contains("public static bool Material_HasProperty_String_Prefix(Material __instance") &&
                                renewCode.Contains("if ((object)__instance == null || !__instance)");
             Assert(hasMatArmor, "Material.HasProperty(string) is guarded against native C++ null pointer dereferences");

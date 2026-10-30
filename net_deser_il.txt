@@ -1,0 +1,2835 @@
+Method: System.Void NetManager/Data::Deserialize(ColossalFramework.IO.DataSerializer)
+0000: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+0005: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+000A: ldarg.1 
+000B: ldstr NetManager
+0010: callvirt System.Void LoadingProfiler::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+0015: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+001A: stloc.0 
+001B: ldloc.0 
+001C: ldfld Array32`1<NetLane> NetManager::m_lanes
+0021: ldfld T[] Array32`1<NetLane>::m_buffer
+0026: stloc.1 
+0027: ldloc.0 
+0028: ldfld Array16`1<NetNode> NetManager::m_nodes
+002D: ldfld T[] Array16`1<NetNode>::m_buffer
+0032: stloc.2 
+0033: ldloc.0 
+0034: ldfld Array16`1<NetSegment> NetManager::m_segments
+0039: ldfld T[] Array16`1<NetSegment>::m_buffer
+003E: stloc.3 
+003F: ldloc.0 
+0040: ldfld System.UInt16[] NetManager::m_nodeGrid
+0045: stloc.s V_4
+0047: ldloc.0 
+0048: ldfld System.UInt16[] NetManager::m_segmentGrid
+004D: stloc.s V_5
+004F: ldloc.1 
+0050: ldlen 
+0051: conv.i4 
+0052: stloc.s V_6
+0054: ldloc.2 
+0055: ldlen 
+0056: conv.i4 
+0057: stloc.s V_7
+0059: ldloc.3 
+005A: ldlen 
+005B: conv.i4 
+005C: stloc.s V_8
+005E: ldloc.s V_4
+0060: ldlen 
+0061: conv.i4 
+0062: stloc.s V_9
+0064: ldloc.s V_5
+0066: ldlen 
+0067: conv.i4 
+0068: stloc.s V_10
+006A: ldloc.0 
+006B: ldfld Array32`1<NetLane> NetManager::m_lanes
+0070: callvirt System.Void Array32`1<NetLane>::ClearUnused()
+0075: ldloc.0 
+0076: ldfld Array16`1<NetNode> NetManager::m_nodes
+007B: callvirt System.Void Array16`1<NetNode>::ClearUnused()
+0080: ldloc.0 
+0081: ldfld Array16`1<NetSegment> NetManager::m_segments
+0086: callvirt System.Void Array16`1<NetSegment>::ClearUnused()
+008B: ldc.i4.0 
+008C: stloc.s V_11
+008E: br IL_009f: ldloc.s V_11
+0093: ldloc.s V_4
+0095: ldloc.s V_11
+0097: ldc.i4.0 
+0098: stelem.i2 
+0099: ldloc.s V_11
+009B: ldc.i4.1 
+009C: add 
+009D: stloc.s V_11
+009F: ldloc.s V_11
+00A1: ldloc.s V_9
+00A3: blt IL_0093: ldloc.s V_4
+00A8: ldc.i4.0 
+00A9: stloc.s V_12
+00AB: br IL_00bc: ldloc.s V_12
+00B0: ldloc.s V_5
+00B2: ldloc.s V_12
+00B4: ldc.i4.0 
+00B5: stelem.i2 
+00B6: ldloc.s V_12
+00B8: ldc.i4.1 
+00B9: add 
+00BA: stloc.s V_12
+00BC: ldloc.s V_12
+00BE: ldloc.s V_10
+00C0: blt IL_00b0: ldloc.s V_5
+00C5: ldc.i4.0 
+00C6: stloc.s V_13
+00C8: br IL_00e1: ldloc.s V_13
+00CD: ldloc.0 
+00CE: ldfld FastList`1<System.UInt16>[] NetManager::m_serviceSegments
+00D3: ldloc.s V_13
+00D5: ldelem.ref 
+00D6: callvirt System.Void FastList`1<System.UInt16>::Clear()
+00DB: ldloc.s V_13
+00DD: ldc.i4.1 
+00DE: add 
+00DF: stloc.s V_13
+00E1: ldloc.s V_13
+00E3: ldloc.0 
+00E4: ldfld FastList`1<System.UInt16>[] NetManager::m_serviceSegments
+00E9: ldlen 
+00EA: conv.i4 
+00EB: blt IL_00cd: ldloc.0
+00F0: ldc.i4.0 
+00F1: stloc.s V_14
+00F3: br IL_0108: ldloc.s V_14
+00F8: ldloc.0 
+00F9: ldfld System.Int32[] NetManager::m_tileNodesCount
+00FE: ldloc.s V_14
+0100: ldc.i4.0 
+0101: stelem.i4 
+0102: ldloc.s V_14
+0104: ldc.i4.1 
+0105: add 
+0106: stloc.s V_14
+0108: ldloc.s V_14
+010A: ldloc.0 
+010B: ldfld System.Int32[] NetManager::m_tileNodesCount
+0110: ldlen 
+0111: conv.i4 
+0112: blt IL_00f8: ldloc.0
+0117: ldarg.1 
+0118: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+011D: ldc.i4.s 24
+011F: blt.un IL_015e: ldc.i4.1
+0124: ldarg.1 
+0125: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+012A: stloc.s V_15
+012C: ldc.i4.1 
+012D: stloc.s V_16
+012F: br IL_014e: ldloc.s V_16
+0134: ldloc.1 
+0135: ldloc.s V_16
+0137: ldelema NetLane
+013C: ldloc.s V_15
+013E: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+0143: stfld System.UInt16 NetLane::m_flags
+0148: ldloc.s V_16
+014A: ldc.i4.1 
+014B: add 
+014C: stloc.s V_16
+014E: ldloc.s V_16
+0150: ldloc.s V_6
+0152: blt IL_0134: ldloc.1
+0157: ldloc.s V_15
+0159: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+015E: ldc.i4.1 
+015F: stloc.s V_17
+0161: br IL_0261: ldloc.s V_17
+0166: ldloc.1 
+0167: ldloc.s V_17
+0169: ldelema NetLane
+016E: ldloca.s V_18
+0170: initobj ColossalFramework.Math.Bezier3
+0176: ldloc.s V_18
+0178: stfld ColossalFramework.Math.Bezier3 NetLane::m_bezier
+017D: ldloc.1 
+017E: ldloc.s V_17
+0180: ldelema NetLane
+0185: ldc.r4 0
+018A: stfld System.Single NetLane::m_length
+018F: ldloc.1 
+0190: ldloc.s V_17
+0192: ldelema NetLane
+0197: ldc.r4 0
+019C: stfld System.Single NetLane::m_curve
+01A1: ldloc.1 
+01A2: ldloc.s V_17
+01A4: ldelema NetLane
+01A9: ldc.i4.0 
+01AA: stfld System.UInt16 NetLane::m_segment
+01AF: ldloc.1 
+01B0: ldloc.s V_17
+01B2: ldelema NetLane
+01B7: ldc.i4.0 
+01B8: stfld System.UInt16 NetLane::m_nodes
+01BD: ldloc.1 
+01BE: ldloc.s V_17
+01C0: ldelema NetLane
+01C5: ldc.i4.0 
+01C6: stfld System.Byte NetLane::m_firstTarget
+01CB: ldloc.1 
+01CC: ldloc.s V_17
+01CE: ldelema NetLane
+01D3: ldc.i4.0 
+01D4: stfld System.Byte NetLane::m_lastTarget
+01D9: ldloc.1 
+01DA: ldloc.s V_17
+01DC: ldelema NetLane
+01E1: ldc.i4.0 
+01E2: stfld System.Byte NetLane::m_ticketCost
+01E7: ldarg.1 
+01E8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+01ED: ldc.i4.s 24
+01EF: blt.un IL_0232: ldloc.1
+01F4: ldloc.1 
+01F5: ldloc.s V_17
+01F7: ldelema NetLane
+01FC: ldfld System.UInt16 NetLane::m_flags
+0201: brfalse IL_0232: ldloc.1
+0206: ldloc.1 
+0207: ldloc.s V_17
+0209: ldelema NetLane
+020E: ldarg.1 
+020F: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+0214: stfld System.UInt32 NetLane::m_nextLane
+0219: ldarg.1 
+021A: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+021F: ldc.i4.s 48
+0221: bge.un IL_022d: br IL_025b
+0226: ldarg.1 
+0227: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+022C: pop 
+022D: br IL_025b: ldloc.s V_17
+0232: ldloc.1 
+0233: ldloc.s V_17
+0235: ldelema NetLane
+023A: ldc.i4.0 
+023B: stfld System.UInt16 NetLane::m_flags
+0240: ldloc.1 
+0241: ldloc.s V_17
+0243: ldelema NetLane
+0248: ldc.i4.0 
+0249: stfld System.UInt32 NetLane::m_nextLane
+024E: ldloc.0 
+024F: ldfld Array32`1<NetLane> NetManager::m_lanes
+0254: ldloc.s V_17
+0256: callvirt System.Void Array32`1<NetLane>::ReleaseItem(System.UInt32)
+025B: ldloc.s V_17
+025D: ldc.i4.1 
+025E: add 
+025F: stloc.s V_17
+0261: ldloc.s V_17
+0263: ldloc.s V_6
+0265: blt IL_0166: ldloc.1
+026A: ldarg.1 
+026B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0270: ldc.i4 163
+0275: blt.un IL_02de: ldc.i4.1
+027A: ldarg.1 
+027B: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+0280: stloc.s V_19
+0282: ldc.i4.1 
+0283: stloc.s V_20
+0285: br IL_02c9: ldloc.s V_20
+028A: ldloc.1 
+028B: ldloc.s V_20
+028D: ldelema NetLane
+0292: ldfld System.UInt16 NetLane::m_flags
+0297: brfalse IL_02b5: ldloc.1
+029C: ldloc.1 
+029D: ldloc.s V_20
+029F: ldelema NetLane
+02A4: ldloc.s V_19
+02A6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+02AB: stfld System.Byte NetLane::m_reservedPrev
+02B0: br IL_02c3: ldloc.s V_20
+02B5: ldloc.1 
+02B6: ldloc.s V_20
+02B8: ldelema NetLane
+02BD: ldc.i4.0 
+02BE: stfld System.Byte NetLane::m_reservedPrev
+02C3: ldloc.s V_20
+02C5: ldc.i4.1 
+02C6: add 
+02C7: stloc.s V_20
+02C9: ldloc.s V_20
+02CB: ldloc.s V_6
+02CD: blt IL_028a: ldloc.1
+02D2: ldloc.s V_19
+02D4: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+02D9: br IL_0303: ldarg.1
+02DE: ldc.i4.1 
+02DF: stloc.s V_21
+02E1: br IL_02fa: ldloc.s V_21
+02E6: ldloc.1 
+02E7: ldloc.s V_21
+02E9: ldelema NetLane
+02EE: ldc.i4.0 
+02EF: stfld System.Byte NetLane::m_reservedPrev
+02F4: ldloc.s V_21
+02F6: ldc.i4.1 
+02F7: add 
+02F8: stloc.s V_21
+02FA: ldloc.s V_21
+02FC: ldloc.s V_6
+02FE: blt IL_02e6: ldloc.1
+0303: ldarg.1 
+0304: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0309: ldc.i4 163
+030E: blt.un IL_0377: ldc.i4.1
+0313: ldarg.1 
+0314: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+0319: stloc.s V_22
+031B: ldc.i4.1 
+031C: stloc.s V_23
+031E: br IL_0362: ldloc.s V_23
+0323: ldloc.1 
+0324: ldloc.s V_23
+0326: ldelema NetLane
+032B: ldfld System.UInt16 NetLane::m_flags
+0330: brfalse IL_034e: ldloc.1
+0335: ldloc.1 
+0336: ldloc.s V_23
+0338: ldelema NetLane
+033D: ldloc.s V_22
+033F: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+0344: stfld System.Byte NetLane::m_reservedNext
+0349: br IL_035c: ldloc.s V_23
+034E: ldloc.1 
+034F: ldloc.s V_23
+0351: ldelema NetLane
+0356: ldc.i4.0 
+0357: stfld System.Byte NetLane::m_reservedNext
+035C: ldloc.s V_23
+035E: ldc.i4.1 
+035F: add 
+0360: stloc.s V_23
+0362: ldloc.s V_23
+0364: ldloc.s V_6
+0366: blt IL_0323: ldloc.1
+036B: ldloc.s V_22
+036D: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+0372: br IL_039c: ldarg.1
+0377: ldc.i4.1 
+0378: stloc.s V_24
+037A: br IL_0393: ldloc.s V_24
+037F: ldloc.1 
+0380: ldloc.s V_24
+0382: ldelema NetLane
+0387: ldc.i4.0 
+0388: stfld System.Byte NetLane::m_reservedNext
+038D: ldloc.s V_24
+038F: ldc.i4.1 
+0390: add 
+0391: stloc.s V_24
+0393: ldloc.s V_24
+0395: ldloc.s V_6
+0397: blt IL_037f: ldloc.1
+039C: ldarg.1 
+039D: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+03A2: ldc.i4 163
+03A7: blt.un IL_0410: ldc.i4.1
+03AC: ldarg.1 
+03AD: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+03B2: stloc.s V_25
+03B4: ldc.i4.1 
+03B5: stloc.s V_26
+03B7: br IL_03fb: ldloc.s V_26
+03BC: ldloc.1 
+03BD: ldloc.s V_26
+03BF: ldelema NetLane
+03C4: ldfld System.UInt16 NetLane::m_flags
+03C9: brfalse IL_03e7: ldloc.1
+03CE: ldloc.1 
+03CF: ldloc.s V_26
+03D1: ldelema NetLane
+03D6: ldloc.s V_25
+03D8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+03DD: stfld System.Byte NetLane::m_reservedFrame
+03E2: br IL_03f5: ldloc.s V_26
+03E7: ldloc.1 
+03E8: ldloc.s V_26
+03EA: ldelema NetLane
+03EF: ldc.i4.0 
+03F0: stfld System.Byte NetLane::m_reservedFrame
+03F5: ldloc.s V_26
+03F7: ldc.i4.1 
+03F8: add 
+03F9: stloc.s V_26
+03FB: ldloc.s V_26
+03FD: ldloc.s V_6
+03FF: blt IL_03bc: ldloc.1
+0404: ldloc.s V_25
+0406: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+040B: br IL_0435: ldarg.1
+0410: ldc.i4.1 
+0411: stloc.s V_27
+0413: br IL_042c: ldloc.s V_27
+0418: ldloc.1 
+0419: ldloc.s V_27
+041B: ldelema NetLane
+0420: ldc.i4.0 
+0421: stfld System.Byte NetLane::m_reservedFrame
+0426: ldloc.s V_27
+0428: ldc.i4.1 
+0429: add 
+042A: stloc.s V_27
+042C: ldloc.s V_27
+042E: ldloc.s V_6
+0430: blt IL_0418: ldloc.1
+0435: ldarg.1 
+0436: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+043B: ldc.i4 206
+0440: blt.un IL_04a9: ldc.i4.1
+0445: ldarg.1 
+0446: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+044B: stloc.s V_28
+044D: ldc.i4.1 
+044E: stloc.s V_29
+0450: br IL_0494: ldloc.s V_29
+0455: ldloc.1 
+0456: ldloc.s V_29
+0458: ldelema NetLane
+045D: ldfld System.UInt16 NetLane::m_flags
+0462: brfalse IL_0480: ldloc.1
+0467: ldloc.1 
+0468: ldloc.s V_29
+046A: ldelema NetLane
+046F: ldloc.s V_28
+0471: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+0476: stfld System.UInt16 NetLane::m_lastReserveID
+047B: br IL_048e: ldloc.s V_29
+0480: ldloc.1 
+0481: ldloc.s V_29
+0483: ldelema NetLane
+0488: ldc.i4.0 
+0489: stfld System.UInt16 NetLane::m_lastReserveID
+048E: ldloc.s V_29
+0490: ldc.i4.1 
+0491: add 
+0492: stloc.s V_29
+0494: ldloc.s V_29
+0496: ldloc.s V_6
+0498: blt IL_0455: ldloc.1
+049D: ldloc.s V_28
+049F: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+04A4: br IL_04ce: ldarg.1
+04A9: ldc.i4.1 
+04AA: stloc.s V_30
+04AC: br IL_04c5: ldloc.s V_30
+04B1: ldloc.1 
+04B2: ldloc.s V_30
+04B4: ldelema NetLane
+04B9: ldc.i4.0 
+04BA: stfld System.UInt16 NetLane::m_lastReserveID
+04BF: ldloc.s V_30
+04C1: ldc.i4.1 
+04C2: add 
+04C3: stloc.s V_30
+04C5: ldloc.s V_30
+04C7: ldloc.s V_6
+04C9: blt IL_04b1: ldloc.1
+04CE: ldarg.1 
+04CF: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+04D4: ldc.i4 115018
+04D9: blt.un IL_0531: ldarg.1
+04DE: ldarg.1 
+04DF: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+04E4: stloc.s V_31
+04E6: ldc.i4.1 
+04E7: stloc.s V_32
+04E9: br IL_051c: ldloc.s V_32
+04EE: ldloc.2 
+04EF: ldloc.s V_32
+04F1: ldelema NetNode
+04F6: ldloc.s V_31
+04F8: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+04FD: stfld NetNode/Flags NetNode::m_flags
+0502: ldloc.2 
+0503: ldloc.s V_32
+0505: ldelema NetNode
+050A: ldloc.s V_31
+050C: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0511: stfld NetNode/Flags2 NetNode::m_flags2
+0516: ldloc.s V_32
+0518: ldc.i4.1 
+0519: add 
+051A: stloc.s V_32
+051C: ldloc.s V_32
+051E: ldloc.s V_7
+0520: blt IL_04ee: ldloc.2
+0525: ldloc.s V_31
+0527: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+052C: br IL_060c: ldarg.1
+0531: ldarg.1 
+0532: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0537: ldc.i4 202
+053C: blt.un IL_0580: ldarg.1
+0541: ldarg.1 
+0542: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+0547: stloc.s V_33
+0549: ldc.i4.1 
+054A: stloc.s V_34
+054C: br IL_056b: ldloc.s V_34
+0551: ldloc.2 
+0552: ldloc.s V_34
+0554: ldelema NetNode
+0559: ldloc.s V_33
+055B: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0560: stfld NetNode/Flags NetNode::m_flags
+0565: ldloc.s V_34
+0567: ldc.i4.1 
+0568: add 
+0569: stloc.s V_34
+056B: ldloc.s V_34
+056D: ldloc.s V_7
+056F: blt IL_0551: ldloc.2
+0574: ldloc.s V_33
+0576: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+057B: br IL_060c: ldarg.1
+0580: ldarg.1 
+0581: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+0586: stloc.s V_35
+0588: ldc.i4.1 
+0589: stloc.s V_36
+058B: br IL_05d0: ldloc.s V_36
+0590: ldloc.2 
+0591: ldloc.s V_36
+0593: ldelema NetNode
+0598: ldloc.s V_35
+059A: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+059F: stfld NetNode/Flags NetNode::m_flags
+05A4: ldarg.1 
+05A5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+05AA: ldc.i4.s 60
+05AC: bge.un IL_05ca: ldloc.s V_36
+05B1: ldloc.2 
+05B2: ldloc.s V_36
+05B4: ldelema NetNode
+05B9: dup 
+05BA: ldfld NetNode/Flags NetNode::m_flags
+05BF: ldc.i4 -1025
+05C4: and 
+05C5: stfld NetNode/Flags NetNode::m_flags
+05CA: ldloc.s V_36
+05CC: ldc.i4.1 
+05CD: add 
+05CE: stloc.s V_36
+05D0: ldloc.s V_36
+05D2: ldc.i4 16384
+05D7: blt IL_0590: ldloc.2
+05DC: ldc.i4 16384
+05E1: stloc.s V_37
+05E3: br IL_05fc: ldloc.s V_37
+05E8: ldloc.2 
+05E9: ldloc.s V_37
+05EB: ldelema NetNode
+05F0: ldc.i4.0 
+05F1: stfld NetNode/Flags NetNode::m_flags
+05F6: ldloc.s V_37
+05F8: ldc.i4.1 
+05F9: add 
+05FA: stloc.s V_37
+05FC: ldloc.s V_37
+05FE: ldloc.s V_7
+0600: blt IL_05e8: ldloc.2
+0605: ldloc.s V_35
+0607: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+060C: ldarg.1 
+060D: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0612: ldc.i4 115000
+0617: blt.un IL_0690: ldarg.1
+061C: ldarg.1 
+061D: call ColossalFramework.IO.EncodedArray/ULong ColossalFramework.IO.EncodedArray/ULong::BeginRead(ColossalFramework.IO.DataSerializer)
+0622: stloc.s V_38
+0624: ldc.i4.1 
+0625: stloc.s V_39
+0627: br IL_067b: ldloc.s V_39
+062C: ldloc.2 
+062D: ldloc.s V_39
+062F: ldelema NetNode
+0634: ldfld NetNode/Flags NetNode::m_flags
+0639: brfalse IL_0663: ldloc.2
+063E: ldloc.2 
+063F: ldloc.s V_39
+0641: ldelema NetNode
+0646: ldloc.s V_38
+0648: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+064D: ldloc.s V_38
+064F: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+0654: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1,Notification/Problem2)
+0659: stfld Notification/ProblemStruct NetNode::m_problems
+065E: br IL_0675: ldloc.s V_39
+0663: ldloc.2 
+0664: ldloc.s V_39
+0666: ldelema NetNode
+066B: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+0670: stfld Notification/ProblemStruct NetNode::m_problems
+0675: ldloc.s V_39
+0677: ldc.i4.1 
+0678: add 
+0679: stloc.s V_39
+067B: ldloc.s V_39
+067D: ldloc.s V_7
+067F: blt IL_062c: ldloc.2
+0684: ldloc.s V_38
+0686: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+068B: br IL_07ec: ldarg.1
+0690: ldarg.1 
+0691: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0696: ldc.i4 221
+069B: blt.un IL_072c: ldarg.1
+06A0: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+06A5: ldfld SimulationMetaData SimulationManager::m_metaData
+06AA: ldfld System.UInt32 SimulationMetaData::m_saveAppVersion
+06AF: ldc.i4.1 
+06B0: ldc.i4.3 
+06B1: ldc.i4.0 
+06B2: ldc.i4.1 
+06B3: ldc.i4.1 
+06B4: ldc.i4.0 
+06B5: call System.UInt32 BuildConfig::MakeVersionNumber(System.UInt32,System.UInt32,System.UInt32,BuildConfig/ReleaseType,System.UInt32,BuildConfig/BuildType)
+06BA: blt.un IL_072c: ldarg.1
+06BF: ldarg.1 
+06C0: call ColossalFramework.IO.EncodedArray/ULong ColossalFramework.IO.EncodedArray/ULong::BeginRead(ColossalFramework.IO.DataSerializer)
+06C5: stloc.s V_40
+06C7: ldc.i4.1 
+06C8: stloc.s V_41
+06CA: br IL_0717: ldloc.s V_41
+06CF: ldloc.2 
+06D0: ldloc.s V_41
+06D2: ldelema NetNode
+06D7: ldfld NetNode/Flags NetNode::m_flags
+06DC: brfalse IL_06ff: ldloc.2
+06E1: ldloc.2 
+06E2: ldloc.s V_41
+06E4: ldelema NetNode
+06E9: ldloc.s V_40
+06EB: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+06F0: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+06F5: stfld Notification/ProblemStruct NetNode::m_problems
+06FA: br IL_0711: ldloc.s V_41
+06FF: ldloc.2 
+0700: ldloc.s V_41
+0702: ldelema NetNode
+0707: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+070C: stfld Notification/ProblemStruct NetNode::m_problems
+0711: ldloc.s V_41
+0713: ldc.i4.1 
+0714: add 
+0715: stloc.s V_41
+0717: ldloc.s V_41
+0719: ldloc.s V_7
+071B: blt IL_06cf: ldloc.2
+0720: ldloc.s V_40
+0722: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+0727: br IL_07ec: ldarg.1
+072C: ldarg.1 
+072D: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0732: ldc.i4.s 61
+0734: blt.un IL_07c3: ldc.i4.1
+0739: ldarg.1 
+073A: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+073F: stloc.s V_42
+0741: ldc.i4.1 
+0742: stloc.s V_43
+0744: br IL_07ae: ldloc.s V_43
+0749: ldloc.2 
+074A: ldloc.s V_43
+074C: ldelema NetNode
+0751: ldfld NetNode/Flags NetNode::m_flags
+0756: brfalse IL_0796: ldloc.2
+075B: ldloc.s V_42
+075D: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0762: conv.u8 
+0763: stloc.s V_44
+0765: ldloc.s V_44
+0767: ldc.i4 -1073741824
+076C: conv.u8 
+076D: and 
+076E: ldc.i4.s 32
+0770: shl 
+0771: ldloc.s V_44
+0773: ldc.i4 1073741823
+0778: conv.i8 
+0779: and 
+077A: or 
+077B: stloc.s V_44
+077D: ldloc.2 
+077E: ldloc.s V_43
+0780: ldelema NetNode
+0785: ldloc.s V_44
+0787: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+078C: stfld Notification/ProblemStruct NetNode::m_problems
+0791: br IL_07a8: ldloc.s V_43
+0796: ldloc.2 
+0797: ldloc.s V_43
+0799: ldelema NetNode
+079E: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+07A3: stfld Notification/ProblemStruct NetNode::m_problems
+07A8: ldloc.s V_43
+07AA: ldc.i4.1 
+07AB: add 
+07AC: stloc.s V_43
+07AE: ldloc.s V_43
+07B0: ldloc.s V_7
+07B2: blt IL_0749: ldloc.2
+07B7: ldloc.s V_42
+07B9: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+07BE: br IL_07ec: ldarg.1
+07C3: ldc.i4.1 
+07C4: stloc.s V_45
+07C6: br IL_07e3: ldloc.s V_45
+07CB: ldloc.2 
+07CC: ldloc.s V_45
+07CE: ldelema NetNode
+07D3: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+07D8: stfld Notification/ProblemStruct NetNode::m_problems
+07DD: ldloc.s V_45
+07DF: ldc.i4.1 
+07E0: add 
+07E1: stloc.s V_45
+07E3: ldloc.s V_45
+07E5: ldloc.s V_7
+07E7: blt IL_07cb: ldloc.2
+07EC: ldarg.1 
+07ED: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+07F2: ldc.i4.s 86
+07F4: blt.un IL_085d: ldc.i4.1
+07F9: ldarg.1 
+07FA: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+07FF: stloc.s V_46
+0801: ldc.i4.1 
+0802: stloc.s V_47
+0804: br IL_0848: ldloc.s V_47
+0809: ldloc.2 
+080A: ldloc.s V_47
+080C: ldelema NetNode
+0811: ldfld NetNode/Flags NetNode::m_flags
+0816: brfalse IL_0834: ldloc.2
+081B: ldloc.2 
+081C: ldloc.s V_47
+081E: ldelema NetNode
+0823: ldloc.s V_46
+0825: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+082A: stfld System.Byte NetNode::m_maxWaitTime
+082F: br IL_0842: ldloc.s V_47
+0834: ldloc.2 
+0835: ldloc.s V_47
+0837: ldelema NetNode
+083C: ldc.i4.0 
+083D: stfld System.Byte NetNode::m_maxWaitTime
+0842: ldloc.s V_47
+0844: ldc.i4.1 
+0845: add 
+0846: stloc.s V_47
+0848: ldloc.s V_47
+084A: ldloc.s V_7
+084C: blt IL_0809: ldloc.2
+0851: ldloc.s V_46
+0853: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+0858: br IL_0882: ldarg.1
+085D: ldc.i4.1 
+085E: stloc.s V_48
+0860: br IL_0879: ldloc.s V_48
+0865: ldloc.2 
+0866: ldloc.s V_48
+0868: ldelema NetNode
+086D: ldc.i4.0 
+086E: stfld System.Byte NetNode::m_maxWaitTime
+0873: ldloc.s V_48
+0875: ldc.i4.1 
+0876: add 
+0877: stloc.s V_48
+0879: ldloc.s V_48
+087B: ldloc.s V_7
+087D: blt IL_0865: ldloc.2
+0882: ldarg.1 
+0883: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0888: ldc.i4.s 105
+088A: blt.un IL_0915: ldc.i4.1
+088F: ldarg.1 
+0890: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+0895: stloc.s V_49
+0897: ldc.i4.1 
+0898: stloc.s V_50
+089A: br IL_0900: ldloc.s V_50
+089F: ldloc.2 
+08A0: ldloc.s V_50
+08A2: ldelema NetNode
+08A7: ldfld NetNode/Flags NetNode::m_flags
+08AC: brfalse IL_08de: ldloc.2
+08B1: ldloc.2 
+08B2: ldloc.s V_50
+08B4: ldelema NetNode
+08B9: ldloc.s V_49
+08BB: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+08C0: stfld System.UInt16 NetNode::m_tempCounter
+08C5: ldloc.2 
+08C6: ldloc.s V_50
+08C8: ldelema NetNode
+08CD: ldloc.s V_49
+08CF: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+08D4: stfld System.UInt16 NetNode::m_finalCounter
+08D9: br IL_08fa: ldloc.s V_50
+08DE: ldloc.2 
+08DF: ldloc.s V_50
+08E1: ldelema NetNode
+08E6: ldc.i4.0 
+08E7: stfld System.UInt16 NetNode::m_tempCounter
+08EC: ldloc.2 
+08ED: ldloc.s V_50
+08EF: ldelema NetNode
+08F4: ldc.i4.0 
+08F5: stfld System.UInt16 NetNode::m_finalCounter
+08FA: ldloc.s V_50
+08FC: ldc.i4.1 
+08FD: add 
+08FE: stloc.s V_50
+0900: ldloc.s V_50
+0902: ldloc.s V_7
+0904: blt IL_089f: ldloc.2
+0909: ldloc.s V_49
+090B: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+0910: br IL_0948: ldc.i4.1
+0915: ldc.i4.1 
+0916: stloc.s V_51
+0918: br IL_093f: ldloc.s V_51
+091D: ldloc.2 
+091E: ldloc.s V_51
+0920: ldelema NetNode
+0925: ldc.i4.0 
+0926: stfld System.UInt16 NetNode::m_tempCounter
+092B: ldloc.2 
+092C: ldloc.s V_51
+092E: ldelema NetNode
+0933: ldc.i4.0 
+0934: stfld System.UInt16 NetNode::m_finalCounter
+0939: ldloc.s V_51
+093B: ldc.i4.1 
+093C: add 
+093D: stloc.s V_51
+093F: ldloc.s V_51
+0941: ldloc.s V_7
+0943: blt IL_091d: ldloc.2
+0948: ldc.i4.1 
+0949: stloc.s V_52
+094B: br IL_0cdc: ldloc.s V_52
+0950: ldloc.2 
+0951: ldloc.s V_52
+0953: ldelema NetNode
+0958: ldc.i4.0 
+0959: stfld System.UInt16 NetNode::m_segment0
+095E: ldloc.2 
+095F: ldloc.s V_52
+0961: ldelema NetNode
+0966: ldc.i4.0 
+0967: stfld System.UInt16 NetNode::m_segment1
+096C: ldloc.2 
+096D: ldloc.s V_52
+096F: ldelema NetNode
+0974: ldc.i4.0 
+0975: stfld System.UInt16 NetNode::m_segment2
+097A: ldloc.2 
+097B: ldloc.s V_52
+097D: ldelema NetNode
+0982: ldc.i4.0 
+0983: stfld System.UInt16 NetNode::m_segment3
+0988: ldloc.2 
+0989: ldloc.s V_52
+098B: ldelema NetNode
+0990: ldc.i4.0 
+0991: stfld System.UInt16 NetNode::m_segment4
+0996: ldloc.2 
+0997: ldloc.s V_52
+0999: ldelema NetNode
+099E: ldc.i4.0 
+099F: stfld System.UInt16 NetNode::m_segment5
+09A4: ldloc.2 
+09A5: ldloc.s V_52
+09A7: ldelema NetNode
+09AC: ldc.i4.0 
+09AD: stfld System.UInt16 NetNode::m_segment6
+09B2: ldloc.2 
+09B3: ldloc.s V_52
+09B5: ldelema NetNode
+09BA: ldc.i4.0 
+09BB: stfld System.UInt16 NetNode::m_segment7
+09C0: ldloc.2 
+09C1: ldloc.s V_52
+09C3: ldelema NetNode
+09C8: ldc.i4.0 
+09C9: stfld System.UInt16 NetNode::m_nextGridNode
+09CE: ldloc.2 
+09CF: ldloc.s V_52
+09D1: ldelema NetNode
+09D6: ldc.i4.0 
+09D7: stfld System.UInt16 NetNode::m_nextLaneNode
+09DC: ldloc.2 
+09DD: ldloc.s V_52
+09DF: ldelema NetNode
+09E4: ldc.i4.0 
+09E5: stfld System.UInt16 NetNode::m_transportLine
+09EA: ldloc.2 
+09EB: ldloc.s V_52
+09ED: ldelema NetNode
+09F2: ldc.i4.0 
+09F3: stfld System.Byte NetNode::m_coverage
+09F8: ldloc.2 
+09F9: ldloc.s V_52
+09FB: ldelema NetNode
+0A00: call DynamicFlags`1<T> DynamicFlags`1<NetInfo>::get_anyTags()
+0A05: stfld DynamicFlags`1<NetInfo> NetNode::m_tags
+0A0A: ldloc.2 
+0A0B: ldloc.s V_52
+0A0D: ldelema NetNode
+0A12: ldc.i4.0 
+0A13: stfld System.UInt16 NetNode::m_targetCitizens
+0A18: ldloc.2 
+0A19: ldloc.s V_52
+0A1B: ldelema NetNode
+0A20: ldfld NetNode/Flags NetNode::m_flags
+0A25: brfalse IL_0c38: ldloc.2
+0A2A: ldloc.2 
+0A2B: ldloc.s V_52
+0A2D: ldelema NetNode
+0A32: ldarg.1 
+0A33: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+0A38: stfld UnityEngine.Vector3 NetNode::m_position
+0A3D: ldarg.1 
+0A3E: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+0A43: stloc.s V_53
+0A45: ldc.i4.0 
+0A46: stloc.s V_54
+0A48: br IL_0a68: ldloc.s V_54
+0A4D: ldloc.2 
+0A4E: ldloc.s V_52
+0A50: ldelema NetNode
+0A55: ldarg.1 
+0A56: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+0A5B: conv.u2 
+0A5C: call System.Boolean NetNode::AddSegment(System.UInt16)
+0A61: pop 
+0A62: ldloc.s V_54
+0A64: ldc.i4.1 
+0A65: add 
+0A66: stloc.s V_54
+0A68: ldloc.s V_54
+0A6A: ldloc.s V_53
+0A6C: blt IL_0a4d: ldloc.2
+0A71: ldarg.1 
+0A72: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0A77: ldc.i4.s 45
+0A79: blt.un IL_0a96: ldloc.2
+0A7E: ldloc.2 
+0A7F: ldloc.s V_52
+0A81: ldelema NetNode
+0A86: ldarg.1 
+0A87: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+0A8C: stfld System.UInt32 NetNode::m_buildIndex
+0A91: br IL_0aa4: ldarg.1
+0A96: ldloc.2 
+0A97: ldloc.s V_52
+0A99: ldelema NetNode
+0A9E: ldc.i4.0 
+0A9F: stfld System.UInt32 NetNode::m_buildIndex
+0AA4: ldarg.1 
+0AA5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0AAA: ldc.i4.6 
+0AAB: blt.un IL_0ac9: ldloc.2
+0AB0: ldloc.2 
+0AB1: ldloc.s V_52
+0AB3: ldelema NetNode
+0AB8: ldarg.1 
+0AB9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+0ABE: conv.u2 
+0ABF: stfld System.UInt16 NetNode::m_building
+0AC4: br IL_0ad7: ldarg.1
+0AC9: ldloc.2 
+0ACA: ldloc.s V_52
+0ACC: ldelema NetNode
+0AD1: ldc.i4.0 
+0AD2: stfld System.UInt16 NetNode::m_building
+0AD7: ldarg.1 
+0AD8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0ADD: ldc.i4.s 80
+0ADF: blt.un IL_0afd: ldloc.2
+0AE4: ldloc.2 
+0AE5: ldloc.s V_52
+0AE7: ldelema NetNode
+0AEC: ldarg.1 
+0AED: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+0AF2: conv.u2 
+0AF3: stfld System.UInt16 NetNode::m_nextBuildingNode
+0AF8: br IL_0b0b: ldarg.1
+0AFD: ldloc.2 
+0AFE: ldloc.s V_52
+0B00: ldelema NetNode
+0B05: ldc.i4.0 
+0B06: stfld System.UInt16 NetNode::m_nextBuildingNode
+0B0B: ldarg.1 
+0B0C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0B11: ldc.i4.s 48
+0B13: blt.un IL_0b44: ldloc.2
+0B18: ldloc.2 
+0B19: ldloc.s V_52
+0B1B: ldelema NetNode
+0B20: ldarg.1 
+0B21: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+0B26: stfld System.UInt32 NetNode::m_lane
+0B2B: ldloc.2 
+0B2C: ldloc.s V_52
+0B2E: ldelema NetNode
+0B33: ldarg.1 
+0B34: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+0B39: conv.u1 
+0B3A: stfld System.Byte NetNode::m_laneOffset
+0B3F: br IL_0b60: ldarg.1
+0B44: ldloc.2 
+0B45: ldloc.s V_52
+0B47: ldelema NetNode
+0B4C: ldc.i4.0 
+0B4D: stfld System.UInt32 NetNode::m_lane
+0B52: ldloc.2 
+0B53: ldloc.s V_52
+0B55: ldelema NetNode
+0B5A: ldc.i4.0 
+0B5B: stfld System.Byte NetNode::m_laneOffset
+0B60: ldarg.1 
+0B61: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0B66: ldc.i4.s 57
+0B68: blt.un IL_0b86: ldloc.2
+0B6D: ldloc.2 
+0B6E: ldloc.s V_52
+0B70: ldelema NetNode
+0B75: ldarg.1 
+0B76: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+0B7B: conv.u1 
+0B7C: stfld System.Byte NetNode::m_elevation
+0B81: br IL_0b94: ldarg.1
+0B86: ldloc.2 
+0B87: ldloc.s V_52
+0B89: ldelema NetNode
+0B8E: ldc.i4.0 
+0B8F: stfld System.Byte NetNode::m_elevation
+0B94: ldarg.1 
+0B95: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0B9A: ldc.i4.s 59
+0B9C: blt.un IL_0bba: ldloc.2
+0BA1: ldloc.2 
+0BA2: ldloc.s V_52
+0BA4: ldelema NetNode
+0BA9: ldarg.1 
+0BAA: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+0BAF: conv.u1 
+0BB0: stfld System.Byte NetNode::m_heightOffset
+0BB5: br IL_0bc8: ldarg.1
+0BBA: ldloc.2 
+0BBB: ldloc.s V_52
+0BBD: ldelema NetNode
+0BC2: ldc.i4.0 
+0BC3: stfld System.Byte NetNode::m_heightOffset
+0BC8: ldarg.1 
+0BC9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0BCE: ldc.i4.s 80
+0BD0: blt.un IL_0bee: ldloc.2
+0BD5: ldloc.2 
+0BD6: ldloc.s V_52
+0BD8: ldelema NetNode
+0BDD: ldarg.1 
+0BDE: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+0BE3: conv.u1 
+0BE4: stfld System.Byte NetNode::m_connectCount
+0BE9: br IL_0bfc: ldarg.1
+0BEE: ldloc.2 
+0BEF: ldloc.s V_52
+0BF1: ldelema NetNode
+0BF6: ldc.i4.0 
+0BF7: stfld System.Byte NetNode::m_connectCount
+0BFC: ldarg.1 
+0BFD: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0C02: ldc.i4 121007
+0C07: blt.un IL_0c25: ldloc.2
+0C0C: ldloc.2 
+0C0D: ldloc.s V_52
+0C0F: ldelema NetNode
+0C14: ldarg.1 
+0C15: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+0C1A: conv.u2 
+0C1B: stfld System.UInt16 NetNode::m_eventRoute
+0C20: br IL_0c33: br IL_0cd6
+0C25: ldloc.2 
+0C26: ldloc.s V_52
+0C28: ldelema NetNode
+0C2D: ldc.i4.0 
+0C2E: stfld System.UInt16 NetNode::m_eventRoute
+0C33: br IL_0cd6: ldloc.s V_52
+0C38: ldloc.2 
+0C39: ldloc.s V_52
+0C3B: ldelema NetNode
+0C40: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+0C45: stfld UnityEngine.Vector3 NetNode::m_position
+0C4A: ldloc.2 
+0C4B: ldloc.s V_52
+0C4D: ldelema NetNode
+0C52: ldc.i4.0 
+0C53: stfld System.UInt16 NetNode::m_nextBuildingNode
+0C58: ldloc.2 
+0C59: ldloc.s V_52
+0C5B: ldelema NetNode
+0C60: ldc.i4.0 
+0C61: stfld System.UInt32 NetNode::m_buildIndex
+0C66: ldloc.2 
+0C67: ldloc.s V_52
+0C69: ldelema NetNode
+0C6E: ldc.i4.0 
+0C6F: stfld System.UInt16 NetNode::m_building
+0C74: ldloc.2 
+0C75: ldloc.s V_52
+0C77: ldelema NetNode
+0C7C: ldc.i4.0 
+0C7D: stfld System.UInt32 NetNode::m_lane
+0C82: ldloc.2 
+0C83: ldloc.s V_52
+0C85: ldelema NetNode
+0C8A: ldc.i4.0 
+0C8B: stfld System.Byte NetNode::m_laneOffset
+0C90: ldloc.2 
+0C91: ldloc.s V_52
+0C93: ldelema NetNode
+0C98: ldc.i4.0 
+0C99: stfld System.Byte NetNode::m_elevation
+0C9E: ldloc.2 
+0C9F: ldloc.s V_52
+0CA1: ldelema NetNode
+0CA6: ldc.i4.0 
+0CA7: stfld System.Byte NetNode::m_heightOffset
+0CAC: ldloc.2 
+0CAD: ldloc.s V_52
+0CAF: ldelema NetNode
+0CB4: ldc.i4.0 
+0CB5: stfld System.Byte NetNode::m_connectCount
+0CBA: ldloc.2 
+0CBB: ldloc.s V_52
+0CBD: ldelema NetNode
+0CC2: ldc.i4.0 
+0CC3: stfld System.UInt16 NetNode::m_eventRoute
+0CC8: ldloc.0 
+0CC9: ldfld Array16`1<NetNode> NetManager::m_nodes
+0CCE: ldloc.s V_52
+0CD0: conv.u2 
+0CD1: callvirt System.Void Array16`1<NetNode>::ReleaseItem(System.UInt16)
+0CD6: ldloc.s V_52
+0CD8: ldc.i4.1 
+0CD9: add 
+0CDA: stloc.s V_52
+0CDC: ldloc.s V_52
+0CDE: ldloc.s V_7
+0CE0: blt IL_0950: ldloc.2
+0CE5: ldarg.1 
+0CE6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0CEB: ldc.i4 222
+0CF0: blt.un IL_0d34: ldarg.1
+0CF5: ldarg.1 
+0CF6: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+0CFB: stloc.s V_55
+0CFD: ldc.i4.1 
+0CFE: stloc.s V_56
+0D00: br IL_0d1f: ldloc.s V_56
+0D05: ldloc.3 
+0D06: ldloc.s V_56
+0D08: ldelema NetSegment
+0D0D: ldloc.s V_55
+0D0F: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0D14: stfld NetSegment/Flags NetSegment::m_flags
+0D19: ldloc.s V_56
+0D1B: ldc.i4.1 
+0D1C: add 
+0D1D: stloc.s V_56
+0D1F: ldloc.s V_56
+0D21: ldloc.s V_8
+0D23: blt IL_0d05: ldloc.3
+0D28: ldloc.s V_55
+0D2A: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+0D2F: br IL_0d9a: ldarg.1
+0D34: ldarg.1 
+0D35: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+0D3A: stloc.s V_57
+0D3C: ldc.i4.1 
+0D3D: stloc.s V_58
+0D3F: br IL_0d5e: ldloc.s V_58
+0D44: ldloc.3 
+0D45: ldloc.s V_58
+0D47: ldelema NetSegment
+0D4C: ldloc.s V_57
+0D4E: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0D53: stfld NetSegment/Flags NetSegment::m_flags
+0D58: ldloc.s V_58
+0D5A: ldc.i4.1 
+0D5B: add 
+0D5C: stloc.s V_58
+0D5E: ldloc.s V_58
+0D60: ldc.i4 32768
+0D65: blt IL_0d44: ldloc.3
+0D6A: ldc.i4 32768
+0D6F: stloc.s V_59
+0D71: br IL_0d8a: ldloc.s V_59
+0D76: ldloc.3 
+0D77: ldloc.s V_59
+0D79: ldelema NetSegment
+0D7E: ldc.i4.0 
+0D7F: stfld NetSegment/Flags NetSegment::m_flags
+0D84: ldloc.s V_59
+0D86: ldc.i4.1 
+0D87: add 
+0D88: stloc.s V_59
+0D8A: ldloc.s V_59
+0D8C: ldloc.s V_8
+0D8E: blt IL_0d76: ldloc.3
+0D93: ldloc.s V_57
+0D95: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+0D9A: ldarg.1 
+0D9B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0DA0: ldc.i4 114012
+0DA5: blt.un IL_0de4: ldarg.1
+0DAA: ldarg.1 
+0DAB: call ColossalFramework.IO.EncodedArray/UInt ColossalFramework.IO.EncodedArray/UInt::BeginRead(ColossalFramework.IO.DataSerializer)
+0DB0: stloc.s V_60
+0DB2: ldc.i4.1 
+0DB3: stloc.s V_61
+0DB5: br IL_0dd4: ldloc.s V_61
+0DBA: ldloc.3 
+0DBB: ldloc.s V_61
+0DBD: ldelema NetSegment
+0DC2: ldloc.s V_60
+0DC4: callvirt System.UInt32 ColossalFramework.IO.EncodedArray/UInt::Read()
+0DC9: stfld NetSegment/Flags2 NetSegment::m_flags2
+0DCE: ldloc.s V_61
+0DD0: ldc.i4.1 
+0DD1: add 
+0DD2: stloc.s V_61
+0DD4: ldloc.s V_61
+0DD6: ldloc.s V_8
+0DD8: blt IL_0dba: ldloc.3
+0DDD: ldloc.s V_60
+0DDF: callvirt System.Void ColossalFramework.IO.EncodedArray/UInt::EndRead()
+0DE4: ldarg.1 
+0DE5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0DEA: ldc.i4 115000
+0DEF: blt.un IL_0e68: ldarg.1
+0DF4: ldarg.1 
+0DF5: call ColossalFramework.IO.EncodedArray/ULong ColossalFramework.IO.EncodedArray/ULong::BeginRead(ColossalFramework.IO.DataSerializer)
+0DFA: stloc.s V_62
+0DFC: ldc.i4.1 
+0DFD: stloc.s V_63
+0DFF: br IL_0e53: ldloc.s V_63
+0E04: ldloc.3 
+0E05: ldloc.s V_63
+0E07: ldelema NetSegment
+0E0C: ldfld NetSegment/Flags NetSegment::m_flags
+0E11: brfalse IL_0e3b: ldloc.3
+0E16: ldloc.3 
+0E17: ldloc.s V_63
+0E19: ldelema NetSegment
+0E1E: ldloc.s V_62
+0E20: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+0E25: ldloc.s V_62
+0E27: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+0E2C: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1,Notification/Problem2)
+0E31: stfld Notification/ProblemStruct NetSegment::m_problems
+0E36: br IL_0e4d: ldloc.s V_63
+0E3B: ldloc.3 
+0E3C: ldloc.s V_63
+0E3E: ldelema NetSegment
+0E43: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+0E48: stfld Notification/ProblemStruct NetSegment::m_problems
+0E4D: ldloc.s V_63
+0E4F: ldc.i4.1 
+0E50: add 
+0E51: stloc.s V_63
+0E53: ldloc.s V_63
+0E55: ldloc.s V_8
+0E57: blt IL_0e04: ldloc.3
+0E5C: ldloc.s V_62
+0E5E: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+0E63: br IL_0f0e: ldarg.1
+0E68: ldarg.1 
+0E69: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0E6E: ldc.i4 226
+0E73: blt.un IL_0ee5: ldc.i4.1
+0E78: ldarg.1 
+0E79: call ColossalFramework.IO.EncodedArray/ULong ColossalFramework.IO.EncodedArray/ULong::BeginRead(ColossalFramework.IO.DataSerializer)
+0E7E: stloc.s V_64
+0E80: ldc.i4.1 
+0E81: stloc.s V_65
+0E83: br IL_0ed0: ldloc.s V_65
+0E88: ldloc.3 
+0E89: ldloc.s V_65
+0E8B: ldelema NetSegment
+0E90: ldfld NetSegment/Flags NetSegment::m_flags
+0E95: brfalse IL_0eb8: ldloc.3
+0E9A: ldloc.3 
+0E9B: ldloc.s V_65
+0E9D: ldelema NetSegment
+0EA2: ldloc.s V_64
+0EA4: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+0EA9: newobj System.Void Notification/ProblemStruct::.ctor(Notification/Problem1)
+0EAE: stfld Notification/ProblemStruct NetSegment::m_problems
+0EB3: br IL_0eca: ldloc.s V_65
+0EB8: ldloc.3 
+0EB9: ldloc.s V_65
+0EBB: ldelema NetSegment
+0EC0: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+0EC5: stfld Notification/ProblemStruct NetSegment::m_problems
+0ECA: ldloc.s V_65
+0ECC: ldc.i4.1 
+0ECD: add 
+0ECE: stloc.s V_65
+0ED0: ldloc.s V_65
+0ED2: ldloc.s V_8
+0ED4: blt IL_0e88: ldloc.3
+0ED9: ldloc.s V_64
+0EDB: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+0EE0: br IL_0f0e: ldarg.1
+0EE5: ldc.i4.1 
+0EE6: stloc.s V_66
+0EE8: br IL_0f05: ldloc.s V_66
+0EED: ldloc.3 
+0EEE: ldloc.s V_66
+0EF0: ldelema NetSegment
+0EF5: call Notification/ProblemStruct Notification/ProblemStruct::get_None()
+0EFA: stfld Notification/ProblemStruct NetSegment::m_problems
+0EFF: ldloc.s V_66
+0F01: ldc.i4.1 
+0F02: add 
+0F03: stloc.s V_66
+0F05: ldloc.s V_66
+0F07: ldloc.s V_8
+0F09: blt IL_0eed: ldloc.3
+0F0E: ldarg.1 
+0F0F: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0F14: ldc.i4 115017
+0F19: blt.un IL_0fa4: ldarg.1
+0F1E: ldarg.1 
+0F1F: call ColossalFramework.IO.EncodedArray/Int ColossalFramework.IO.EncodedArray/Int::BeginRead(ColossalFramework.IO.DataSerializer)
+0F24: stloc.s V_67
+0F26: ldc.i4.1 
+0F27: stloc.s V_68
+0F29: br IL_0f8f: ldloc.s V_68
+0F2E: ldloc.3 
+0F2F: ldloc.s V_68
+0F31: ldelema NetSegment
+0F36: ldfld NetSegment/Flags NetSegment::m_flags
+0F3B: brfalse IL_0f6d: ldloc.3
+0F40: ldloc.3 
+0F41: ldloc.s V_68
+0F43: ldelema NetSegment
+0F48: ldloc.s V_67
+0F4A: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+0F4F: stfld System.Int32 NetSegment::m_trafficLightState0
+0F54: ldloc.3 
+0F55: ldloc.s V_68
+0F57: ldelema NetSegment
+0F5C: ldloc.s V_67
+0F5E: callvirt System.Int32 ColossalFramework.IO.EncodedArray/Int::Read()
+0F63: stfld System.Int32 NetSegment::m_trafficLightState1
+0F68: br IL_0f89: ldloc.s V_68
+0F6D: ldloc.3 
+0F6E: ldloc.s V_68
+0F70: ldelema NetSegment
+0F75: ldc.i4.0 
+0F76: stfld System.Int32 NetSegment::m_trafficLightState0
+0F7B: ldloc.3 
+0F7C: ldloc.s V_68
+0F7E: ldelema NetSegment
+0F83: ldc.i4.0 
+0F84: stfld System.Int32 NetSegment::m_trafficLightState1
+0F89: ldloc.s V_68
+0F8B: ldc.i4.1 
+0F8C: add 
+0F8D: stloc.s V_68
+0F8F: ldloc.s V_68
+0F91: ldloc.s V_8
+0F93: blt IL_0f2e: ldloc.3
+0F98: ldloc.s V_67
+0F9A: callvirt System.Void ColossalFramework.IO.EncodedArray/Int::EndRead()
+0F9F: br IL_106a: ldarg.1
+0FA4: ldarg.1 
+0FA5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+0FAA: ldc.i4.s 103
+0FAC: blt.un IL_1037: ldc.i4.1
+0FB1: ldarg.1 
+0FB2: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+0FB7: stloc.s V_69
+0FB9: ldc.i4.1 
+0FBA: stloc.s V_70
+0FBC: br IL_1022: ldloc.s V_70
+0FC1: ldloc.3 
+0FC2: ldloc.s V_70
+0FC4: ldelema NetSegment
+0FC9: ldfld NetSegment/Flags NetSegment::m_flags
+0FCE: brfalse IL_1000: ldloc.3
+0FD3: ldloc.3 
+0FD4: ldloc.s V_70
+0FD6: ldelema NetSegment
+0FDB: ldloc.s V_69
+0FDD: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+0FE2: stfld System.Int32 NetSegment::m_trafficLightState0
+0FE7: ldloc.3 
+0FE8: ldloc.s V_70
+0FEA: ldelema NetSegment
+0FEF: ldloc.s V_69
+0FF1: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+0FF6: stfld System.Int32 NetSegment::m_trafficLightState1
+0FFB: br IL_101c: ldloc.s V_70
+1000: ldloc.3 
+1001: ldloc.s V_70
+1003: ldelema NetSegment
+1008: ldc.i4.0 
+1009: stfld System.Int32 NetSegment::m_trafficLightState0
+100E: ldloc.3 
+100F: ldloc.s V_70
+1011: ldelema NetSegment
+1016: ldc.i4.0 
+1017: stfld System.Int32 NetSegment::m_trafficLightState1
+101C: ldloc.s V_70
+101E: ldc.i4.1 
+101F: add 
+1020: stloc.s V_70
+1022: ldloc.s V_70
+1024: ldloc.s V_8
+1026: blt IL_0fc1: ldloc.3
+102B: ldloc.s V_69
+102D: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+1032: br IL_106a: ldarg.1
+1037: ldc.i4.1 
+1038: stloc.s V_71
+103A: br IL_1061: ldloc.s V_71
+103F: ldloc.3 
+1040: ldloc.s V_71
+1042: ldelema NetSegment
+1047: ldc.i4.0 
+1048: stfld System.Int32 NetSegment::m_trafficLightState0
+104D: ldloc.3 
+104E: ldloc.s V_71
+1050: ldelema NetSegment
+1055: ldc.i4.0 
+1056: stfld System.Int32 NetSegment::m_trafficLightState1
+105B: ldloc.s V_71
+105D: ldc.i4.1 
+105E: add 
+105F: stloc.s V_71
+1061: ldloc.s V_71
+1063: ldloc.s V_8
+1065: blt IL_103f: ldloc.3
+106A: ldarg.1 
+106B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1070: ldc.i4 185
+1075: blt.un IL_10de: ldc.i4.1
+107A: ldarg.1 
+107B: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+1080: stloc.s V_72
+1082: ldc.i4.1 
+1083: stloc.s V_73
+1085: br IL_10c9: ldloc.s V_73
+108A: ldloc.3 
+108B: ldloc.s V_73
+108D: ldelema NetSegment
+1092: ldfld NetSegment/Flags NetSegment::m_flags
+1097: brfalse IL_10b5: ldloc.3
+109C: ldloc.3 
+109D: ldloc.s V_73
+109F: ldelema NetSegment
+10A4: ldloc.s V_72
+10A6: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+10AB: stfld System.Byte NetSegment::m_fireCoverage
+10B0: br IL_10c3: ldloc.s V_73
+10B5: ldloc.3 
+10B6: ldloc.s V_73
+10B8: ldelema NetSegment
+10BD: ldc.i4.0 
+10BE: stfld System.Byte NetSegment::m_fireCoverage
+10C3: ldloc.s V_73
+10C5: ldc.i4.1 
+10C6: add 
+10C7: stloc.s V_73
+10C9: ldloc.s V_73
+10CB: ldloc.s V_8
+10CD: blt IL_108a: ldloc.3
+10D2: ldloc.s V_72
+10D4: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+10D9: br IL_1103: ldarg.1
+10DE: ldc.i4.1 
+10DF: stloc.s V_74
+10E1: br IL_10fa: ldloc.s V_74
+10E6: ldloc.3 
+10E7: ldloc.s V_74
+10E9: ldelema NetSegment
+10EE: ldc.i4.0 
+10EF: stfld System.Byte NetSegment::m_fireCoverage
+10F4: ldloc.s V_74
+10F6: ldc.i4.1 
+10F7: add 
+10F8: stloc.s V_74
+10FA: ldloc.s V_74
+10FC: ldloc.s V_8
+10FE: blt IL_10e6: ldloc.3
+1103: ldarg.1 
+1104: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1109: ldc.i4 224
+110E: blt.un IL_1177: ldc.i4.1
+1113: ldarg.1 
+1114: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+1119: stloc.s V_75
+111B: ldc.i4.1 
+111C: stloc.s V_76
+111E: br IL_1162: ldloc.s V_76
+1123: ldloc.3 
+1124: ldloc.s V_76
+1126: ldelema NetSegment
+112B: ldfld NetSegment/Flags NetSegment::m_flags
+1130: brfalse IL_114e: ldloc.3
+1135: ldloc.3 
+1136: ldloc.s V_76
+1138: ldelema NetSegment
+113D: ldloc.s V_75
+113F: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+1144: stfld System.Byte NetSegment::m_wetness
+1149: br IL_115c: ldloc.s V_76
+114E: ldloc.3 
+114F: ldloc.s V_76
+1151: ldelema NetSegment
+1156: ldc.i4.0 
+1157: stfld System.Byte NetSegment::m_wetness
+115C: ldloc.s V_76
+115E: ldc.i4.1 
+115F: add 
+1160: stloc.s V_76
+1162: ldloc.s V_76
+1164: ldloc.s V_8
+1166: blt IL_1123: ldloc.3
+116B: ldloc.s V_75
+116D: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+1172: br IL_119c: ldarg.1
+1177: ldc.i4.1 
+1178: stloc.s V_77
+117A: br IL_1193: ldloc.s V_77
+117F: ldloc.3 
+1180: ldloc.s V_77
+1182: ldelema NetSegment
+1187: ldc.i4.0 
+1188: stfld System.Byte NetSegment::m_wetness
+118D: ldloc.s V_77
+118F: ldc.i4.1 
+1190: add 
+1191: stloc.s V_77
+1193: ldloc.s V_77
+1195: ldloc.s V_8
+1197: blt IL_117f: ldloc.3
+119C: ldarg.1 
+119D: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+11A2: ldc.i4 229
+11A7: blt.un IL_1210: ldc.i4.1
+11AC: ldarg.1 
+11AD: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+11B2: stloc.s V_78
+11B4: ldc.i4.1 
+11B5: stloc.s V_79
+11B7: br IL_11fb: ldloc.s V_79
+11BC: ldloc.3 
+11BD: ldloc.s V_79
+11BF: ldelema NetSegment
+11C4: ldfld NetSegment/Flags NetSegment::m_flags
+11C9: brfalse IL_11e7: ldloc.3
+11CE: ldloc.3 
+11CF: ldloc.s V_79
+11D1: ldelema NetSegment
+11D6: ldloc.s V_78
+11D8: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+11DD: stfld System.Byte NetSegment::m_condition
+11E2: br IL_11f5: ldloc.s V_79
+11E7: ldloc.3 
+11E8: ldloc.s V_79
+11EA: ldelema NetSegment
+11EF: ldc.i4.0 
+11F0: stfld System.Byte NetSegment::m_condition
+11F5: ldloc.s V_79
+11F7: ldc.i4.1 
+11F8: add 
+11F9: stloc.s V_79
+11FB: ldloc.s V_79
+11FD: ldloc.s V_8
+11FF: blt IL_11bc: ldloc.3
+1204: ldloc.s V_78
+1206: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+120B: br IL_1235: ldarg.1
+1210: ldc.i4.1 
+1211: stloc.s V_80
+1213: br IL_122c: ldloc.s V_80
+1218: ldloc.3 
+1219: ldloc.s V_80
+121B: ldelema NetSegment
+1220: ldc.i4.0 
+1221: stfld System.Byte NetSegment::m_condition
+1226: ldloc.s V_80
+1228: ldc.i4.1 
+1229: add 
+122A: stloc.s V_80
+122C: ldloc.s V_80
+122E: ldloc.s V_8
+1230: blt IL_1218: ldloc.3
+1235: ldarg.1 
+1236: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+123B: ldc.i4 109007
+1240: blt.un IL_12a9: ldc.i4.1
+1245: ldarg.1 
+1246: call ColossalFramework.IO.EncodedArray/UShort ColossalFramework.IO.EncodedArray/UShort::BeginRead(ColossalFramework.IO.DataSerializer)
+124B: stloc.s V_81
+124D: ldc.i4.1 
+124E: stloc.s V_82
+1250: br IL_1294: ldloc.s V_82
+1255: ldloc.3 
+1256: ldloc.s V_82
+1258: ldelema NetSegment
+125D: ldfld NetSegment/Flags NetSegment::m_flags
+1262: brfalse IL_1280: ldloc.3
+1267: ldloc.3 
+1268: ldloc.s V_82
+126A: ldelema NetSegment
+126F: ldloc.s V_81
+1271: callvirt System.UInt16 ColossalFramework.IO.EncodedArray/UShort::Read()
+1276: stfld System.UInt16 NetSegment::m_noiseBuffer
+127B: br IL_128e: ldloc.s V_82
+1280: ldloc.3 
+1281: ldloc.s V_82
+1283: ldelema NetSegment
+1288: ldc.i4.0 
+1289: stfld System.UInt16 NetSegment::m_noiseBuffer
+128E: ldloc.s V_82
+1290: ldc.i4.1 
+1291: add 
+1292: stloc.s V_82
+1294: ldloc.s V_82
+1296: ldloc.s V_8
+1298: blt IL_1255: ldloc.3
+129D: ldloc.s V_81
+129F: callvirt System.Void ColossalFramework.IO.EncodedArray/UShort::EndRead()
+12A4: br IL_12ce: ldarg.1
+12A9: ldc.i4.1 
+12AA: stloc.s V_83
+12AC: br IL_12c5: ldloc.s V_83
+12B1: ldloc.3 
+12B2: ldloc.s V_83
+12B4: ldelema NetSegment
+12B9: ldc.i4.0 
+12BA: stfld System.UInt16 NetSegment::m_noiseBuffer
+12BF: ldloc.s V_83
+12C1: ldc.i4.1 
+12C2: add 
+12C3: stloc.s V_83
+12C5: ldloc.s V_83
+12C7: ldloc.s V_8
+12C9: blt IL_12b1: ldloc.3
+12CE: ldarg.1 
+12CF: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+12D4: ldc.i4 109007
+12D9: blt.un IL_1342: ldc.i4.1
+12DE: ldarg.1 
+12DF: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+12E4: stloc.s V_84
+12E6: ldc.i4.1 
+12E7: stloc.s V_85
+12E9: br IL_132d: ldloc.s V_85
+12EE: ldloc.3 
+12EF: ldloc.s V_85
+12F1: ldelema NetSegment
+12F6: ldfld NetSegment/Flags NetSegment::m_flags
+12FB: brfalse IL_1319: ldloc.3
+1300: ldloc.3 
+1301: ldloc.s V_85
+1303: ldelema NetSegment
+1308: ldloc.s V_84
+130A: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+130F: stfld System.Byte NetSegment::m_noiseDensity
+1314: br IL_1327: ldloc.s V_85
+1319: ldloc.3 
+131A: ldloc.s V_85
+131C: ldelema NetSegment
+1321: ldc.i4.0 
+1322: stfld System.Byte NetSegment::m_noiseDensity
+1327: ldloc.s V_85
+1329: ldc.i4.1 
+132A: add 
+132B: stloc.s V_85
+132D: ldloc.s V_85
+132F: ldloc.s V_8
+1331: blt IL_12ee: ldloc.3
+1336: ldloc.s V_84
+1338: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+133D: br IL_1367: ldarg.1
+1342: ldc.i4.1 
+1343: stloc.s V_86
+1345: br IL_135e: ldloc.s V_86
+134A: ldloc.3 
+134B: ldloc.s V_86
+134D: ldelema NetSegment
+1352: ldc.i4.0 
+1353: stfld System.Byte NetSegment::m_noiseDensity
+1358: ldloc.s V_86
+135A: ldc.i4.1 
+135B: add 
+135C: stloc.s V_86
+135E: ldloc.s V_86
+1360: ldloc.s V_8
+1362: blt IL_134a: ldloc.3
+1367: ldarg.1 
+1368: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+136D: ldc.i4 121030
+1372: blt.un IL_13db: ldc.i4.1
+1377: ldarg.1 
+1378: call ColossalFramework.IO.EncodedArray/Byte ColossalFramework.IO.EncodedArray/Byte::BeginRead(ColossalFramework.IO.DataSerializer)
+137D: stloc.s V_87
+137F: ldc.i4.1 
+1380: stloc.s V_88
+1382: br IL_13c6: ldloc.s V_88
+1387: ldloc.3 
+1388: ldloc.s V_88
+138A: ldelema NetSegment
+138F: ldfld NetSegment/Flags NetSegment::m_flags
+1394: brfalse IL_13b2: ldloc.3
+1399: ldloc.3 
+139A: ldloc.s V_88
+139C: ldelema NetSegment
+13A1: ldloc.s V_87
+13A3: callvirt System.Byte ColossalFramework.IO.EncodedArray/Byte::Read()
+13A8: stfld System.Byte NetSegment::m_attractiveness
+13AD: br IL_13c0: ldloc.s V_88
+13B2: ldloc.3 
+13B3: ldloc.s V_88
+13B5: ldelema NetSegment
+13BA: ldc.i4.0 
+13BB: stfld System.Byte NetSegment::m_attractiveness
+13C0: ldloc.s V_88
+13C2: ldc.i4.1 
+13C3: add 
+13C4: stloc.s V_88
+13C6: ldloc.s V_88
+13C8: ldloc.s V_8
+13CA: blt IL_1387: ldloc.3
+13CF: ldloc.s V_87
+13D1: callvirt System.Void ColossalFramework.IO.EncodedArray/Byte::EndRead()
+13D6: br IL_1400: ldc.i4.1
+13DB: ldc.i4.1 
+13DC: stloc.s V_89
+13DE: br IL_13f7: ldloc.s V_89
+13E3: ldloc.3 
+13E4: ldloc.s V_89
+13E6: ldelema NetSegment
+13EB: ldc.i4.0 
+13EC: stfld System.Byte NetSegment::m_attractiveness
+13F1: ldloc.s V_89
+13F3: ldc.i4.1 
+13F4: add 
+13F5: stloc.s V_89
+13F7: ldloc.s V_89
+13F9: ldloc.s V_8
+13FB: blt IL_13e3: ldloc.3
+1400: ldc.i4.1 
+1401: stloc.s V_90
+1403: br IL_195f: ldloc.s V_90
+1408: ldloc.3 
+1409: ldloc.s V_90
+140B: ldelema NetSegment
+1410: ldc.i4.0 
+1411: stfld System.UInt16 NetSegment::m_startLeftSegment
+1416: ldloc.3 
+1417: ldloc.s V_90
+1419: ldelema NetSegment
+141E: ldc.i4.0 
+141F: stfld System.UInt16 NetSegment::m_startRightSegment
+1424: ldloc.3 
+1425: ldloc.s V_90
+1427: ldelema NetSegment
+142C: ldc.i4.0 
+142D: stfld System.UInt16 NetSegment::m_endLeftSegment
+1432: ldloc.3 
+1433: ldloc.s V_90
+1435: ldelema NetSegment
+143A: ldc.i4.0 
+143B: stfld System.UInt16 NetSegment::m_endRightSegment
+1440: ldloc.3 
+1441: ldloc.s V_90
+1443: ldelema NetSegment
+1448: ldc.r4 0
+144D: stfld System.Single NetSegment::m_averageLength
+1452: ldloc.3 
+1453: ldloc.s V_90
+1455: ldelema NetSegment
+145A: ldc.i4.0 
+145B: stfld System.UInt16 NetSegment::m_nextGridSegment
+1460: ldloc.3 
+1461: ldloc.s V_90
+1463: ldelema NetSegment
+1468: ldc.i4.0 
+1469: stfld System.Byte NetSegment::m_cornerAngleStart
+146E: ldloc.3 
+146F: ldloc.s V_90
+1471: ldelema NetSegment
+1476: ldc.i4.0 
+1477: stfld System.Byte NetSegment::m_cornerAngleEnd
+147C: ldloc.3 
+147D: ldloc.s V_90
+147F: ldelema NetSegment
+1484: ldfld NetSegment/Flags NetSegment::m_flags
+1489: brfalse IL_1811: ldloc.3
+148E: ldloc.3 
+148F: ldloc.s V_90
+1491: ldelema NetSegment
+1496: dup 
+1497: ldfld NetSegment/Flags NetSegment::m_flags
+149C: ldc.i4 -1025
+14A1: and 
+14A2: stfld NetSegment/Flags NetSegment::m_flags
+14A7: ldloc.3 
+14A8: ldloc.s V_90
+14AA: ldelema NetSegment
+14AF: ldarg.1 
+14B0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+14B5: stfld System.UInt32 NetSegment::m_buildIndex
+14BA: ldarg.1 
+14BB: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+14C0: ldc.i4.s 46
+14C2: blt.un IL_14df: ldloc.3
+14C7: ldloc.3 
+14C8: ldloc.s V_90
+14CA: ldelema NetSegment
+14CF: ldarg.1 
+14D0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt32()
+14D5: stfld System.UInt32 NetSegment::m_modifiedIndex
+14DA: br IL_14f9: ldarg.1
+14DF: ldloc.3 
+14E0: ldloc.s V_90
+14E2: ldelema NetSegment
+14E7: ldloc.3 
+14E8: ldloc.s V_90
+14EA: ldelema NetSegment
+14EF: ldfld System.UInt32 NetSegment::m_buildIndex
+14F4: stfld System.UInt32 NetSegment::m_modifiedIndex
+14F9: ldarg.1 
+14FA: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+14FF: ldc.i4.s 24
+1501: blt.un IL_151e: ldloc.3
+1506: ldloc.3 
+1507: ldloc.s V_90
+1509: ldelema NetSegment
+150E: ldarg.1 
+150F: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+1514: stfld System.UInt32 NetSegment::m_lanes
+1519: br IL_152c: ldarg.1
+151E: ldloc.3 
+151F: ldloc.s V_90
+1521: ldelema NetSegment
+1526: ldc.i4.0 
+1527: stfld System.UInt32 NetSegment::m_lanes
+152C: ldarg.1 
+152D: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1532: ldc.i4.s 50
+1534: blt.un IL_1551: ldloc.3
+1539: ldloc.3 
+153A: ldloc.s V_90
+153C: ldelema NetSegment
+1541: ldarg.1 
+1542: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+1547: stfld System.UInt32 NetSegment::m_path
+154C: br IL_155f: ldloc.3
+1551: ldloc.3 
+1552: ldloc.s V_90
+1554: ldelema NetSegment
+1559: ldc.i4.0 
+155A: stfld System.UInt32 NetSegment::m_path
+155F: ldloc.3 
+1560: ldloc.s V_90
+1562: ldelema NetSegment
+1567: ldarg.1 
+1568: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+156D: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+1572: ldloc.3 
+1573: ldloc.s V_90
+1575: ldelema NetSegment
+157A: ldarg.1 
+157B: callvirt UnityEngine.Vector3 ColossalFramework.IO.DataSerializer::ReadVector3()
+1580: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+1585: ldloc.3 
+1586: ldloc.s V_90
+1588: ldelema NetSegment
+158D: ldarg.1 
+158E: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+1593: conv.u2 
+1594: stfld System.UInt16 NetSegment::m_startNode
+1599: ldloc.3 
+159A: ldloc.s V_90
+159C: ldelema NetSegment
+15A1: ldarg.1 
+15A2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+15A7: conv.u2 
+15A8: stfld System.UInt16 NetSegment::m_endNode
+15AD: ldloc.3 
+15AE: ldloc.s V_90
+15B0: ldelema NetSegment
+15B5: ldarg.1 
+15B6: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+15BB: conv.u2 
+15BC: stfld System.UInt16 NetSegment::m_blockStartLeft
+15C1: ldloc.3 
+15C2: ldloc.s V_90
+15C4: ldelema NetSegment
+15C9: ldarg.1 
+15CA: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+15CF: conv.u2 
+15D0: stfld System.UInt16 NetSegment::m_blockStartRight
+15D5: ldloc.3 
+15D6: ldloc.s V_90
+15D8: ldelema NetSegment
+15DD: ldarg.1 
+15DE: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+15E3: conv.u2 
+15E4: stfld System.UInt16 NetSegment::m_blockEndLeft
+15E9: ldloc.3 
+15EA: ldloc.s V_90
+15EC: ldelema NetSegment
+15F1: ldarg.1 
+15F2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+15F7: conv.u2 
+15F8: stfld System.UInt16 NetSegment::m_blockEndRight
+15FD: ldarg.1 
+15FE: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1603: ldc.i4.s 77
+1605: blt.un IL_1637: ldloc.3
+160A: ldloc.3 
+160B: ldloc.s V_90
+160D: ldelema NetSegment
+1612: ldarg.1 
+1613: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+1618: conv.u2 
+1619: stfld System.UInt16 NetSegment::m_trafficBuffer
+161E: ldloc.3 
+161F: ldloc.s V_90
+1621: ldelema NetSegment
+1626: ldarg.1 
+1627: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+162C: conv.u1 
+162D: stfld System.Byte NetSegment::m_trafficDensity
+1632: br IL_1653: ldarg.1
+1637: ldloc.3 
+1638: ldloc.s V_90
+163A: ldelema NetSegment
+163F: ldc.i4.0 
+1640: stfld System.UInt16 NetSegment::m_trafficBuffer
+1645: ldloc.3 
+1646: ldloc.s V_90
+1648: ldelema NetSegment
+164D: ldc.i4.0 
+164E: stfld System.Byte NetSegment::m_trafficDensity
+1653: ldarg.1 
+1654: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1659: ldc.i4 312
+165E: blt.un IL_167c: ldloc.3
+1663: ldloc.3 
+1664: ldloc.s V_90
+1666: ldelema NetSegment
+166B: ldarg.1 
+166C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+1671: conv.u2 
+1672: stfld System.UInt16 NetSegment::m_nameSeed
+1677: br IL_168a: ldarg.1
+167C: ldloc.3 
+167D: ldloc.s V_90
+167F: ldelema NetSegment
+1684: ldc.i4.0 
+1685: stfld System.UInt16 NetSegment::m_nameSeed
+168A: ldarg.1 
+168B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1690: ldc.i4 109007
+1695: bge.un IL_16b4: ldarg.1
+169A: ldloc.3 
+169B: ldloc.s V_90
+169D: ldelema NetSegment
+16A2: ldloc.3 
+16A3: ldloc.s V_90
+16A5: ldelema NetSegment
+16AA: ldfld System.Byte NetSegment::m_trafficDensity
+16AF: stfld System.Byte NetSegment::m_noiseDensity
+16B4: ldarg.1 
+16B5: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+16BA: ldc.i4 113015
+16BF: blt.un IL_16dc: ldloc.3
+16C4: ldloc.3 
+16C5: ldloc.s V_90
+16C7: ldelema NetSegment
+16CC: ldarg.1 
+16CD: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+16D2: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+16D7: br IL_16ea: ldarg.1
+16DC: ldloc.3 
+16DD: ldloc.s V_90
+16DF: ldelema NetSegment
+16E4: ldc.i4.0 
+16E5: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+16EA: ldarg.1 
+16EB: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+16F0: ldc.i4 114002
+16F5: blt.un IL_1722: ldloc.3
+16FA: ldloc.3 
+16FB: ldloc.s V_90
+16FD: ldelema NetSegment
+1702: ldarg.1 
+1703: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+1708: brfalse IL_1713: ldc.i4 65535
+170D: ldc.i4.0 
+170E: br IL_1718: stfld System.UInt16 NetSegment::m_treeInfoIndex
+1713: ldc.i4 65535
+1718: stfld System.UInt16 NetSegment::m_treeInfoIndex
+171D: br IL_1734: ldarg.1
+1722: ldloc.3 
+1723: ldloc.s V_90
+1725: ldelema NetSegment
+172A: ldc.i4 65535
+172F: stfld System.UInt16 NetSegment::m_treeInfoIndex
+1734: ldarg.1 
+1735: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+173A: ldc.i4 120003
+173F: blt.un IL_178f: ldloc.3
+1744: ldloc.3 
+1745: ldloc.s V_90
+1747: ldelema NetSegment
+174C: ldarg.1 
+174D: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+1752: brfalse IL_175d: ldc.i4 65535
+1757: ldc.i4.0 
+1758: br IL_1762: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+175D: ldc.i4 65535
+1762: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+1767: ldloc.3 
+1768: ldloc.s V_90
+176A: ldelema NetSegment
+176F: ldarg.1 
+1770: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+1775: brfalse IL_1780: ldc.i4 65535
+177A: ldc.i4.0 
+177B: br IL_1785: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+1780: ldc.i4 65535
+1785: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+178A: br IL_17b3: ldarg.1
+178F: ldloc.3 
+1790: ldloc.s V_90
+1792: ldelema NetSegment
+1797: ldc.i4 65535
+179C: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+17A1: ldloc.3 
+17A2: ldloc.s V_90
+17A4: ldelema NetSegment
+17A9: ldc.i4 65535
+17AE: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+17B3: ldarg.1 
+17B4: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+17B9: ldc.i4 121005
+17BE: blt.un IL_17f0: ldloc.3
+17C3: ldloc.3 
+17C4: ldloc.s V_90
+17C6: ldelema NetSegment
+17CB: ldarg.1 
+17CC: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+17D1: conv.u2 
+17D2: stfld System.UInt16 NetSegment::m_eventRoute
+17D7: ldloc.3 
+17D8: ldloc.s V_90
+17DA: ldelema NetSegment
+17DF: ldarg.1 
+17E0: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+17E5: conv.u2 
+17E6: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+17EB: br IL_180c: br IL_1959
+17F0: ldloc.3 
+17F1: ldloc.s V_90
+17F3: ldelema NetSegment
+17F8: ldc.i4.0 
+17F9: stfld System.UInt16 NetSegment::m_eventRoute
+17FE: ldloc.3 
+17FF: ldloc.s V_90
+1801: ldelema NetSegment
+1806: ldc.i4.0 
+1807: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+180C: br IL_1959: ldloc.s V_90
+1811: ldloc.3 
+1812: ldloc.s V_90
+1814: ldelema NetSegment
+1819: ldc.i4.0 
+181A: stfld System.UInt32 NetSegment::m_buildIndex
+181F: ldloc.3 
+1820: ldloc.s V_90
+1822: ldelema NetSegment
+1827: ldc.i4.0 
+1828: stfld System.UInt32 NetSegment::m_modifiedIndex
+182D: ldloc.3 
+182E: ldloc.s V_90
+1830: ldelema NetSegment
+1835: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+183A: stfld UnityEngine.Vector3 NetSegment::m_startDirection
+183F: ldloc.3 
+1840: ldloc.s V_90
+1842: ldelema NetSegment
+1847: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+184C: stfld UnityEngine.Vector3 NetSegment::m_endDirection
+1851: ldloc.3 
+1852: ldloc.s V_90
+1854: ldelema NetSegment
+1859: ldc.i4.0 
+185A: stfld System.UInt16 NetSegment::m_startNode
+185F: ldloc.3 
+1860: ldloc.s V_90
+1862: ldelema NetSegment
+1867: ldc.i4.0 
+1868: stfld System.UInt16 NetSegment::m_endNode
+186D: ldloc.3 
+186E: ldloc.s V_90
+1870: ldelema NetSegment
+1875: ldc.i4.0 
+1876: stfld System.UInt16 NetSegment::m_blockStartLeft
+187B: ldloc.3 
+187C: ldloc.s V_90
+187E: ldelema NetSegment
+1883: ldc.i4.0 
+1884: stfld System.UInt16 NetSegment::m_blockStartRight
+1889: ldloc.3 
+188A: ldloc.s V_90
+188C: ldelema NetSegment
+1891: ldc.i4.0 
+1892: stfld System.UInt16 NetSegment::m_blockEndLeft
+1897: ldloc.3 
+1898: ldloc.s V_90
+189A: ldelema NetSegment
+189F: ldc.i4.0 
+18A0: stfld System.UInt16 NetSegment::m_blockEndRight
+18A5: ldloc.3 
+18A6: ldloc.s V_90
+18A8: ldelema NetSegment
+18AD: ldc.i4.0 
+18AE: stfld System.UInt32 NetSegment::m_lanes
+18B3: ldloc.3 
+18B4: ldloc.s V_90
+18B6: ldelema NetSegment
+18BB: ldc.i4.0 
+18BC: stfld System.UInt32 NetSegment::m_path
+18C1: ldloc.3 
+18C2: ldloc.s V_90
+18C4: ldelema NetSegment
+18C9: ldc.i4.0 
+18CA: stfld System.UInt16 NetSegment::m_trafficBuffer
+18CF: ldloc.3 
+18D0: ldloc.s V_90
+18D2: ldelema NetSegment
+18D7: ldc.i4.0 
+18D8: stfld System.Byte NetSegment::m_trafficDensity
+18DD: ldloc.3 
+18DE: ldloc.s V_90
+18E0: ldelema NetSegment
+18E5: ldc.i4.0 
+18E6: stfld System.UInt16 NetSegment::m_nameSeed
+18EB: ldloc.3 
+18EC: ldloc.s V_90
+18EE: ldelema NetSegment
+18F3: ldc.i4.0 
+18F4: stfld System.Boolean NetSegment::m_overridePathFindDirectionLimit
+18F9: ldloc.3 
+18FA: ldloc.s V_90
+18FC: ldelema NetSegment
+1901: ldc.i4 65535
+1906: stfld System.UInt16 NetSegment::m_treeInfoIndex
+190B: ldloc.3 
+190C: ldloc.s V_90
+190E: ldelema NetSegment
+1913: ldc.i4 65535
+1918: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+191D: ldloc.3 
+191E: ldloc.s V_90
+1920: ldelema NetSegment
+1925: ldc.i4 65535
+192A: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+192F: ldloc.3 
+1930: ldloc.s V_90
+1932: ldelema NetSegment
+1937: ldc.i4.0 
+1938: stfld System.UInt16 NetSegment::m_eventRoute
+193D: ldloc.3 
+193E: ldloc.s V_90
+1940: ldelema NetSegment
+1945: ldc.i4.0 
+1946: stfld System.UInt16 NetSegment::m_nextEventRouteSegment
+194B: ldloc.0 
+194C: ldfld Array16`1<NetSegment> NetManager::m_segments
+1951: ldloc.s V_90
+1953: conv.u2 
+1954: callvirt System.Void Array16`1<NetSegment>::ReleaseItem(System.UInt16)
+1959: ldloc.s V_90
+195B: ldc.i4.1 
+195C: add 
+195D: stloc.s V_90
+195F: ldloc.s V_90
+1961: ldloc.s V_8
+1963: blt IL_1408: ldloc.3
+1968: ldc.i4.0 
+1969: stloc.s V_91
+196B: ldc.i4.0 
+196C: stloc.s V_92
+196E: ldarg.1 
+196F: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1974: ldc.i4 128
+1979: blt.un IL_19a2: ldarg.1
+197E: ldarg.1 
+197F: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+1984: stloc.s V_91
+1986: ldarg.0 
+1987: ldloc.s V_91
+1989: conv.u 
+198A: newarr System.UInt32
+198F: stfld System.UInt32[] NetManager/Data::m_guideInfoIndex
+1994: ldarg.0 
+1995: ldloc.s V_91
+1997: conv.u 
+1998: newarr NetTypeGuide
+199D: stfld NetTypeGuide[] NetManager/Data::m_netNotUsedGuides
+19A2: ldarg.1 
+19A3: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+19A8: ldc.i4 128
+19AD: blt.un IL_19d6: ldarg.1
+19B2: ldarg.1 
+19B3: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt16()
+19B8: stloc.s V_92
+19BA: ldarg.0 
+19BB: ldloc.s V_92
+19BD: conv.u 
+19BE: newarr System.UInt32
+19C3: stfld System.UInt32[] NetManager/Data::m_milestoneInfoIndex
+19C8: ldarg.0 
+19C9: ldloc.s V_92
+19CB: conv.u 
+19CC: newarr MilestoneInfo/Data
+19D1: stfld MilestoneInfo/Data[] NetManager/Data::m_UnlockMilestones
+19D6: ldarg.1 
+19D7: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+19DC: ldc.i4.s 19
+19DE: blt.un IL_1ab7: ldarg.1
+19E3: ldarg.1 
+19E4: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+19E9: ldc.i4.1 
+19EA: stloc.s V_93
+19EC: br IL_1a1d: ldloc.s V_93
+19F1: ldloc.2 
+19F2: ldloc.s V_93
+19F4: ldelema NetNode
+19F9: ldfld NetNode/Flags NetNode::m_flags
+19FE: brfalse IL_1a17: ldloc.s V_93
+1A03: ldloc.2 
+1A04: ldloc.s V_93
+1A06: ldelema NetNode
+1A0B: ldc.i4.1 
+1A0C: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1A11: conv.u2 
+1A12: stfld System.UInt16 NetNode::m_infoIndex
+1A17: ldloc.s V_93
+1A19: ldc.i4.1 
+1A1A: add 
+1A1B: stloc.s V_93
+1A1D: ldloc.s V_93
+1A1F: ldloc.s V_7
+1A21: blt IL_19f1: ldloc.2
+1A26: ldc.i4.1 
+1A27: stloc.s V_94
+1A29: br IL_1a5a: ldloc.s V_94
+1A2E: ldloc.3 
+1A2F: ldloc.s V_94
+1A31: ldelema NetSegment
+1A36: ldfld NetSegment/Flags NetSegment::m_flags
+1A3B: brfalse IL_1a54: ldloc.s V_94
+1A40: ldloc.3 
+1A41: ldloc.s V_94
+1A43: ldelema NetSegment
+1A48: ldc.i4.1 
+1A49: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1A4E: conv.u2 
+1A4F: stfld System.UInt16 NetSegment::m_infoIndex
+1A54: ldloc.s V_94
+1A56: ldc.i4.1 
+1A57: add 
+1A58: stloc.s V_94
+1A5A: ldloc.s V_94
+1A5C: ldloc.s V_8
+1A5E: blt IL_1a2e: ldloc.3
+1A63: ldc.i4.0 
+1A64: stloc.s V_95
+1A66: br IL_1a81: ldloc.s V_95
+1A6B: ldarg.0 
+1A6C: ldfld System.UInt32[] NetManager/Data::m_guideInfoIndex
+1A71: ldloc.s V_95
+1A73: conv.u 
+1A74: ldc.i4.0 
+1A75: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1A7A: stelem.i4 
+1A7B: ldloc.s V_95
+1A7D: ldc.i4.1 
+1A7E: add 
+1A7F: stloc.s V_95
+1A81: ldloc.s V_95
+1A83: ldloc.s V_91
+1A85: blt.un IL_1a6b: ldarg.0
+1A8A: ldc.i4.0 
+1A8B: stloc.s V_96
+1A8D: br IL_1aa8: ldloc.s V_96
+1A92: ldarg.0 
+1A93: ldfld System.UInt32[] NetManager/Data::m_milestoneInfoIndex
+1A98: ldloc.s V_96
+1A9A: conv.u 
+1A9B: ldc.i4.0 
+1A9C: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1AA1: stelem.i4 
+1AA2: ldloc.s V_96
+1AA4: ldc.i4.1 
+1AA5: add 
+1AA6: stloc.s V_96
+1AA8: ldloc.s V_96
+1AAA: ldloc.s V_92
+1AAC: blt.un IL_1a92: ldarg.0
+1AB1: ldarg.1 
+1AB2: call System.Void PrefabCollection`1<NetInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer)
+1AB7: ldarg.1 
+1AB8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1ABD: ldc.i4 114002
+1AC2: blt.un IL_1b2c: ldc.i4.1
+1AC7: ldarg.1 
+1AC8: call System.Void PrefabCollection`1<TreeInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer)
+1ACD: ldc.i4.1 
+1ACE: stloc.s V_97
+1AD0: br IL_1b18: ldloc.s V_97
+1AD5: ldloc.3 
+1AD6: ldloc.s V_97
+1AD8: ldelema NetSegment
+1ADD: ldfld NetSegment/Flags NetSegment::m_flags
+1AE2: brfalse IL_1b12: ldloc.s V_97
+1AE7: ldloc.3 
+1AE8: ldloc.s V_97
+1AEA: ldelema NetSegment
+1AEF: ldfld System.UInt16 NetSegment::m_treeInfoIndex
+1AF4: ldc.i4 65535
+1AF9: beq IL_1b12: ldloc.s V_97
+1AFE: ldloc.3 
+1AFF: ldloc.s V_97
+1B01: ldelema NetSegment
+1B06: ldc.i4.1 
+1B07: call System.UInt32 PrefabCollection`1<TreeInfo>::Deserialize(System.Boolean)
+1B0C: conv.u2 
+1B0D: stfld System.UInt16 NetSegment::m_treeInfoIndex
+1B12: ldloc.s V_97
+1B14: ldc.i4.1 
+1B15: add 
+1B16: stloc.s V_97
+1B18: ldloc.s V_97
+1B1A: ldloc.s V_8
+1B1C: blt IL_1ad5: ldloc.3
+1B21: ldarg.1 
+1B22: call System.Void PrefabCollection`1<TreeInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer)
+1B27: br IL_1b55: ldarg.1
+1B2C: ldc.i4.1 
+1B2D: stloc.s V_98
+1B2F: br IL_1b4c: ldloc.s V_98
+1B34: ldloc.3 
+1B35: ldloc.s V_98
+1B37: ldelema NetSegment
+1B3C: ldc.i4 65535
+1B41: stfld System.UInt16 NetSegment::m_treeInfoIndex
+1B46: ldloc.s V_98
+1B48: ldc.i4.1 
+1B49: add 
+1B4A: stloc.s V_98
+1B4C: ldloc.s V_98
+1B4E: ldloc.s V_8
+1B50: blt IL_1b34: ldloc.3
+1B55: ldarg.1 
+1B56: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1B5B: ldc.i4 120003
+1B60: blt.un IL_1c2e: ldc.i4.1
+1B65: ldarg.1 
+1B66: ldc.i4.1 
+1B67: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+1B6C: ldc.i4.1 
+1B6D: stloc.s V_99
+1B6F: br IL_1bb7: ldloc.s V_99
+1B74: ldloc.3 
+1B75: ldloc.s V_99
+1B77: ldelema NetSegment
+1B7C: ldfld NetSegment/Flags NetSegment::m_flags
+1B81: brfalse IL_1bb1: ldloc.s V_99
+1B86: ldloc.3 
+1B87: ldloc.s V_99
+1B89: ldelema NetSegment
+1B8E: ldfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+1B93: ldc.i4 65535
+1B98: beq IL_1bb1: ldloc.s V_99
+1B9D: ldloc.3 
+1B9E: ldloc.s V_99
+1BA0: ldelema NetSegment
+1BA5: ldc.i4.1 
+1BA6: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1BAB: conv.u2 
+1BAC: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+1BB1: ldloc.s V_99
+1BB3: ldc.i4.1 
+1BB4: add 
+1BB5: stloc.s V_99
+1BB7: ldloc.s V_99
+1BB9: ldloc.s V_8
+1BBB: blt IL_1b74: ldloc.3
+1BC0: ldarg.1 
+1BC1: ldc.i4.1 
+1BC2: call System.Void PrefabCollection`1<NetInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+1BC7: ldarg.1 
+1BC8: ldc.i4.1 
+1BC9: call System.Void PrefabCollection`1<NetInfo>::BeginDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+1BCE: ldc.i4.1 
+1BCF: stloc.s V_100
+1BD1: br IL_1c19: ldloc.s V_100
+1BD6: ldloc.3 
+1BD7: ldloc.s V_100
+1BD9: ldelema NetSegment
+1BDE: ldfld NetSegment/Flags NetSegment::m_flags
+1BE3: brfalse IL_1c13: ldloc.s V_100
+1BE8: ldloc.3 
+1BE9: ldloc.s V_100
+1BEB: ldelema NetSegment
+1BF0: ldfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+1BF5: ldc.i4 65535
+1BFA: beq IL_1c13: ldloc.s V_100
+1BFF: ldloc.3 
+1C00: ldloc.s V_100
+1C02: ldelema NetSegment
+1C07: ldc.i4.1 
+1C08: call System.UInt32 PrefabCollection`1<NetInfo>::Deserialize(System.Boolean)
+1C0D: conv.u2 
+1C0E: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+1C13: ldloc.s V_100
+1C15: ldc.i4.1 
+1C16: add 
+1C17: stloc.s V_100
+1C19: ldloc.s V_100
+1C1B: ldloc.s V_8
+1C1D: blt IL_1bd6: ldloc.3
+1C22: ldarg.1 
+1C23: ldc.i4.1 
+1C24: call System.Void PrefabCollection`1<NetInfo>::EndDeserialize(ColossalFramework.IO.DataSerializer,System.Boolean)
+1C29: br IL_1c69: ldc.i4.0
+1C2E: ldc.i4.1 
+1C2F: stloc.s V_101
+1C31: br IL_1c60: ldloc.s V_101
+1C36: ldloc.3 
+1C37: ldloc.s V_101
+1C39: ldelema NetSegment
+1C3E: ldc.i4 65535
+1C43: stfld System.UInt16 NetSegment::m_leftFenceInfoIndex
+1C48: ldloc.3 
+1C49: ldloc.s V_101
+1C4B: ldelema NetSegment
+1C50: ldc.i4 65535
+1C55: stfld System.UInt16 NetSegment::m_rightFenceInfoIndex
+1C5A: ldloc.s V_101
+1C5C: ldc.i4.1 
+1C5D: add 
+1C5E: stloc.s V_101
+1C60: ldloc.s V_101
+1C62: ldloc.s V_8
+1C64: blt IL_1c36: ldloc.3
+1C69: ldc.i4.0 
+1C6A: stloc.s V_102
+1C6C: br IL_1c87: ldloc.s V_102
+1C71: ldarg.0 
+1C72: ldfld NetTypeGuide[] NetManager/Data::m_netNotUsedGuides
+1C77: ldloc.s V_102
+1C79: conv.u 
+1C7A: ldarg.1 
+1C7B: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetTypeGuide>()
+1C80: stelem.ref 
+1C81: ldloc.s V_102
+1C83: ldc.i4.1 
+1C84: add 
+1C85: stloc.s V_102
+1C87: ldloc.s V_102
+1C89: ldloc.s V_91
+1C8B: blt.un IL_1c71: ldarg.0
+1C90: ldc.i4.0 
+1C91: stloc.s V_103
+1C93: br IL_1cae: ldloc.s V_103
+1C98: ldarg.0 
+1C99: ldfld MilestoneInfo/Data[] NetManager/Data::m_UnlockMilestones
+1C9E: ldloc.s V_103
+1CA0: conv.u 
+1CA1: ldarg.1 
+1CA2: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<MilestoneInfo/Data>()
+1CA7: stelem.ref 
+1CA8: ldloc.s V_103
+1CAA: ldc.i4.1 
+1CAB: add 
+1CAC: stloc.s V_103
+1CAE: ldloc.s V_103
+1CB0: ldloc.s V_92
+1CB2: blt.un IL_1c98: ldarg.0
+1CB7: ldarg.1 
+1CB8: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1CBD: ldc.i4.s 82
+1CBF: blt.un IL_1cd5: ldloc.0
+1CC4: ldloc.0 
+1CC5: ldarg.1 
+1CC6: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetNodeInstanceGuide>()
+1CCB: stfld NetNodeInstanceGuide NetManager::m_outsideNodeNotConnected
+1CD0: br IL_1cdc: ldarg.1
+1CD5: ldloc.0 
+1CD6: ldnull 
+1CD7: stfld NetNodeInstanceGuide NetManager::m_outsideNodeNotConnected
+1CDC: ldarg.1 
+1CDD: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1CE2: ldc.i4 134
+1CE7: blt.un IL_1d46: ldloc.0
+1CEC: ldloc.0 
+1CED: ldarg.1 
+1CEE: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetNodeInstanceGuide>()
+1CF3: stfld NetNodeInstanceGuide NetManager::m_transportNodeNotConnected
+1CF8: ldarg.1 
+1CF9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1CFE: ldc.i4 135
+1D03: blt.un IL_1d25: ldarg.1
+1D08: ldloc.0 
+1D09: ldarg.1 
+1D0A: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ServiceTypeGuide>()
+1D0F: stfld ServiceTypeGuide NetManager::m_optionsNotUsed
+1D14: ldloc.0 
+1D15: ldarg.1 
+1D16: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ServiceTypeGuide>()
+1D1B: stfld ServiceTypeGuide NetManager::m_manualUpgrade
+1D20: br IL_1d41: br IL_1d5b
+1D25: ldarg.1 
+1D26: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1D2B: pop 
+1D2C: ldarg.1 
+1D2D: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1D32: pop 
+1D33: ldloc.0 
+1D34: ldnull 
+1D35: stfld ServiceTypeGuide NetManager::m_optionsNotUsed
+1D3A: ldloc.0 
+1D3B: ldnull 
+1D3C: stfld ServiceTypeGuide NetManager::m_manualUpgrade
+1D41: br IL_1d5b: ldarg.1
+1D46: ldloc.0 
+1D47: ldnull 
+1D48: stfld NetNodeInstanceGuide NetManager::m_transportNodeNotConnected
+1D4D: ldloc.0 
+1D4E: ldnull 
+1D4F: stfld ServiceTypeGuide NetManager::m_optionsNotUsed
+1D54: ldloc.0 
+1D55: ldnull 
+1D56: stfld ServiceTypeGuide NetManager::m_manualUpgrade
+1D5B: ldarg.1 
+1D5C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1D61: ldc.i4 160
+1D66: blt.un IL_1d7c: ldloc.0
+1D6B: ldloc.0 
+1D6C: ldarg.1 
+1D6D: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ServiceTypeGuide>()
+1D72: stfld ServiceTypeGuide NetManager::m_elevationNotUsed
+1D77: br IL_1d83: ldarg.1
+1D7C: ldloc.0 
+1D7D: ldnull 
+1D7E: stfld ServiceTypeGuide NetManager::m_elevationNotUsed
+1D83: ldarg.1 
+1D84: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1D89: ldc.i4.s 107
+1D8B: blt.un IL_1da1: ldloc.0
+1D90: ldloc.0 
+1D91: ldarg.1 
+1D92: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1D97: stfld GenericGuide NetManager::m_upgradeExistingRoad
+1D9C: br IL_1da8: ldarg.1
+1DA1: ldloc.0 
+1DA2: ldnull 
+1DA3: stfld GenericGuide NetManager::m_upgradeExistingRoad
+1DA8: ldarg.1 
+1DA9: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1DAE: ldc.i4 156
+1DB3: blt.un IL_1dd5: ldloc.0
+1DB8: ldloc.0 
+1DB9: ldarg.1 
+1DBA: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1DBF: stfld GenericGuide NetManager::m_roadsNotUsed
+1DC4: ldloc.0 
+1DC5: ldarg.1 
+1DC6: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1DCB: stfld GenericGuide NetManager::m_onewayRoadPlacement
+1DD0: br IL_1de3: ldarg.1
+1DD5: ldloc.0 
+1DD6: ldnull 
+1DD7: stfld GenericGuide NetManager::m_roadsNotUsed
+1DDC: ldloc.0 
+1DDD: ldnull 
+1DDE: stfld GenericGuide NetManager::m_onewayRoadPlacement
+1DE3: ldarg.1 
+1DE4: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1DE9: ldc.i4 166
+1DEE: blt.un IL_1e04: ldloc.0
+1DF3: ldloc.0 
+1DF4: ldarg.1 
+1DF5: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetSegmentInstanceGuide>()
+1DFA: stfld NetSegmentInstanceGuide NetManager::m_shortRoadTraffic
+1DFF: br IL_1e0b: ldarg.1
+1E04: ldloc.0 
+1E05: ldnull 
+1E06: stfld NetSegmentInstanceGuide NetManager::m_shortRoadTraffic
+1E0B: ldarg.1 
+1E0C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1E11: ldc.i4 236
+1E16: blt.un IL_1e44: ldloc.0
+1E1B: ldloc.0 
+1E1C: ldarg.1 
+1E1D: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1E22: stfld GenericGuide NetManager::m_canalsNotUsed
+1E27: ldloc.0 
+1E28: ldarg.1 
+1E29: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1E2E: stfld GenericGuide NetManager::m_quaysNotUsed
+1E33: ldloc.0 
+1E34: ldarg.1 
+1E35: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1E3A: stfld GenericGuide NetManager::m_canalDemolished
+1E3F: br IL_1e59: ldarg.1
+1E44: ldloc.0 
+1E45: ldnull 
+1E46: stfld GenericGuide NetManager::m_canalsNotUsed
+1E4B: ldloc.0 
+1E4C: ldnull 
+1E4D: stfld GenericGuide NetManager::m_quaysNotUsed
+1E52: ldloc.0 
+1E53: ldnull 
+1E54: stfld GenericGuide NetManager::m_canalDemolished
+1E59: ldarg.1 
+1E5A: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1E5F: ldc.i4 237
+1E64: blt.un IL_1e7a: ldloc.0
+1E69: ldloc.0 
+1E6A: ldarg.1 
+1E6B: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1E70: stfld GenericGuide NetManager::m_upgradeWaterPipes
+1E75: br IL_1e81: ldarg.1
+1E7A: ldloc.0 
+1E7B: ldnull 
+1E7C: stfld GenericGuide NetManager::m_upgradeWaterPipes
+1E81: ldarg.1 
+1E82: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1E87: ldc.i4 295
+1E8C: blt.un IL_1eae: ldloc.0
+1E91: ldloc.0 
+1E92: ldarg.1 
+1E93: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetSegmentInstanceGuide>()
+1E98: stfld NetSegmentInstanceGuide NetManager::m_roadDestroyed
+1E9D: ldloc.0 
+1E9E: ldarg.1 
+1E9F: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<ServiceTypeGuide>()
+1EA4: stfld ServiceTypeGuide NetManager::m_roadDestroyed2
+1EA9: br IL_1ebc: ldarg.1
+1EAE: ldloc.0 
+1EAF: ldnull 
+1EB0: stfld NetSegmentInstanceGuide NetManager::m_roadDestroyed
+1EB5: ldloc.0 
+1EB6: ldnull 
+1EB7: stfld ServiceTypeGuide NetManager::m_roadDestroyed2
+1EBC: ldarg.1 
+1EBD: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1EC2: ldc.i4 318
+1EC7: blt.un IL_1ef5: ldloc.0
+1ECC: ldloc.0 
+1ECD: ldarg.1 
+1ECE: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetSegmentInstanceGuide>()
+1ED3: stfld NetSegmentInstanceGuide NetManager::m_roadNames
+1ED8: ldloc.0 
+1ED9: ldarg.1 
+1EDA: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<NetNodeInstanceGuide>()
+1EDF: stfld NetNodeInstanceGuide NetManager::m_yieldLights
+1EE4: ldloc.0 
+1EE5: ldarg.1 
+1EE6: callvirt !!0 ColossalFramework.IO.DataSerializer::ReadObject<GenericGuide>()
+1EEB: stfld GenericGuide NetManager::m_visualAids
+1EF0: br IL_1f0a: ldarg.1
+1EF5: ldloc.0 
+1EF6: ldnull 
+1EF7: stfld NetSegmentInstanceGuide NetManager::m_roadNames
+1EFC: ldloc.0 
+1EFD: ldnull 
+1EFE: stfld NetNodeInstanceGuide NetManager::m_yieldLights
+1F03: ldloc.0 
+1F04: ldnull 
+1F05: stfld GenericGuide NetManager::m_visualAids
+1F0A: ldarg.1 
+1F0B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1F10: ldc.i4 237
+1F15: blt.un IL_1f37: ldloc.0
+1F1A: ldloc.0 
+1F1B: ldarg.1 
+1F1C: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+1F21: stfld System.Int32 NetManager::m_lastMaxWetness
+1F26: ldloc.0 
+1F27: ldarg.1 
+1F28: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt8()
+1F2D: stfld System.Int32 NetManager::m_currentMaxWetness
+1F32: br IL_1f45: ldarg.1
+1F37: ldloc.0 
+1F38: ldc.i4.0 
+1F39: stfld System.Int32 NetManager::m_lastMaxWetness
+1F3E: ldloc.0 
+1F3F: ldc.i4.0 
+1F40: stfld System.Int32 NetManager::m_currentMaxWetness
+1F45: ldarg.1 
+1F46: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1F4B: ldc.i4 319
+1F50: blt.un IL_1f66: ldloc.0
+1F55: ldloc.0 
+1F56: ldarg.1 
+1F57: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+1F5C: stfld System.Int32 NetManager::m_nameModifiedCount
+1F61: br IL_1f6d: ldarg.1
+1F66: ldloc.0 
+1F67: ldc.i4.0 
+1F68: stfld System.Int32 NetManager::m_nameModifiedCount
+1F6D: ldarg.1 
+1F6E: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1F73: ldc.i4.s 100
+1F75: blt.un IL_1f91: ldarg.1
+1F7A: ldarg.1 
+1F7B: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1F80: ldc.i4 139
+1F85: bge.un IL_1f91: ldarg.1
+1F8A: ldarg.1 
+1F8B: callvirt System.Boolean ColossalFramework.IO.DataSerializer::ReadBool()
+1F90: pop 
+1F91: ldarg.1 
+1F92: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::get_version()
+1F97: ldc.i4 321
+1F9C: blt.un IL_2025: ldc.i4.1
+1FA1: ldarg.1 
+1FA2: callvirt System.UInt32 ColossalFramework.IO.DataSerializer::ReadUInt24()
+1FA7: stloc.s V_104
+1FA9: ldloc.0 
+1FAA: ldfld System.UInt64[] NetManager::m_adjustedSegments
+1FAF: ldlen 
+1FB0: ldloc.s V_104
+1FB2: bge.un IL_1fc4: ldarg.1
+1FB7: ldloc.0 
+1FB8: ldloc.s V_104
+1FBA: newarr System.UInt64
+1FBF: stfld System.UInt64[] NetManager::m_adjustedSegments
+1FC4: ldarg.1 
+1FC5: call ColossalFramework.IO.EncodedArray/ULong ColossalFramework.IO.EncodedArray/ULong::BeginRead(ColossalFramework.IO.DataSerializer)
+1FCA: stloc.s V_105
+1FCC: ldc.i4.0 
+1FCD: stloc.s V_106
+1FCF: br IL_1fea: ldloc.s V_106
+1FD4: ldloc.0 
+1FD5: ldfld System.UInt64[] NetManager::m_adjustedSegments
+1FDA: ldloc.s V_106
+1FDC: ldloc.s V_105
+1FDE: callvirt System.UInt64 ColossalFramework.IO.EncodedArray/ULong::Read()
+1FE3: stelem.i8 
+1FE4: ldloc.s V_106
+1FE6: ldc.i4.1 
+1FE7: add 
+1FE8: stloc.s V_106
+1FEA: ldloc.s V_106
+1FEC: conv.i8 
+1FED: ldloc.s V_104
+1FEF: conv.u8 
+1FF0: blt IL_1fd4: ldloc.0
+1FF5: ldloc.s V_104
+1FF7: stloc.s V_107
+1FF9: br IL_200f: ldloc.s V_107
+1FFE: ldloc.0 
+1FFF: ldfld System.UInt64[] NetManager::m_adjustedSegments
+2004: ldloc.s V_107
+2006: ldc.i4.0 
+2007: conv.i8 
+2008: stelem.i8 
+2009: ldloc.s V_107
+200B: ldc.i4.1 
+200C: add 
+200D: stloc.s V_107
+200F: ldloc.s V_107
+2011: ldloc.0 
+2012: ldfld System.UInt64[] NetManager::m_adjustedSegments
+2017: ldlen 
+2018: conv.i4 
+2019: blt IL_1ffe: ldloc.0
+201E: ldloc.s V_105
+2020: callvirt System.Void ColossalFramework.IO.EncodedArray/ULong::EndRead()
+2025: ldc.i4.1 
+2026: stloc.s V_108
+2028: br IL_2056: ldloc.s V_108
+202D: ldloc.2 
+202E: ldloc.s V_108
+2030: ldelema NetNode
+2035: ldfld NetNode/Flags NetNode::m_flags
+203A: brfalse IL_2050: ldloc.s V_108
+203F: ldloc.0 
+2040: ldloc.s V_108
+2042: conv.u2 
+2043: ldloc.2 
+2044: ldloc.s V_108
+2046: ldelema NetNode
+204B: callvirt System.Void NetManager::InitializeNode(System.UInt16,NetNode&)
+2050: ldloc.s V_108
+2052: ldc.i4.1 
+2053: add 
+2054: stloc.s V_108
+2056: ldloc.s V_108
+2058: ldloc.s V_7
+205A: blt IL_202d: ldloc.2
+205F: ldc.i4.1 
+2060: stloc.s V_109
+2062: br IL_2090: ldloc.s V_109
+2067: ldloc.3 
+2068: ldloc.s V_109
+206A: ldelema NetSegment
+206F: ldfld NetSegment/Flags NetSegment::m_flags
+2074: brfalse IL_208a: ldloc.s V_109
+2079: ldloc.0 
+207A: ldloc.s V_109
+207C: conv.u2 
+207D: ldloc.3 
+207E: ldloc.s V_109
+2080: ldelema NetSegment
+2085: callvirt System.Void NetManager::InitializeSegment(System.UInt16,NetSegment&)
+208A: ldloc.s V_109
+208C: ldc.i4.1 
+208D: add 
+208E: stloc.s V_109
+2090: ldloc.s V_109
+2092: ldloc.s V_8
+2094: blt IL_2067: ldloc.3
+2099: call !0 ColossalFramework.Singleton`1<LoadingManager>::get_instance()
+209E: ldfld LoadingProfiler LoadingManager::m_loadingProfilerSimulation
+20A3: ldarg.1 
+20A4: ldstr NetManager
+20A9: callvirt System.Void LoadingProfiler::EndDeserialize(ColossalFramework.IO.DataSerializer,System.String)
+20AE: ret 

@@ -1,0 +1,1265 @@
+
+Type: MoreNetworkStuff.LoadingExtension
+  Method: OnCreated
+    IL_0000: ldarg.0 
+    IL_0001: ldarg.1 
+    IL_0002: call System.Void ICities.LoadingExtensionBase::OnCreated(ICities.ILoading)
+    IL_0007: call System.Boolean MoreNetworkStuff.LoadingExtension::IsHooked()
+    IL_000c: brtrue.s IL_000f
+    IL_000e: ret 
+    IL_000f: ldarg.1 
+    IL_0010: callvirt ICities.AppMode ICities.ILoading::get_currentMode()
+    IL_0015: stloc.0 
+    IL_0016: ldloc.0 
+    IL_0017: switch Mono.Cecil.Cil.Instruction[]
+    IL_0030: br IL_00ba
+    IL_0035: ldnull 
+    IL_0036: ldftn System.Void MoreNetworkStuff.LoadingExtension::OnPreInitializationInGameAndMapEditor(NetInfo)
+    IL_003c: newobj System.Void PrefabHook.PrefabEventHandler`1<NetInfo>::.ctor(System.Object,System.IntPtr)
+    IL_0041: call System.Void PrefabHook.NetInfoHook::add_OnPreInitialization(PrefabHook.PrefabEventHandler`1<NetInfo>)
+    IL_0046: call System.Void PrefabHook.NetInfoHook::Deploy()
+    IL_004b: ldnull 
+    IL_004c: ldftn System.Void MoreNetworkStuff.LoadingExtension::OnPreInitializationTI(TransportInfo)
+    IL_0052: newobj System.Void PrefabHook.PrefabEventHandler`1<TransportInfo>::.ctor(System.Object,System.IntPtr)
+    IL_0057: call System.Void PrefabHook.TransportInfoHook::add_OnPreInitialization(PrefabHook.PrefabEventHandler`1<TransportInfo>)
+    IL_005c: call System.Void PrefabHook.TransportInfoHook::Deploy()
+    IL_0061: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.DefaultToolGameDetour>::Deploy()
+    IL_0066: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.PublicTransportPanelGameDetour>::Deploy()
+    IL_006b: ret 
+    IL_006c: ldarg.1 
+    IL_006d: callvirt ICities.AppMode ICities.ILoading::get_currentMode()
+    IL_0072: ldc.i4.1 
+    IL_0073: bne.un.s IL_008b
+    IL_0075: ldnull 
+    IL_0076: ldftn System.Void MoreNetworkStuff.LoadingExtension::OnPreInitializationInGameAndMapEditor(NetInfo)
+    IL_007c: newobj System.Void PrefabHook.PrefabEventHandler`1<NetInfo>::.ctor(System.Object,System.IntPtr)
+    IL_0081: call System.Void PrefabHook.NetInfoHook::add_OnPreInitialization(PrefabHook.PrefabEventHandler`1<NetInfo>)
+    IL_0086: call System.Void PrefabHook.NetInfoHook::Deploy()
+    IL_008b: ldarg.1 
+    IL_008c: callvirt ICities.AppMode ICities.ILoading::get_currentMode()
+    IL_0091: ldc.i4.2 
+    IL_0092: bne.un.s IL_00af
+    IL_0094: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.RoadsGroupPanelAssetEditorDetour>::Deploy()
+    IL_0099: ldnull 
+    IL_009a: ldftn System.Void MoreNetworkStuff.LoadingExtension::OnPreInitializationAssetEditor(NetInfo)
+    IL_00a0: newobj System.Void PrefabHook.PrefabEventHandler`1<NetInfo>::.ctor(System.Object,System.IntPtr)
+    IL_00a5: call System.Void PrefabHook.NetInfoHook::add_OnPreInitialization(PrefabHook.PrefabEventHandler`1<NetInfo>)
+    IL_00aa: call System.Void PrefabHook.NetInfoHook::Deploy()
+    IL_00af: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.GeneratedGroupPanelAssetAndMapEditorDetour>::Deploy()
+    IL_00b4: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.RoadsPanelAssetAndMapEditorDetour>::Deploy()
+    IL_00b9: ret 
+    IL_00ba: newobj System.Void System.ArgumentOutOfRangeException::.ctor()
+    IL_00bf: throw 
+    IL_00c0: ret 
+  Method: OnPreInitializationTI
+    IL_0000: ldarg.0 
+    IL_0001: brtrue.s IL_0006
+    IL_0003: ldnull 
+    IL_0004: br.s IL_000c
+    IL_0006: ldarg.0 
+    IL_0007: call System.String UnityEngine.Object::get_name()
+    IL_000c: ldstr Airplane
+    IL_0011: call System.Boolean System.String::op_Inequality(System.String,System.String)
+    IL_0016: brfalse.s IL_0019
+    IL_0018: ret 
+    IL_0019: ldarg.0 
+    IL_001a: ldc.i4.3 
+    IL_001b: stfld ItemClass/Availability TransportInfo::m_pathVisibility
+    IL_0020: ret 
+  Method: OnPreInitializationInGameAndMapEditor
+    IL_0000: ldarg.0 
+    IL_0001: brfalse.s IL_000b
+    IL_0003: ldarg.0 
+    IL_0004: call System.String UnityEngine.Object::get_name()
+    IL_0009: brtrue.s IL_000c
+    IL_000b: ret 
+    IL_000c: ldarg.0 
+    IL_000d: callvirt System.String UnityEngine.Object::get_name()
+    IL_0012: ldstr Airplane Path
+    IL_0017: call System.Boolean System.String::op_Equality(System.String,System.String)
+    IL_001c: brtrue.s IL_0030
+    IL_001e: ldarg.0 
+    IL_001f: callvirt System.String UnityEngine.Object::get_name()
+    IL_0024: ldstr Ship Path
+    IL_0029: call System.Boolean System.String::op_Equality(System.String,System.String)
+    IL_002e: brfalse.s IL_0037
+    IL_0030: ldarg.0 
+    IL_0031: ldc.i4.3 
+    IL_0032: stfld ItemClass/Availability NetInfo::m_availableIn
+    IL_0037: ldarg.0 
+    IL_0038: callvirt System.String UnityEngine.Object::get_name()
+    IL_003d: ldstr Pedestrian Connection
+    IL_0042: call System.Boolean System.String::op_Equality(System.String,System.String)
+    IL_0047: brtrue.s IL_005b
+    IL_0049: ldarg.0 
+    IL_004a: callvirt System.String UnityEngine.Object::get_name()
+    IL_004f: ldstr Canal
+    IL_0054: callvirt System.Boolean System.String::Contains(System.String)
+    IL_0059: brfalse.s IL_0066
+    IL_005b: ldarg.0 
+    IL_005c: ldc.i4 255
+    IL_0061: stfld ItemClass/Availability NetInfo::m_availableIn
+    IL_0066: ret 
+  Method: OnPreInitializationAssetEditor
+    IL_0000: ldarg.0 
+    IL_0001: callvirt System.String UnityEngine.Object::get_name()
+    IL_0006: dup 
+    IL_0007: brtrue.s IL_000d
+    IL_0009: pop 
+    IL_000a: ldc.i4.0 
+    IL_000b: br.s IL_0017
+    IL_000d: ldstr Pedestrian Connection
+    IL_0012: call System.Boolean System.String::Contains(System.String)
+    IL_0017: brtrue.s IL_001a
+    IL_0019: ret 
+    IL_001a: ldarg.0 
+    IL_001b: ldfld ItemClass NetInfo::m_class
+    IL_0020: ldc.i4.s 12
+    IL_0022: stfld ItemClass/Service ItemClass::m_service
+    IL_0027: ldsfld System.Reflection.FieldInfo MoreNetworkStuff.LoadingExtension::_uiCategoryfield
+    IL_002c: ldarg.0 
+    IL_002d: ldstr BeautificationPaths
+    IL_0032: callvirt System.Void System.Reflection.FieldInfo::SetValue(System.Object,System.Object)
+    IL_0037: ldarg.0 
+    IL_0038: callvirt !!0 UnityEngine.Component::GetComponent<PedestrianPathAI>()
+    IL_003d: dup 
+    IL_003e: ldarg.0 
+    IL_003f: stfld NetInfo PedestrianPathAI::m_tunnelInfo
+    IL_0044: dup 
+    IL_0045: ldarg.0 
+    IL_0046: stfld NetInfo PedestrianPathAI::m_bridgeInfo
+    IL_004b: dup 
+    IL_004c: ldarg.0 
+    IL_004d: stfld NetInfo PedestrianPathAI::m_elevatedInfo
+    IL_0052: ldarg.0 
+    IL_0053: stfld NetInfo PedestrianPathAI::m_slopeInfo
+    IL_0058: ret 
+  Method: OnLevelLoaded
+    IL_0000: ldarg.0 
+    IL_0001: ldarg.1 
+    IL_0002: call System.Void ICities.LoadingExtensionBase::OnLevelLoaded(ICities.LoadMode)
+    IL_0007: call System.Boolean MoreNetworkStuff.LoadingExtension::IsHooked()
+    IL_000c: brtrue.s IL_002e
+    IL_000e: call ColossalFramework.UI.UIDynamicPanels ColossalFramework.UI.UIView::get_library()
+    IL_0013: ldstr ExceptionPanel
+    IL_0018: callvirt !!0 ColossalFramework.UI.UIDynamicPanels::ShowModal<ExceptionPanel>(System.String)
+    IL_001d: ldstr Missing dependency
+    IL_0022: ldstr 'More Network Stuff' mod requires the 'Prefab Hook' mod to work properly. Please subscribe to the mod and restart the game!
+    IL_0027: ldc.i4.0 
+    IL_0028: callvirt System.Void ExceptionPanel::SetMessage(System.String,System.String,System.Boolean)
+    IL_002d: ret 
+    IL_002e: ldarg.1 
+    IL_002f: ldc.i4.3 
+    IL_0030: beq.s IL_003b
+    IL_0032: ldarg.1 
+    IL_0033: ldc.i4.2 
+    IL_0034: beq.s IL_003b
+    IL_0036: ldarg.1 
+    IL_0037: ldc.i4.s 11
+    IL_0039: bne.un.s IL_0042
+    IL_003b: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.DefaultToolGameDetour>::Deploy()
+    IL_0040: br.s IL_0060
+    IL_0042: ldarg.1 
+    IL_0043: ldc.i4.5 
+    IL_0044: beq.s IL_004a
+    IL_0046: ldarg.1 
+    IL_0047: ldc.i4.4 
+    IL_0048: bne.un.s IL_0060
+    IL_004a: ldstr Pedestrian Connection
+    IL_004f: call !0 PrefabCollection`1<NetInfo>::FindLoaded(System.String)
+    IL_0054: ldfld ItemClass NetInfo::m_class
+    IL_0059: ldc.i4.s 9
+    IL_005b: stfld ItemClass/Layer ItemClass::m_layer
+    IL_0060: ldtoken ColossalFramework.Globalization.LocaleManager
+    IL_0065: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_006a: ldstr m_Locale
+    IL_006f: ldc.i4.s 36
+    IL_0071: callvirt System.Reflection.FieldInfo System.Type::GetField(System.String,System.Reflection.BindingFlags)
+    IL_0076: call !0 ColossalFramework.SingletonLite`1<ColossalFramework.Globalization.LocaleManager>::get_instance()
+    IL_007b: callvirt System.Object System.Reflection.FieldInfo::GetValue(System.Object)
+    IL_0080: castclass ColossalFramework.Globalization.Locale
+    IL_0085: stloc.0 
+    IL_0086: ldtoken PrefabInfo
+    IL_008b: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_0090: ldstr m_UICategory
+    IL_0095: ldc.i4.s 36
+    IL_0097: callvirt System.Reflection.FieldInfo System.Type::GetField(System.String,System.Reflection.BindingFlags)
+    IL_009c: stloc.1 
+    IL_009d: ldc.i4.0 
+    IL_009e: stloc.2 
+    IL_009f: br IL_020e
+    IL_00a4: ldloc.2 
+    IL_00a5: call !0 PrefabCollection`1<NetInfo>::GetPrefab(System.UInt32)
+    IL_00aa: stloc.3 
+    IL_00ab: ldloc.3 
+    IL_00ac: ldnull 
+    IL_00ad: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+    IL_00b2: brtrue IL_020a
+    IL_00b7: ldloca.s V_8
+    IL_00b9: initobj ColossalFramework.Globalization.Locale/Key
+    IL_00bf: ldloca.s V_8
+    IL_00c1: ldstr NET_TITLE
+    IL_00c6: stfld System.String ColossalFramework.Globalization.Locale/Key::m_Identifier
+    IL_00cb: ldloca.s V_8
+    IL_00cd: ldloc.3 
+    IL_00ce: callvirt System.String UnityEngine.Object::get_name()
+    IL_00d3: stfld System.String ColossalFramework.Globalization.Locale/Key::m_Key
+    IL_00d8: ldloc.s V_8
+    IL_00da: stloc.s V_4
+    IL_00dc: ldloc.0 
+    IL_00dd: ldloc.s V_4
+    IL_00df: callvirt System.Boolean ColossalFramework.Globalization.Locale::Exists(ColossalFramework.Globalization.Locale/Key)
+    IL_00e4: brtrue.s IL_00f4
+    IL_00e6: ldloc.0 
+    IL_00e7: ldloc.s V_4
+    IL_00e9: ldloc.3 
+    IL_00ea: callvirt System.String UnityEngine.Object::get_name()
+    IL_00ef: callvirt System.Void ColossalFramework.Globalization.Locale::AddLocalizedString(ColossalFramework.Globalization.Locale/Key,System.String)
+    IL_00f4: ldloca.s V_8
+    IL_00f6: initobj ColossalFramework.Globalization.Locale/Key
+    IL_00fc: ldloca.s V_8
+    IL_00fe: ldstr NET_DESC
+    IL_0103: stfld System.String ColossalFramework.Globalization.Locale/Key::m_Identifier
+    IL_0108: ldloca.s V_8
+    IL_010a: ldloc.3 
+    IL_010b: callvirt System.String UnityEngine.Object::get_name()
+    IL_0110: stfld System.String ColossalFramework.Globalization.Locale/Key::m_Key
+    IL_0115: ldloc.s V_8
+    IL_0117: stloc.s V_4
+    IL_0119: ldloc.0 
+    IL_011a: ldloc.s V_4
+    IL_011c: callvirt System.Boolean ColossalFramework.Globalization.Locale::Exists(ColossalFramework.Globalization.Locale/Key)
+    IL_0121: brtrue.s IL_0131
+    IL_0123: ldloc.0 
+    IL_0124: ldloc.s V_4
+    IL_0126: ldloc.3 
+    IL_0127: callvirt System.String UnityEngine.Object::get_name()
+    IL_012c: callvirt System.Void ColossalFramework.Globalization.Locale::AddLocalizedString(ColossalFramework.Globalization.Locale/Key,System.String)
+    IL_0131: ldtoken MoreNetworkStuff.MoreNetworkStuff
+    IL_0136: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_013b: callvirt System.String System.Reflection.MemberInfo::get_Name()
+    IL_0140: ldstr .resource.thumb.png
+    IL_0145: call System.String System.String::Concat(System.String,System.String)
+    IL_014a: ldc.i4.0 
+    IL_014b: call UnityEngine.Texture2D MoreNetworkStuff.Util::LoadTextureFromAssembly(System.String,System.Boolean)
+    IL_0150: stloc.s V_5
+    IL_0152: ldtoken MoreNetworkStuff.MoreNetworkStuff
+    IL_0157: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_015c: callvirt System.String System.Reflection.MemberInfo::get_Name()
+    IL_0161: ldstr .resource.tooltip.png
+    IL_0166: call System.String System.String::Concat(System.String,System.String)
+    IL_016b: ldc.i4.0 
+    IL_016c: call UnityEngine.Texture2D MoreNetworkStuff.Util::LoadTextureFromAssembly(System.String,System.Boolean)
+    IL_0171: stloc.s V_6
+    IL_0173: ldc.i4.2 
+    IL_0174: newarr UnityEngine.Texture2D
+    IL_0179: dup 
+    IL_017a: ldc.i4.0 
+    IL_017b: ldloc.s V_5
+    IL_017d: stelem.ref 
+    IL_017e: dup 
+    IL_017f: ldc.i4.1 
+    IL_0180: ldloc.s V_6
+    IL_0182: stelem.ref 
+    IL_0183: call ColossalFramework.UI.UITextureAtlas MoreNetworkStuff.Util::CreateAtlas(UnityEngine.Texture2D[])
+    IL_0188: stloc.s V_7
+    IL_018a: ldsfld System.String[] MoreNetworkStuff.LoadingExtension::ConnectionNetworks
+    IL_018f: ldloc.3 
+    IL_0190: callvirt System.String UnityEngine.Object::get_name()
+    IL_0195: call System.Boolean System.Linq.Enumerable::Contains<System.String>(System.Collections.Generic.IEnumerable`1<!!0>,!!0)
+    IL_019a: brfalse.s IL_01de
+    IL_019c: ldloc.3 
+    IL_019d: ldloc.s V_7
+    IL_019f: stfld ColossalFramework.UI.UITextureAtlas PrefabInfo::m_Atlas
+    IL_01a4: ldloc.3 
+    IL_01a5: ldloc.s V_5
+    IL_01a7: callvirt System.String UnityEngine.Object::get_name()
+    IL_01ac: stfld System.String PrefabInfo::m_Thumbnail
+    IL_01b1: ldloc.3 
+    IL_01b2: ldloc.s V_7
+    IL_01b4: stfld ColossalFramework.UI.UITextureAtlas PrefabInfo::m_InfoTooltipAtlas
+    IL_01b9: ldloc.3 
+    IL_01ba: ldloc.s V_6
+    IL_01bc: callvirt System.String UnityEngine.Object::get_name()
+    IL_01c1: stfld System.String PrefabInfo::m_InfoTooltipThumbnail
+    IL_01c6: ldloc.3 
+    IL_01c7: ldc.r4 5
+    IL_01cc: stfld System.Single NetInfo::m_maxHeight
+    IL_01d1: ldloc.3 
+    IL_01d2: ldc.r4 -5
+    IL_01d7: stfld System.Single NetInfo::m_minHeight
+    IL_01dc: br.s IL_020a
+    IL_01de: ldarg.1 
+    IL_01df: ldc.i4.5 
+    IL_01e0: beq.s IL_01e6
+    IL_01e2: ldarg.1 
+    IL_01e3: ldc.i4.4 
+    IL_01e4: bne.un.s IL_020a
+    IL_01e6: ldloc.1 
+    IL_01e7: ldloc.3 
+    IL_01e8: callvirt System.Object System.Reflection.FieldInfo::GetValue(System.Object)
+    IL_01ed: castclass System.String
+    IL_01f2: ldstr LandscapingWaterStructures
+    IL_01f7: call System.Boolean System.String::op_Equality(System.String,System.String)
+    IL_01fc: brfalse.s IL_020a
+    IL_01fe: ldloc.1 
+    IL_01ff: ldloc.3 
+    IL_0200: ldstr BeautificationPaths
+    IL_0205: callvirt System.Void System.Reflection.FieldInfo::SetValue(System.Object,System.Object)
+    IL_020a: ldloc.2 
+    IL_020b: ldc.i4.1 
+    IL_020c: add 
+    IL_020d: stloc.2 
+    IL_020e: ldloc.2 
+    IL_020f: conv.u8 
+    IL_0210: call System.Int32 PrefabCollection`1<NetInfo>::PrefabCount()
+    IL_0215: conv.i8 
+    IL_0216: blt IL_00a4
+    IL_021b: ldarg.1 
+    IL_021c: ldc.i4.2 
+    IL_021d: sub 
+    IL_021e: ldc.i4.1 
+    IL_021f: ble.un.s IL_0226
+    IL_0221: ldarg.1 
+    IL_0222: ldc.i4.s 11
+    IL_0224: bne.un.s IL_022b
+    IL_0226: call System.Void MoreNetworkStuff.LoadingExtension::RefreshPanelInGame()
+    IL_022b: ret 
+  Method: MakeButton
+    IL_0000: ldarg.0 
+    IL_0001: ldtoken ColossalFramework.UI.UIButton
+    IL_0006: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_000b: callvirt ColossalFramework.UI.UIComponent ColossalFramework.UI.UIComponent::AddUIComponent(System.Type)
+    IL_0010: castclass ColossalFramework.UI.UIButton
+    IL_0015: dup 
+    IL_0016: ldarg.1 
+    IL_0017: callvirt System.Void ColossalFramework.UI.UITextComponent::set_text(System.String)
+    IL_001c: dup 
+    IL_001d: ldc.r4 200
+    IL_0022: callvirt System.Void ColossalFramework.UI.UIComponent::set_width(System.Single)
+    IL_0027: dup 
+    IL_0028: ldc.r4 24
+    IL_002d: callvirt System.Void ColossalFramework.UI.UIComponent::set_height(System.Single)
+    IL_0032: dup 
+    IL_0033: ldstr ButtonMenu
+    IL_0038: callvirt System.Void ColossalFramework.UI.UIInteractiveComponent::set_normalBgSprite(System.String)
+    IL_003d: dup 
+    IL_003e: ldstr ButtonMenuDisabled
+    IL_0043: callvirt System.Void ColossalFramework.UI.UIInteractiveComponent::set_disabledBgSprite(System.String)
+    IL_0048: dup 
+    IL_0049: ldstr ButtonMenuHovered
+    IL_004e: callvirt System.Void ColossalFramework.UI.UIInteractiveComponent::set_hoveredBgSprite(System.String)
+    IL_0053: dup 
+    IL_0054: ldstr ButtonMenuFocused
+    IL_0059: callvirt System.Void ColossalFramework.UI.UIInteractiveComponent::set_focusedBgSprite(System.String)
+    IL_005e: dup 
+    IL_005f: ldstr ButtonMenuPressed
+    IL_0064: callvirt System.Void ColossalFramework.UI.UIButton::set_pressedBgSprite(System.String)
+    IL_0069: dup 
+    IL_006a: ldc.i4 255
+    IL_006f: ldc.i4 255
+    IL_0074: ldc.i4 255
+    IL_0079: ldc.i4 255
+    IL_007e: newobj System.Void UnityEngine.Color32::.ctor(System.Byte,System.Byte,System.Byte,System.Byte)
+    IL_0083: callvirt System.Void ColossalFramework.UI.UITextComponent::set_textColor(UnityEngine.Color32)
+    IL_0088: dup 
+    IL_0089: ldc.i4.7 
+    IL_008a: ldc.i4.7 
+    IL_008b: ldc.i4.7 
+    IL_008c: ldc.i4 255
+    IL_0091: newobj System.Void UnityEngine.Color32::.ctor(System.Byte,System.Byte,System.Byte,System.Byte)
+    IL_0096: callvirt System.Void ColossalFramework.UI.UITextComponent::set_disabledTextColor(UnityEngine.Color32)
+    IL_009b: dup 
+    IL_009c: ldc.i4.7 
+    IL_009d: ldc.i4 132
+    IL_00a2: ldc.i4 255
+    IL_00a7: ldc.i4 255
+    IL_00ac: newobj System.Void UnityEngine.Color32::.ctor(System.Byte,System.Byte,System.Byte,System.Byte)
+    IL_00b1: callvirt System.Void ColossalFramework.UI.UIButton::set_hoveredTextColor(UnityEngine.Color32)
+    IL_00b6: dup 
+    IL_00b7: ldc.i4 255
+    IL_00bc: ldc.i4 255
+    IL_00c1: ldc.i4 255
+    IL_00c6: ldc.i4 255
+    IL_00cb: newobj System.Void UnityEngine.Color32::.ctor(System.Byte,System.Byte,System.Byte,System.Byte)
+    IL_00d0: callvirt System.Void ColossalFramework.UI.UIButton::set_focusedTextColor(UnityEngine.Color32)
+    IL_00d5: dup 
+    IL_00d6: ldc.i4.s 30
+    IL_00d8: ldc.i4.s 30
+    IL_00da: ldc.i4.s 44
+    IL_00dc: ldc.i4 255
+    IL_00e1: newobj System.Void UnityEngine.Color32::.ctor(System.Byte,System.Byte,System.Byte,System.Byte)
+    IL_00e6: callvirt System.Void ColossalFramework.UI.UIButton::set_pressedTextColor(UnityEngine.Color32)
+    IL_00eb: dup 
+    IL_00ec: ldc.i4.1 
+    IL_00ed: callvirt System.Void ColossalFramework.UI.UIComponent::set_playAudioEvents(System.Boolean)
+    IL_00f2: dup 
+    IL_00f3: ldc.i4.0 
+    IL_00f4: callvirt System.Void ColossalFramework.UI.UIComponent::set_isTooltipLocalized(System.Boolean)
+    IL_00f9: ret 
+  Method: OnLevelUnloading
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void ICities.LoadingExtensionBase::OnLevelUnloading()
+    IL_0006: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.DefaultToolGameDetour>::Revert()
+    IL_000b: ldstr MoreNetworkStuffInitializer
+    IL_0010: call UnityEngine.GameObject UnityEngine.GameObject::Find(System.String)
+    IL_0015: stloc.0 
+    IL_0016: ldloc.0 
+    IL_0017: ldnull 
+    IL_0018: call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+    IL_001d: brfalse.s IL_0025
+    IL_001f: ldloc.0 
+    IL_0020: call System.Void UnityEngine.Object::Destroy(UnityEngine.Object)
+    IL_0025: ret 
+  Method: OnReleased
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void ICities.LoadingExtensionBase::OnReleased()
+    IL_0006: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.DefaultToolGameDetour>::Revert()
+    IL_000b: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.GeneratedGroupPanelAssetAndMapEditorDetour>::Revert()
+    IL_0010: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.PublicTransportPanelGameDetour>::Revert()
+    IL_0015: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.RoadsPanelAssetAndMapEditorDetour>::Revert()
+    IL_001a: call System.Void MoreNetworkStuff.Redirection.Redirector`1<MoreNetworkStuff.Detours.RoadsGroupPanelAssetEditorDetour>::Revert()
+    IL_001f: call System.Boolean MoreNetworkStuff.LoadingExtension::IsHooked()
+    IL_0024: brtrue.s IL_0027
+    IL_0026: ret 
+    IL_0027: call System.Void PrefabHook.TransportInfoHook::Revert()
+    IL_002c: call System.Void PrefabHook.NetInfoHook::Revert()
+    IL_0031: ret 
+  Method: IsHooked
+    IL_0000: ldstr Prefab Hook
+    IL_0005: call System.Boolean MoreNetworkStuff.Util::IsModActive(System.String)
+    IL_000a: ret 
+  Method: RefreshPanelInGame
+    IL_0000: ldstr MoreNetworkStuffInitializer
+    IL_0005: newobj System.Void UnityEngine.GameObject::.ctor(System.String)
+    IL_000a: call !!0 UnityEngine.GameObject::AddComponent<MoreNetworkStuff.LoadingExtension/Initializer>()
+    IL_000f: pop 
+    IL_0010: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void ICities.LoadingExtensionBase::.ctor()
+    IL_0006: ret 
+  Method: .cctor
+    IL_0000: ldtoken PrefabInfo
+    IL_0005: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+    IL_000a: ldstr m_UICategory
+    IL_000f: ldc.i4.s 36
+    IL_0011: callvirt System.Reflection.FieldInfo System.Type::GetField(System.String,System.Reflection.BindingFlags)
+    IL_0016: stsfld System.Reflection.FieldInfo MoreNetworkStuff.LoadingExtension::_uiCategoryfield
+    IL_001b: ldc.i4.s 9
+    IL_001d: newarr System.String
+    IL_0022: dup 
+    IL_0023: ldc.i4.0 
+    IL_0024: ldstr Cargo Connection
+    IL_0029: stelem.ref 
+    IL_002a: dup 
+    IL_002b: ldc.i4.1 
+    IL_002c: ldstr Ship Dock
+    IL_0031: stelem.ref 
+    IL_0032: dup 
+    IL_0033: ldc.i4.2 
+    IL_0034: ldstr Ship Dockway
+    IL_0039: stelem.ref 
+    IL_003a: dup 
+    IL_003b: ldc.i4.3 
+    IL_003c: ldstr Pedestrian Connection
+    IL_0041: stelem.ref 
+    IL_0042: dup 
+    IL_0043: ldc.i4.4 
+    IL_0044: ldstr Pedestrian Connection Surface
+    IL_0049: stelem.ref 
+    IL_004a: dup 
+    IL_004b: ldc.i4.5 
+    IL_004c: ldstr Pedestrian Connection Underground
+    IL_0051: stelem.ref 
+    IL_0052: dup 
+    IL_0053: ldc.i4.6 
+    IL_0054: ldstr Pedestrian Connection Inside
+    IL_0059: stelem.ref 
+    IL_005a: dup 
+    IL_005b: ldc.i4.7 
+    IL_005c: ldstr Bus Station Stop
+    IL_0061: stelem.ref 
+    IL_0062: dup 
+    IL_0063: ldc.i4.8 
+    IL_0064: ldstr Bus Station Way
+    IL_0069: stelem.ref 
+    IL_006a: stsfld System.String[] MoreNetworkStuff.LoadingExtension::ConnectionNetworks
+    IL_006f: ret 
+
+Type: MoreNetworkStuff.PanelsDetours
+  Method: IsPlacementRelevant
+    IL_0000: ldc.i4.1 
+    IL_0001: stloc.0 
+    IL_0002: call System.Boolean ColossalFramework.Singleton`1<ToolManager>::get_exists()
+    IL_0007: brfalse IL_0115
+    IL_000c: ldloc.0 
+    IL_000d: ldarg.0 
+    IL_000e: ldfld ItemClass/Availability NetInfo::m_availableIn
+    IL_0013: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+    IL_0018: ldfld !1 SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+    IL_001d: ldfld ItemClass/Availability ToolController::m_mode
+    IL_0022: call System.Boolean HelperExtensions::IsFlagSet(ItemClass/Availability,ItemClass/Availability)
+    IL_0027: and 
+    IL_0028: stloc.0 
+    IL_0029: ldloc.0 
+    IL_002a: ldarg.1 
+    IL_002b: brfalse.s IL_003b
+    IL_002d: ldarg.0 
+    IL_002e: ldfld ItemClass/Availability NetInfo::m_availableIn
+    IL_0033: ldc.i4.1 
+    IL_0034: call System.Boolean HelperExtensions::IsFlagSet(ItemClass/Availability,ItemClass/Availability)
+    IL_0039: br.s IL_003c
+    IL_003b: ldc.i4.0 
+    IL_003c: or 
+    IL_003d: stloc.0 
+    IL_003e: ldarg.3 
+    IL_003f: brfalse IL_0100
+    IL_0044: ldarg.0 
+    IL_0045: ldfld ItemClass/Placement NetInfo::m_placementStyle
+    IL_004a: ldc.i4.2 
+    IL_004b: bne.un IL_00f6
+    IL_0050: ldloc.0 
+    IL_0051: ldsfld System.String[] MoreNetworkStuff.PanelsDetours::AssetEditorProceduralWhitelist
+    IL_0056: ldarg.0 
+    IL_0057: callvirt System.String UnityEngine.Object::get_name()
+    IL_005c: call System.Boolean System.Linq.Enumerable::Contains<System.String>(System.Collections.Generic.IEnumerable`1<!!0>,!!0)
+    IL_0061: brtrue.s IL_009f
+    IL_0063: ldarg.0 
+    IL_0064: brtrue.s IL_0071
+    IL_0066: ldloca.s V_1
+    IL_0068: initobj System.Nullable`1<System.Boolean>
+    IL_006e: ldloc.1 
+    IL_006f: br.s IL_0095
+    IL_0071: ldarg.0 
+    IL_0072: call System.String UnityEngine.Object::get_name()
+    IL_0077: dup 
+    IL_0078: brtrue.s IL_0086
+    IL_007a: pop 
+    IL_007b: ldloca.s V_1
+    IL_007d: initobj System.Nullable`1<System.Boolean>
+    IL_0083: ldloc.1 
+    IL_0084: br.s IL_0095
+    IL_0086: ldstr Station Track
+    IL_008b: call System.Boolean System.String::Contains(System.String)
+    IL_0090: newobj System.Void System.Nullable`1<System.Boolean>::.ctor(!0)
+    IL_0095: stloc.1 
+    IL_0096: ldloca.s V_1
+    IL_0098: call !0 System.Nullable`1<System.Boolean>::GetValueOrDefault()
+    IL_009d: br.s IL_00a0
+    IL_009f: ldc.i4.1 
+    IL_00a0: or 
+    IL_00a1: stloc.0 
+    IL_00a2: ldloc.0 
+    IL_00a3: ldsfld System.String[] MoreNetworkStuff.PanelsDetours::AssetEditorProceduralWhitelist
+    IL_00a8: ldarg.0 
+    IL_00a9: callvirt System.String UnityEngine.Object::get_name()
+    IL_00ae: call System.Boolean System.Linq.Enumerable::Contains<System.String>(System.Collections.Generic.IEnumerable`1<!!0>,!!0)
+    IL_00b3: brtrue.s IL_00f1
+    IL_00b5: ldarg.0 
+    IL_00b6: brtrue.s IL_00c3
+    IL_00b8: ldloca.s V_1
+    IL_00ba: initobj System.Nullable`1<System.Boolean>
+    IL_00c0: ldloc.1 
+    IL_00c1: br.s IL_00e7
+    IL_00c3: ldarg.0 
+    IL_00c4: call System.String UnityEngine.Object::get_name()
+    IL_00c9: dup 
+    IL_00ca: brtrue.s IL_00d8
+    IL_00cc: pop 
+    IL_00cd: ldloca.s V_1
+    IL_00cf: initobj System.Nullable`1<System.Boolean>
+    IL_00d5: ldloc.1 
+    IL_00d6: br.s IL_00e7
+    IL_00d8: ldstr Station Track
+    IL_00dd: call System.Boolean System.String::Contains(System.String)
+    IL_00e2: newobj System.Void System.Nullable`1<System.Boolean>::.ctor(!0)
+    IL_00e7: stloc.1 
+    IL_00e8: ldloca.s V_1
+    IL_00ea: call !0 System.Nullable`1<System.Boolean>::GetValueOrDefault()
+    IL_00ef: br.s IL_00f2
+    IL_00f1: ldc.i4.1 
+    IL_00f2: and 
+    IL_00f3: stloc.0 
+    IL_00f4: br.s IL_0100
+    IL_00f6: ldarg.0 
+    IL_00f7: ldfld ItemClass/Placement NetInfo::m_placementStyle
+    IL_00fc: brtrue.s IL_0100
+    IL_00fe: ldc.i4.1 
+    IL_00ff: stloc.0 
+    IL_0100: ldloc.0 
+    IL_0101: ldarg.2 
+    IL_0102: brfalse.s IL_0112
+    IL_0104: ldarg.0 
+    IL_0105: ldfld ItemClass/Availability NetInfo::m_availableIn
+    IL_010a: ldc.i4.2 
+    IL_010b: call System.Boolean HelperExtensions::IsFlagSet(ItemClass/Availability,ItemClass/Availability)
+    IL_0110: br.s IL_0113
+    IL_0112: ldc.i4.0 
+    IL_0113: or 
+    IL_0114: stloc.0 
+    IL_0115: ldloc.0 
+    IL_0116: ldarg.0 
+    IL_0117: ldfld ItemClass/Placement NetInfo::m_placementStyle
+    IL_011c: brfalse.s IL_012f
+    IL_011e: ldarg.3 
+    IL_011f: brfalse.s IL_012c
+    IL_0121: ldarg.0 
+    IL_0122: ldfld ItemClass/Placement NetInfo::m_placementStyle
+    IL_0127: ldc.i4.2 
+    IL_0128: ceq 
+    IL_012a: br.s IL_0130
+    IL_012c: ldc.i4.0 
+    IL_012d: br.s IL_0130
+    IL_012f: ldc.i4.1 
+    IL_0130: and 
+    IL_0131: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void System.Object::.ctor()
+    IL_0006: ret 
+  Method: .cctor
+    IL_0000: ldc.i4.s 37
+    IL_0002: newarr System.String
+    IL_0007: dup 
+    IL_0008: ldc.i4.0 
+    IL_0009: ldstr Train Cargo Track
+    IL_000e: stelem.ref 
+    IL_000f: dup 
+    IL_0010: ldc.i4.1 
+    IL_0011: ldstr Train Cargo Track Elevated
+    IL_0016: stelem.ref 
+    IL_0017: dup 
+    IL_0018: ldc.i4.2 
+    IL_0019: ldstr Cargo Connection
+    IL_001e: stelem.ref 
+    IL_001f: dup 
+    IL_0020: ldc.i4.3 
+    IL_0021: ldstr Ship Dock
+    IL_0026: stelem.ref 
+    IL_0027: dup 
+    IL_0028: ldc.i4.4 
+    IL_0029: ldstr Ship Dockway
+    IL_002e: stelem.ref 
+    IL_002f: dup 
+    IL_0030: ldc.i4.5 
+    IL_0031: ldstr Airplane Runway
+    IL_0036: stelem.ref 
+    IL_0037: dup 
+    IL_0038: ldc.i4.6 
+    IL_0039: ldstr Airplane Taxiway
+    IL_003e: stelem.ref 
+    IL_003f: dup 
+    IL_0040: ldc.i4.7 
+    IL_0041: ldstr Airplane Stop
+    IL_0046: stelem.ref 
+    IL_0047: dup 
+    IL_0048: ldc.i4.8 
+    IL_0049: ldstr Airplane Cargo Stop
+    IL_004e: stelem.ref 
+    IL_004f: dup 
+    IL_0050: ldc.i4.s 9
+    IL_0052: ldstr Pedestrian Connection
+    IL_0057: stelem.ref 
+    IL_0058: dup 
+    IL_0059: ldc.i4.s 10
+    IL_005b: ldstr Pedestrian Connection Surface
+    IL_0060: stelem.ref 
+    IL_0061: dup 
+    IL_0062: ldc.i4.s 11
+    IL_0064: ldstr Pedestrian Connection Underground
+    IL_0069: stelem.ref 
+    IL_006a: dup 
+    IL_006b: ldc.i4.s 12
+    IL_006d: ldstr Pedestrian Connection Inside
+    IL_0072: stelem.ref 
+    IL_0073: dup 
+    IL_0074: ldc.i4.s 13
+    IL_0076: ldstr Bus Station Stop
+    IL_007b: stelem.ref 
+    IL_007c: dup 
+    IL_007d: ldc.i4.s 14
+    IL_007f: ldstr Bus Station Way
+    IL_0084: stelem.ref 
+    IL_0085: dup 
+    IL_0086: ldc.i4.s 15
+    IL_0088: ldstr Quay
+    IL_008d: stelem.ref 
+    IL_008e: dup 
+    IL_008f: ldc.i4.s 16
+    IL_0091: ldstr Canal
+    IL_0096: stelem.ref 
+    IL_0097: dup 
+    IL_0098: ldc.i4.s 17
+    IL_009a: ldstr Canal2
+    IL_009f: stelem.ref 
+    IL_00a0: dup 
+    IL_00a1: ldc.i4.s 18
+    IL_00a3: ldstr Canal3
+    IL_00a8: stelem.ref 
+    IL_00a9: dup 
+    IL_00aa: ldc.i4.s 19
+    IL_00ac: ldstr Canal Wide
+    IL_00b1: stelem.ref 
+    IL_00b2: dup 
+    IL_00b3: ldc.i4.s 20
+    IL_00b5: ldstr Canal Wide2
+    IL_00ba: stelem.ref 
+    IL_00bb: dup 
+    IL_00bc: ldc.i4.s 21
+    IL_00be: ldstr Canal Wide3
+    IL_00c3: stelem.ref 
+    IL_00c4: dup 
+    IL_00c5: ldc.i4.s 22
+    IL_00c7: ldstr Flood Wall
+    IL_00cc: stelem.ref 
+    IL_00cd: dup 
+    IL_00ce: ldc.i4.s 23
+    IL_00d0: ldstr Castle Wall 1
+    IL_00d5: stelem.ref 
+    IL_00d6: dup 
+    IL_00d7: ldc.i4.s 24
+    IL_00d9: ldstr Castle Wall 2
+    IL_00de: stelem.ref 
+    IL_00df: dup 
+    IL_00e0: ldc.i4.s 25
+    IL_00e2: ldstr Castle Wall 3
+    IL_00e7: stelem.ref 
+    IL_00e8: dup 
+    IL_00e9: ldc.i4.s 26
+    IL_00eb: ldstr Trench Ruins 01
+    IL_00f0: stelem.ref 
+    IL_00f1: dup 
+    IL_00f2: ldc.i4.s 27
+    IL_00f4: ldstr Fishing Dockway
+    IL_00f9: stelem.ref 
+    IL_00fa: dup 
+    IL_00fb: ldc.i4.s 28
+    IL_00fd: ldstr Aviation Club Runway
+    IL_0102: stelem.ref 
+    IL_0103: dup 
+    IL_0104: ldc.i4.s 29
+    IL_0106: ldstr Trolleybus Depot
+    IL_010b: stelem.ref 
+    IL_010c: dup 
+    IL_010d: ldc.i4.s 30
+    IL_010f: ldstr Helicopter Depot Path
+    IL_0114: stelem.ref 
+    IL_0115: dup 
+    IL_0116: ldc.i4.s 31
+    IL_0118: ldstr Helicopter Stop
+    IL_011d: stelem.ref 
+    IL_011e: dup 
+    IL_011f: ldc.i4.s 32
+    IL_0121: ldstr Ferry Dock
+    IL_0126: stelem.ref 
+    IL_0127: dup 
+    IL_0128: ldc.i4.s 33
+    IL_012a: ldstr Ferry Dockway
+    IL_012f: stelem.ref 
+    IL_0130: dup 
+    IL_0131: ldc.i4.s 34
+    IL_0133: ldstr CableCar Stop
+    IL_0138: stelem.ref 
+    IL_0139: dup 
+    IL_013a: ldc.i4.s 35
+    IL_013c: ldstr Blimp Depot Path
+    IL_0141: stelem.ref 
+    IL_0142: dup 
+    IL_0143: ldc.i4.s 36
+    IL_0145: ldstr Blimp Stop
+    IL_014a: stelem.ref 
+    IL_014b: stsfld System.String[] MoreNetworkStuff.PanelsDetours::AssetEditorProceduralWhitelist
+    IL_0150: ret 
+
+Type: MoreNetworkStuff.Detours.DefaultToolGameDetour
+  Method: GetService
+    IL_0000: call !0 ColossalFramework.Singleton`1<ToolManager>::get_instance()
+    IL_0005: ldfld !1 SimulationManagerBase`2<ToolManager,ToolController>::m_properties
+    IL_000a: ldfld ItemClass/Availability ToolController::m_mode
+    IL_000f: ldc.i4.6 
+    IL_0010: and 
+    IL_0011: brfalse.s IL_0061
+    IL_0013: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+    IL_0018: callvirt InfoManager/InfoMode InfoManager::get_CurrentMode()
+    IL_001d: stloc.0 
+    IL_001e: ldloc.0 
+    IL_001f: ldc.i4.s 14
+    IL_0021: bgt.s IL_002e
+    IL_0023: ldloc.0 
+    IL_0024: ldc.i4.8 
+    IL_0025: beq.s IL_003a
+    IL_0027: ldloc.0 
+    IL_0028: ldc.i4.s 14
+    IL_002a: beq.s IL_0044
+    IL_002c: br.s IL_0057
+    IL_002e: ldloc.0 
+    IL_002f: ldc.i4.s 31
+    IL_0031: beq.s IL_004e
+    IL_0033: ldloc.0 
+    IL_0034: ldc.i4.s 32
+    IL_0036: beq.s IL_0044
+    IL_0038: br.s IL_0057
+    IL_003a: ldc.i4.0 
+    IL_003b: ldc.i4.0 
+    IL_003c: ldc.i4.s 121
+    IL_003e: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_0043: ret 
+    IL_0044: ldc.i4.0 
+    IL_0045: ldc.i4.0 
+    IL_0046: ldc.i4.s 73
+    IL_0048: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_004d: ret 
+    IL_004e: ldc.i4.0 
+    IL_004f: ldc.i4.0 
+    IL_0050: ldc.i4.8 
+    IL_0051: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_0056: ret 
+    IL_0057: ldc.i4.0 
+    IL_0058: ldc.i4.0 
+    IL_0059: ldc.i4.s 65
+    IL_005b: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_0060: ret 
+    IL_0061: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+    IL_0066: callvirt InfoManager/InfoMode InfoManager::get_CurrentMode()
+    IL_006b: stloc.1 
+    IL_006c: ldloc.1 
+    IL_006d: ldc.i4.s 30
+    IL_006f: sub 
+    IL_0070: switch Mono.Cecil.Cil.Instruction[]
+    IL_0081: ldloc.1 
+    IL_0082: ldc.i4.s 37
+    IL_0084: beq.s IL_00b0
+    IL_0086: br.s IL_00be
+    IL_0088: ldc.i4.0 
+    IL_0089: ldc.i4.0 
+    IL_008a: ldc.i4.s 9
+    IL_008c: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_0091: ret 
+    IL_0092: call !0 ColossalFramework.Singleton`1<InfoManager>::get_instance()
+    IL_0097: callvirt InfoManager/SubInfoMode InfoManager::get_CurrentSubMode()
+    IL_009c: brfalse.s IL_00a7
+    IL_009e: ldc.i4.0 
+    IL_009f: ldc.i4.0 
+    IL_00a0: ldc.i4.2 
+    IL_00a1: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00a6: ret 
+    IL_00a7: ldc.i4.0 
+    IL_00a8: ldc.i4.0 
+    IL_00a9: ldc.i4.8 
+    IL_00aa: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00af: ret 
+    IL_00b0: ldc.i4.s 25
+    IL_00b2: ldc.i4.0 
+    IL_00b3: ldc.i4 1025
+    IL_00b8: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00bd: ret 
+    IL_00be: ldloc.1 
+    IL_00bf: ldc.i4.2 
+    IL_00c0: beq.s IL_00e7
+    IL_00c2: ldloc.1 
+    IL_00c3: ldc.i4.8 
+    IL_00c4: bne.un.s IL_00d4
+    IL_00c6: ldc.i4.s 19
+    IL_00c8: ldc.i4.0 
+    IL_00c9: ldc.i4 2873
+    IL_00ce: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00d3: ret 
+    IL_00d4: ldloc.1 
+    IL_00d5: ldc.i4.s 14
+    IL_00d7: beq.s IL_0088
+    IL_00d9: ldloc.1 
+    IL_00da: ldc.i4.s 22
+    IL_00dc: beq.s IL_00e7
+    IL_00de: ldc.i4.0 
+    IL_00df: ldc.i4.0 
+    IL_00e0: ldc.i4.1 
+    IL_00e1: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00e6: ret 
+    IL_00e7: ldc.i4.s 11
+    IL_00e9: ldc.i4.0 
+    IL_00ea: ldc.i4.3 
+    IL_00eb: newobj System.Void ToolBase/RaycastService::.ctor(ItemClass/Service,ItemClass/SubService,ItemClass/Layer)
+    IL_00f0: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void System.Object::.ctor()
+    IL_0006: ret 
+
+Type: MoreNetworkStuff.Detours.GeneratedGroupPanelAssetAndMapEditorDetour
+  Method: IsPlacementRelevant
+    IL_0000: ldarg.1 
+    IL_0001: call System.Boolean ToolsModifierControl::get_isMapEditor()
+    IL_0006: call System.Boolean ToolsModifierControl::get_isGame()
+    IL_000b: call System.Boolean ToolsModifierControl::get_isAssetEditor()
+    IL_0010: call System.Boolean MoreNetworkStuff.PanelsDetours::IsPlacementRelevant(NetInfo,System.Boolean,System.Boolean,System.Boolean)
+    IL_0015: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void GeneratedGroupPanel::.ctor()
+    IL_0006: ret 
+
+Type: MoreNetworkStuff.Detours.RoadsGroupPanelAssetEditorDetour
+  Method: IsServiceValid
+    IL_0000: call System.Boolean ToolsModifierControl::get_isMapEditor()
+    IL_0005: brfalse.s IL_0031
+    IL_0007: ldarg.1 
+    IL_0008: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_000d: ldarg.0 
+    IL_000e: callvirt ItemClass/Service GeneratedGroupPanel::get_service()
+    IL_0013: bne.un.s IL_0017
+    IL_0015: ldc.i4.1 
+    IL_0016: ret 
+    IL_0017: ldarg.1 
+    IL_0018: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_001d: ldc.i4.s 19
+    IL_001f: bne.un.s IL_002f
+    IL_0021: ldarg.1 
+    IL_0022: callvirt ItemClass/SubService PrefabInfo::GetSubService()
+    IL_0027: ldc.i4.s 27
+    IL_0029: ceq 
+    IL_002b: ldc.i4.0 
+    IL_002c: ceq 
+    IL_002e: ret 
+    IL_002f: ldc.i4.0 
+    IL_0030: ret 
+    IL_0031: call System.Boolean ToolsModifierControl::get_isAssetEditor()
+    IL_0036: brfalse.s IL_00ac
+    IL_0038: ldarg.1 
+    IL_0039: isinst BuildingInfo
+    IL_003e: stloc.1 
+    IL_003f: ldarg.1 
+    IL_0040: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0045: ldarg.0 
+    IL_0046: callvirt ItemClass/Service GeneratedGroupPanel::get_service()
+    IL_004b: bne.un.s IL_005d
+    IL_004d: ldloc.1 
+    IL_004e: brfalse.s IL_0083
+    IL_0050: ldloc.1 
+    IL_0051: ldfld BuildingAI BuildingInfo::m_buildingAI
+    IL_0056: callvirt System.Boolean PrefabAI::WorksAsNet()
+    IL_005b: brtrue.s IL_0083
+    IL_005d: ldarg.1 
+    IL_005e: isinst NetInfo
+    IL_0063: brfalse.s IL_0085
+    IL_0065: ldarg.1 
+    IL_0066: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_006b: ldc.i4.s 19
+    IL_006d: beq.s IL_0083
+    IL_006f: ldarg.1 
+    IL_0070: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0075: ldc.i4.s 25
+    IL_0077: beq.s IL_0083
+    IL_0079: ldarg.1 
+    IL_007a: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_007f: ldc.i4.s 17
+    IL_0081: bne.un.s IL_0085
+    IL_0083: ldc.i4.1 
+    IL_0084: ret 
+    IL_0085: ldarg.1 
+    IL_0086: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_008b: ldc.i4.s 12
+    IL_008d: bne.un.s IL_00aa
+    IL_008f: ldarg.1 
+    IL_0090: isinst NetInfo
+    IL_0095: brfalse.s IL_00aa
+    IL_0097: call ToolController ToolsModifierControl::get_toolController()
+    IL_009c: ldfld PrefabInfo ToolController::m_editPrefabInfo
+    IL_00a1: isinst NetInfo
+    IL_00a6: ldnull 
+    IL_00a7: cgt.un 
+    IL_00a9: ret 
+    IL_00aa: ldc.i4.0 
+    IL_00ab: ret 
+    IL_00ac: ldarg.1 
+    IL_00ad: isinst NetInfo
+    IL_00b2: stloc.0 
+    IL_00b3: ldarg.1 
+    IL_00b4: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_00b9: ldarg.0 
+    IL_00ba: callvirt ItemClass/Service GeneratedGroupPanel::get_service()
+    IL_00bf: beq.s IL_00c3
+    IL_00c1: ldc.i4.0 
+    IL_00c2: ret 
+    IL_00c3: ldloc.0 
+    IL_00c4: brfalse.s IL_00d2
+    IL_00c6: ldloc.0 
+    IL_00c7: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_00cc: ldc.i4.1 
+    IL_00cd: and 
+    IL_00ce: ldc.i4.0 
+    IL_00cf: cgt.un 
+    IL_00d1: ret 
+    IL_00d2: ldc.i4.1 
+    IL_00d3: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void GeneratedGroupPanel::.ctor()
+    IL_0006: ret 
+
+Type: MoreNetworkStuff.Detours.RoadsPanelAssetAndMapEditorDetour
+  Method: IsPlacementRelevant
+    IL_0000: ldarg.1 
+    IL_0001: call System.Boolean ToolsModifierControl::get_isMapEditor()
+    IL_0006: call System.Boolean ToolsModifierControl::get_isGame()
+    IL_000b: call System.Boolean ToolsModifierControl::get_isAssetEditor()
+    IL_0010: call System.Boolean MoreNetworkStuff.PanelsDetours::IsPlacementRelevant(NetInfo,System.Boolean,System.Boolean,System.Boolean)
+    IL_0015: ret 
+  Method: IsPlacementRelevant
+    IL_0000: ldc.i4.1 
+    IL_0001: stloc.0 
+    IL_0002: ldloc.0 
+    IL_0003: ldarg.1 
+    IL_0004: ldfld BuildingInfo/PathInfo[] BuildingInfo::m_paths
+    IL_0009: ldnull 
+    IL_000a: cgt.un 
+    IL_000c: and 
+    IL_000d: stloc.0 
+    IL_000e: call System.Boolean ToolsModifierControl::get_isAssetEditor()
+    IL_0013: brfalse.s IL_0023
+    IL_0015: ldloc.0 
+    IL_0016: ldarg.1 
+    IL_0017: ldfld BuildingAI BuildingInfo::m_buildingAI
+    IL_001c: callvirt System.Boolean PrefabAI::WorksAsNet()
+    IL_0021: and 
+    IL_0022: stloc.0 
+    IL_0023: ldarg.0 
+    IL_0024: ldarg.1 
+    IL_0025: call System.Boolean GeneratedScrollPanel::IsPlacementRelevant(BuildingInfo)
+    IL_002a: ldloc.0 
+    IL_002b: and 
+    IL_002c: ret 
+  Method: IsServiceValid
+    IL_0000: call System.Boolean ToolsModifierControl::get_isAssetEditor()
+    IL_0005: brfalse.s IL_0054
+    IL_0007: ldarg.1 
+    IL_0008: call ToolController ToolsModifierControl::get_toolController()
+    IL_000d: ldfld PrefabInfo ToolController::m_editPrefabInfo
+    IL_0012: call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+    IL_0017: brfalse.s IL_001b
+    IL_0019: ldc.i4.0 
+    IL_001a: ret 
+    IL_001b: ldarg.1 
+    IL_001c: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0021: ldarg.0 
+    IL_0022: callvirt ItemClass/Service GeneratedScrollPanel::get_service()
+    IL_0027: beq.s IL_0052
+    IL_0029: ldarg.1 
+    IL_002a: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_002f: ldc.i4.s 19
+    IL_0031: beq.s IL_0052
+    IL_0033: ldarg.1 
+    IL_0034: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0039: ldc.i4.s 12
+    IL_003b: beq.s IL_0052
+    IL_003d: ldarg.1 
+    IL_003e: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0043: ldc.i4.s 25
+    IL_0045: beq.s IL_0052
+    IL_0047: ldarg.1 
+    IL_0048: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_004d: ldc.i4.s 17
+    IL_004f: ceq 
+    IL_0051: ret 
+    IL_0052: ldc.i4.1 
+    IL_0053: ret 
+    IL_0054: call System.Boolean ToolsModifierControl::get_isMapEditor()
+    IL_0059: brtrue.s IL_0077
+    IL_005b: ldarg.1 
+    IL_005c: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_0061: ldarg.0 
+    IL_0062: callvirt ItemClass/Service GeneratedScrollPanel::get_service()
+    IL_0067: bne.un.s IL_0075
+    IL_0069: ldarg.1 
+    IL_006a: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_006f: ldc.i4.1 
+    IL_0070: and 
+    IL_0071: ldc.i4.0 
+    IL_0072: cgt.un 
+    IL_0074: ret 
+    IL_0075: ldc.i4.0 
+    IL_0076: ret 
+    IL_0077: ldarg.1 
+    IL_0078: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_007d: ldarg.0 
+    IL_007e: callvirt ItemClass/Service GeneratedScrollPanel::get_service()
+    IL_0083: beq.s IL_0090
+    IL_0085: ldarg.1 
+    IL_0086: callvirt ItemClass/Service PrefabInfo::GetService()
+    IL_008b: ldc.i4.s 19
+    IL_008d: ceq 
+    IL_008f: ret 
+    IL_0090: ldc.i4.1 
+    IL_0091: ret 
+  Method: get_service
+    IL_0000: ldarg.0 
+    IL_0001: ldfld ItemClass/Service MoreNetworkStuff.Detours.RoadsPanelAssetAndMapEditorDetour::<service>k__BackingField
+    IL_0006: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void GeneratedScrollPanel::.ctor()
+    IL_0006: ret 
+
+Type: MoreNetworkStuff.Detours.PublicTransportPanelGameDetour
+  Method: IsRoadEligibleToPublicTransport
+    IL_0000: ldarg.0 
+    IL_0001: call System.String GeneratedScrollPanel::get_category()
+    IL_0006: stloc.0 
+    IL_0007: ldloc.0 
+    IL_0008: brfalse IL_01ae
+    IL_000d: ldsfld System.Collections.Generic.Dictionary`2<System.String,System.Int32> MoreNetworkStuff.Detours.PublicTransportPanelGameDetour::switchMap
+    IL_0012: brtrue IL_00a9
+    IL_0017: ldc.i4.s 11
+    IL_0019: newobj System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::.ctor(System.Int32)
+    IL_001e: dup 
+    IL_001f: ldstr PublicTransportTrain
+    IL_0024: ldc.i4.0 
+    IL_0025: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_002a: dup 
+    IL_002b: ldstr PublicTransportMetro
+    IL_0030: ldc.i4.1 
+    IL_0031: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_0036: dup 
+    IL_0037: ldstr PublicTransportBus
+    IL_003c: ldc.i4.2 
+    IL_003d: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_0042: dup 
+    IL_0043: ldstr PublicTransportTram
+    IL_0048: ldc.i4.3 
+    IL_0049: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_004e: dup 
+    IL_004f: ldstr PublicTransportShip
+    IL_0054: ldc.i4.4 
+    IL_0055: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_005a: dup 
+    IL_005b: ldstr PublicTransportPlane
+    IL_0060: ldc.i4.5 
+    IL_0061: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_0066: dup 
+    IL_0067: ldstr PublicTransportAirportArea
+    IL_006c: ldc.i4.6 
+    IL_006d: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_0072: dup 
+    IL_0073: ldstr PublicTransportMonorail
+    IL_0078: ldc.i4.7 
+    IL_0079: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_007e: dup 
+    IL_007f: ldstr PublicTransportCableCar
+    IL_0084: ldc.i4.8 
+    IL_0085: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_008a: dup 
+    IL_008b: ldstr PublicTransportTrolleybus
+    IL_0090: ldc.i4.s 9
+    IL_0092: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_0097: dup 
+    IL_0098: ldstr PublicTransportModderPack
+    IL_009d: ldc.i4.s 10
+    IL_009f: callvirt System.Void System.Collections.Generic.Dictionary`2<System.String,System.Int32>::Add(!0,!1)
+    IL_00a4: stsfld System.Collections.Generic.Dictionary`2<System.String,System.Int32> MoreNetworkStuff.Detours.PublicTransportPanelGameDetour::switchMap
+    IL_00a9: ldsfld System.Collections.Generic.Dictionary`2<System.String,System.Int32> MoreNetworkStuff.Detours.PublicTransportPanelGameDetour::switchMap
+    IL_00ae: ldloc.0 
+    IL_00af: ldloca.s V_1
+    IL_00b1: callvirt System.Boolean System.Collections.Generic.Dictionary`2<System.String,System.Int32>::TryGetValue(!0,!1&)
+    IL_00b6: brfalse IL_01ae
+    IL_00bb: ldloc.1 
+    IL_00bc: switch Mono.Cecil.Cil.Instruction[]
+    IL_00ed: br IL_01ae
+    IL_00f2: ldarg.1 
+    IL_00f3: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_00f8: ldc.i4.4 
+    IL_00f9: and 
+    IL_00fa: brfalse.s IL_010c
+    IL_00fc: ldarg.1 
+    IL_00fd: ldfld SteamHelper/DLC_BitMask PrefabInfo::m_dlcRequired
+    IL_0102: ldc.i4 1024
+    IL_0107: and 
+    IL_0108: ldc.i4.0 
+    IL_0109: ceq 
+    IL_010b: ret 
+    IL_010c: ldc.i4.0 
+    IL_010d: ret 
+    IL_010e: ldarg.1 
+    IL_010f: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_0114: ldc.i4.2 
+    IL_0115: and 
+    IL_0116: ldc.i4.0 
+    IL_0117: cgt.un 
+    IL_0119: ret 
+    IL_011a: ldarg.1 
+    IL_011b: ldfld NetInfo/LaneType NetInfo::m_laneTypes
+    IL_0120: ldc.i4.s 32
+    IL_0122: and 
+    IL_0123: ldc.i4.0 
+    IL_0124: cgt.un 
+    IL_0126: ret 
+    IL_0127: ldarg.1 
+    IL_0128: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_012d: ldc.i4.s 64
+    IL_012f: and 
+    IL_0130: ldc.i4.0 
+    IL_0131: cgt.un 
+    IL_0133: ret 
+    IL_0134: ldarg.1 
+    IL_0135: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_013a: ldc.i4 1032
+    IL_013f: and 
+    IL_0140: ldc.i4.0 
+    IL_0141: cgt.un 
+    IL_0143: ret 
+    IL_0144: ldarg.1 
+    IL_0145: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_014a: ldc.i4 8336
+    IL_014f: and 
+    IL_0150: ldc.i4.0 
+    IL_0151: cgt.un 
+    IL_0153: ret 
+    IL_0154: ldarg.1 
+    IL_0155: ldfld SteamHelper/DLC_BitMask PrefabInfo::m_dlcRequired
+    IL_015a: ldc.i4 1073741824
+    IL_015f: ceq 
+    IL_0161: ret 
+    IL_0162: ldarg.1 
+    IL_0163: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_0168: ldc.i4 2048
+    IL_016d: and 
+    IL_016e: ldc.i4.0 
+    IL_016f: cgt.un 
+    IL_0171: ret 
+    IL_0172: ldarg.1 
+    IL_0173: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_0178: ldc.i4 4096
+    IL_017d: and 
+    IL_017e: ldc.i4.0 
+    IL_017f: cgt.un 
+    IL_0181: ret 
+    IL_0182: ldarg.1 
+    IL_0183: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_0188: ldc.i4 65536
+    IL_018d: and 
+    IL_018e: ldc.i4.0 
+    IL_018f: cgt.un 
+    IL_0191: ret 
+    IL_0192: ldarg.1 
+    IL_0193: ldfld VehicleInfo/VehicleType NetInfo::m_vehicleTypes
+    IL_0198: ldc.i4.4 
+    IL_0199: and 
+    IL_019a: brfalse.s IL_01ac
+    IL_019c: ldarg.1 
+    IL_019d: ldfld SteamHelper/DLC_BitMask PrefabInfo::m_dlcRequired
+    IL_01a2: ldc.i4 1024
+    IL_01a7: and 
+    IL_01a8: ldc.i4.0 
+    IL_01a9: cgt.un 
+    IL_01ab: ret 
+    IL_01ac: ldc.i4.0 
+    IL_01ad: ret 
+    IL_01ae: ldc.i4.0 
+    IL_01af: ret 
+  Method: get_service
+    IL_0000: ldarg.0 
+    IL_0001: ldfld ItemClass/Service MoreNetworkStuff.Detours.PublicTransportPanelGameDetour::<service>k__BackingField
+    IL_0006: ret 
+  Method: .ctor
+    IL_0000: ldarg.0 
+    IL_0001: call System.Void GeneratedScrollPanel::.ctor()
+    IL_0006: ret 

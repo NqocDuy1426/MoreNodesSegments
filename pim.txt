@@ -1,0 +1,1216 @@
+METHOD: System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemMain(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.UInt16,NetNode&,System.Byte,System.Boolean,PathUnit/SimulationFlags)
+IL_0000: call       !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_0005: stloc.0    
+IL_0006: ldarg.1    
+IL_0007: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_000C: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_0011: stloc.1    
+IL_0012: ldarg.1    
+IL_0013: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_0018: ldfld      System.Byte PathUnit/Position::m_lane
+IL_001D: stloc.2    
+IL_001E: ldc.i4.0   
+IL_001F: stloc.3    
+IL_0020: ldc.i4.0   
+IL_0021: stloc.s    V_4
+IL_0023: ldc.i4.0   
+IL_0024: stloc.s    V_5
+IL_0026: ldc.i4.0   
+IL_0027: stloc.s    V_6
+IL_0029: ldc.i4.0   
+IL_002A: stloc.s    V_7
+IL_002C: ldc.i4.0   
+IL_002D: stloc.s    V_8
+IL_002F: ldc.r4     1
+IL_0034: stloc.s    V_9
+IL_0036: ldc.r4     1
+IL_003B: stloc.s    V_10
+IL_003D: ldarg.2    
+IL_003E: call       NetInfo NetSegment::get_Info()
+IL_0043: stloc.s    V_11
+IL_0045: ldloc.2    
+IL_0046: ldloc.s    V_11
+IL_0048: ldfld      NetInfo/Lane[] NetInfo::m_lanes
+IL_004D: ldlen      
+IL_004E: conv.i4    
+IL_004F: bge        IL_012c: ldarg.s isMiddle
+IL_0054: ldloc.s    V_11
+IL_0056: ldfld      NetInfo/Lane[] NetInfo::m_lanes
+IL_005B: ldarg.1    
+IL_005C: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_0061: ldfld      System.Byte PathUnit/Position::m_lane
+IL_0066: ldelem.ref 
+IL_0067: stloc.s    V_14
+IL_0069: ldloc.s    V_14
+IL_006B: ldfld      NetInfo/LaneType NetInfo/Lane::m_laneType
+IL_0070: ldc.i4.2   
+IL_0071: ceq        
+IL_0073: stloc.3    
+IL_0074: ldloc.s    V_14
+IL_0076: ldfld      NetInfo/LaneType NetInfo/Lane::m_laneType
+IL_007B: ldc.i4.1   
+IL_007C: bne.un.s   IL_0092: ldc.i4.0
+IL_007E: ldloc.s    V_14
+IL_0080: ldfld      VehicleInfo/VehicleType NetInfo/Lane::m_vehicleType
+IL_0085: ldarg.0    
+IL_0086: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_008B: and        
+IL_008C: ldc.i4.s   32
+IL_008E: ceq        
+IL_0090: br.s       IL_0093: stloc.s V_4
+IL_0092: ldc.i4.0   
+IL_0093: stloc.s    V_4
+IL_0095: ldloc.s    V_14
+IL_0097: ldfld      System.Boolean NetInfo/Lane::m_centerPlatform
+IL_009C: stloc.s    V_5
+IL_009E: ldloc.s    V_14
+IL_00A0: ldfld      System.Boolean NetInfo/Lane::m_elevated
+IL_00A5: stloc.s    V_6
+IL_00A7: ldloc.s    V_14
+IL_00A9: ldfld      NetInfo/LaneType NetInfo/Lane::m_laneType
+IL_00AE: ldc.i4.s   33
+IL_00B0: and        
+IL_00B1: brfalse.s  IL_00c1: ldc.i4.0
+IL_00B3: ldloc.s    V_14
+IL_00B5: ldfld      VehicleInfo/VehicleType NetInfo/Lane::m_vehicleType
+IL_00BA: ldc.i4.1   
+IL_00BB: and        
+IL_00BC: ldc.i4.0   
+IL_00BD: cgt.un     
+IL_00BF: br.s       IL_00c2: stloc.s V_7
+IL_00C1: ldc.i4.0   
+IL_00C2: stloc.s    V_7
+IL_00C4: ldarg.0    
+IL_00C5: ldfld      TrafficManager.Manager.Impl.SpeedLimitManager TrafficManager.Custom.PathFinding.CustomPathFind::speedLimitManager
+IL_00CA: ldloc.1    
+IL_00CB: ldloc.2    
+IL_00CC: ldarg.1    
+IL_00CD: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LaneId
+IL_00D2: ldloc.s    V_14
+IL_00D4: callvirt   System.Single TrafficManager.Manager.Impl.SpeedLimitManager::GetGameSpeedLimit(System.UInt16,System.Byte,System.UInt32,NetInfo/Lane)
+IL_00D9: stloc.s    V_9
+IL_00DB: ldloc.s    V_9
+IL_00DD: ldc.r4     0
+IL_00E2: bgt.s      IL_00eb: ldarg.0
+IL_00E4: ldc.r4     1
+IL_00E9: stloc.s    V_9
+IL_00EB: ldarg.0    
+IL_00EC: ldloc.s    V_9
+IL_00EE: ldarg.s    connectOffset
+IL_00F0: ldarg.1    
+IL_00F1: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_00F6: ldfld      System.Byte PathUnit/Position::m_offset
+IL_00FB: ldarg.2    
+IL_00FC: ldloc.s    V_14
+IL_00FE: call       System.Single TrafficManager.Custom.PathFinding.CustomPathFind::CalculateLaneSpeed(System.Single,System.Byte,System.Byte,NetSegment&,NetInfo/Lane)
+IL_0103: stloc.s    V_10
+IL_0105: ldloc.s    V_14
+IL_0107: ldfld      NetInfo/Direction NetInfo/Lane::m_finalDirection
+IL_010C: ldc.i4.1   
+IL_010D: and        
+IL_010E: brfalse.s  IL_0119: ldloc.s V_14
+IL_0110: ldloc.s    V_14
+IL_0112: ldfld      System.Int32 NetInfo/Lane::m_similarLaneIndex
+IL_0117: br.s       IL_012a: stloc.s V_8
+IL_0119: ldloc.s    V_14
+IL_011B: ldfld      System.Int32 NetInfo/Lane::m_similarLaneCount
+IL_0120: ldloc.s    V_14
+IL_0122: ldfld      System.Int32 NetInfo/Lane::m_similarLaneIndex
+IL_0127: sub        
+IL_0128: ldc.i4.1   
+IL_0129: sub        
+IL_012A: stloc.s    V_8
+IL_012C: ldarg.s    isMiddle
+IL_012E: brfalse.s  IL_017b: ldloc.3
+IL_0130: ldc.i4.0   
+IL_0131: stloc.s    V_15
+IL_0133: br.s       IL_0171: ldloc.s V_15
+IL_0135: ldarg.s    nextNode
+IL_0137: ldloc.s    V_15
+IL_0139: call       System.UInt16 NetNode::GetSegment(System.Int32)
+IL_013E: stloc.s    V_16
+IL_0140: ldloc.s    V_16
+IL_0142: brfalse.s  IL_016b: ldloc.s V_15
+IL_0144: ldarg.0    
+IL_0145: ldarg.1    
+IL_0146: ldarg.2    
+IL_0147: ldarg.3    
+IL_0148: ldloc.s    V_9
+IL_014A: ldloc.s    V_10
+IL_014C: ldarg.s    nextNodeId
+IL_014E: ldarg.s    nextNode
+IL_0150: ldc.i4.1   
+IL_0151: ldloc.s    V_16
+IL_0153: ldloc.s    V_16
+IL_0155: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_015A: ldloca.s   V_8
+IL_015C: ldarg.s    connectOffset
+IL_015E: ldloc.3    
+IL_015F: ldc.i4.0   
+IL_0160: ceq        
+IL_0162: ldloc.3    
+IL_0163: ldarg.s    simulationFlags
+IL_0165: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_016A: pop        
+IL_016B: ldloc.s    V_15
+IL_016D: ldc.i4.1   
+IL_016E: add        
+IL_016F: stloc.s    V_15
+IL_0171: ldloc.s    V_15
+IL_0173: ldc.i4.8   
+IL_0174: blt.s      IL_0135: ldarg.s nextNode
+IL_0176: br         IL_0ad7: ldarg.s nextNode
+IL_017B: ldloc.3    
+IL_017C: brfalse    IL_0621: ldarg.s nextNode
+IL_0181: ldloc.s    V_6
+IL_0183: brtrue     IL_0ad7: ldarg.s nextNode
+IL_0188: ldloc.s    V_11
+IL_018A: callvirt   System.Boolean NetInfo::IsPedestrianZoneOrPublicTransportRoad()
+IL_018F: stloc.s    V_17
+IL_0191: ldarg.s    nextNode
+IL_0193: call       NetInfo NetNode::get_Info()
+IL_0198: ldfld      ItemClass NetInfo::m_class
+IL_019D: ldfld      ItemClass/Service ItemClass::m_service
+IL_01A2: ldc.i4.s   12
+IL_01A4: beq        IL_048c: ldc.i4.0
+IL_01A9: ldarg.s    nextNode
+IL_01AB: ldfld      NetNode/Flags NetNode::m_flags
+IL_01B0: ldc.i4     208
+IL_01B5: and        
+IL_01B6: ldc.i4.0   
+IL_01B7: cgt.un     
+IL_01B9: stloc.s    V_23
+IL_01BB: ldloc.s    V_5
+IL_01BD: brfalse.s  IL_01d1: ldc.i4.0
+IL_01BF: ldarg.s    nextNode
+IL_01C1: ldfld      NetNode/Flags NetNode::m_flags
+IL_01C6: ldc.i4     144
+IL_01CB: and        
+IL_01CC: ldc.i4.0   
+IL_01CD: ceq        
+IL_01CF: br.s       IL_01d2: stloc.s V_24
+IL_01D1: ldc.i4.0   
+IL_01D2: stloc.s    V_24
+IL_01D4: ldloc.1    
+IL_01D5: stloc.s    V_25
+IL_01D7: ldloc.1    
+IL_01D8: stloc.s    V_26
+IL_01DA: ldarg.2    
+IL_01DB: ldarg.s    nextNodeId
+IL_01DD: ldc.i4.2   
+IL_01DE: ldc.i4.0   
+IL_01DF: ldc.i4.0   
+IL_01E0: conv.i8    
+IL_01E1: ldloc.2    
+IL_01E2: ldloc.s    V_24
+IL_01E4: ldloca.s   V_27
+IL_01E6: ldloca.s   V_28
+IL_01E8: ldloca.s   V_29
+IL_01EA: ldloca.s   V_30
+IL_01EC: call       System.Void NetSegment::GetLeftAndRightLanes(System.UInt16,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32,System.Boolean,System.Int32&,System.Int32&,System.UInt32&,System.UInt32&)
+IL_01F1: ldloc.s    V_29
+IL_01F3: brfalse.s  IL_01fc: ldarg.2
+IL_01F5: ldloc.s    V_30
+IL_01F7: brtrue     IL_02f0: ldloc.s V_29
+IL_01FC: ldarg.2    
+IL_01FD: ldarg.s    nextNodeId
+IL_01FF: ldloca.s   V_33
+IL_0201: ldloca.s   V_34
+IL_0203: call       System.Void NetSegment::GetLeftAndRightSegments(System.UInt16,System.UInt16&,System.UInt16&)
+IL_0208: ldc.i4.0   
+IL_0209: stloc.s    V_35
+IL_020B: br.s       IL_026f: ldloc.s V_33
+IL_020D: ldloc.s    V_33
+IL_020F: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0214: stloc.s    V_36
+IL_0216: ldloc.s    V_36
+IL_0218: ldarg.s    nextNodeId
+IL_021A: ldc.i4.2   
+IL_021B: ldc.i4.0   
+IL_021C: ldc.i4.0   
+IL_021D: conv.i8    
+IL_021E: ldc.i4.m1  
+IL_021F: ldloc.s    V_24
+IL_0221: ldloca.s   V_39
+IL_0223: ldloca.s   V_37
+IL_0225: ldloca.s   V_40
+IL_0227: ldloca.s   V_38
+IL_0229: call       System.Void NetSegment::GetLeftAndRightLanes(System.UInt16,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32,System.Boolean,System.Int32&,System.Int32&,System.UInt32&,System.UInt32&)
+IL_022E: ldloc.s    V_38
+IL_0230: brfalse.s  IL_0240: ldarg.0
+IL_0232: ldloc.s    V_33
+IL_0234: stloc.s    V_25
+IL_0236: ldloc.s    V_37
+IL_0238: stloc.s    V_27
+IL_023A: ldloc.s    V_38
+IL_023C: stloc.s    V_29
+IL_023E: br.s       IL_027c: ldc.i4.0
+IL_0240: ldarg.0    
+IL_0241: ldfld      TrafficManager.Manager.Impl.JunctionRestrictionsManager TrafficManager.Custom.PathFinding.CustomPathFind::junctionManager
+IL_0246: ldloc.s    V_33
+IL_0248: ldloc.s    V_36
+IL_024A: ldfld      System.UInt16 NetSegment::m_startNode
+IL_024F: ldarg.s    nextNodeId
+IL_0251: ceq        
+IL_0253: callvirt   System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsPedestrianCrossingAllowed(System.UInt16,System.Boolean)
+IL_0258: brfalse.s  IL_027c: ldc.i4.0
+IL_025A: ldloc.s    V_36
+IL_025C: ldarg.s    nextNodeId
+IL_025E: call       System.UInt16 NetSegment::GetLeftSegment(System.UInt16)
+IL_0263: stloc.s    V_33
+IL_0265: ldloc.s    V_35
+IL_0267: ldc.i4.1   
+IL_0268: add        
+IL_0269: dup        
+IL_026A: stloc.s    V_35
+IL_026C: ldc.i4.8   
+IL_026D: beq.s      IL_027c: ldc.i4.0
+IL_026F: ldloc.s    V_33
+IL_0271: brfalse.s  IL_027c: ldc.i4.0
+IL_0273: ldloc.s    V_33
+IL_0275: ldloc.1    
+IL_0276: beq.s      IL_027c: ldc.i4.0
+IL_0278: ldloc.s    V_29
+IL_027A: brfalse.s  IL_020d: ldloc.s V_33
+IL_027C: ldc.i4.0   
+IL_027D: stloc.s    V_35
+IL_027F: br.s       IL_02e3: ldloc.s V_34
+IL_0281: ldloc.s    V_34
+IL_0283: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0288: stloc.s    V_41
+IL_028A: ldloc.s    V_41
+IL_028C: ldarg.s    nextNodeId
+IL_028E: ldc.i4.2   
+IL_028F: ldc.i4.0   
+IL_0290: ldc.i4.0   
+IL_0291: conv.i8    
+IL_0292: ldc.i4.m1  
+IL_0293: ldloc.s    V_24
+IL_0295: ldloca.s   V_42
+IL_0297: ldloca.s   V_39
+IL_0299: ldloca.s   V_43
+IL_029B: ldloca.s   V_40
+IL_029D: call       System.Void NetSegment::GetLeftAndRightLanes(System.UInt16,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32,System.Boolean,System.Int32&,System.Int32&,System.UInt32&,System.UInt32&)
+IL_02A2: ldloc.s    V_43
+IL_02A4: brfalse.s  IL_02b4: ldarg.0
+IL_02A6: ldloc.s    V_34
+IL_02A8: stloc.s    V_26
+IL_02AA: ldloc.s    V_42
+IL_02AC: stloc.s    V_28
+IL_02AE: ldloc.s    V_43
+IL_02B0: stloc.s    V_30
+IL_02B2: br.s       IL_02f0: ldloc.s V_29
+IL_02B4: ldarg.0    
+IL_02B5: ldfld      TrafficManager.Manager.Impl.JunctionRestrictionsManager TrafficManager.Custom.PathFinding.CustomPathFind::junctionManager
+IL_02BA: ldloc.s    V_34
+IL_02BC: ldloc.s    V_41
+IL_02BE: ldfld      System.UInt16 NetSegment::m_startNode
+IL_02C3: ldarg.s    nextNodeId
+IL_02C5: ceq        
+IL_02C7: callvirt   System.Boolean TrafficManager.Manager.Impl.JunctionRestrictionsManager::IsPedestrianCrossingAllowed(System.UInt16,System.Boolean)
+IL_02CC: brfalse.s  IL_02f0: ldloc.s V_29
+IL_02CE: ldloc.s    V_41
+IL_02D0: ldarg.s    nextNodeId
+IL_02D2: call       System.UInt16 NetSegment::GetRightSegment(System.UInt16)
+IL_02D7: stloc.s    V_34
+IL_02D9: ldloc.s    V_35
+IL_02DB: ldc.i4.1   
+IL_02DC: add        
+IL_02DD: dup        
+IL_02DE: stloc.s    V_35
+IL_02E0: ldc.i4.8   
+IL_02E1: beq.s      IL_02f0: ldloc.s V_29
+IL_02E3: ldloc.s    V_34
+IL_02E5: brfalse.s  IL_02f0: ldloc.s V_29
+IL_02E7: ldloc.s    V_34
+IL_02E9: ldloc.1    
+IL_02EA: beq.s      IL_02f0: ldloc.s V_29
+IL_02EC: ldloc.s    V_30
+IL_02EE: brfalse.s  IL_0281: ldloc.s V_34
+IL_02F0: ldloc.s    V_29
+IL_02F2: brfalse.s  IL_034f: ldloc.s V_30
+IL_02F4: ldloc.s    V_25
+IL_02F6: ldloc.1    
+IL_02F7: ceq        
+IL_02F9: ldc.i4.0   
+IL_02FA: ceq        
+IL_02FC: ldloc.s    V_23
+IL_02FE: or         
+IL_02FF: ldloc.s    V_24
+IL_0301: or         
+IL_0302: brfalse.s  IL_034f: ldloc.s V_30
+IL_0304: ldloc.s    V_17
+IL_0306: brfalse.s  IL_0326: ldarg.0
+IL_0308: ldloc.0    
+IL_0309: ldfld      Array16`1<NetSegment> NetManager::m_segments
+IL_030E: ldfld      !0[] Array16`1<NetSegment>::m_buffer
+IL_0313: ldloc.s    V_25
+IL_0315: ldelema    NetSegment
+IL_031A: call       NetInfo NetSegment::get_Info()
+IL_031F: callvirt   System.Boolean NetInfo::IsPedestrianZoneOrPublicTransportRoad()
+IL_0324: brtrue.s   IL_034f: ldloc.s V_30
+IL_0326: ldarg.0    
+IL_0327: ldarg.1    
+IL_0328: ldarg.2    
+IL_0329: ldarg.3    
+IL_032A: ldloc.s    V_9
+IL_032C: ldloc.s    V_10
+IL_032E: ldloc.s    V_25
+IL_0330: ldloc.s    V_25
+IL_0332: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0337: ldarg.s    nextNodeId
+IL_0339: ldarg.s    nextNode
+IL_033B: ldloc.s    V_27
+IL_033D: ldloc.s    V_29
+IL_033F: ldloc.s    V_29
+IL_0341: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0346: ldarg.s    connectOffset
+IL_0348: ldarg.s    connectOffset
+IL_034A: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPedBicycle(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetSegment&,System.UInt16,NetNode&,System.Int32,System.UInt32,NetLane&,System.Byte,System.Byte)
+IL_034F: ldloc.s    V_30
+IL_0351: brfalse.s  IL_03b4: ldarg.0
+IL_0353: ldloc.s    V_30
+IL_0355: ldloc.s    V_29
+IL_0357: beq.s      IL_03b4: ldarg.0
+IL_0359: ldloc.s    V_26
+IL_035B: ldloc.1    
+IL_035C: ceq        
+IL_035E: ldc.i4.0   
+IL_035F: ceq        
+IL_0361: ldloc.s    V_23
+IL_0363: or         
+IL_0364: ldloc.s    V_24
+IL_0366: or         
+IL_0367: brfalse.s  IL_03b4: ldarg.0
+IL_0369: ldloc.s    V_17
+IL_036B: brfalse.s  IL_038b: ldarg.0
+IL_036D: ldloc.0    
+IL_036E: ldfld      Array16`1<NetSegment> NetManager::m_segments
+IL_0373: ldfld      !0[] Array16`1<NetSegment>::m_buffer
+IL_0378: ldloc.s    V_26
+IL_037A: ldelema    NetSegment
+IL_037F: call       NetInfo NetSegment::get_Info()
+IL_0384: callvirt   System.Boolean NetInfo::IsPedestrianZoneOrPublicTransportRoad()
+IL_0389: brtrue.s   IL_03b4: ldarg.0
+IL_038B: ldarg.0    
+IL_038C: ldarg.1    
+IL_038D: ldarg.2    
+IL_038E: ldarg.3    
+IL_038F: ldloc.s    V_9
+IL_0391: ldloc.s    V_10
+IL_0393: ldloc.s    V_26
+IL_0395: ldloc.s    V_26
+IL_0397: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_039C: ldarg.s    nextNodeId
+IL_039E: ldarg.s    nextNode
+IL_03A0: ldloc.s    V_28
+IL_03A2: ldloc.s    V_30
+IL_03A4: ldloc.s    V_30
+IL_03A6: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_03AB: ldarg.s    connectOffset
+IL_03AD: ldarg.s    connectOffset
+IL_03AF: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPedBicycle(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetSegment&,System.UInt16,NetNode&,System.Int32,System.UInt32,NetLane&,System.Byte,System.Byte)
+IL_03B4: ldarg.0    
+IL_03B5: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_03BA: ldc.i4.s   32
+IL_03BC: and        
+IL_03BD: brfalse.s  IL_03fd: ldloc.s V_17
+IL_03BF: ldarg.2    
+IL_03C0: ldarg.1    
+IL_03C1: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_03C6: ldfld      System.Byte PathUnit/Position::m_lane
+IL_03CB: ldc.i4.1   
+IL_03CC: ldc.i4.s   32
+IL_03CE: ldc.i4.m1  
+IL_03CF: conv.i8    
+IL_03D0: ldloca.s   V_31
+IL_03D2: ldloca.s   V_32
+IL_03D4: call       System.Boolean NetSegment::GetClosestLane(System.Int32,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32&,System.UInt32&)
+IL_03D9: brfalse.s  IL_03fd: ldloc.s V_17
+IL_03DB: ldarg.0    
+IL_03DC: ldarg.1    
+IL_03DD: ldarg.2    
+IL_03DE: ldarg.3    
+IL_03DF: ldloc.s    V_9
+IL_03E1: ldloc.s    V_10
+IL_03E3: ldloc.1    
+IL_03E4: ldarg.2    
+IL_03E5: ldarg.s    nextNodeId
+IL_03E7: ldarg.s    nextNode
+IL_03E9: ldloc.s    V_31
+IL_03EB: ldloc.s    V_32
+IL_03ED: ldloc.s    V_32
+IL_03EF: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_03F4: ldarg.s    connectOffset
+IL_03F6: ldarg.s    connectOffset
+IL_03F8: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPedBicycle(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetSegment&,System.UInt16,NetNode&,System.Int32,System.UInt32,NetLane&,System.Byte,System.Byte)
+IL_03FD: ldloc.s    V_17
+IL_03FF: brfalse    IL_04d4: ldarg.0
+IL_0404: ldarg.0    
+IL_0405: ldfld      TrafficManager.State.SavedGameOptions TrafficManager.Custom.PathFinding.CustomPathFind::savedGameOptions_
+IL_040A: ldfld      System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+IL_040F: brfalse.s  IL_0430: ldc.i4.0
+IL_0411: ldarg.0    
+IL_0412: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_0417: ldfld      TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.PathUnitQueueItem::vehicleType
+IL_041C: ldc.i4.1   
+IL_041D: bne.un.s   IL_0430: ldc.i4.0
+IL_041F: ldarg.0    
+IL_0420: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_0425: ldfld      TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.API.Traffic.Data.PathUnitQueueItem::pathType
+IL_042A: ldc.i4.2   
+IL_042B: beq        IL_04d4: ldarg.0
+IL_0430: ldc.i4.0   
+IL_0431: stloc.s    V_44
+IL_0433: br.s       IL_0485: ldloc.s V_44
+IL_0435: ldarg.s    nextNode
+IL_0437: ldloc.s    V_44
+IL_0439: call       System.UInt16 NetNode::GetSegment(System.Int32)
+IL_043E: stloc.s    V_45
+IL_0440: ldloc.s    V_45
+IL_0442: brfalse.s  IL_047f: ldloc.s V_44
+IL_0444: ldloc.s    V_45
+IL_0446: ldloc.1    
+IL_0447: beq.s      IL_047f: ldloc.s V_44
+IL_0449: ldloc.s    V_45
+IL_044B: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0450: stloc.s    V_46
+IL_0452: ldloc.s    V_46
+IL_0454: call       NetInfo NetSegment::get_Info()
+IL_0459: callvirt   System.Boolean NetInfo::IsPedestrianZoneOrPublicTransportRoad()
+IL_045E: brfalse.s  IL_047f: ldloc.s V_44
+IL_0460: ldarg.0    
+IL_0461: ldarg.1    
+IL_0462: ldarg.2    
+IL_0463: ldarg.3    
+IL_0464: ldloc.s    V_9
+IL_0466: ldloc.s    V_10
+IL_0468: ldarg.s    nextNodeId
+IL_046A: ldarg.s    nextNode
+IL_046C: ldc.i4.0   
+IL_046D: ldloc.s    V_45
+IL_046F: ldloc.s    V_46
+IL_0471: ldloca.s   V_8
+IL_0473: ldarg.s    connectOffset
+IL_0475: ldc.i4.0   
+IL_0476: ldc.i4.1   
+IL_0477: ldarg.s    simulationFlags
+IL_0479: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_047E: pop        
+IL_047F: ldloc.s    V_44
+IL_0481: ldc.i4.1   
+IL_0482: add        
+IL_0483: stloc.s    V_44
+IL_0485: ldloc.s    V_44
+IL_0487: ldc.i4.8   
+IL_0488: blt.s      IL_0435: ldarg.s nextNode
+IL_048A: br.s       IL_04d4: ldarg.0
+IL_048C: ldc.i4.0   
+IL_048D: stloc.s    V_47
+IL_048F: br.s       IL_04cf: ldloc.s V_47
+IL_0491: ldarg.s    nextNode
+IL_0493: ldloc.s    V_47
+IL_0495: call       System.UInt16 NetNode::GetSegment(System.Int32)
+IL_049A: stloc.s    V_48
+IL_049C: ldloc.s    V_48
+IL_049E: brfalse.s  IL_04c9: ldloc.s V_47
+IL_04A0: ldloc.s    V_48
+IL_04A2: ldloc.1    
+IL_04A3: beq.s      IL_04c9: ldloc.s V_47
+IL_04A5: ldarg.0    
+IL_04A6: ldarg.1    
+IL_04A7: ldarg.2    
+IL_04A8: ldarg.3    
+IL_04A9: ldloc.s    V_9
+IL_04AB: ldloc.s    V_10
+IL_04AD: ldarg.s    nextNodeId
+IL_04AF: ldarg.s    nextNode
+IL_04B1: ldc.i4.0   
+IL_04B2: ldloc.s    V_48
+IL_04B4: ldloc.s    V_48
+IL_04B6: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_04BB: ldloca.s   V_8
+IL_04BD: ldarg.s    connectOffset
+IL_04BF: ldc.i4.0   
+IL_04C0: ldc.i4.1   
+IL_04C1: ldarg.s    simulationFlags
+IL_04C3: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_04C8: pop        
+IL_04C9: ldloc.s    V_47
+IL_04CB: ldc.i4.1   
+IL_04CC: add        
+IL_04CD: stloc.s    V_47
+IL_04CF: ldloc.s    V_47
+IL_04D1: ldc.i4.8   
+IL_04D2: blt.s      IL_0491: ldarg.s nextNode
+IL_04D4: ldarg.0    
+IL_04D5: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind::laneTypes_
+IL_04DA: ldc.i4     253
+IL_04DF: and        
+IL_04E0: stloc.s    V_18
+IL_04E2: ldarg.0    
+IL_04E3: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_04E8: ldc.i4.s   -33
+IL_04EA: and        
+IL_04EB: stloc.s    V_19
+IL_04ED: ldarg.1    
+IL_04EE: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LanesUsed
+IL_04F3: ldc.i4.s   33
+IL_04F5: and        
+IL_04F6: brfalse.s  IL_0502: ldc.i4.1
+IL_04F8: ldloc.s    V_18
+IL_04FA: ldc.i4     222
+IL_04FF: and        
+IL_0500: stloc.s    V_18
+IL_0502: ldc.i4.1   
+IL_0503: stloc.s    V_20
+IL_0505: ldarg.0    
+IL_0506: ldfld      TrafficManager.State.SavedGameOptions TrafficManager.Custom.PathFinding.CustomPathFind::savedGameOptions_
+IL_050B: ldfld      System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+IL_0510: brfalse.s  IL_0568: ldloc.s V_20
+IL_0512: ldarg.0    
+IL_0513: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_0518: ldfld      TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.PathUnitQueueItem::vehicleType
+IL_051D: ldc.i4.1   
+IL_051E: bne.un.s   IL_0568: ldloc.s V_20
+IL_0520: ldloc.s    V_19
+IL_0522: ldc.i4.1   
+IL_0523: and        
+IL_0524: brfalse.s  IL_0568: ldloc.s V_20
+IL_0526: ldloc.s    V_18
+IL_0528: ldc.i4.s   33
+IL_052A: and        
+IL_052B: brfalse.s  IL_0568: ldloc.s V_20
+IL_052D: ldarg.1    
+IL_052E: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LanesUsed
+IL_0533: ldc.i4.s   33
+IL_0535: and        
+IL_0536: brfalse.s  IL_053d: ldarg.1
+IL_0538: ldc.i4.0   
+IL_0539: stloc.s    V_20
+IL_053B: br.s       IL_0568: ldloc.s V_20
+IL_053D: ldarg.1    
+IL_053E: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LanesUsed
+IL_0543: ldc.i4.8   
+IL_0544: and        
+IL_0545: brtrue.s   IL_0568: ldloc.s V_20
+IL_0547: ldarg.1    
+IL_0548: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LaneId
+IL_054D: ldarg.0    
+IL_054E: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::endLaneA_
+IL_0553: beq.s      IL_0565: ldc.i4.1
+IL_0555: ldarg.1    
+IL_0556: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LaneId
+IL_055B: ldarg.0    
+IL_055C: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::endLaneB_
+IL_0561: ceq        
+IL_0563: br.s       IL_0566: stloc.s V_20
+IL_0565: ldc.i4.1   
+IL_0566: stloc.s    V_20
+IL_0568: ldloc.s    V_20
+IL_056A: brfalse    IL_0ad7: ldarg.s nextNode
+IL_056F: ldloc.s    V_18
+IL_0571: brfalse    IL_0ad7: ldarg.s nextNode
+IL_0576: ldloc.s    V_19
+IL_0578: brfalse    IL_0ad7: ldarg.s nextNode
+IL_057D: ldarg.2    
+IL_057E: ldloc.2    
+IL_057F: ldloc.s    V_18
+IL_0581: ldloc.s    V_19
+IL_0583: ldarg.0    
+IL_0584: ldfld      VehicleInfo/VehicleCategory TrafficManager.Custom.PathFinding.CustomPathFind::vehicleCategory_
+IL_0589: ldloca.s   V_21
+IL_058B: ldloca.s   V_22
+IL_058D: call       System.Boolean NetSegment::GetClosestLane(System.Int32,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32&,System.UInt32&)
+IL_0592: brfalse    IL_0ad7: ldarg.s nextNode
+IL_0597: ldloc.s    V_11
+IL_0599: ldfld      NetInfo/Lane[] NetInfo::m_lanes
+IL_059E: ldloc.s    V_21
+IL_05A0: ldelem.ref 
+IL_05A1: stloc.s    V_49
+IL_05A3: ldarg.2    
+IL_05A4: ldfld      NetSegment/Flags NetSegment::m_flags
+IL_05A9: ldc.i4.s   16
+IL_05AB: and        
+IL_05AC: ldc.i4.0   
+IL_05AD: cgt.un     
+IL_05AF: ldloc.s    V_49
+IL_05B1: ldfld      NetInfo/Direction NetInfo/Lane::m_finalDirection
+IL_05B6: ldc.i4.2   
+IL_05B7: and        
+IL_05B8: ldc.i4.0   
+IL_05B9: cgt.un     
+IL_05BB: beq.s      IL_05c4: ldc.i4.1
+IL_05BD: ldc.i4     254
+IL_05C2: br.s       IL_05c5: conv.u1
+IL_05C4: ldc.i4.1   
+IL_05C5: conv.u1    
+IL_05C6: stloc.s    V_50
+IL_05C8: ldarg.1    
+IL_05C9: stloc.s    V_51
+IL_05CB: ldarg.0    
+IL_05CC: ldfld      System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::randomParking_
+IL_05D1: brfalse.s  IL_05f6: ldarg.0
+IL_05D3: ldloca.s   V_51
+IL_05D5: ldflda     System.Single TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::ComparisonValue
+IL_05DA: dup        
+IL_05DB: ldind.r4   
+IL_05DC: ldarg.0    
+IL_05DD: ldflda     ColossalFramework.Math.Randomizer TrafficManager.Custom.PathFinding.CustomPathFind::pathRandomizer_
+IL_05E2: ldc.i4     300
+IL_05E7: call       System.Int32 ColossalFramework.Math.Randomizer::Int32(System.UInt32)
+IL_05EC: conv.r4    
+IL_05ED: ldarg.0    
+IL_05EE: ldfld      System.Single TrafficManager.Custom.PathFinding.CustomPathFind::maxLength_
+IL_05F3: div        
+IL_05F4: add        
+IL_05F5: stind.r4   
+IL_05F6: ldarg.0    
+IL_05F7: ldloc.s    V_51
+IL_05F9: ldarg.2    
+IL_05FA: ldarg.3    
+IL_05FB: ldloc.s    V_9
+IL_05FD: ldloc.s    V_10
+IL_05FF: ldloc.1    
+IL_0600: ldarg.2    
+IL_0601: ldarg.s    nextNodeId
+IL_0603: ldarg.s    nextNode
+IL_0605: ldloc.s    V_21
+IL_0607: ldloc.s    V_22
+IL_0609: ldloc.s    V_22
+IL_060B: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0610: ldloc.s    V_50
+IL_0612: ldc.i4     128
+IL_0617: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPedBicycle(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetSegment&,System.UInt16,NetNode&,System.Int32,System.UInt32,NetLane&,System.Byte,System.Byte)
+IL_061C: br         IL_0ad7: ldarg.s nextNode
+IL_0621: ldarg.s    nextNode
+IL_0623: call       NetInfo NetNode::get_Info()
+IL_0628: ldfld      ItemClass NetInfo::m_class
+IL_062D: ldfld      ItemClass/Service ItemClass::m_service
+IL_0632: ldc.i4.s   12
+IL_0634: ceq        
+IL_0636: stloc.s    V_52
+IL_0638: ldarg.0    
+IL_0639: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind::laneTypes_
+IL_063E: ldc.i4.2   
+IL_063F: and        
+IL_0640: ldc.i4.0   
+IL_0641: cgt.un     
+IL_0643: stloc.s    V_53
+IL_0645: ldc.i4.0   
+IL_0646: stloc.s    V_54
+IL_0648: ldc.i4.0   
+IL_0649: stloc.s    V_55
+IL_064B: ldloc.s    V_53
+IL_064D: brfalse    IL_0737: ldarg.0
+IL_0652: ldloc.s    V_4
+IL_0654: brfalse.s  IL_0663: ldarg.0
+IL_0656: ldarg.s    connectOffset
+IL_0658: stloc.s    V_55
+IL_065A: ldloc.s    V_52
+IL_065C: stloc.s    V_54
+IL_065E: br         IL_0737: ldarg.0
+IL_0663: ldarg.0    
+IL_0664: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::vehicleLane_
+IL_0669: brfalse.s  IL_068e: ldarg.0
+IL_066B: ldarg.0    
+IL_066C: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind::vehicleLane_
+IL_0671: ldarg.1    
+IL_0672: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LaneId
+IL_0677: beq.s      IL_0681: ldarg.0
+IL_0679: ldc.i4.0   
+IL_067A: stloc.s    V_53
+IL_067C: br         IL_0737: ldarg.0
+IL_0681: ldarg.0    
+IL_0682: ldfld      System.Byte TrafficManager.Custom.PathFinding.CustomPathFind::vehicleOffset_
+IL_0687: stloc.s    V_55
+IL_0689: br         IL_0737: ldarg.0
+IL_068E: ldarg.0    
+IL_068F: ldfld      System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::stablePath_
+IL_0694: brfalse.s  IL_06a2: ldarg.0
+IL_0696: ldc.i4     128
+IL_069B: stloc.s    V_55
+IL_069D: br         IL_0737: ldarg.0
+IL_06A2: ldarg.0    
+IL_06A3: ldfld      TrafficManager.State.SavedGameOptions TrafficManager.Custom.PathFinding.CustomPathFind::savedGameOptions_
+IL_06A8: ldfld      System.Boolean TrafficManager.State.SavedGameOptions::parkingAI
+IL_06AD: brfalse.s  IL_0723: ldarg.0
+IL_06AF: ldarg.0    
+IL_06B0: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_06B5: ldfld      TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.API.Traffic.Data.PathUnitQueueItem::pathType
+IL_06BA: ldc.i4.1   
+IL_06BB: ceq        
+IL_06BD: ldloc.s    V_7
+IL_06BF: and        
+IL_06C0: brtrue.s   IL_0708: ldc.i4.0
+IL_06C2: ldarg.0    
+IL_06C3: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_06C8: ldfld      TrafficManager.API.Traffic.Enums.ExtPathType TrafficManager.API.Traffic.Data.PathUnitQueueItem::pathType
+IL_06CD: ldc.i4.2   
+IL_06CE: bne.un.s   IL_070d: ldarg.0
+IL_06D0: ldarg.0    
+IL_06D1: ldflda     TrafficManager.API.Traffic.Data.PathUnitQueueItem TrafficManager.Custom.PathFinding.CustomPathFind::queueItem_
+IL_06D6: ldfld      TrafficManager.API.Traffic.Enums.ExtVehicleType TrafficManager.API.Traffic.Data.PathUnitQueueItem::vehicleType
+IL_06DB: ldc.i4.1   
+IL_06DC: bne.un.s   IL_070d: ldarg.0
+IL_06DE: ldarg.1    
+IL_06DF: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_06E4: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_06E9: ldarg.0    
+IL_06EA: ldfld      System.UInt16 TrafficManager.Custom.PathFinding.CustomPathFind::startSegmentA_
+IL_06EF: beq.s      IL_0704: ldloc.s V_7
+IL_06F1: ldarg.1    
+IL_06F2: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_06F7: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_06FC: ldarg.0    
+IL_06FD: ldfld      System.UInt16 TrafficManager.Custom.PathFinding.CustomPathFind::startSegmentB_
+IL_0702: bne.un.s   IL_0708: ldc.i4.0
+IL_0704: ldloc.s    V_7
+IL_0706: brtrue.s   IL_070d: ldarg.0
+IL_0708: ldc.i4.0   
+IL_0709: stloc.s    V_53
+IL_070B: br.s       IL_0737: ldarg.0
+IL_070D: ldarg.0    
+IL_070E: ldflda     ColossalFramework.Math.Randomizer TrafficManager.Custom.PathFinding.CustomPathFind::pathRandomizer_
+IL_0713: ldc.i4.1   
+IL_0714: ldc.i4     254
+IL_0719: call       System.UInt32 ColossalFramework.Math.Randomizer::UInt32(System.UInt32,System.UInt32)
+IL_071E: conv.u1    
+IL_071F: stloc.s    V_55
+IL_0721: br.s       IL_0737: ldarg.0
+IL_0723: ldarg.0    
+IL_0724: ldflda     ColossalFramework.Math.Randomizer TrafficManager.Custom.PathFinding.CustomPathFind::pathRandomizer_
+IL_0729: ldc.i4.1   
+IL_072A: ldc.i4     254
+IL_072F: call       System.UInt32 ColossalFramework.Math.Randomizer::UInt32(System.UInt32,System.UInt32)
+IL_0734: conv.u1    
+IL_0735: stloc.s    V_55
+IL_0737: ldarg.0    
+IL_0738: ldfld      NetInfo/LaneType TrafficManager.Custom.PathFinding.CustomPathFind::laneTypes_
+IL_073D: ldc.i4.s   16
+IL_073F: and        
+IL_0740: brfalse.s  IL_074e: ldarg.0
+IL_0742: ldarg.s    nextNode
+IL_0744: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::BelongsToFerryNetwork(NetNode&)
+IL_0749: brfalse    IL_07ed: ldarg.s simulationFlags
+IL_074E: ldarg.0    
+IL_074F: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_0754: ldc.i4     1024
+IL_0759: and        
+IL_075A: brfalse    IL_07ed: ldarg.s simulationFlags
+IL_075F: ldarg.s    nextNode
+IL_0761: ldfld      NetNode/Flags NetNode::m_flags
+IL_0766: ldc.i4     208
+IL_076B: and        
+IL_076C: ldc.i4.0   
+IL_076D: cgt.un     
+IL_076F: stloc.s    V_57
+IL_0771: ldc.i4.0   
+IL_0772: stloc.s    V_58
+IL_0774: br.s       IL_07b5: ldloc.s V_58
+IL_0776: ldarg.s    nextNode
+IL_0778: ldloc.s    V_58
+IL_077A: call       System.UInt16 NetNode::GetSegment(System.Int32)
+IL_077F: stloc.s    V_56
+IL_0781: ldloc.s    V_56
+IL_0783: brfalse.s  IL_07af: ldloc.s V_58
+IL_0785: ldloc.s    V_56
+IL_0787: ldloc.1    
+IL_0788: beq.s      IL_07af: ldloc.s V_58
+IL_078A: ldarg.0    
+IL_078B: ldarg.1    
+IL_078C: ldarg.2    
+IL_078D: ldarg.3    
+IL_078E: ldloc.s    V_9
+IL_0790: ldloc.s    V_10
+IL_0792: ldarg.s    nextNodeId
+IL_0794: ldarg.s    nextNode
+IL_0796: ldc.i4.0   
+IL_0797: ldloc.s    V_56
+IL_0799: ldloc.s    V_56
+IL_079B: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_07A0: ldloca.s   V_8
+IL_07A2: ldarg.s    connectOffset
+IL_07A4: ldc.i4.1   
+IL_07A5: ldloc.s    V_54
+IL_07A7: ldarg.s    simulationFlags
+IL_07A9: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_07AE: pop        
+IL_07AF: ldloc.s    V_58
+IL_07B1: ldc.i4.1   
+IL_07B2: add        
+IL_07B3: stloc.s    V_58
+IL_07B5: ldloc.s    V_58
+IL_07B7: ldc.i4.8   
+IL_07B8: blt.s      IL_0776: ldarg.s nextNode
+IL_07BA: ldloc.s    V_57
+IL_07BC: brfalse    IL_0a8d: ldloc.s V_53
+IL_07C1: ldloc.1    
+IL_07C2: stloc.s    V_56
+IL_07C4: ldarg.0    
+IL_07C5: ldarg.1    
+IL_07C6: ldarg.2    
+IL_07C7: ldarg.3    
+IL_07C8: ldloc.s    V_9
+IL_07CA: ldloc.s    V_10
+IL_07CC: ldarg.s    nextNodeId
+IL_07CE: ldarg.s    nextNode
+IL_07D0: ldc.i4.0   
+IL_07D1: ldloc.s    V_56
+IL_07D3: ldloc.s    V_56
+IL_07D5: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_07DA: ldloca.s   V_8
+IL_07DC: ldarg.s    connectOffset
+IL_07DE: ldc.i4.1   
+IL_07DF: ldc.i4.0   
+IL_07E0: ldarg.s    simulationFlags
+IL_07E2: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_07E7: pop        
+IL_07E8: br         IL_0a8d: ldloc.s V_53
+IL_07ED: ldarg.s    simulationFlags
+IL_07EF: ldc.i4     256
+IL_07F4: and        
+IL_07F5: brtrue.s   IL_0862: ldc.i4.0
+IL_07F7: ldarg.s    nextNode
+IL_07F9: ldfld      NetNode/Flags2 NetNode::m_flags2
+IL_07FE: ldc.i4.s   32
+IL_0800: and        
+IL_0801: brfalse.s  IL_0862: ldc.i4.0
+IL_0803: ldarg.0    
+IL_0804: ldfld      NetSegment[] TrafficManager.Custom.PathFinding.CustomPathFind::segmentBuffer_
+IL_0809: ldarg.1    
+IL_080A: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_080F: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_0814: ldelema    NetSegment
+IL_0819: ldfld      NetSegment/Flags2 NetSegment::m_flags2
+IL_081E: ldc.i4     4096
+IL_0823: and        
+IL_0824: brtrue.s   IL_0862: ldc.i4.0
+IL_0826: ldarg.1    
+IL_0827: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_082C: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_0831: stloc.s    V_56
+IL_0833: ldarg.0    
+IL_0834: ldarg.1    
+IL_0835: ldarg.2    
+IL_0836: ldarg.3    
+IL_0837: ldloc.s    V_9
+IL_0839: ldloc.s    V_10
+IL_083B: ldarg.s    nextNodeId
+IL_083D: ldarg.s    nextNode
+IL_083F: ldc.i4.0   
+IL_0840: ldloc.s    V_56
+IL_0842: ldarg.0    
+IL_0843: ldfld      NetSegment[] TrafficManager.Custom.PathFinding.CustomPathFind::segmentBuffer_
+IL_0848: ldloc.s    V_56
+IL_084A: ldelema    NetSegment
+IL_084F: ldloca.s   V_8
+IL_0851: ldarg.s    connectOffset
+IL_0853: ldc.i4.1   
+IL_0854: ldc.i4.0   
+IL_0855: ldarg.s    simulationFlags
+IL_0857: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_085C: pop        
+IL_085D: br         IL_0a8d: ldloc.s V_53
+IL_0862: ldc.i4.0   
+IL_0863: stloc.s    V_59
+IL_0865: ldc.i4.0   
+IL_0866: stloc.s    V_60
+IL_0868: ldc.i4.0   
+IL_0869: stloc.s    V_61
+IL_086B: ldarg.s    nextNodeId
+IL_086D: ldarg.2    
+IL_086E: ldfld      System.UInt16 NetSegment::m_startNode
+IL_0873: ceq        
+IL_0875: stloc.s    V_62
+IL_0877: ldloc.s    V_62
+IL_0879: brtrue.s   IL_0885: ldarg.0
+IL_087B: ldarg.s    nextNodeId
+IL_087D: ldarg.2    
+IL_087E: ldfld      System.UInt16 NetSegment::m_endNode
+IL_0883: bne.un.s   IL_08b3: ldc.i4.0
+IL_0885: ldarg.0    
+IL_0886: ldfld      TrafficManager.Manager.Impl.RoutingManager TrafficManager.Custom.PathFinding.CustomPathFind::routingManager
+IL_088B: ldarg.1    
+IL_088C: ldfld      System.UInt32 TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::LaneId
+IL_0891: ldloc.s    V_62
+IL_0893: callvirt   System.UInt32 TrafficManager.Manager.Impl.RoutingManager::GetLaneEndRoutingIndex(System.UInt32,System.Boolean)
+IL_0898: stloc.s    V_61
+IL_089A: ldarg.0    
+IL_089B: ldfld      TrafficManager.Manager.Impl.RoutingManager TrafficManager.Custom.PathFinding.CustomPathFind::routingManager
+IL_08A0: callvirt   TrafficManager.API.Manager.LaneEndRoutingData[] TrafficManager.Manager.Impl.RoutingManager::get_LaneEndBackwardRoutings()
+IL_08A5: ldloc.s    V_61
+IL_08A7: ldelema    TrafficManager.API.Manager.LaneEndRoutingData
+IL_08AC: ldfld      System.Boolean TrafficManager.API.Manager.LaneEndRoutingData::routed
+IL_08B1: stloc.s    V_60
+IL_08B3: ldc.i4.0   
+IL_08B4: conv.i8    
+IL_08B5: stloc.s    V_63
+IL_08B7: ldloc.s    V_54
+IL_08B9: brtrue.s   IL_08c2: ldarg.2
+IL_08BB: ldloc.s    V_60
+IL_08BD: brtrue     IL_094d: ldc.r4 1
+IL_08C2: ldarg.2    
+IL_08C3: ldarg.s    nextNodeId
+IL_08C5: call       System.UInt16 NetSegment::GetRightSegment(System.UInt16)
+IL_08CA: stloc.s    V_56
+IL_08CC: ldc.i4.0   
+IL_08CD: stloc.s    V_69
+IL_08CF: br.s       IL_0948: ldloc.s V_69
+IL_08D1: ldloc.s    V_56
+IL_08D3: brfalse.s  IL_094d: ldc.r4 1
+IL_08D5: ldloc.s    V_56
+IL_08D7: ldloc.1    
+IL_08D8: beq.s      IL_094d: ldc.r4 1
+IL_08DA: ldarg.0    
+IL_08DB: ldarg.1    
+IL_08DC: ldarg.2    
+IL_08DD: ldarg.3    
+IL_08DE: ldloc.s    V_9
+IL_08E0: ldloc.s    V_10
+IL_08E2: ldarg.s    nextNodeId
+IL_08E4: ldarg.s    nextNode
+IL_08E6: ldc.i4.0   
+IL_08E7: ldloc.s    V_56
+IL_08E9: ldloc.s    V_56
+IL_08EB: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_08F0: ldloca.s   V_8
+IL_08F2: ldarg.s    connectOffset
+IL_08F4: ldloc.s    V_60
+IL_08F6: ldc.i4.0   
+IL_08F7: ceq        
+IL_08F9: ldloc.s    V_54
+IL_08FB: ldarg.s    simulationFlags
+IL_08FD: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_0902: brfalse.s  IL_0907: ldloc.s V_63
+IL_0904: ldc.i4.1   
+IL_0905: stloc.s    V_59
+IL_0907: ldloc.s    V_63
+IL_0909: ldloc.0    
+IL_090A: ldfld      Array16`1<NetSegment> NetManager::m_segments
+IL_090F: ldfld      !0[] Array16`1<NetSegment>::m_buffer
+IL_0914: ldloc.s    V_56
+IL_0916: ldelema    NetSegment
+IL_091B: call       NetInfo NetSegment::get_Info()
+IL_0920: ldfld      VehicleInfo/VehicleCategory NetInfo::m_vehicleCategories
+IL_0925: ldc.i8     1134691704897598
+IL_092E: and        
+IL_092F: or         
+IL_0930: stloc.s    V_63
+IL_0932: ldloc.s    V_56
+IL_0934: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0939: ldarg.s    nextNodeId
+IL_093B: call       System.UInt16 NetSegment::GetRightSegment(System.UInt16)
+IL_0940: stloc.s    V_56
+IL_0942: ldloc.s    V_69
+IL_0944: ldc.i4.1   
+IL_0945: add        
+IL_0946: stloc.s    V_69
+IL_0948: ldloc.s    V_69
+IL_094A: ldc.i4.8   
+IL_094B: blt.s      IL_08d1: ldloc.s V_56
+IL_094D: ldc.r4     1
+IL_0952: stloc.s    V_64
+IL_0954: ldc.r4     1
+IL_0959: stloc.s    V_65
+IL_095B: ldc.r4     1
+IL_0960: stloc.s    V_66
+IL_0962: ldc.i4.0   
+IL_0963: stloc.s    V_67
+IL_0965: ldarg.0    
+IL_0966: ldfld      TrafficManager.State.SavedGameOptions TrafficManager.Custom.PathFinding.CustomPathFind::savedGameOptions_
+IL_096B: ldfld      System.Boolean TrafficManager.State.SavedGameOptions::advancedAI
+IL_0970: ldloc.s    V_60
+IL_0972: and        
+IL_0973: brfalse.s  IL_097d: ldc.i4.0
+IL_0975: ldarg.0    
+IL_0976: ldfld      System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::isRoadVehicle_
+IL_097B: br.s       IL_097e: ldloc.s V_7
+IL_097D: ldc.i4.0   
+IL_097E: ldloc.s    V_7
+IL_0980: and        
+IL_0981: brfalse.s  IL_09a2: ldloc.s V_60
+IL_0983: ldc.i4.1   
+IL_0984: stloc.s    V_67
+IL_0986: ldarg.0    
+IL_0987: ldfld      System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::stablePath_
+IL_098C: brtrue.s   IL_09a2: ldloc.s V_60
+IL_098E: ldarg.0    
+IL_098F: ldarga.s   item
+IL_0991: ldarg.2    
+IL_0992: ldarg.3    
+IL_0993: ldarg.s    nextNodeId
+IL_0995: ldarg.s    nextNode
+IL_0997: ldloca.s   V_64
+IL_0999: ldloca.s   V_65
+IL_099B: ldloca.s   V_66
+IL_099D: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::CalculateAdvancedAiCostFactors(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem&,NetSegment&,NetLane&,System.UInt16,NetNode&,System.Single&,System.Single&,System.Single&)
+IL_09A2: ldloc.s    V_60
+IL_09A4: brfalse.s  IL_09f3: ldloc.s V_59
+IL_09A6: ldc.i4.0   
+IL_09A7: stloc.s    V_59
+IL_09A9: ldarg.0    
+IL_09AA: ldarg.1    
+IL_09AB: ldarg.2    
+IL_09AC: ldarg.3    
+IL_09AD: ldloc.s    V_9
+IL_09AF: ldloc.s    V_10
+IL_09B1: ldloc.s    V_67
+IL_09B3: ldloc.s    V_66
+IL_09B5: ldloc.s    V_64
+IL_09B7: ldloc.s    V_65
+IL_09B9: ldarg.s    nextNodeId
+IL_09BB: ldarg.s    nextNode
+IL_09BD: ldc.i4.0   
+IL_09BE: ldarg.0    
+IL_09BF: ldfld      TrafficManager.Manager.Impl.RoutingManager TrafficManager.Custom.PathFinding.CustomPathFind::routingManager
+IL_09C4: callvirt   TrafficManager.API.Manager.SegmentRoutingData[] TrafficManager.Manager.Impl.RoutingManager::get_SegmentRoutings()
+IL_09C9: ldloc.1    
+IL_09CA: ldelem.any TrafficManager.API.Manager.SegmentRoutingData
+IL_09CF: ldarg.0    
+IL_09D0: ldfld      TrafficManager.Manager.Impl.RoutingManager TrafficManager.Custom.PathFinding.CustomPathFind::routingManager
+IL_09D5: callvirt   TrafficManager.API.Manager.LaneEndRoutingData[] TrafficManager.Manager.Impl.RoutingManager::get_LaneEndBackwardRoutings()
+IL_09DA: ldloc.s    V_61
+IL_09DC: ldelem.any TrafficManager.API.Manager.LaneEndRoutingData
+IL_09E1: ldarg.s    connectOffset
+IL_09E3: ldloc.s    V_8
+IL_09E5: ldarg.s    simulationFlags
+IL_09E7: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemRouted(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.Boolean,System.Single,System.Single,System.Single,System.UInt16,NetNode&,System.Boolean,TrafficManager.API.Manager.SegmentRoutingData,TrafficManager.API.Manager.LaneEndRoutingData,System.Byte,System.Int32,PathUnit/SimulationFlags)
+IL_09EC: brfalse.s  IL_0a09: ldloc.0
+IL_09EE: ldc.i4.1   
+IL_09EF: stloc.s    V_59
+IL_09F1: br.s       IL_0a09: ldloc.0
+IL_09F3: ldloc.s    V_59
+IL_09F5: brtrue.s   IL_0a09: ldloc.0
+IL_09F7: ldarg.s    nextNode
+IL_09F9: ldfld      NetNode/Flags NetNode::m_flags
+IL_09FE: ldc.i4     4194320
+IL_0A03: and        
+IL_0A04: ldc.i4.0   
+IL_0A05: cgt.un     
+IL_0A07: stloc.s    V_59
+IL_0A09: ldloc.0    
+IL_0A0A: ldfld      Array16`1<NetSegment> NetManager::m_segments
+IL_0A0F: ldfld      !0[] Array16`1<NetSegment>::m_buffer
+IL_0A14: ldarg.1    
+IL_0A15: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_0A1A: ldfld      System.UInt16 PathUnit/Position::m_segment
+IL_0A1F: ldelema    NetSegment
+IL_0A24: call       NetInfo NetSegment::get_Info()
+IL_0A29: ldfld      VehicleInfo/VehicleCategory NetInfo::m_vehicleCategories
+IL_0A2E: ldc.i8     1134691704897598
+IL_0A37: and        
+IL_0A38: stloc.s    V_68
+IL_0A3A: ldloc.s    V_60
+IL_0A3C: brtrue.s   IL_0a4a: ldloc.s V_59
+IL_0A3E: ldloc.s    V_63
+IL_0A40: ldloc.s    V_68
+IL_0A42: and        
+IL_0A43: ldloc.s    V_68
+IL_0A45: beq.s      IL_0a4a: ldloc.s V_59
+IL_0A47: ldc.i4.1   
+IL_0A48: stloc.s    V_59
+IL_0A4A: ldloc.s    V_59
+IL_0A4C: brfalse.s  IL_0a8d: ldloc.s V_53
+IL_0A4E: ldarg.0    
+IL_0A4F: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_0A54: ldc.i4     65600
+IL_0A59: and        
+IL_0A5A: brtrue.s   IL_0a8d: ldloc.s V_53
+IL_0A5C: ldarg.0    
+IL_0A5D: ldarg.1    
+IL_0A5E: ldarg.2    
+IL_0A5F: ldarg.3    
+IL_0A60: ldloc.s    V_9
+IL_0A62: ldloc.s    V_10
+IL_0A64: ldc.i4.0   
+IL_0A65: ldc.r4     0
+IL_0A6A: ldarg.s    nextNodeId
+IL_0A6C: ldarg.s    nextNode
+IL_0A6E: ldc.i4.0   
+IL_0A6F: ldloc.1    
+IL_0A70: ldarg.2    
+IL_0A71: ldloc.s    V_64
+IL_0A73: ldloc.s    V_65
+IL_0A75: ldloca.s   V_70
+IL_0A77: initobj    System.Nullable`1<TrafficManager.API.Manager.LaneTransitionData>
+IL_0A7D: ldloc.s    V_70
+IL_0A7F: ldloca.s   V_8
+IL_0A81: ldarg.s    connectOffset
+IL_0A83: ldc.i4.1   
+IL_0A84: ldc.i4.0   
+IL_0A85: ldarg.s    simulationFlags
+IL_0A87: call       System.Boolean TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemCosts(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.Boolean,System.Single,System.UInt16,NetNode&,System.Boolean,System.UInt16,NetSegment&,System.Single,System.Single,System.Nullable`1<TrafficManager.API.Manager.LaneTransitionData>,System.Int32&,System.Byte,System.Boolean,System.Boolean,PathUnit/SimulationFlags)
+IL_0A8C: pop        
+IL_0A8D: ldloc.s    V_53
+IL_0A8F: brfalse.s  IL_0ad7: ldarg.s nextNode
+IL_0A91: ldarg.2    
+IL_0A92: ldarg.1    
+IL_0A93: ldfld      PathUnit/Position TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem::Position
+IL_0A98: ldfld      System.Byte PathUnit/Position::m_lane
+IL_0A9D: ldc.i4.2   
+IL_0A9E: ldarg.0    
+IL_0A9F: ldfld      VehicleInfo/VehicleType TrafficManager.Custom.PathFinding.CustomPathFind::vehicleTypes_
+IL_0AA4: ldarg.0    
+IL_0AA5: ldfld      VehicleInfo/VehicleCategory TrafficManager.Custom.PathFinding.CustomPathFind::vehicleCategory_
+IL_0AAA: ldloca.s   V_71
+IL_0AAC: ldloca.s   V_72
+IL_0AAE: call       System.Boolean NetSegment::GetClosestLane(System.Int32,NetInfo/LaneType,VehicleInfo/VehicleType,VehicleInfo/VehicleCategory,System.Int32&,System.UInt32&)
+IL_0AB3: brfalse.s  IL_0ad7: ldarg.s nextNode
+IL_0AB5: ldarg.0    
+IL_0AB6: ldarg.1    
+IL_0AB7: ldarg.2    
+IL_0AB8: ldarg.3    
+IL_0AB9: ldloc.s    V_9
+IL_0ABB: ldloc.s    V_10
+IL_0ABD: ldloc.1    
+IL_0ABE: ldarg.2    
+IL_0ABF: ldarg.s    nextNodeId
+IL_0AC1: ldarg.s    nextNode
+IL_0AC3: ldloc.s    V_71
+IL_0AC5: ldloc.s    V_72
+IL_0AC7: ldloc.s    V_72
+IL_0AC9: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0ACE: ldloc.s    V_55
+IL_0AD0: ldloc.s    V_55
+IL_0AD2: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPedBicycle(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,NetSegment&,System.UInt16,NetNode&,System.Int32,System.UInt32,NetLane&,System.Byte,System.Byte)
+IL_0AD7: ldarg.s    nextNode
+IL_0AD9: ldfld      System.UInt32 NetNode::m_lane
+IL_0ADE: brtrue.s   IL_0ae1: ldarg.s nextNode
+IL_0AE0: ret        
+IL_0AE1: ldarg.s    nextNode
+IL_0AE3: ldfld      NetNode/Flags NetNode::m_flags
+IL_0AE8: ldc.i4     268435464
+IL_0AED: and        
+IL_0AEE: ldc.i4.8   
+IL_0AEF: ceq        
+IL_0AF1: stloc.s    V_12
+IL_0AF3: ldarg.s    nextNode
+IL_0AF5: ldfld      System.UInt32 NetNode::m_lane
+IL_0AFA: call       NetLane& TrafficManager.Util.Extensions.NetLaneExtensions::ToLane(System.UInt32)
+IL_0AFF: ldfld      System.UInt16 NetLane::m_segment
+IL_0B04: stloc.s    V_13
+IL_0B06: ldloc.s    V_13
+IL_0B08: brfalse.s  IL_0b0f: ret
+IL_0B0A: ldloc.s    V_13
+IL_0B0C: ldloc.1    
+IL_0B0D: bne.un.s   IL_0b10: ldarg.0
+IL_0B0F: ret        
+IL_0B10: ldarg.0    
+IL_0B11: ldarg.1    
+IL_0B12: ldarg.2    
+IL_0B13: ldarg.3    
+IL_0B14: ldloc.s    V_9
+IL_0B16: ldloc.s    V_10
+IL_0B18: ldarg.s    nextNodeId
+IL_0B1A: ldloc.s    V_12
+IL_0B1C: ldloc.s    V_13
+IL_0B1E: ldloc.s    V_13
+IL_0B20: call       NetSegment& TrafficManager.Util.Extensions.NetSegmentExtensions::ToSegment(System.UInt16)
+IL_0B25: ldarg.s    nextNode
+IL_0B27: ldfld      System.UInt32 NetNode::m_lane
+IL_0B2C: ldarg.s    nextNode
+IL_0B2E: ldfld      System.Byte NetNode::m_laneOffset
+IL_0B33: ldarg.s    connectOffset
+IL_0B35: call       System.Void TrafficManager.Custom.PathFinding.CustomPathFind::ProcessItemPublicTransport(TrafficManager.Custom.PathFinding.CustomPathFind/BufferItem,NetSegment&,NetLane&,System.Single,System.Single,System.UInt16,System.Boolean,System.UInt16,NetSegment&,System.UInt32,System.Byte,System.Byte)
+IL_0B3A: ret        

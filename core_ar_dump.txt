@@ -1,0 +1,1794 @@
+==================================================
+TYPE: MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+==================================================
+
+--- get_RetryPending ---
+  IL_0000: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0005: callvirt System.Boolean MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::get_Pending()
+  IL_000a: ret
+
+--- Apply ---
+  IL_0000: ldarg.0
+  IL_0001: ldc.i4.1
+  IL_0002: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::TryApply(HarmonyLib.Harmony,System.Boolean)
+  IL_0007: ret
+
+--- PrepareForNetworkDeserialize ---
+  IL_0000: ldarg.0
+  IL_0001: ldarg.1
+  IL_0002: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::TryApply(HarmonyLib.Harmony,System.Boolean)
+  IL_0007: ret
+
+--- Retry ---
+  IL_0000: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0005: ldloca.s V_0
+  IL_0007: callvirt System.Boolean MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::TryBegin(System.Int32&)
+  IL_000c: brfalse.s IL_0016
+  IL_000e: ldarg.0
+  IL_000f: ldc.i4.1
+  IL_0010: ldloc.0
+  IL_0011: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::TryApply(HarmonyLib.Harmony,System.Boolean,System.Int32)
+  IL_0016: call System.Boolean MoreNetworkCapacity.Patches.NetworkColorOffsetPatch::get_LatePassPending()
+  IL_001b: brfalse.s IL_0023
+  IL_001d: ldarg.0
+  IL_001e: call System.Void MoreNetworkCapacity.Patches.NetworkColorOffsetPatch::ReapplyFinalPass(HarmonyLib.Harmony)
+  IL_0023: ret
+
+--- Reset ---
+  IL_0000: ldnull
+  IL_0001: stsfld System.Object MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_preparedInstance
+  IL_0006: ldc.i4.0
+  IL_0007: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_createHookInstalled
+  IL_000c: ldc.i4.0
+  IL_000d: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_deserializeHookInstalled
+  IL_0012: ldc.i4.0
+  IL_0013: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_lifeCycleLoadHookInstalled
+  IL_0018: ldc.i4.0
+  IL_0019: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_asymPavementColorPrefixPatched
+  IL_001e: ldc.i4.0
+  IL_001f: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_0024: ldnull
+  IL_0025: stsfld System.Reflection.Assembly MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assembly
+  IL_002a: ldnull
+  IL_002b: stsfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_managerType
+  IL_0030: ldc.i4.0
+  IL_0031: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchesReady
+  IL_0036: ldc.i4.0
+  IL_0037: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_003c: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assemblyLoadSubscribed
+  IL_0041: brfalse.s IL_005f
+  IL_0043: call System.AppDomain System.AppDomain::get_CurrentDomain()
+  IL_0048: ldnull
+  IL_0049: ldftn System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::AssemblyLoaded(System.Object,System.AssemblyLoadEventArgs)
+  IL_004f: newobj System.Void System.AssemblyLoadEventHandler::.ctor(System.Object,System.IntPtr)
+  IL_0054: callvirt System.Void System.AppDomain::remove_AssemblyLoad(System.AssemblyLoadEventHandler)
+  IL_0059: ldc.i4.0
+  IL_005a: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assemblyLoadSubscribed
+  IL_005f: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0064: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Reset()
+  IL_0069: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_006e: callvirt System.Void System.Collections.Generic.HashSet`1<System.String>::Clear()
+  IL_0073: ret
+
+--- TryApply ---
+  IL_0000: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0005: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Request()
+  IL_000a: ldarg.0
+  IL_000b: ldarg.1
+  IL_000c: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0011: callvirt System.Int32 MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::get_Generation()
+  IL_0016: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::TryApply(HarmonyLib.Harmony,System.Boolean,System.Int32)
+  IL_001b: ret
+
+--- AssemblyLoaded ---
+  IL_0000: ldarg.1
+  IL_0001: callvirt System.Reflection.Assembly System.AssemblyLoadEventArgs::get_LoadedAssembly()
+  IL_0006: callvirt System.String System.Reflection.Assembly::get_FullName()
+  IL_000b: ldstr "AdaptiveRoads,"
+  IL_0010: ldc.i4.4
+  IL_0011: callvirt System.Boolean System.String::StartsWith(System.String,System.StringComparison)
+  IL_0016: brfalse.s IL_0022
+  IL_0018: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_001d: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Request()
+  IL_0022: ret
+
+--- TryApply ---
+  IL_0000: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assemblyLoadSubscribed
+  IL_0005: brtrue.s IL_0023
+  IL_0007: call System.AppDomain System.AppDomain::get_CurrentDomain()
+  IL_000c: ldnull
+  IL_000d: ldftn System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::AssemblyLoaded(System.Object,System.AssemblyLoadEventArgs)
+  IL_0013: newobj System.Void System.AssemblyLoadEventHandler::.ctor(System.Object,System.IntPtr)
+  IL_0018: callvirt System.Void System.AppDomain::add_AssemblyLoad(System.AssemblyLoadEventHandler)
+  IL_001d: ldc.i4.1
+  IL_001e: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assemblyLoadSubscribed
+  IL_0023: ldsfld System.Reflection.Assembly MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assembly
+  IL_0028: stloc.0
+  IL_0029: ldloc.0
+  IL_002a: brtrue.s IL_0037
+  IL_002c: ldstr "AdaptiveRoads"
+  IL_0031: call System.Reflection.Assembly MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindLoadedAssembly(System.String)
+  IL_0036: stloc.0
+  IL_0037: ldloc.0
+  IL_0038: brtrue.s IL_005d
+  IL_003a: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_003f: brtrue.s IL_0051
+  IL_0041: ldstr "AdaptiveRoads is not loaded yet; compatibility will resume if the assembly is loaded."
+  IL_0046: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_004b: ldc.i4.1
+  IL_004c: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_0051: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0056: ldarg.2
+  IL_0057: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Complete(System.Int32)
+  IL_005c: ret
+  IL_005d: ldloc.0
+  IL_005e: stsfld System.Reflection.Assembly MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_assembly
+  IL_0063: ldsfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_managerType
+  IL_0068: stloc.1
+  IL_0069: ldloc.1
+  IL_006a: brtrue.s IL_007d
+  IL_006c: ldloc.0
+  IL_006d: ldstr "AdaptiveRoads.Manager.NetworkExtensionManager"
+  IL_0072: ldstr "AdaptiveRoads"
+  IL_0077: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_007c: stloc.1
+  IL_007d: ldloc.1
+  IL_007e: brtrue.s IL_0081
+  IL_0080: ret
+  IL_0081: ldloc.1
+  IL_0082: stsfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_managerType
+  IL_0087: ldarg.0
+  IL_0088: ldloc.0
+  IL_0089: ldloc.1
+  IL_008a: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::EnsureRuntimePatches(HarmonyLib.Harmony,System.Reflection.Assembly,System.Type)
+  IL_008f: ldarg.0
+  IL_0090: ldloc.0
+  IL_0091: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::EnsureAsymPavementColorPrefix(HarmonyLib.Harmony,System.Reflection.Assembly)
+  IL_0096: ldarg.0
+  IL_0097: ldloc.1
+  IL_0098: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::EnsureCreateHook(HarmonyLib.Harmony,System.Type)
+  IL_009d: ldarg.0
+  IL_009e: ldloc.1
+  IL_009f: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::EnsureDeserializeHook(HarmonyLib.Harmony,System.Type)
+  IL_00a4: ldarg.0
+  IL_00a5: ldloc.0
+  IL_00a6: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::EnsureLifeCycleLoadHook(HarmonyLib.Harmony,System.Reflection.Assembly)
+  IL_00ab: ldloc.1
+  IL_00ac: ldstr "RawInstance"
+  IL_00b1: ldstr "instance_"
+  IL_00b6: ldstr "AdaptiveRoads NetworkExtensionManager"
+  IL_00bb: call System.Object MoreNetworkCapacity.Compatibility.ArrayCompatibility::GetStaticInstance(System.Type,System.String,System.String,System.String)
+  IL_00c0: stloc.2
+  IL_00c1: ldloc.2
+  IL_00c2: brtrue.s IL_00dc
+  IL_00c4: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_00c9: brtrue.s IL_00db
+  IL_00cb: ldstr "AdaptiveRoads NetworkExtensionManager is not initialized yet; runtime patches are installed and buffer expansion will run when Create or Awake completes."
+  IL_00d0: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_00d5: ldc.i4.1
+  IL_00d6: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_00db: ret
+  IL_00dc: ldarg.1
+  IL_00dd: brfalse.s IL_00f2
+  IL_00df: ldloc.1
+  IL_00e0: ldloc.2
+  IL_00e1: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PrepareInstance(System.Type,System.Object)
+  IL_00e6: brfalse.s IL_00f2
+  IL_00e8: ldstr "AdaptiveRoads compatibility pass completed."
+  IL_00ed: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_00f2: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchesReady
+  IL_00f7: brfalse.s IL_0137
+  IL_00f9: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_createHookInstalled
+  IL_00fe: brfalse.s IL_0137
+  IL_0100: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_deserializeHookInstalled
+  IL_0105: brfalse.s IL_0137
+  IL_0107: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_lifeCycleLoadHookInstalled
+  IL_010c: brfalse.s IL_0137
+  IL_010e: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_asymPavementColorPrefixPatched
+  IL_0113: brfalse.s IL_0137
+  IL_0115: ldsfld System.Object MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_preparedInstance
+  IL_011a: ldloc.2
+  IL_011b: call System.Boolean System.Object::ReferenceEquals(System.Object,System.Object)
+  IL_0120: brfalse.s IL_0137
+  IL_0122: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0127: ldarg.2
+  IL_0128: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Complete(System.Int32)
+  IL_012d: ldstr "AdaptiveRoads compatibility ready; simulation polling stopped until a lifecycle request."
+  IL_0132: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_0137: ret
+
+--- PrepareInstance ---
+  IL_0000: ldarg.1
+  IL_0001: brtrue.s IL_0005
+  IL_0003: ldc.i4.0
+  IL_0004: ret
+  IL_0005: ldsfld System.Object MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_preparedInstance
+  IL_000a: ldarg.1
+  IL_000b: call System.Boolean System.Object::ReferenceEquals(System.Object,System.Object)
+  IL_0010: brfalse.s IL_0014
+  IL_0012: ldc.i4.0
+  IL_0013: ret
+  IL_0014: ldarg.0
+  IL_0015: ldstr "NodeBuffer"
+  IL_001a: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_001f: stloc.0
+  IL_0020: ldloc.0
+  IL_0021: ldstr "AdaptiveRoads NodeBuffer"
+  IL_0026: call System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::GetElementType(System.Reflection.FieldInfo,System.String)
+  IL_002b: stloc.1
+  IL_002c: ldloc.0
+  IL_002d: ldarg.1
+  IL_002e: ldc.i4 32768
+  IL_0033: ldc.i4 65024
+  IL_0038: ldloc.1
+  IL_0039: ldstr "Init"
+  IL_003e: ldc.i4.0
+  IL_003f: ldc.i4.0
+  IL_0040: call MoreNetworkCapacity.Compatibility.IndexedElementFactory MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::CreateInitFactory(System.Type,System.String,System.Boolean,System.Boolean)
+  IL_0045: ldc.i4.0
+  IL_0046: ldstr "AdaptiveRoads NetworkExtensionManager.NodeBuffer"
+  IL_004b: call System.Void MoreNetworkCapacity.Compatibility.ArrayCompatibility::ExpandDirect(System.Reflection.FieldInfo,System.Object,System.Int32,System.Int32,MoreNetworkCapacity.Compatibility.IndexedElementFactory,System.Boolean,System.String)
+  IL_0050: ldarg.0
+  IL_0051: ldstr "SegmentBuffer"
+  IL_0056: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_005b: stloc.2
+  IL_005c: ldloc.2
+  IL_005d: ldstr "AdaptiveRoads SegmentBuffer"
+  IL_0062: call System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::GetElementType(System.Reflection.FieldInfo,System.String)
+  IL_0067: stloc.3
+  IL_0068: ldloc.2
+  IL_0069: ldarg.1
+  IL_006a: ldc.i4 36864
+  IL_006f: ldc.i4 65024
+  IL_0074: ldloc.3
+  IL_0075: ldstr "Init"
+  IL_007a: ldc.i4.0
+  IL_007b: ldc.i4.0
+  IL_007c: call MoreNetworkCapacity.Compatibility.IndexedElementFactory MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::CreateInitFactory(System.Type,System.String,System.Boolean,System.Boolean)
+  IL_0081: ldc.i4.0
+  IL_0082: ldstr "AdaptiveRoads NetworkExtensionManager.SegmentBuffer"
+  IL_0087: call System.Void MoreNetworkCapacity.Compatibility.ArrayCompatibility::ExpandDirect(System.Reflection.FieldInfo,System.Object,System.Int32,System.Int32,MoreNetworkCapacity.Compatibility.IndexedElementFactory,System.Boolean,System.String)
+  IL_008c: ldarg.0
+  IL_008d: ldstr "SegmentEndBuffer"
+  IL_0092: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_0097: stloc.s V_4
+  IL_0099: ldloc.s V_4
+  IL_009b: ldstr "AdaptiveRoads SegmentEndBuffer"
+  IL_00a0: call System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::GetElementType(System.Reflection.FieldInfo,System.String)
+  IL_00a5: stloc.s V_5
+  IL_00a7: ldloc.s V_4
+  IL_00a9: ldarg.1
+  IL_00aa: ldc.i4 73728
+  IL_00af: ldc.i4 130048
+  IL_00b4: ldloc.s V_5
+  IL_00b6: ldstr "Init"
+  IL_00bb: ldc.i4.1
+  IL_00bc: ldc.i4.0
+  IL_00bd: call MoreNetworkCapacity.Compatibility.IndexedElementFactory MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::CreateInitFactory(System.Type,System.String,System.Boolean,System.Boolean)
+  IL_00c2: ldc.i4.0
+  IL_00c3: ldstr "AdaptiveRoads NetworkExtensionManager.SegmentEndBuffer"
+  IL_00c8: call System.Void MoreNetworkCapacity.Compatibility.ArrayCompatibility::ExpandDirect(System.Reflection.FieldInfo,System.Object,System.Int32,System.Int32,MoreNetworkCapacity.Compatibility.IndexedElementFactory,System.Boolean,System.String)
+  IL_00cd: ldarg.0
+  IL_00ce: ldstr "m_updatedNodes"
+  IL_00d3: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_00d8: ldarg.1
+  IL_00d9: ldc.i4 512
+  IL_00de: ldc.i4 1016
+  IL_00e3: ldnull
+  IL_00e4: ldc.i4.0
+  IL_00e5: ldstr "AdaptiveRoads NetworkExtensionManager.m_updatedNodes"
+  IL_00ea: call System.Void MoreNetworkCapacity.Compatibility.ArrayCompatibility::ExpandDirect(System.Reflection.FieldInfo,System.Object,System.Int32,System.Int32,MoreNetworkCapacity.Compatibility.IndexedElementFactory,System.Boolean,System.String)
+  IL_00ef: ldarg.0
+  IL_00f0: ldstr "m_updatedSegments"
+  IL_00f5: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_00fa: ldarg.1
+  IL_00fb: ldc.i4 576
+  IL_0100: ldc.i4 1016
+  IL_0105: ldnull
+  IL_0106: ldc.i4.0
+  IL_0107: ldstr "AdaptiveRoads NetworkExtensionManager.m_updatedSegments"
+  IL_010c: call System.Void MoreNetworkCapacity.Compatibility.ArrayCompatibility::ExpandDirect(System.Reflection.FieldInfo,System.Object,System.Int32,System.Int32,MoreNetworkCapacity.Compatibility.IndexedElementFactory,System.Boolean,System.String)
+  IL_0111: ldloc.0
+  IL_0112: ldarg.1
+  IL_0113: ldc.i4 65024
+  IL_0118: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::HasExpectedLength(System.Reflection.FieldInfo,System.Object,System.Int32)
+  IL_011d: brfalse.s IL_016c
+  IL_011f: ldloc.2
+  IL_0120: ldarg.1
+  IL_0121: ldc.i4 65024
+  IL_0126: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::HasExpectedLength(System.Reflection.FieldInfo,System.Object,System.Int32)
+  IL_012b: brfalse.s IL_016c
+  IL_012d: ldloc.s V_4
+  IL_012f: ldarg.1
+  IL_0130: ldc.i4 130048
+  IL_0135: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::HasExpectedLength(System.Reflection.FieldInfo,System.Object,System.Int32)
+  IL_013a: brfalse.s IL_016c
+  IL_013c: ldarg.0
+  IL_013d: ldstr "m_updatedNodes"
+  IL_0142: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_0147: ldarg.1
+  IL_0148: ldc.i4 1016
+  IL_014d: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::HasExpectedLength(System.Reflection.FieldInfo,System.Object,System.Int32)
+  IL_0152: brfalse.s IL_016c
+  IL_0154: ldarg.0
+  IL_0155: ldstr "m_updatedSegments"
+  IL_015a: call System.Reflection.FieldInfo MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindField(System.Type,System.String)
+  IL_015f: ldarg.1
+  IL_0160: ldc.i4 1016
+  IL_0165: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::HasExpectedLength(System.Reflection.FieldInfo,System.Object,System.Int32)
+  IL_016a: brtrue.s IL_0178
+  IL_016c: ldstr "AdaptiveRoads buffer expansion did not reach the expected lengths; compatibility remains pending."
+  IL_0171: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_0176: ldc.i4.0
+  IL_0177: ret
+  IL_0178: ldarg.1
+  IL_0179: stsfld System.Object MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_preparedInstance
+  IL_017e: ldc.i4.0
+  IL_017f: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_waitingLogged
+  IL_0184: ldc.i4.7
+  IL_0185: newarr System.Object
+  IL_018a: stloc.s V_6
+  IL_018c: ldloc.s V_6
+  IL_018e: ldc.i4.0
+  IL_018f: ldstr "Expanded AdaptiveRoads runtime buffers: nodes="
+  IL_0194: stelem.ref
+  IL_0195: ldloc.s V_6
+  IL_0197: ldc.i4.1
+  IL_0198: ldc.i4 65024
+  IL_019d: box System.Int32
+  IL_01a2: stelem.ref
+  IL_01a3: ldloc.s V_6
+  IL_01a5: ldc.i4.2
+  IL_01a6: ldstr ", segments="
+  IL_01ab: stelem.ref
+  IL_01ac: ldloc.s V_6
+  IL_01ae: ldc.i4.3
+  IL_01af: ldc.i4 65024
+  IL_01b4: box System.Int32
+  IL_01b9: stelem.ref
+  IL_01ba: ldloc.s V_6
+  IL_01bc: ldc.i4.4
+  IL_01bd: ldstr ", segmentEnds="
+  IL_01c2: stelem.ref
+  IL_01c3: ldloc.s V_6
+  IL_01c5: ldc.i4.5
+  IL_01c6: ldc.i4 130048
+  IL_01cb: box System.Int32
+  IL_01d0: stelem.ref
+  IL_01d1: ldloc.s V_6
+  IL_01d3: ldc.i4.6
+  IL_01d4: ldstr "."
+  IL_01d9: stelem.ref
+  IL_01da: ldloc.s V_6
+  IL_01dc: call System.String System.String::Concat(System.Object[])
+  IL_01e1: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_01e6: ldc.i4.1
+  IL_01e7: ret
+
+--- EnsureRuntimePatches ---
+  IL_0000: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchesReady
+  IL_0005: brfalse.s IL_0008
+  IL_0007: ret
+  IL_0008: ldc.i4.0
+  IL_0009: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_000e: ldarg.0
+  IL_000f: brtrue.s IL_001c
+  IL_0011: ldstr "Harmony is unavailable; AdaptiveRoads runtime limit compatibility is inactive."
+  IL_0016: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_001b: ret
+  IL_001c: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_0021: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.String>::get_Count()
+  IL_0026: stloc.0
+  IL_0027: ldarg.0
+  IL_0028: ldarg.2
+  IL_0029: ldstr "UpdateAllNetworkFlags"
+  IL_002e: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0033: ldstr "AllNetworkLimitsTranspiler"
+  IL_0038: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_003d: ldarg.0
+  IL_003e: ldarg.2
+  IL_003f: ldstr "get_SerializationCapacity"
+  IL_0044: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0049: ldstr "SerializationCapacityTranspiler"
+  IL_004e: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_0053: ldarg.0
+  IL_0054: ldarg.1
+  IL_0055: ldstr "AdaptiveRoads.Manager.NetInfoExtionsion+Net"
+  IL_005a: ldstr "AdaptiveRoads"
+  IL_005f: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_0064: ldstr "RemoveSegmentUserValue"
+  IL_0069: ldc.i4.1
+  IL_006a: newarr System.Type
+  IL_006f: stloc.3
+  IL_0070: ldloc.3
+  IL_0071: ldc.i4.0
+  IL_0072: ldtoken System.Int32
+  IL_0077: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_007c: stelem.ref
+  IL_007d: ldloc.3
+  IL_007e: ldstr "SegmentLimitTranspiler"
+  IL_0083: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_0088: ldarg.0
+  IL_0089: ldarg.1
+  IL_008a: ldstr "AdaptiveRoads.Manager.NetInfoExtionsion+Net"
+  IL_008f: ldstr "AdaptiveRoads"
+  IL_0094: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_0099: ldstr "AllocateUserData"
+  IL_009e: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_00a3: ldstr "SegmentLimitTranspiler"
+  IL_00a8: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_00ad: ldarg.0
+  IL_00ae: ldarg.1
+  IL_00af: ldstr "AdaptiveRoads.Util.RoadUtils"
+  IL_00b4: ldstr "AdaptiveRoads"
+  IL_00b9: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_00be: ldstr "SetDirectionImpl"
+  IL_00c3: ldc.i4.1
+  IL_00c4: newarr System.Type
+  IL_00c9: stloc.s V_4
+  IL_00cb: ldloc.s V_4
+  IL_00cd: ldc.i4.0
+  IL_00ce: ldtoken System.Boolean
+  IL_00d3: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_00d8: stelem.ref
+  IL_00d9: ldloc.s V_4
+  IL_00db: ldstr "SegmentLimitTranspiler"
+  IL_00e0: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_00e5: ldarg.0
+  IL_00e6: ldarg.1
+  IL_00e7: ldstr "AdaptiveRoads.Util.RoadEditorUtils"
+  IL_00ec: ldstr "AdaptiveRoads"
+  IL_00f1: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_00f6: ldstr "RefreshAllNetworks"
+  IL_00fb: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0100: ldstr "NodeLimitTranspiler"
+  IL_0105: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_010a: ldarg.0
+  IL_010b: ldarg.1
+  IL_010c: ldstr "AdaptiveRoads.UI.RoadEditor.Overlay"
+  IL_0111: ldstr "AdaptiveRoads"
+  IL_0116: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_011b: ldstr "RenderOverlay"
+  IL_0120: ldc.i4.1
+  IL_0121: newarr System.Type
+  IL_0126: stloc.s V_5
+  IL_0128: ldloc.s V_5
+  IL_012a: ldc.i4.0
+  IL_012b: ldtoken RenderManager/CameraInfo
+  IL_0130: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0135: stelem.ref
+  IL_0136: ldloc.s V_5
+  IL_0138: ldstr "SegmentLimitTranspiler"
+  IL_013d: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_0142: ldarg.1
+  IL_0143: ldstr "AdaptiveRoads.Manager.TrackManager"
+  IL_0148: ldstr "AdaptiveRoads"
+  IL_014d: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_0152: stloc.1
+  IL_0153: ldarg.0
+  IL_0154: ldloc.1
+  IL_0155: ldstr "EndRendering"
+  IL_015a: ldc.i4.1
+  IL_015b: ldstr "AllNetworkLimitsTranspiler"
+  IL_0160: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Int32,System.String)
+  IL_0165: ldarg.0
+  IL_0166: ldloc.1
+  IL_0167: ldstr "CalculateGroupData"
+  IL_016c: ldc.i4.7
+  IL_016d: ldstr "AllNetworkLimitsTranspiler"
+  IL_0172: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Int32,System.String)
+  IL_0177: ldarg.0
+  IL_0178: ldloc.1
+  IL_0179: ldstr "PopulateGroupData"
+  IL_017e: ldc.i4.s 12
+  IL_0180: ldstr "AllNetworkLimitsTranspiler"
+  IL_0185: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Int32,System.String)
+  IL_018a: ldarg.1
+  IL_018b: ldstr "KianCommons.NetUtil"
+  IL_0190: ldstr "AdaptiveRoads"
+  IL_0195: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_019a: stloc.2
+  IL_019b: ldarg.0
+  IL_019c: ldloc.2
+  IL_019d: ldstr "IsSegmentValid"
+  IL_01a2: ldc.i4.1
+  IL_01a3: newarr System.Type
+  IL_01a8: stloc.s V_6
+  IL_01aa: ldloc.s V_6
+  IL_01ac: ldc.i4.0
+  IL_01ad: ldtoken System.UInt16
+  IL_01b2: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_01b7: stelem.ref
+  IL_01b8: ldloc.s V_6
+  IL_01ba: ldstr "SegmentLimitTranspiler"
+  IL_01bf: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_01c4: ldarg.0
+  IL_01c5: ldloc.2
+  IL_01c6: ldstr "AssertSegmentValid"
+  IL_01cb: ldc.i4.1
+  IL_01cc: newarr System.Type
+  IL_01d1: stloc.s V_7
+  IL_01d3: ldloc.s V_7
+  IL_01d5: ldc.i4.0
+  IL_01d6: ldtoken System.UInt16
+  IL_01db: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_01e0: stelem.ref
+  IL_01e1: ldloc.s V_7
+  IL_01e3: ldstr "SegmentLimitTranspiler"
+  IL_01e8: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_01ed: ldarg.0
+  IL_01ee: ldloc.2
+  IL_01ef: ldstr "IsNodeValid"
+  IL_01f4: ldc.i4.1
+  IL_01f5: newarr System.Type
+  IL_01fa: stloc.s V_8
+  IL_01fc: ldloc.s V_8
+  IL_01fe: ldc.i4.0
+  IL_01ff: ldtoken System.UInt16
+  IL_0204: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0209: stelem.ref
+  IL_020a: ldloc.s V_8
+  IL_020c: ldstr "NodeLimitTranspiler"
+  IL_0211: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_0216: ldarg.0
+  IL_0217: ldarg.1
+  IL_0218: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchSimilarLaneIterators(HarmonyLib.Harmony,System.Reflection.Assembly)
+  IL_021d: ldarg.0
+  IL_021e: ldarg.1
+  IL_021f: ldstr "AdaptiveRoads.Manager.NetLaneExt"
+  IL_0224: ldstr "AdaptiveRoads"
+  IL_0229: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_022e: ldstr "GenerateRenderData"
+  IL_0233: ldc.i4.2
+  IL_0234: ldstr "TrackNodeColorsTranspiler"
+  IL_0239: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Int32,System.String)
+  IL_023e: ldarg.0
+  IL_023f: ldarg.1
+  IL_0240: ldstr "AdaptiveRoads.Data.NetworkExtensions.LaneTransition"
+  IL_0245: ldstr "AdaptiveRoads"
+  IL_024a: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_024f: ldstr "GenerateRenderData"
+  IL_0254: ldc.i4.2
+  IL_0255: ldstr "TrackNodeColorsTranspiler"
+  IL_025a: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Int32,System.String)
+  IL_025f: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_0264: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.String>::get_Count()
+  IL_0269: brtrue.s IL_0276
+  IL_026b: ldstr "No known AdaptiveRoads runtime capacity loops were patched."
+  IL_0270: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0275: ret
+  IL_0276: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_027b: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.String>::get_Count()
+  IL_0280: ldloc.0
+  IL_0281: beq.s IL_02a6
+  IL_0283: ldstr "Patched "
+  IL_0288: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_028d: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.String>::get_Count()
+  IL_0292: box System.Int32
+  IL_0297: ldstr " AdaptiveRoads runtime capacity methods."
+  IL_029c: call System.String System.String::Concat(System.Object,System.Object,System.Object)
+  IL_02a1: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_02a6: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_02ab: brtrue.s IL_02bf
+  IL_02ad: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_02b2: callvirt System.Int32 System.Collections.Generic.HashSet`1<System.String>::get_Count()
+  IL_02b7: ldc.i4.0
+  IL_02b8: ceq
+  IL_02ba: ldc.i4.0
+  IL_02bb: ceq
+  IL_02bd: br.s IL_02c0
+  IL_02bf: ldc.i4.0
+  IL_02c0: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchesReady
+  IL_02c5: ret
+
+--- EnsureAsymPavementColorPrefix ---
+  IL_0000: ldarg.0
+  IL_0001: brfalse.s IL_000a
+  IL_0003: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_asymPavementColorPrefixPatched
+  IL_0008: brfalse.s IL_000b
+  IL_000a: ret
+  IL_000b: ldarg.1
+  IL_000c: ldstr "AdaptiveRoads.Patches.AsymPavements.RefreshJunctionDataPatch"
+  IL_0011: ldstr "AdaptiveRoads"
+  IL_0016: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_001b: stloc.0
+  IL_001c: ldloc.0
+  IL_001d: brtrue.s IL_0021
+  IL_001f: leave.s IL_009d
+  IL_0021: ldloc.0
+  IL_0022: ldstr "Prefix"
+  IL_0027: ldc.i4.s 56
+  IL_0029: callvirt System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_002e: stloc.1
+  IL_002f: ldtoken MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+  IL_0034: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0039: ldstr "AdaptiveRoadsColorPrefixTranspiler"
+  IL_003e: ldc.i4.s 56
+  IL_0040: call System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_0045: stloc.2
+  IL_0046: ldloc.1
+  IL_0047: brfalse.s IL_004c
+  IL_0049: ldloc.2
+  IL_004a: brtrue.s IL_0058
+  IL_004c: ldstr "Could not resolve AdaptiveRoads AsymPavements RefreshJunctionData Prefix for color compatibility."
+  IL_0051: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0056: leave.s IL_009d
+  IL_0058: ldarg.0
+  IL_0059: ldloc.1
+  IL_005a: ldnull
+  IL_005b: ldnull
+  IL_005c: ldloc.2
+  IL_005d: newobj System.Void HarmonyLib.HarmonyMethod::.ctor(System.Reflection.MethodInfo)
+  IL_0062: ldnull
+  IL_0063: callvirt System.Reflection.MethodInfo HarmonyLib.Harmony::Patch(System.Reflection.MethodBase,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod)
+  IL_0068: pop
+  IL_0069: ldc.i4.1
+  IL_006a: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_asymPavementColorPrefixPatched
+  IL_006f: ldstr "Patched AdaptiveRoads AsymPavements RefreshJunctionData Prefix to use the expanded node-color base."
+  IL_0074: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_0079: leave.s IL_009d
+  IL_007b: stloc.3
+  IL_007c: ldstr "Failed to patch AdaptiveRoads AsymPavements color Prefix: "
+  IL_0081: ldloc.3
+  IL_0082: callvirt System.Type System.Exception::GetType()
+  IL_0087: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_008c: ldstr "."
+  IL_0091: call System.String System.String::Concat(System.String,System.String,System.String)
+  IL_0096: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_009b: leave.s IL_009d
+  IL_009d: ret
+
+--- AdaptiveRoadsColorPrefixTranspiler ---
+  IL_0000: ldarg.0
+  IL_0001: newobj System.Void System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::.ctor(System.Collections.Generic.IEnumerable`1<!0>)
+  IL_0006: stloc.0
+  IL_0007: ldtoken MoreNetworkCapacity.Capacity
+  IL_000c: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0011: ldstr "GetNodeColorIndexBase"
+  IL_0016: ldnull
+  IL_0017: ldnull
+  IL_0018: call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+  IL_001d: stloc.1
+  IL_001e: ldloc.1
+  IL_001f: brtrue.s IL_0023
+  IL_0021: ldloc.0
+  IL_0022: ret
+  IL_0023: ldc.i4.0
+  IL_0024: stloc.2
+  IL_0025: ldc.i4.0
+  IL_0026: stloc.3
+  IL_0027: br.s IL_0062
+  IL_0029: ldloc.0
+  IL_002a: ldloc.3
+  IL_002b: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0030: ldc.i4 86016
+  IL_0035: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::IsInt32Constant(HarmonyLib.CodeInstruction,System.Int32)
+  IL_003a: brfalse.s IL_005e
+  IL_003c: ldloc.0
+  IL_003d: ldloc.3
+  IL_003e: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0043: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Call
+  IL_0048: stfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_004d: ldloc.0
+  IL_004e: ldloc.3
+  IL_004f: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0054: ldloc.1
+  IL_0055: stfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_005a: ldloc.2
+  IL_005b: ldc.i4.1
+  IL_005c: add
+  IL_005d: stloc.2
+  IL_005e: ldloc.3
+  IL_005f: ldc.i4.1
+  IL_0060: add
+  IL_0061: stloc.3
+  IL_0062: ldloc.3
+  IL_0063: ldloc.0
+  IL_0064: callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  IL_0069: blt.s IL_0029
+  IL_006b: ldstr "AdaptiveRoads AsymPavements color Prefix node-base replacements: "
+  IL_0070: ldloc.2
+  IL_0071: box System.Int32
+  IL_0076: ldstr "."
+  IL_007b: call System.String System.String::Concat(System.Object,System.Object,System.Object)
+  IL_0080: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_0085: ldloc.0
+  IL_0086: ret
+
+--- EnsureCreateHook ---
+  IL_0000: ldarg.0
+  IL_0001: brfalse.s IL_000a
+  IL_0003: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_createHookInstalled
+  IL_0008: brfalse.s IL_000b
+  IL_000a: ret
+  IL_000b: ldarg.1
+  IL_000c: ldstr "Create"
+  IL_0011: ldc.i4.s 56
+  IL_0013: ldnull
+  IL_0014: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0019: ldnull
+  IL_001a: callvirt System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Type[],System.Reflection.ParameterModifier[])
+  IL_001f: stloc.0
+  IL_0020: ldtoken MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+  IL_0025: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_002a: ldstr "CreatePostfix"
+  IL_002f: ldc.i4.s 56
+  IL_0031: call System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_0036: stloc.1
+  IL_0037: ldloc.0
+  IL_0038: brfalse.s IL_003d
+  IL_003a: ldloc.1
+  IL_003b: brtrue.s IL_0049
+  IL_003d: ldstr "Could not install the AdaptiveRoads Create hook."
+  IL_0042: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0047: leave.s IL_007f
+  IL_0049: ldarg.0
+  IL_004a: ldloc.0
+  IL_004b: ldnull
+  IL_004c: ldloc.1
+  IL_004d: newobj System.Void HarmonyLib.HarmonyMethod::.ctor(System.Reflection.MethodInfo)
+  IL_0052: ldnull
+  IL_0053: ldnull
+  IL_0054: callvirt System.Reflection.MethodInfo HarmonyLib.Harmony::Patch(System.Reflection.MethodBase,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod)
+  IL_0059: pop
+  IL_005a: ldc.i4.1
+  IL_005b: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_createHookInstalled
+  IL_0060: ldstr "Installed AdaptiveRoads Create postfix for immediate expanded-buffer initialization."
+  IL_0065: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_006a: leave.s IL_007f
+  IL_006c: stloc.2
+  IL_006d: ldstr "Failed to install the AdaptiveRoads Create hook: "
+  IL_0072: ldloc.2
+  IL_0073: call System.String System.String::Concat(System.Object,System.Object)
+  IL_0078: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_007d: leave.s IL_007f
+  IL_007f: ret
+
+--- CreatePostfix ---
+  IL_0000: ldarg.0
+  IL_0001: brtrue.s IL_0004
+  IL_0003: ret
+  IL_0004: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0009: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Request()
+  IL_000e: call System.Boolean MoreNetworkCapacity.Metadata::IsExpandedSave()
+  IL_0013: brfalse.s IL_0022
+  IL_0015: ldarg.0
+  IL_0016: callvirt System.Type System.Object::GetType()
+  IL_001b: ldarg.0
+  IL_001c: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PrepareInstance(System.Type,System.Object)
+  IL_0021: pop
+  IL_0022: ret
+
+--- EnsureDeserializeHook ---
+  IL_0000: ldarg.0
+  IL_0001: brfalse.s IL_000a
+  IL_0003: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_deserializeHookInstalled
+  IL_0008: brfalse.s IL_000b
+  IL_000a: ret
+  IL_000b: ldnull
+  IL_000c: stloc.0
+  IL_000d: ldarg.1
+  IL_000e: ldc.i4.s 52
+  IL_0010: callvirt System.Reflection.MethodInfo[] System.Type::GetMethods(System.Reflection.BindingFlags)
+  IL_0015: stloc.1
+  IL_0016: ldc.i4.0
+  IL_0017: stloc.2
+  IL_0018: br.s IL_004a
+  IL_001a: ldloc.1
+  IL_001b: ldloc.2
+  IL_001c: ldelem.ref
+  IL_001d: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_0022: ldstr "DeserializeImp"
+  IL_0027: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_002c: brtrue.s IL_0046
+  IL_002e: ldloc.1
+  IL_002f: ldloc.2
+  IL_0030: ldelem.ref
+  IL_0031: callvirt System.Reflection.ParameterInfo[] System.Reflection.MethodBase::GetParameters()
+  IL_0036: ldlen
+  IL_0037: conv.i4
+  IL_0038: ldc.i4.1
+  IL_0039: bne.un.s IL_0046
+  IL_003b: ldloc.0
+  IL_003c: brfalse.s IL_0042
+  IL_003e: ldnull
+  IL_003f: stloc.0
+  IL_0040: br.s IL_0050
+  IL_0042: ldloc.1
+  IL_0043: ldloc.2
+  IL_0044: ldelem.ref
+  IL_0045: stloc.0
+  IL_0046: ldloc.2
+  IL_0047: ldc.i4.1
+  IL_0048: add
+  IL_0049: stloc.2
+  IL_004a: ldloc.2
+  IL_004b: ldloc.1
+  IL_004c: ldlen
+  IL_004d: conv.i4
+  IL_004e: blt.s IL_001a
+  IL_0050: ldtoken MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+  IL_0055: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_005a: ldstr "DeserializeImpPostfix"
+  IL_005f: ldc.i4.s 56
+  IL_0061: call System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_0066: stloc.3
+  IL_0067: ldloc.0
+  IL_0068: brfalse.s IL_006d
+  IL_006a: ldloc.3
+  IL_006b: brtrue.s IL_0079
+  IL_006d: ldstr "Could not install the AdaptiveRoads DeserializeImp hook."
+  IL_0072: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0077: leave.s IL_00b1
+  IL_0079: ldarg.0
+  IL_007a: ldloc.0
+  IL_007b: ldnull
+  IL_007c: ldloc.3
+  IL_007d: newobj System.Void HarmonyLib.HarmonyMethod::.ctor(System.Reflection.MethodInfo)
+  IL_0082: ldnull
+  IL_0083: ldnull
+  IL_0084: callvirt System.Reflection.MethodInfo HarmonyLib.Harmony::Patch(System.Reflection.MethodBase,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod)
+  IL_0089: pop
+  IL_008a: ldc.i4.1
+  IL_008b: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_deserializeHookInstalled
+  IL_0090: ldstr "Installed AdaptiveRoads DeserializeImp postfix for vanilla-save buffer expansion."
+  IL_0095: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_009a: leave.s IL_00b1
+  IL_009c: stloc.s V_4
+  IL_009e: ldstr "Failed to install the AdaptiveRoads DeserializeImp hook: "
+  IL_00a3: ldloc.s V_4
+  IL_00a5: call System.String System.String::Concat(System.Object,System.Object)
+  IL_00aa: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_00af: leave.s IL_00b1
+  IL_00b1: ret
+
+--- EnsureLifeCycleLoadHook ---
+  IL_0000: ldarg.0
+  IL_0001: brfalse.s IL_000a
+  IL_0003: ldsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_lifeCycleLoadHookInstalled
+  IL_0008: brfalse.s IL_000b
+  IL_000a: ret
+  IL_000b: ldarg.1
+  IL_000c: ldstr "AdaptiveRoads.LifeCycle.LifeCycle"
+  IL_0011: ldstr "AdaptiveRoads"
+  IL_0016: call System.Type MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::FindType(System.Reflection.Assembly,System.String,System.String)
+  IL_001b: stloc.0
+  IL_001c: ldloc.0
+  IL_001d: brtrue.s IL_0024
+  IL_001f: leave IL_00a7
+  IL_0024: ldloc.0
+  IL_0025: ldstr "Load"
+  IL_002a: ldc.i4.s 56
+  IL_002c: ldnull
+  IL_002d: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0032: ldnull
+  IL_0033: callvirt System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Type[],System.Reflection.ParameterModifier[])
+  IL_0038: stloc.1
+  IL_0039: ldtoken MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+  IL_003e: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0043: ldstr "LifeCycleLoadPostfix"
+  IL_0048: ldc.i4.s 56
+  IL_004a: call System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_004f: stloc.2
+  IL_0050: ldloc.1
+  IL_0051: brfalse.s IL_0056
+  IL_0053: ldloc.2
+  IL_0054: brtrue.s IL_0062
+  IL_0056: ldstr "Could not install the AdaptiveRoads LifeCycle.Load color compatibility hook."
+  IL_005b: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0060: leave.s IL_00a7
+  IL_0062: ldarg.0
+  IL_0063: ldloc.1
+  IL_0064: ldnull
+  IL_0065: ldloc.2
+  IL_0066: newobj System.Void HarmonyLib.HarmonyMethod::.ctor(System.Reflection.MethodInfo)
+  IL_006b: ldnull
+  IL_006c: ldnull
+  IL_006d: callvirt System.Reflection.MethodInfo HarmonyLib.Harmony::Patch(System.Reflection.MethodBase,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod)
+  IL_0072: pop
+  IL_0073: ldc.i4.1
+  IL_0074: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_lifeCycleLoadHookInstalled
+  IL_0079: ldstr "Installed AdaptiveRoads LifeCycle.Load hook for the post-pipeline network color pass."
+  IL_007e: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_0083: leave.s IL_00a7
+  IL_0085: stloc.3
+  IL_0086: ldstr "Failed to install the AdaptiveRoads LifeCycle.Load color compatibility hook: "
+  IL_008b: ldloc.3
+  IL_008c: callvirt System.Type System.Exception::GetType()
+  IL_0091: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_0096: ldstr "."
+  IL_009b: call System.String System.String::Concat(System.String,System.String,System.String)
+  IL_00a0: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_00a5: leave.s IL_00a7
+  IL_00a7: ret
+
+--- LifeCycleLoadPostfix ---
+  IL_0000: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0005: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Request()
+  IL_000a: call HarmonyLib.Harmony MoreNetworkCapacity.HarmonyBootstrap::get_HarmonyInstance()
+  IL_000f: call System.Void MoreNetworkCapacity.Patches.NetworkColorOffsetPatch::ApplyAfterAdaptiveRoadsLoad(HarmonyLib.Harmony)
+  IL_0014: ret
+
+--- DeserializeImpPostfix ---
+  IL_0000: ldsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0005: callvirt System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::Request()
+  IL_000a: ldarg.0
+  IL_000b: brfalse.s IL_0014
+  IL_000d: call System.Boolean MoreNetworkCapacity.Metadata::IsExpandedSave()
+  IL_0012: brfalse.s IL_0015
+  IL_0014: ret
+  IL_0015: ldarg.0
+  IL_0016: callvirt System.Type System.Object::GetType()
+  IL_001b: ldarg.0
+  IL_001c: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PrepareInstance(System.Type,System.Object)
+  IL_0021: pop
+  IL_0022: ret
+
+--- HasExpectedLength ---
+  IL_0000: ldarg.0
+  IL_0001: brtrue.s IL_0005
+  IL_0003: ldc.i4.0
+  IL_0004: ret
+  IL_0005: ldarg.0
+  IL_0006: ldarg.1
+  IL_0007: callvirt System.Object System.Reflection.FieldInfo::GetValue(System.Object)
+  IL_000c: isinst System.Array
+  IL_0011: stloc.0
+  IL_0012: ldloc.0
+  IL_0013: brfalse.s IL_0020
+  IL_0015: ldloc.0
+  IL_0016: callvirt System.Int32 System.Array::get_Length()
+  IL_001b: ldarg.2
+  IL_001c: ceq
+  IL_001e: br.s IL_0021
+  IL_0020: ldc.i4.0
+  IL_0021: stloc.1
+  IL_0022: leave.s IL_0029
+  IL_0024: pop
+  IL_0025: ldc.i4.0
+  IL_0026: stloc.1
+  IL_0027: leave.s IL_0029
+  IL_0029: ldloc.1
+  IL_002a: ret
+
+--- PatchSimilarLaneIterators ---
+  IL_0000: ldarg.1
+  IL_0001: callvirt System.Type[] System.Reflection.Assembly::GetTypes()
+  IL_0006: stloc.0
+  IL_0007: leave.s IL_0013
+  IL_0009: stloc.1
+  IL_000a: ldloc.1
+  IL_000b: callvirt System.Type[] System.Reflection.ReflectionTypeLoadException::get_Types()
+  IL_0010: stloc.0
+  IL_0011: leave.s IL_0013
+  IL_0013: ldc.i4.0
+  IL_0014: stloc.2
+  IL_0015: br.s IL_0054
+  IL_0017: ldloc.0
+  IL_0018: ldloc.2
+  IL_0019: ldelem.ref
+  IL_001a: stloc.3
+  IL_001b: ldloc.3
+  IL_001c: brfalse.s IL_0050
+  IL_001e: ldloc.3
+  IL_001f: callvirt System.String System.Type::get_FullName()
+  IL_0024: brfalse.s IL_0050
+  IL_0026: ldloc.3
+  IL_0027: callvirt System.String System.Type::get_FullName()
+  IL_002c: ldstr "AdaptiveRoads.Util.LaneHelpers+<GetSimilarLanes>"
+  IL_0031: ldc.i4.4
+  IL_0032: callvirt System.Int32 System.String::IndexOf(System.String,System.StringComparison)
+  IL_0037: ldc.i4.0
+  IL_0038: blt.s IL_0050
+  IL_003a: ldarg.0
+  IL_003b: ldloc.3
+  IL_003c: ldstr "MoveNext"
+  IL_0041: ldsfld System.Type[] System.Type::EmptyTypes
+  IL_0046: ldstr "SegmentLimitTranspiler"
+  IL_004b: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchMethod(HarmonyLib.Harmony,System.Type,System.String,System.Type[],System.String)
+  IL_0050: ldloc.2
+  IL_0051: ldc.i4.1
+  IL_0052: add
+  IL_0053: stloc.2
+  IL_0054: ldloc.2
+  IL_0055: ldloc.0
+  IL_0056: ldlen
+  IL_0057: conv.i4
+  IL_0058: blt.s IL_0017
+  IL_005a: ret
+
+--- PatchMethod ---
+  IL_0000: ldarg.1
+  IL_0001: brtrue.s IL_000a
+  IL_0003: ldc.i4.1
+  IL_0004: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_0009: ret
+  IL_000a: ldnull
+  IL_000b: stloc.0
+  IL_000c: ldarg.1
+  IL_000d: ldarg.2
+  IL_000e: ldc.i4.s 60
+  IL_0010: ldnull
+  IL_0011: ldarg.3
+  IL_0012: ldnull
+  IL_0013: callvirt System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags,System.Reflection.Binder,System.Type[],System.Reflection.ParameterModifier[])
+  IL_0018: stloc.0
+  IL_0019: leave.s IL_0059
+  IL_001b: stloc.1
+  IL_001c: ldc.i4.6
+  IL_001d: newarr System.Object
+  IL_0022: stloc.2
+  IL_0023: ldloc.2
+  IL_0024: ldc.i4.0
+  IL_0025: ldstr "Failed to resolve AdaptiveRoads method "
+  IL_002a: stelem.ref
+  IL_002b: ldloc.2
+  IL_002c: ldc.i4.1
+  IL_002d: ldarg.1
+  IL_002e: callvirt System.String System.Type::get_FullName()
+  IL_0033: stelem.ref
+  IL_0034: ldloc.2
+  IL_0035: ldc.i4.2
+  IL_0036: ldstr "."
+  IL_003b: stelem.ref
+  IL_003c: ldloc.2
+  IL_003d: ldc.i4.3
+  IL_003e: ldarg.2
+  IL_003f: stelem.ref
+  IL_0040: ldloc.2
+  IL_0041: ldc.i4.4
+  IL_0042: ldstr ": "
+  IL_0047: stelem.ref
+  IL_0048: ldloc.2
+  IL_0049: ldc.i4.5
+  IL_004a: ldloc.1
+  IL_004b: stelem.ref
+  IL_004c: ldloc.2
+  IL_004d: call System.String System.String::Concat(System.Object[])
+  IL_0052: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_0057: leave.s IL_0059
+  IL_0059: ldarg.0
+  IL_005a: ldarg.1
+  IL_005b: ldarg.2
+  IL_005c: ldloc.0
+  IL_005d: ldarg.s transpilerName
+  IL_005f: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchResolvedMethod(HarmonyLib.Harmony,System.Type,System.String,System.Reflection.MethodInfo,System.String)
+  IL_0064: ret
+
+--- PatchMethod ---
+  IL_0000: ldarg.1
+  IL_0001: brtrue.s IL_000a
+  IL_0003: ldc.i4.1
+  IL_0004: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_0009: ret
+  IL_000a: ldnull
+  IL_000b: stloc.0
+  IL_000c: ldarg.1
+  IL_000d: ldc.i4.s 60
+  IL_000f: callvirt System.Reflection.MethodInfo[] System.Type::GetMethods(System.Reflection.BindingFlags)
+  IL_0014: stloc.1
+  IL_0015: ldc.i4.0
+  IL_0016: stloc.2
+  IL_0017: br.s IL_0096
+  IL_0019: ldloc.1
+  IL_001a: ldloc.2
+  IL_001b: ldelem.ref
+  IL_001c: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_0021: ldarg.2
+  IL_0022: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_0027: brtrue.s IL_0092
+  IL_0029: ldloc.1
+  IL_002a: ldloc.2
+  IL_002b: ldelem.ref
+  IL_002c: callvirt System.Reflection.ParameterInfo[] System.Reflection.MethodBase::GetParameters()
+  IL_0031: ldlen
+  IL_0032: conv.i4
+  IL_0033: ldarg.3
+  IL_0034: bne.un.s IL_0092
+  IL_0036: ldloc.0
+  IL_0037: brfalse.s IL_008e
+  IL_0039: ldc.i4.7
+  IL_003a: newarr System.Object
+  IL_003f: stloc.s V_4
+  IL_0041: ldloc.s V_4
+  IL_0043: ldc.i4.0
+  IL_0044: ldstr "Multiple AdaptiveRoads methods match "
+  IL_0049: stelem.ref
+  IL_004a: ldloc.s V_4
+  IL_004c: ldc.i4.1
+  IL_004d: ldarg.1
+  IL_004e: callvirt System.String System.Type::get_FullName()
+  IL_0053: stelem.ref
+  IL_0054: ldloc.s V_4
+  IL_0056: ldc.i4.2
+  IL_0057: ldstr "."
+  IL_005c: stelem.ref
+  IL_005d: ldloc.s V_4
+  IL_005f: ldc.i4.3
+  IL_0060: ldarg.2
+  IL_0061: stelem.ref
+  IL_0062: ldloc.s V_4
+  IL_0064: ldc.i4.4
+  IL_0065: ldstr " with "
+  IL_006a: stelem.ref
+  IL_006b: ldloc.s V_4
+  IL_006d: ldc.i4.5
+  IL_006e: ldarg.3
+  IL_006f: box System.Int32
+  IL_0074: stelem.ref
+  IL_0075: ldloc.s V_4
+  IL_0077: ldc.i4.6
+  IL_0078: ldstr " parameters; leaving it unchanged."
+  IL_007d: stelem.ref
+  IL_007e: ldloc.s V_4
+  IL_0080: call System.String System.String::Concat(System.Object[])
+  IL_0085: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_008a: ldnull
+  IL_008b: stloc.0
+  IL_008c: br.s IL_009f
+  IL_008e: ldloc.1
+  IL_008f: ldloc.2
+  IL_0090: ldelem.ref
+  IL_0091: stloc.0
+  IL_0092: ldloc.2
+  IL_0093: ldc.i4.1
+  IL_0094: add
+  IL_0095: stloc.2
+  IL_0096: ldloc.2
+  IL_0097: ldloc.1
+  IL_0098: ldlen
+  IL_0099: conv.i4
+  IL_009a: blt IL_0019
+  IL_009f: leave.s IL_00e7
+  IL_00a1: stloc.3
+  IL_00a2: ldc.i4.6
+  IL_00a3: newarr System.Object
+  IL_00a8: stloc.s V_5
+  IL_00aa: ldloc.s V_5
+  IL_00ac: ldc.i4.0
+  IL_00ad: ldstr "Failed to resolve AdaptiveRoads method "
+  IL_00b2: stelem.ref
+  IL_00b3: ldloc.s V_5
+  IL_00b5: ldc.i4.1
+  IL_00b6: ldarg.1
+  IL_00b7: callvirt System.String System.Type::get_FullName()
+  IL_00bc: stelem.ref
+  IL_00bd: ldloc.s V_5
+  IL_00bf: ldc.i4.2
+  IL_00c0: ldstr "."
+  IL_00c5: stelem.ref
+  IL_00c6: ldloc.s V_5
+  IL_00c8: ldc.i4.3
+  IL_00c9: ldarg.2
+  IL_00ca: stelem.ref
+  IL_00cb: ldloc.s V_5
+  IL_00cd: ldc.i4.4
+  IL_00ce: ldstr ": "
+  IL_00d3: stelem.ref
+  IL_00d4: ldloc.s V_5
+  IL_00d6: ldc.i4.5
+  IL_00d7: ldloc.3
+  IL_00d8: stelem.ref
+  IL_00d9: ldloc.s V_5
+  IL_00db: call System.String System.String::Concat(System.Object[])
+  IL_00e0: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_00e5: leave.s IL_00e7
+  IL_00e7: ldarg.0
+  IL_00e8: ldarg.1
+  IL_00e9: ldarg.2
+  IL_00ea: ldloc.0
+  IL_00eb: ldarg.s transpilerName
+  IL_00ed: call System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchResolvedMethod(HarmonyLib.Harmony,System.Type,System.String,System.Reflection.MethodInfo,System.String)
+  IL_00f2: ret
+
+--- PatchResolvedMethod ---
+  IL_0000: ldarg.1
+  IL_0001: brtrue.s IL_000a
+  IL_0003: ldc.i4.1
+  IL_0004: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_0009: ret
+  IL_000a: ldc.i4.5
+  IL_000b: newarr System.String
+  IL_0010: stloc.3
+  IL_0011: ldloc.3
+  IL_0012: ldc.i4.0
+  IL_0013: ldarg.1
+  IL_0014: callvirt System.Reflection.Assembly System.Type::get_Assembly()
+  IL_0019: callvirt System.String System.Reflection.Assembly::get_FullName()
+  IL_001e: stelem.ref
+  IL_001f: ldloc.3
+  IL_0020: ldc.i4.1
+  IL_0021: ldstr "|"
+  IL_0026: stelem.ref
+  IL_0027: ldloc.3
+  IL_0028: ldc.i4.2
+  IL_0029: ldarg.1
+  IL_002a: callvirt System.String System.Type::get_FullName()
+  IL_002f: stelem.ref
+  IL_0030: ldloc.3
+  IL_0031: ldc.i4.3
+  IL_0032: ldstr "|"
+  IL_0037: stelem.ref
+  IL_0038: ldloc.3
+  IL_0039: ldc.i4.4
+  IL_003a: ldarg.2
+  IL_003b: stelem.ref
+  IL_003c: ldloc.3
+  IL_003d: call System.String System.String::Concat(System.String[])
+  IL_0042: stloc.0
+  IL_0043: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_0048: ldloc.0
+  IL_0049: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Add(!0)
+  IL_004e: brtrue.s IL_0051
+  IL_0050: ret
+  IL_0051: ldarg.3
+  IL_0052: brtrue.s IL_00a5
+  IL_0054: ldc.i4.1
+  IL_0055: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_005a: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_005f: ldloc.0
+  IL_0060: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Remove(!0)
+  IL_0065: pop
+  IL_0066: ldc.i4.5
+  IL_0067: newarr System.String
+  IL_006c: stloc.s V_4
+  IL_006e: ldloc.s V_4
+  IL_0070: ldc.i4.0
+  IL_0071: ldstr "Could not find AdaptiveRoads method "
+  IL_0076: stelem.ref
+  IL_0077: ldloc.s V_4
+  IL_0079: ldc.i4.1
+  IL_007a: ldarg.1
+  IL_007b: callvirt System.String System.Type::get_FullName()
+  IL_0080: stelem.ref
+  IL_0081: ldloc.s V_4
+  IL_0083: ldc.i4.2
+  IL_0084: ldstr "."
+  IL_0089: stelem.ref
+  IL_008a: ldloc.s V_4
+  IL_008c: ldc.i4.3
+  IL_008d: ldarg.2
+  IL_008e: stelem.ref
+  IL_008f: ldloc.s V_4
+  IL_0091: ldc.i4.4
+  IL_0092: ldstr " for capacity patching."
+  IL_0097: stelem.ref
+  IL_0098: ldloc.s V_4
+  IL_009a: call System.String System.String::Concat(System.String[])
+  IL_009f: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_00a4: ret
+  IL_00a5: ldtoken MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility
+  IL_00aa: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_00af: ldarg.s transpilerName
+  IL_00b1: ldc.i4.s 56
+  IL_00b3: call System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_00b8: stloc.1
+  IL_00b9: ldloc.1
+  IL_00ba: brtrue.s IL_00e9
+  IL_00bc: ldc.i4.1
+  IL_00bd: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_00c2: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_00c7: ldloc.0
+  IL_00c8: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Remove(!0)
+  IL_00cd: pop
+  IL_00ce: ldstr "Could not find AdaptiveRoads transpiler "
+  IL_00d3: ldarg.s transpilerName
+  IL_00d5: ldstr "."
+  IL_00da: call System.String System.String::Concat(System.String,System.String,System.String)
+  IL_00df: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_00e4: leave IL_0192
+  IL_00e9: ldarg.0
+  IL_00ea: ldarg.3
+  IL_00eb: ldnull
+  IL_00ec: ldnull
+  IL_00ed: ldloc.1
+  IL_00ee: newobj System.Void HarmonyLib.HarmonyMethod::.ctor(System.Reflection.MethodInfo)
+  IL_00f3: ldnull
+  IL_00f4: callvirt System.Reflection.MethodInfo HarmonyLib.Harmony::Patch(System.Reflection.MethodBase,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod,HarmonyLib.HarmonyMethod)
+  IL_00f9: pop
+  IL_00fa: ldc.i4.5
+  IL_00fb: newarr System.String
+  IL_0100: stloc.s V_5
+  IL_0102: ldloc.s V_5
+  IL_0104: ldc.i4.0
+  IL_0105: ldstr "Patched AdaptiveRoads method "
+  IL_010a: stelem.ref
+  IL_010b: ldloc.s V_5
+  IL_010d: ldc.i4.1
+  IL_010e: ldarg.1
+  IL_010f: callvirt System.String System.Type::get_FullName()
+  IL_0114: stelem.ref
+  IL_0115: ldloc.s V_5
+  IL_0117: ldc.i4.2
+  IL_0118: ldstr "."
+  IL_011d: stelem.ref
+  IL_011e: ldloc.s V_5
+  IL_0120: ldc.i4.3
+  IL_0121: ldarg.2
+  IL_0122: stelem.ref
+  IL_0123: ldloc.s V_5
+  IL_0125: ldc.i4.4
+  IL_0126: ldstr " for expanded limits."
+  IL_012b: stelem.ref
+  IL_012c: ldloc.s V_5
+  IL_012e: call System.String System.String::Concat(System.String[])
+  IL_0133: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_0138: leave.s IL_0192
+  IL_013a: stloc.2
+  IL_013b: ldsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_0140: ldloc.0
+  IL_0141: callvirt System.Boolean System.Collections.Generic.HashSet`1<System.String>::Remove(!0)
+  IL_0146: pop
+  IL_0147: ldc.i4.1
+  IL_0148: stsfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::_runtimePatchPassFailed
+  IL_014d: ldc.i4.6
+  IL_014e: newarr System.Object
+  IL_0153: stloc.s V_6
+  IL_0155: ldloc.s V_6
+  IL_0157: ldc.i4.0
+  IL_0158: ldstr "Failed to patch AdaptiveRoads method "
+  IL_015d: stelem.ref
+  IL_015e: ldloc.s V_6
+  IL_0160: ldc.i4.1
+  IL_0161: ldarg.1
+  IL_0162: callvirt System.String System.Type::get_FullName()
+  IL_0167: stelem.ref
+  IL_0168: ldloc.s V_6
+  IL_016a: ldc.i4.2
+  IL_016b: ldstr "."
+  IL_0170: stelem.ref
+  IL_0171: ldloc.s V_6
+  IL_0173: ldc.i4.3
+  IL_0174: ldarg.2
+  IL_0175: stelem.ref
+  IL_0176: ldloc.s V_6
+  IL_0178: ldc.i4.4
+  IL_0179: ldstr ": "
+  IL_017e: stelem.ref
+  IL_017f: ldloc.s V_6
+  IL_0181: ldc.i4.5
+  IL_0182: ldloc.2
+  IL_0183: stelem.ref
+  IL_0184: ldloc.s V_6
+  IL_0186: call System.String System.String::Concat(System.Object[])
+  IL_018b: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_0190: leave.s IL_0192
+  IL_0192: ret
+
+--- AllNetworkLimitsTranspiler ---
+  IL_0000: ldarg.0
+  IL_0001: ldc.i4.1
+  IL_0002: ldc.i4.1
+  IL_0003: call System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::ReplaceLimits(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>,System.Boolean,System.Boolean)
+  IL_0008: ret
+
+--- TrackNodeColorsTranspiler ---
+  IL_0000: ldarg.1
+  IL_0001: newobj System.Void System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::.ctor(System.Collections.Generic.IEnumerable`1<!0>)
+  IL_0006: stloc.0
+  IL_0007: ldarg.0
+  IL_0008: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_000d: callvirt System.String System.Type::get_FullName()
+  IL_0012: ldstr "AdaptiveRoads.Manager.NetLaneExt"
+  IL_0017: call System.Boolean System.String::op_Equality(System.String,System.String)
+  IL_001c: stloc.1
+  IL_001d: ldloc.1
+  IL_001e: brtrue.s IL_0042
+  IL_0020: ldarg.0
+  IL_0021: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_0026: callvirt System.String System.Type::get_FullName()
+  IL_002b: ldstr "AdaptiveRoads.Data.NetworkExtensions.LaneTransition"
+  IL_0030: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_0035: brfalse.s IL_0042
+  IL_0037: ldstr "Unexpected AdaptiveRoads track color target."
+  IL_003c: newobj System.Void System.InvalidOperationException::.ctor(System.String)
+  IL_0041: throw
+  IL_0042: newobj System.Void System.Collections.Generic.List`1<System.Int32>::.ctor()
+  IL_0047: stloc.2
+  IL_0048: ldc.i4.0
+  IL_0049: stloc.3
+  IL_004a: ldc.i4.0
+  IL_004b: stloc.s V_4
+  IL_004d: br IL_019c
+  IL_0052: ldloc.0
+  IL_0053: ldloc.s V_4
+  IL_0055: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_005a: ldc.i4 86016
+  IL_005f: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::IsInt32Constant(HarmonyLib.CodeInstruction,System.Int32)
+  IL_0064: brfalse IL_0196
+  IL_0069: ldloc.3
+  IL_006a: ldc.i4.1
+  IL_006b: add
+  IL_006c: stloc.3
+  IL_006d: ldloc.s V_4
+  IL_006f: ldc.i4.4
+  IL_0070: add
+  IL_0071: ldloc.0
+  IL_0072: callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  IL_0077: bge IL_0196
+  IL_007c: ldloc.0
+  IL_007d: ldloc.s V_4
+  IL_007f: ldc.i4.2
+  IL_0080: add
+  IL_0081: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0086: ldfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_008b: isinst System.Reflection.FieldInfo
+  IL_0090: stloc.s V_5
+  IL_0092: ldloc.0
+  IL_0093: ldloc.s V_4
+  IL_0095: ldc.i4.4
+  IL_0096: add
+  IL_0097: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_009c: ldfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_00a1: isinst System.Reflection.MethodInfo
+  IL_00a6: stloc.s V_6
+  IL_00a8: ldloc.s V_5
+  IL_00aa: brfalse IL_0196
+  IL_00af: ldloc.0
+  IL_00b0: ldloc.s V_4
+  IL_00b2: ldc.i4.2
+  IL_00b3: add
+  IL_00b4: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_00b9: ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_00be: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldfld
+  IL_00c3: call System.Boolean System.Reflection.Emit.OpCode::op_Inequality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  IL_00c8: brtrue IL_0196
+  IL_00cd: ldloc.1
+  IL_00ce: brtrue.s IL_00e3
+  IL_00d0: ldloc.s V_5
+  IL_00d2: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_00d7: ldstr "NodeID"
+  IL_00dc: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_00e1: br.s IL_0120
+  IL_00e3: ldloc.s V_5
+  IL_00e5: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_00ea: ldtoken NetSegment
+  IL_00ef: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_00f4: bne.un.s IL_011f
+  IL_00f6: ldloc.s V_5
+  IL_00f8: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_00fd: ldstr "m_startNode"
+  IL_0102: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_0107: brfalse.s IL_011c
+  IL_0109: ldloc.s V_5
+  IL_010b: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_0110: ldstr "m_endNode"
+  IL_0115: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_011a: br.s IL_0120
+  IL_011c: ldc.i4.0
+  IL_011d: br.s IL_0120
+  IL_011f: ldc.i4.1
+  IL_0120: brtrue.s IL_0196
+  IL_0122: ldloc.0
+  IL_0123: ldloc.s V_4
+  IL_0125: ldc.i4.3
+  IL_0126: add
+  IL_0127: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_012c: ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_0131: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Add
+  IL_0136: call System.Boolean System.Reflection.Emit.OpCode::op_Inequality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  IL_013b: brtrue.s IL_0196
+  IL_013d: ldloc.0
+  IL_013e: ldloc.s V_4
+  IL_0140: ldc.i4.4
+  IL_0141: add
+  IL_0142: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0147: ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_014c: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Call
+  IL_0151: call System.Boolean System.Reflection.Emit.OpCode::op_Inequality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  IL_0156: brtrue.s IL_0196
+  IL_0158: ldloc.s V_6
+  IL_015a: brfalse.s IL_0196
+  IL_015c: ldloc.s V_6
+  IL_015e: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_0163: ldtoken RenderManager
+  IL_0168: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_016d: bne.un.s IL_0196
+  IL_016f: ldloc.s V_6
+  IL_0171: callvirt System.String System.Reflection.MemberInfo::get_Name()
+  IL_0176: ldstr "GetColorLocation"
+  IL_017b: call System.Boolean System.String::op_Inequality(System.String,System.String)
+  IL_0180: brtrue.s IL_0196
+  IL_0182: ldloc.s V_6
+  IL_0184: callvirt System.Reflection.ParameterInfo[] System.Reflection.MethodBase::GetParameters()
+  IL_0189: ldlen
+  IL_018a: conv.i4
+  IL_018b: ldc.i4.1
+  IL_018c: bne.un.s IL_0196
+  IL_018e: ldloc.2
+  IL_018f: ldloc.s V_4
+  IL_0191: callvirt System.Void System.Collections.Generic.List`1<System.Int32>::Add(!0)
+  IL_0196: ldloc.s V_4
+  IL_0198: ldc.i4.1
+  IL_0199: add
+  IL_019a: stloc.s V_4
+  IL_019c: ldloc.s V_4
+  IL_019e: ldloc.0
+  IL_019f: callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  IL_01a4: blt IL_0052
+  IL_01a9: ldloc.2
+  IL_01aa: callvirt System.Int32 System.Collections.Generic.List`1<System.Int32>::get_Count()
+  IL_01af: ldloc.1
+  IL_01b0: brtrue.s IL_01b5
+  IL_01b2: ldc.i4.1
+  IL_01b3: br.s IL_01b6
+  IL_01b5: ldc.i4.2
+  IL_01b6: bne.un.s IL_01c1
+  IL_01b8: ldloc.3
+  IL_01b9: ldloc.2
+  IL_01ba: callvirt System.Int32 System.Collections.Generic.List`1<System.Int32>::get_Count()
+  IL_01bf: beq.s IL_01dc
+  IL_01c1: ldstr "AdaptiveRoads track node-color pattern changed: "
+  IL_01c6: ldarg.0
+  IL_01c7: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_01cc: callvirt System.String System.Type::get_FullName()
+  IL_01d1: call System.String System.String::Concat(System.String,System.String)
+  IL_01d6: newobj System.Void System.InvalidOperationException::.ctor(System.String)
+  IL_01db: throw
+  IL_01dc: ldtoken MoreNetworkCapacity.Capacity
+  IL_01e1: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_01e6: ldstr "GetNodeColorIndexBase"
+  IL_01eb: ldnull
+  IL_01ec: ldnull
+  IL_01ed: call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+  IL_01f2: stloc.s V_7
+  IL_01f4: ldloc.s V_7
+  IL_01f6: brtrue.s IL_0203
+  IL_01f8: ldstr "Node color-base helper missing."
+  IL_01fd: newobj System.Void System.InvalidOperationException::.ctor(System.String)
+  IL_0202: throw
+  IL_0203: ldloc.2
+  IL_0204: callvirt System.Collections.Generic.List`1/Enumerator<!0> System.Collections.Generic.List`1<System.Int32>::GetEnumerator()
+  IL_0209: stloc.s V_9
+  IL_020b: br.s IL_0237
+  IL_020d: ldloca.s V_9
+  IL_020f: call !0 System.Collections.Generic.List`1/Enumerator<System.Int32>::get_Current()
+  IL_0214: stloc.s V_8
+  IL_0216: ldloc.0
+  IL_0217: ldloc.s V_8
+  IL_0219: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_021e: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Call
+  IL_0223: stfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_0228: ldloc.0
+  IL_0229: ldloc.s V_8
+  IL_022b: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_0230: ldloc.s V_7
+  IL_0232: stfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_0237: ldloca.s V_9
+  IL_0239: call System.Boolean System.Collections.Generic.List`1/Enumerator<System.Int32>::MoveNext()
+  IL_023e: brtrue.s IL_020d
+  IL_0240: leave.s IL_0250
+  IL_0242: ldloca.s V_9
+  IL_0244: constrained. System.Collections.Generic.List`1/Enumerator<System.Int32>
+  IL_024a: callvirt System.Void System.IDisposable::Dispose()
+  IL_024f: endfinally
+  IL_0250: ldc.i4.5
+  IL_0251: newarr System.Object
+  IL_0256: stloc.s V_10
+  IL_0258: ldloc.s V_10
+  IL_025a: ldc.i4.0
+  IL_025b: ldstr "AdaptiveRoads track node colors patched: "
+  IL_0260: stelem.ref
+  IL_0261: ldloc.s V_10
+  IL_0263: ldc.i4.1
+  IL_0264: ldarg.0
+  IL_0265: callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  IL_026a: callvirt System.String System.Type::get_FullName()
+  IL_026f: stelem.ref
+  IL_0270: ldloc.s V_10
+  IL_0272: ldc.i4.2
+  IL_0273: ldstr " ("
+  IL_0278: stelem.ref
+  IL_0279: ldloc.s V_10
+  IL_027b: ldc.i4.3
+  IL_027c: ldloc.2
+  IL_027d: callvirt System.Int32 System.Collections.Generic.List`1<System.Int32>::get_Count()
+  IL_0282: box System.Int32
+  IL_0287: stelem.ref
+  IL_0288: ldloc.s V_10
+  IL_028a: ldc.i4.4
+  IL_028b: ldstr ")."
+  IL_0290: stelem.ref
+  IL_0291: ldloc.s V_10
+  IL_0293: call System.String System.String::Concat(System.Object[])
+  IL_0298: call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  IL_029d: ldloc.0
+  IL_029e: ret
+
+--- NodeLimitTranspiler ---
+  IL_0000: ldarg.0
+  IL_0001: ldc.i4.1
+  IL_0002: ldc.i4.0
+  IL_0003: call System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::ReplaceLimits(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>,System.Boolean,System.Boolean)
+  IL_0008: ret
+
+--- SegmentLimitTranspiler ---
+  IL_0000: ldarg.0
+  IL_0001: ldc.i4.0
+  IL_0002: ldc.i4.1
+  IL_0003: call System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::ReplaceLimits(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>,System.Boolean,System.Boolean)
+  IL_0008: ret
+
+--- SerializationCapacityTranspiler ---
+  IL_0000: ldarg.0
+  IL_0001: newobj System.Void System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::.ctor(System.Collections.Generic.IEnumerable`1<!0>)
+  IL_0006: stloc.0
+  IL_0007: ldtoken MoreNetworkCapacity.Capacity
+  IL_000c: call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  IL_0011: ldstr "GetAdaptiveRoadsSerializationCapacity"
+  IL_0016: ldnull
+  IL_0017: ldnull
+  IL_0018: call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+  IL_001d: stloc.1
+  IL_001e: ldloc.1
+  IL_001f: brtrue.s IL_002d
+  IL_0021: ldstr "Could not find Capacity.GetAdaptiveRoadsSerializationCapacity(); leaving AdaptiveRoads serialization capacity unchanged."
+  IL_0026: call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  IL_002b: ldloc.0
+  IL_002c: ret
+  IL_002d: ldc.i4.0
+  IL_002e: stloc.2
+  IL_002f: ldc.i4.0
+  IL_0030: stloc.3
+  IL_0031: br.s IL_0066
+  IL_0033: ldloc.0
+  IL_0034: ldloc.3
+  IL_0035: callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  IL_003a: stloc.s V_4
+  IL_003c: ldloc.s V_4
+  IL_003e: ldc.i4 1916928
+  IL_0043: call System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::IsInt32Constant(HarmonyLib.CodeInstruction,System.Int32)
+  IL_0048: brfalse.s IL_0062
+  IL_004a: ldloc.s V_4
+  IL_004c: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Call
+  IL_0051: stfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_0056: ldloc.s V_4
+  IL_0058: ldloc.1
+  IL_0059: stfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_005e: ldloc.2
+  IL_005f: ldc.i4.1
+  IL_0060: add
+  IL_0061: stloc.2
+  IL_0062: ldloc.3
+  IL_0063: ldc.i4.1
+  IL_0064: add
+  IL_0065: stloc.3
+  IL_0066: ldloc.3
+  IL_0067: ldloc.0
+  IL_0068: callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  IL_006d: blt.s IL_0033
+  IL_006f: ldloc.2
+  IL_0070: brtrue.s IL_007c
+  IL_0072: ldstr "AdaptiveRoads SerializationCapacity constant was not found; save buffer capacity remains vanilla-sized."
+  IL_0077: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_007c: ldloc.0
+  IL_007d: ret
+
+--- ReplaceLimits ---
+  IL_0000: ldc.i4.s -2
+  IL_0002: newobj System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<ReplaceLimits>d__0::.ctor(System.Int32)
+  IL_0007: stloc.0
+  IL_0008: ldloc.0
+  IL_0009: ldarg.0
+  IL_000a: stfld System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<ReplaceLimits>d__0::<>3__instructions
+  IL_000f: ldloc.0
+  IL_0010: ldarg.1
+  IL_0011: stfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<ReplaceLimits>d__0::<>3__replaceNodes
+  IL_0016: ldloc.0
+  IL_0017: ldarg.2
+  IL_0018: stfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<ReplaceLimits>d__0::<>3__replaceSegments
+  IL_001d: ldloc.0
+  IL_001e: ret
+
+--- IsInt32Constant ---
+  IL_0000: ldarg.0
+  IL_0001: ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_0006: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldc_I4
+  IL_000b: call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  IL_0010: brtrue.s IL_0024
+  IL_0012: ldarg.0
+  IL_0013: ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  IL_0018: ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldc_I4_S
+  IL_001d: call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  IL_0022: brfalse.s IL_0040
+  IL_0024: ldarg.0
+  IL_0025: ldfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_002a: isinst System.Int32
+  IL_002f: brfalse.s IL_0040
+  IL_0031: ldarg.0
+  IL_0032: ldfld System.Object HarmonyLib.CodeInstruction::operand
+  IL_0037: unbox.any System.Int32
+  IL_003c: ldarg.1
+  IL_003d: ceq
+  IL_003f: ret
+  IL_0040: ldc.i4.0
+  IL_0041: ret
+
+--- GetElementType ---
+  IL_0000: ldarg.0
+  IL_0001: brtrue.s IL_0005
+  IL_0003: ldnull
+  IL_0004: ret
+  IL_0005: ldarg.0
+  IL_0006: callvirt System.Type System.Reflection.FieldInfo::get_FieldType()
+  IL_000b: callvirt System.Type System.Type::GetElementType()
+  IL_0010: stloc.0
+  IL_0011: ldloc.0
+  IL_0012: brtrue.s IL_0029
+  IL_0014: ldstr "Compatibility member is not an array: "
+  IL_0019: ldarg.1
+  IL_001a: ldstr "."
+  IL_001f: call System.String System.String::Concat(System.String,System.String,System.String)
+  IL_0024: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_0029: ldloc.0
+  IL_002a: ret
+
+--- CreateInitFactory ---
+  IL_0000: newobj System.Void MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::.ctor()
+  IL_0005: stloc.0
+  IL_0006: ldloc.0
+  IL_0007: ldarg.0
+  IL_0008: stfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::elementType
+  IL_000d: ldloc.0
+  IL_000e: ldarg.2
+  IL_000f: stfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::segmentEnd
+  IL_0014: ldloc.0
+  IL_0015: ldarg.3
+  IL_0016: stfld System.Boolean MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::lane
+  IL_001b: ldloc.0
+  IL_001c: ldfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::elementType
+  IL_0021: brtrue.s IL_0025
+  IL_0023: ldnull
+  IL_0024: ret
+  IL_0025: ldloc.0
+  IL_0026: ldloc.0
+  IL_0027: ldfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::elementType
+  IL_002c: ldarg.1
+  IL_002d: ldc.i4.s 52
+  IL_002f: callvirt System.Reflection.MethodInfo System.Type::GetMethod(System.String,System.Reflection.BindingFlags)
+  IL_0034: stfld System.Reflection.MethodInfo MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::init
+  IL_0039: ldloc.0
+  IL_003a: ldfld System.Reflection.MethodInfo MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::init
+  IL_003f: brtrue.s IL_007f
+  IL_0041: ldc.i4.5
+  IL_0042: newarr System.String
+  IL_0047: stloc.1
+  IL_0048: ldloc.1
+  IL_0049: ldc.i4.0
+  IL_004a: ldstr "Could not find "
+  IL_004f: stelem.ref
+  IL_0050: ldloc.1
+  IL_0051: ldc.i4.1
+  IL_0052: ldloc.0
+  IL_0053: ldfld System.Type MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::elementType
+  IL_0058: callvirt System.String System.Type::get_FullName()
+  IL_005d: stelem.ref
+  IL_005e: ldloc.1
+  IL_005f: ldc.i4.2
+  IL_0060: ldstr "."
+  IL_0065: stelem.ref
+  IL_0066: ldloc.1
+  IL_0067: ldc.i4.3
+  IL_0068: ldarg.1
+  IL_0069: stelem.ref
+  IL_006a: ldloc.1
+  IL_006b: ldc.i4.4
+  IL_006c: ldstr " for AdaptiveRoads initialization."
+  IL_0071: stelem.ref
+  IL_0072: ldloc.1
+  IL_0073: call System.String System.String::Concat(System.String[])
+  IL_0078: call System.Void MoreNetworkCapacity.Logging::Warning(System.String)
+  IL_007d: ldnull
+  IL_007e: ret
+  IL_007f: ldloc.0
+  IL_0080: ldftn System.Object MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility/<>c__DisplayClass7::<CreateInitFactory>b__6(System.Int32)
+  IL_0086: newobj System.Void MoreNetworkCapacity.Compatibility.IndexedElementFactory::.ctor(System.Object,System.IntPtr)
+  IL_008b: ret
+
+--- .cctor ---
+  IL_0000: newobj System.Void System.Collections.Generic.HashSet`1<System.String>::.ctor()
+  IL_0005: stsfld System.Collections.Generic.HashSet`1<System.String> MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::PatchedMethods
+  IL_000a: ldc.i4.s 120
+  IL_000c: newobj System.Void MoreNetworkCapacity.Compatibility.CompatibilityRetryGate::.ctor(System.Int32)
+  IL_0011: stsfld MoreNetworkCapacity.Compatibility.CompatibilityRetryGate MoreNetworkCapacity.Compatibility.AdaptiveRoadsCompatibility::RetryGate
+  IL_0016: ret

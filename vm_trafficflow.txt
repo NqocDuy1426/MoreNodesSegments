@@ -1,0 +1,257 @@
+=== VehicleManager.SimulationStepImpl modifies/reads m_lastTrafficFlow ===
+  IL_0000: ldarg.0 
+  IL_0001: ldfld System.Boolean VehicleManager::m_parkedUpdated
+  IL_0006: brfalse IL_00d0: ldarg.1
+  IL_000B: ldarg.0 
+  IL_000C: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_0011: ldlen 
+  IL_0012: conv.i4 
+  IL_0013: stloc.0 
+  IL_0014: ldc.i4.0 
+  IL_0015: stloc.1 
+  IL_0016: br IL_00c2: ldloc.1
+  IL_001B: ldarg.0 
+  IL_001C: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_0021: ldloc.1 
+  IL_0022: ldelem.i8 
+  IL_0023: stloc.2 
+  IL_0024: ldloc.2 
+  IL_0025: ldc.i4.0 
+  IL_0026: conv.i8 
+  IL_0027: beq IL_00be: ldloc.1
+  IL_002C: ldarg.0 
+  IL_002D: ldfld System.UInt64[] VehicleManager::m_updatedParked
+  IL_0032: ldloc.1 
+  IL_0033: ldc.i4.0 
+  IL_0034: conv.i8 
+  IL_0035: stelem.i8 
+  IL_0036: ldc.i4.0 
+  IL_0037: stloc.3 
+  IL_0038: br IL_00b6: ldloc.3
+  IL_003D: ldloc.2 
+  IL_003E: ldc.i4.1 
+  IL_003F: conv.i8 
+  IL_0040: ldloc.3 
+  IL_0041: ldc.i4.s 63
+  IL_0043: and 
+  IL_0044: shl 
+  IL_0045: and 
+  IL_0046: ldc.i4.0 
+  IL_0047: conv.i8 
+  IL_0048: beq IL_00b2: ldloc.3
+  IL_004D: ldloc.1 
+  IL_004E: ldc.i4.6 
+  IL_004F: shl 
+  IL_0050: ldloc.3 
+  IL_0051: or 
+  IL_0052: conv.u2 
+  IL_0053: stloc.s V_4
+  IL_0055: ldarg.0 
+  IL_0056: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_005B: ldfld T[] Array16`1<VehicleParked>::m_buffer
+  IL_0060: ldloc.s V_4
+  IL_0062: ldelema VehicleParked
+  IL_0067: call VehicleInfo VehicleParked::get_Info()
+  IL_006C: stloc.s V_5
+  IL_006E: ldarg.0 
+  IL_006F: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_0074: ldfld T[] Array16`1<VehicleParked>::m_buffer
+  IL_0079: ldloc.s V_4
+  IL_007B: ldelema VehicleParked
+  IL_0080: dup 
+  IL_0081: ldfld System.UInt16 VehicleParked::m_flags
+  IL_0086: ldc.i4 65531
+  IL_008B: and 
+  IL_008C: conv.u2 
+  IL_008D: stfld System.UInt16 VehicleParked::m_flags
+  IL_0092: ldloc.s V_5
+  IL_0094: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0099: ldloc.s V_4
+  IL_009B: ldarg.0 
+  IL_009C: ldfld Array16`1<VehicleParked> VehicleManager::m_parkedVehicles
+  IL_00A1: ldfld T[] Array16`1<VehicleParked>::m_buffer
+  IL_00A6: ldloc.s V_4
+  IL_00A8: ldelema VehicleParked
+  IL_00AD: callvirt System.Void VehicleAI::UpdateParkedVehicle(System.UInt16,VehicleParked&)
+  IL_00B2: ldloc.3 
+  IL_00B3: ldc.i4.1 
+  IL_00B4: add 
+  IL_00B5: stloc.3 
+  IL_00B6: ldloc.3 
+  IL_00B7: ldc.i4.s 64
+  IL_00B9: blt IL_003d: ldloc.2
+  IL_00BE: ldloc.1 
+  IL_00BF: ldc.i4.1 
+  IL_00C0: add 
+  IL_00C1: stloc.1 
+  IL_00C2: ldloc.1 
+  IL_00C3: ldloc.0 
+  IL_00C4: blt IL_001b: ldarg.0
+  IL_00C9: ldarg.0 
+  IL_00CA: ldc.i4.0 
+  IL_00CB: stfld System.Boolean VehicleManager::m_parkedUpdated
+  IL_00D0: ldarg.1 
+  IL_00D1: brfalse IL_02b5: ret
+  IL_00D6: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  IL_00DB: stloc.s V_6
+  IL_00DD: ldloc.s V_6
+  IL_00DF: ldflda SimulationManager/ViewData SimulationManager::m_simulationView
+  IL_00E4: ldfld UnityEngine.Vector3 SimulationManager/ViewData::m_position
+  IL_00E9: ldloc.s V_6
+  IL_00EB: ldflda SimulationManager/ViewData SimulationManager::m_simulationView
+  IL_00F0: ldfld UnityEngine.Vector3 SimulationManager/ViewData::m_direction
+  IL_00F5: ldc.r4 1000
+  IL_00FA: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+  IL_00FF: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+  IL_0104: stloc.s V_7
+  IL_0106: ldc.i4.0 
+  IL_0107: stloc.s V_8
+  IL_0109: br IL_0170: ldloc.s V_8
+  IL_010E: ldarg.0 
+  IL_010F: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0114: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0119: ldloc.s V_8
+  IL_011B: ldelema Vehicle
+  IL_0120: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_0125: stloc.s V_9
+  IL_0127: ldloc.s V_9
+  IL_0129: ldc.i4.1 
+  IL_012A: and 
+  IL_012B: brfalse IL_016a: ldloc.s V_8
+  IL_0130: ldarg.0 
+  IL_0131: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0136: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_013B: ldloc.s V_8
+  IL_013D: ldelema Vehicle
+  IL_0142: call VehicleInfo Vehicle::get_Info()
+  IL_0147: stloc.s V_10
+  IL_0149: ldloc.s V_10
+  IL_014B: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0150: ldloc.s V_8
+  IL_0152: conv.u2 
+  IL_0153: ldarg.0 
+  IL_0154: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0159: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_015E: ldloc.s V_8
+  IL_0160: ldelema Vehicle
+  IL_0165: callvirt System.Void VehicleAI::ExtraSimulationStep(System.UInt16,Vehicle&)
+  IL_016A: ldloc.s V_8
+  IL_016C: ldc.i4.1 
+  IL_016D: add 
+  IL_016E: stloc.s V_8
+  IL_0170: ldloc.s V_8
+  IL_0172: ldc.i4 16384
+  IL_0177: blt IL_010e: ldarg.0
+  IL_017C: ldloc.s V_6
+  IL_017E: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0183: ldc.i4.s 15
+  IL_0185: and 
+  IL_0186: stloc.s V_11
+  IL_0188: ldloc.s V_11
+  IL_018A: ldc.i4 1024
+  IL_018F: mul 
+  IL_0190: stloc.s V_12
+  IL_0192: ldloc.s V_11
+  IL_0194: ldc.i4.1 
+  IL_0195: add 
+  IL_0196: ldc.i4 1024
+  IL_019B: mul 
+  IL_019C: ldc.i4.1 
+  IL_019D: sub 
+  IL_019E: stloc.s V_13
+  IL_01A0: ldloc.s V_12
+  IL_01A2: stloc.s V_14
+  IL_01A4: br IL_0229: ldloc.s V_14
+  IL_01A9: ldarg.0 
+  IL_01AA: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_01AF: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_01B4: ldloc.s V_14
+  IL_01B6: ldelema Vehicle
+  IL_01BB: ldfld Vehicle/Flags Vehicle::m_flags
+  IL_01C0: stloc.s V_15
+  IL_01C2: ldloc.s V_15
+  IL_01C4: ldc.i4.1 
+  IL_01C5: and 
+  IL_01C6: brfalse IL_0223: ldloc.s V_14
+  IL_01CB: ldarg.0 
+  IL_01CC: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_01D1: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_01D6: ldloc.s V_14
+  IL_01D8: ldelema Vehicle
+  IL_01DD: ldfld System.UInt16 Vehicle::m_leadingVehicle
+  IL_01E2: brtrue IL_0223: ldloc.s V_14
+  IL_01E7: ldarg.0 
+  IL_01E8: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_01ED: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_01F2: ldloc.s V_14
+  IL_01F4: ldelema Vehicle
+  IL_01F9: call VehicleInfo Vehicle::get_Info()
+  IL_01FE: stloc.s V_16
+  IL_0200: ldloc.s V_16
+  IL_0202: ldfld VehicleAI VehicleInfo::m_vehicleAI
+  IL_0207: ldloc.s V_14
+  IL_0209: conv.u2 
+  IL_020A: ldarg.0 
+  IL_020B: ldfld Array16`1<Vehicle> VehicleManager::m_vehicles
+  IL_0210: ldfld T[] Array16`1<Vehicle>::m_buffer
+  IL_0215: ldloc.s V_14
+  IL_0217: ldelema Vehicle
+  IL_021C: ldloc.s V_7
+  IL_021E: callvirt System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,UnityEngine.Vector3)
+  IL_0223: ldloc.s V_14
+  IL_0225: ldc.i4.1 
+  IL_0226: add 
+  IL_0227: stloc.s V_14
+  IL_0229: ldloc.s V_14
+  IL_022B: ldloc.s V_13
+  IL_022D: ble IL_01a9: ldarg.0
+  IL_0232: ldloc.s V_6
+  IL_0234: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+  IL_0239: ldc.i4 255
+  IL_023E: and 
+  IL_023F: brtrue IL_02b5: ret
+  IL_0244: ldarg.0 
+  IL_0245: ldfld System.UInt32 VehicleManager::m_maxTrafficFlow
+  IL_024A: ldc.i4.s 100
+  IL_024C: div.un 
+  IL_024D: stloc.s V_17
+  IL_024F: ldloc.s V_17
+  IL_0251: brtrue IL_0259: ldarg.0
+  IL_0256: ldc.i4.1 
+  IL_0257: stloc.s V_17
+  IL_0259: ldarg.0 
+  IL_025A: ldfld System.UInt32 VehicleManager::m_totalTrafficFlow
+  IL_025F: ldloc.s V_17
+  IL_0261: div.un 
+  IL_0262: stloc.s V_18
+  IL_0264: ldloc.s V_18
+  IL_0266: ldc.i4.s 100
+  IL_0268: ble.un IL_0271: ldarg.0
+  IL_026D: ldc.i4.s 100
+  IL_026F: stloc.s V_18
+  IL_0271: ldarg.0 
+  IL_0272: ldloc.s V_18
+  IL_0274: stfld System.UInt32 VehicleManager::m_lastTrafficFlow
+  IL_0279: ldarg.0 
+  IL_027A: ldc.i4.0 
+  IL_027B: stfld System.UInt32 VehicleManager::m_totalTrafficFlow
+  IL_0280: ldarg.0 
+  IL_0281: ldc.i4.0 
+  IL_0282: stfld System.UInt32 VehicleManager::m_maxTrafficFlow
+  IL_0287: ldarg.0 
+  IL_0288: ldarg.0 
+  IL_0289: ldfld System.UInt32 VehicleManager::m_tempVehicleCount
+  IL_028E: stfld System.UInt32 VehicleManager::m_finalVehicleCount
+  IL_0293: ldarg.0 
+  IL_0294: ldc.i4.0 
+  IL_0295: stfld System.UInt32 VehicleManager::m_tempVehicleCount
+  IL_029A: call !0 ColossalFramework.Singleton`1<StatisticsManager>::get_instance()
+  IL_029F: stloc.s V_19
+  IL_02A1: ldloc.s V_19
+  IL_02A3: ldc.i4.s 54
+  IL_02A5: callvirt StatisticBase StatisticsManager::Acquire<StatisticInt32>(StatisticType)
+  IL_02AA: stloc.s V_20
+  IL_02AC: ldloc.s V_20
+  IL_02AE: ldloc.s V_18
+  IL_02B0: callvirt System.Void StatisticBase::Set(System.Int32)
+  IL_02B5: ret 

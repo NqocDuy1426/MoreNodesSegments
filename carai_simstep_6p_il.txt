@@ -1,0 +1,1163 @@
+System.Void CarAI::SimulationStep(System.UInt16,Vehicle&,Vehicle/Frame&,System.UInt16,Vehicle&,System.Int32)
+IL_0000: ldarg.s leaderData
+IL_0002: ldfld Vehicle/Flags2 Vehicle::m_flags2
+IL_0007: ldc.i4.2
+IL_0008: and
+IL_0009: brfalse IL_001e
+IL_000e: ldarg.0
+IL_000f: ldarg.1
+IL_0010: ldarg.2
+IL_0011: ldarg.3
+IL_0012: ldarg.s leaderID
+IL_0014: ldarg.s leaderData
+IL_0016: ldarg.s lodPhysics
+IL_0018: call System.Void CarAI::SimulationStepBlown(System.UInt16,Vehicle&,Vehicle/Frame&,System.UInt16,Vehicle&,System.Int32)
+IL_001d: ret
+IL_001e: ldarg.s leaderData
+IL_0020: ldfld Vehicle/Flags2 Vehicle::m_flags2
+IL_0025: ldc.i4.1
+IL_0026: and
+IL_0027: brfalse IL_003c
+IL_002c: ldarg.0
+IL_002d: ldarg.1
+IL_002e: ldarg.2
+IL_002f: ldarg.3
+IL_0030: ldarg.s leaderID
+IL_0032: ldarg.s leaderData
+IL_0034: ldarg.s lodPhysics
+IL_0036: call System.Void CarAI::SimulationStepFloating(System.UInt16,Vehicle&,Vehicle/Frame&,System.UInt16,Vehicle&,System.Int32)
+IL_003b: ret
+IL_003c: call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+IL_0041: ldfld System.UInt32 SimulationManager::m_currentFrameIndex
+IL_0046: stloc.0
+IL_0047: ldarg.3
+IL_0048: dup
+IL_0049: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_004e: ldarg.3
+IL_004f: ldfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+IL_0054: ldc.r4 0.5
+IL_0059: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_005e: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0063: stfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_0068: ldarg.3
+IL_0069: dup
+IL_006a: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayPosition
+IL_006f: ldarg.3
+IL_0070: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayVelocity
+IL_0075: ldc.r4 0.5
+IL_007a: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_007f: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0084: stfld UnityEngine.Vector3 Vehicle/Frame::m_swayPosition
+IL_0089: ldarg.0
+IL_008a: ldfld VehicleInfo VehicleAI::m_info
+IL_008f: ldfld System.Single VehicleInfo::m_acceleration
+IL_0094: stloc.1
+IL_0095: ldarg.0
+IL_0096: ldfld VehicleInfo VehicleAI::m_info
+IL_009b: ldfld System.Single VehicleInfo::m_braking
+IL_00a0: stloc.2
+IL_00a1: ldarg.2
+IL_00a2: ldfld Vehicle/Flags Vehicle::m_flags
+IL_00a7: ldc.i4 128
+IL_00ac: and
+IL_00ad: brfalse IL_00c2
+IL_00b2: ldloc.1
+IL_00b3: ldc.r4 2
+IL_00b8: mul
+IL_00b9: stloc.1
+IL_00ba: ldloc.2
+IL_00bb: ldc.r4 2
+IL_00c0: mul
+IL_00c1: stloc.2
+IL_00c2: ldarg.3
+IL_00c3: ldflda UnityEngine.Vector3 Vehicle/Frame::m_velocity
+IL_00c8: call System.Single UnityEngine.Vector3::get_magnitude()
+IL_00cd: stloc.3
+IL_00ce: ldarg.2
+IL_00cf: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_00d4: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_00d9: ldarg.3
+IL_00da: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_00df: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_00e4: stloc.s V_4
+IL_00e6: ldloca.s V_4
+IL_00e8: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+IL_00ed: stloc.s V_5
+IL_00ef: ldloc.3
+IL_00f0: ldloc.1
+IL_00f1: add
+IL_00f2: ldc.r4 0.5
+IL_00f7: ldc.r4 0.5
+IL_00fc: ldloc.3
+IL_00fd: ldloc.1
+IL_00fe: add
+IL_00ff: mul
+IL_0100: ldloc.2
+IL_0101: div
+IL_0102: add
+IL_0103: mul
+IL_0104: ldarg.0
+IL_0105: ldfld VehicleInfo VehicleAI::m_info
+IL_010a: ldfld VehicleInfoGen VehicleInfoBase::m_generatedInfo
+IL_010f: ldflda UnityEngine.Vector3 VehicleInfoGen::m_size
+IL_0114: ldfld System.Single UnityEngine.Vector3::z
+IL_0119: ldc.r4 0.5
+IL_011e: mul
+IL_011f: add
+IL_0120: stloc.s V_6
+IL_0122: ldloc.3
+IL_0123: ldloc.1
+IL_0124: add
+IL_0125: ldc.r4 5
+IL_012a: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_012f: stloc.s V_7
+IL_0131: ldarg.s lodPhysics
+IL_0133: ldc.i4.2
+IL_0134: blt IL_0152
+IL_0139: ldloc.0
+IL_013a: ldc.i4.4
+IL_013b: shr.un
+IL_013c: ldc.i4.3
+IL_013d: and
+IL_013e: conv.u8
+IL_013f: ldarg.1
+IL_0140: ldc.i4.3
+IL_0141: and
+IL_0142: conv.i8
+IL_0143: bne.un IL_0152
+IL_0148: ldloc.s V_7
+IL_014a: ldc.r4 2
+IL_014f: mul
+IL_0150: stloc.s V_7
+IL_0152: ldloc.s V_6
+IL_0154: ldloc.s V_7
+IL_0156: sub
+IL_0157: ldc.r4 3
+IL_015c: div
+IL_015d: ldc.r4 1
+IL_0162: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0167: stloc.s V_8
+IL_0169: ldloc.s V_7
+IL_016b: ldloc.s V_7
+IL_016d: mul
+IL_016e: stloc.s V_9
+IL_0170: ldloc.s V_8
+IL_0172: ldloc.s V_8
+IL_0174: mul
+IL_0175: stloc.s V_10
+IL_0177: ldc.i4.0
+IL_0178: stloc.s V_11
+IL_017a: ldc.i4.0
+IL_017b: stloc.s V_12
+IL_017d: ldloc.s V_5
+IL_017f: ldloc.s V_9
+IL_0181: blt IL_019b
+IL_0186: ldarg.2
+IL_0187: ldflda UnityEngine.Vector4 Vehicle::m_targetPos3
+IL_018c: ldfld System.Single UnityEngine.Vector4::w
+IL_0191: ldc.r4 0.01
+IL_0196: bge.un IL_02ac
+IL_019b: ldarg.s leaderData
+IL_019d: ldfld Vehicle/Flags Vehicle::m_flags
+IL_01a2: ldc.i4 768
+IL_01a7: and
+IL_01a8: brtrue IL_02ac
+IL_01ad: ldarg.s leaderData
+IL_01af: ldfld System.UInt32 Vehicle::m_path
+IL_01b4: brfalse IL_01e9
+IL_01b9: ldarg.0
+IL_01ba: ldarg.1
+IL_01bb: ldarg.2
+IL_01bc: ldarg.3
+IL_01bd: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_01c2: ldloca.s V_11
+IL_01c4: ldc.i4.4
+IL_01c5: ldloc.s V_9
+IL_01c7: ldloc.s V_10
+IL_01c9: callvirt System.Void VehicleAI::UpdatePathTargetPositions(System.UInt16,Vehicle&,UnityEngine.Vector3,System.Int32&,System.Int32,System.Single,System.Single)
+IL_01ce: ldarg.s leaderData
+IL_01d0: ldfld Vehicle/Flags Vehicle::m_flags
+IL_01d5: ldc.i4.4
+IL_01d6: and
+IL_01d7: brtrue IL_01e9
+IL_01dc: ldarg.3
+IL_01dd: ldarg.2
+IL_01de: ldfld Vehicle/Frame Vehicle::m_frame0
+IL_01e3: stobj Vehicle/Frame
+IL_01e8: ret
+IL_01e9: ldarg.s leaderData
+IL_01eb: ldfld Vehicle/Flags Vehicle::m_flags
+IL_01f0: ldc.i4 256
+IL_01f5: and
+IL_01f6: brtrue IL_028b
+IL_01fb: br IL_0254
+IL_0200: ldloc.s V_11
+IL_0202: brtrue IL_021b
+IL_0207: ldloc.s V_9
+IL_0209: stloc.s V_13
+IL_020b: ldarg.3
+IL_020c: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_0211: stloc.s V_14
+IL_0213: ldc.i4.1
+IL_0214: stloc.s V_12
+IL_0216: br IL_0230
+IL_021b: ldloc.s V_10
+IL_021d: stloc.s V_13
+IL_021f: ldarg.2
+IL_0220: ldloc.s V_11
+IL_0222: ldc.i4.1
+IL_0223: sub
+IL_0224: call UnityEngine.Vector4 Vehicle::GetTargetPos(System.Int32)
+IL_0229: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_022e: stloc.s V_14
+IL_0230: ldloc.s V_11
+IL_0232: stloc.s V_15
+IL_0234: ldarg.0
+IL_0235: ldarg.1
+IL_0236: ldarg.2
+IL_0237: ldloc.s V_14
+IL_0239: ldarg.s leaderID
+IL_023b: ldarg.s leaderData
+IL_023d: ldloca.s V_11
+IL_023f: ldloc.s V_13
+IL_0241: callvirt System.Void VehicleAI::UpdateBuildingTargetPositions(System.UInt16,Vehicle&,UnityEngine.Vector3,System.UInt16,Vehicle&,System.Int32&,System.Single)
+IL_0246: ldloc.s V_11
+IL_0248: ldloc.s V_15
+IL_024a: bne.un IL_0254
+IL_024f: br IL_025c
+IL_0254: ldloc.s V_11
+IL_0256: ldc.i4.4
+IL_0257: blt IL_0200
+IL_025c: ldloc.s V_11
+IL_025e: brfalse IL_028b
+IL_0263: ldarg.2
+IL_0264: ldloc.s V_11
+IL_0266: ldc.i4.1
+IL_0267: sub
+IL_0268: call UnityEngine.Vector4 Vehicle::GetTargetPos(System.Int32)
+IL_026d: stloc.s V_16
+IL_026f: br IL_0283
+IL_0274: ldarg.2
+IL_0275: ldloc.s V_11
+IL_0277: dup
+IL_0278: ldc.i4.1
+IL_0279: add
+IL_027a: stloc.s V_11
+IL_027c: ldloc.s V_16
+IL_027e: call System.Void Vehicle::SetTargetPos(System.Int32,UnityEngine.Vector4)
+IL_0283: ldloc.s V_11
+IL_0285: ldc.i4.4
+IL_0286: blt IL_0274
+IL_028b: ldarg.2
+IL_028c: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_0291: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_0296: ldarg.3
+IL_0297: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_029c: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_02a1: stloc.s V_4
+IL_02a3: ldloca.s V_4
+IL_02a5: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+IL_02aa: stloc.s V_5
+IL_02ac: ldarg.s leaderData
+IL_02ae: ldfld System.UInt32 Vehicle::m_path
+IL_02b3: brfalse IL_05b7
+IL_02b8: ldarg.s leaderData
+IL_02ba: ldfld Vehicle/Flags Vehicle::m_flags
+IL_02bf: ldc.i4 256
+IL_02c4: and
+IL_02c5: brtrue IL_05b7
+IL_02ca: call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+IL_02cf: stloc.s V_17
+IL_02d1: ldarg.s leaderData
+IL_02d3: ldfld System.Byte Vehicle::m_pathPositionIndex
+IL_02d8: stloc.s V_18
+IL_02da: ldarg.s leaderData
+IL_02dc: ldfld System.Byte Vehicle::m_lastPathOffset
+IL_02e1: stloc.s V_19
+IL_02e3: ldloc.s V_18
+IL_02e5: ldc.i4 255
+IL_02ea: bne.un IL_02f2
+IL_02ef: ldc.i4.0
+IL_02f0: stloc.s V_18
+IL_02f2: ldc.r4 1
+IL_02f7: ldarg.s leaderData
+IL_02f9: ldarg.s leaderID
+IL_02fb: ldloca.s V_20
+IL_02fd: call System.Single Vehicle::CalculateTotalLength(System.UInt16,System.Int32&)
+IL_0302: add
+IL_0303: stloc.s V_21
+IL_0305: call !0 ColossalFramework.Singleton`1<PathManager>::get_instance()
+IL_030a: stloc.s V_22
+IL_030c: ldloc.s V_22
+IL_030e: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_0313: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_0318: ldarg.s leaderData
+IL_031a: ldfld System.UInt32 Vehicle::m_path
+IL_031f: conv.u
+IL_0320: ldelema PathUnit
+IL_0325: ldloc.s V_18
+IL_0327: ldc.i4.1
+IL_0328: shr
+IL_0329: ldloca.s V_23
+IL_032b: call System.Boolean PathUnit::GetPosition(System.Int32,PathUnit/Position&)
+IL_0330: brfalse IL_0501
+IL_0335: ldloc.s V_17
+IL_0337: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_033c: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0341: ldloca.s V_23
+IL_0343: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_0348: ldelema NetSegment
+IL_034d: ldfld NetSegment/Flags NetSegment::m_flags
+IL_0352: ldc.i4 4194304
+IL_0357: and
+IL_0358: brfalse IL_0386
+IL_035d: call !0 ColossalFramework.Singleton`1<TerrainManager>::get_instance()
+IL_0362: ldarg.3
+IL_0363: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_0368: call UnityEngine.Vector2 ColossalFramework.Math.VectorUtils::XZ(UnityEngine.Vector3)
+IL_036d: callvirt System.Boolean TerrainManager::HasWater(UnityEngine.Vector2)
+IL_0372: brfalse IL_0386
+IL_0377: ldarg.s leaderData
+IL_0379: dup
+IL_037a: ldfld Vehicle/Flags2 Vehicle::m_flags2
+IL_037f: ldc.i4.1
+IL_0380: or
+IL_0381: stfld Vehicle/Flags2 Vehicle::m_flags2
+IL_0386: ldloc.s V_17
+IL_0388: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_038d: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_0392: ldloca.s V_23
+IL_0394: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_0399: ldelema NetSegment
+IL_039e: ldloc.s V_21
+IL_03a0: ldc.r4 2.5
+IL_03a5: mul
+IL_03a6: call System.Int32 UnityEngine.Mathf::RoundToInt(System.Single)
+IL_03ab: ldloc.s V_20
+IL_03ad: call System.Void NetSegment::AddTraffic(System.Int32,System.Int32)
+IL_03b2: ldc.i4.0
+IL_03b3: stloc.s V_24
+IL_03b5: ldloc.s V_18
+IL_03b7: ldc.i4.1
+IL_03b8: and
+IL_03b9: brfalse IL_03c5
+IL_03be: ldloc.s V_19
+IL_03c0: brtrue IL_045f
+IL_03c5: ldloc.s V_23
+IL_03c7: call System.UInt32 PathManager::GetLaneID(PathUnit/Position)
+IL_03cc: stloc.s V_25
+IL_03ce: ldloc.s V_25
+IL_03d0: brfalse IL_045f
+IL_03d5: ldloc.s V_17
+IL_03d7: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_03dc: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_03e1: ldloc.s V_25
+IL_03e3: conv.u
+IL_03e4: ldelema NetLane
+IL_03e9: ldloca.s V_23
+IL_03eb: ldfld System.Byte PathUnit/Position::m_offset
+IL_03f0: conv.r4
+IL_03f1: ldc.r4 0.003921569
+IL_03f6: mul
+IL_03f7: call UnityEngine.Vector3 NetLane::CalculatePosition(System.Single)
+IL_03fc: stloc.s V_26
+IL_03fe: ldc.r4 0.5
+IL_0403: ldloc.3
+IL_0404: mul
+IL_0405: ldloc.3
+IL_0406: mul
+IL_0407: ldloc.2
+IL_0408: div
+IL_0409: ldarg.0
+IL_040a: ldfld VehicleInfo VehicleAI::m_info
+IL_040f: ldfld VehicleInfoGen VehicleInfoBase::m_generatedInfo
+IL_0414: ldflda UnityEngine.Vector3 VehicleInfoGen::m_size
+IL_0419: ldfld System.Single UnityEngine.Vector3::z
+IL_041e: ldc.r4 0.5
+IL_0423: mul
+IL_0424: add
+IL_0425: stloc.s V_27
+IL_0427: ldarg.3
+IL_0428: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_042d: ldloc.s V_26
+IL_042f: call System.Single UnityEngine.Vector3::Distance(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0434: ldloc.s V_27
+IL_0436: ldc.r4 1
+IL_043b: sub
+IL_043c: blt.un IL_045f
+IL_0441: ldloc.s V_17
+IL_0443: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0448: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_044d: ldloc.s V_25
+IL_044f: conv.u
+IL_0450: ldelema NetLane
+IL_0455: ldloc.s V_21
+IL_0457: call System.Void NetLane::ReserveSpace(System.Single)
+IL_045c: ldc.i4.1
+IL_045d: stloc.s V_24
+IL_045f: ldloc.s V_24
+IL_0461: brtrue IL_04ba
+IL_0466: ldloc.s V_22
+IL_0468: ldfld Array32`1<PathUnit> PathManager::m_pathUnits
+IL_046d: ldfld T[] Array32`1<PathUnit>::m_buffer
+IL_0472: ldarg.s leaderData
+IL_0474: ldfld System.UInt32 Vehicle::m_path
+IL_0479: conv.u
+IL_047a: ldelema PathUnit
+IL_047f: ldloc.s V_18
+IL_0481: ldc.i4.1
+IL_0482: shr
+IL_0483: ldloca.s V_23
+IL_0485: call System.Boolean PathUnit::GetNextPosition(System.Int32,PathUnit/Position&)
+IL_048a: brfalse IL_04ba
+IL_048f: ldloc.s V_23
+IL_0491: call System.UInt32 PathManager::GetLaneID(PathUnit/Position)
+IL_0496: stloc.s V_28
+IL_0498: ldloc.s V_28
+IL_049a: brfalse IL_04ba
+IL_049f: ldloc.s V_17
+IL_04a1: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_04a6: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_04ab: ldloc.s V_28
+IL_04ad: conv.u
+IL_04ae: ldelema NetLane
+IL_04b3: ldloc.s V_21
+IL_04b5: call System.Void NetLane::ReserveSpace(System.Single)
+IL_04ba: ldloc.s V_17
+IL_04bc: ldfld Array16`1<NetSegment> NetManager::m_segments
+IL_04c1: ldfld T[] Array16`1<NetSegment>::m_buffer
+IL_04c6: ldloca.s V_23
+IL_04c8: ldfld System.UInt16 PathUnit/Position::m_segment
+IL_04cd: ldelema NetSegment
+IL_04d2: ldfld NetSegment/Flags2 NetSegment::m_flags2
+IL_04d7: ldc.i4 4096
+IL_04dc: and
+IL_04dd: brtrue IL_0501
+IL_04e2: ldarg.s leaderData
+IL_04e4: ldfld Vehicle/Flags2 Vehicle::m_flags2
+IL_04e9: ldc.i4.s 64
+IL_04eb: and
+IL_04ec: brfalse IL_0501
+IL_04f1: ldarg.s leaderData
+IL_04f3: dup
+IL_04f4: ldfld Vehicle/Flags2 Vehicle::m_flags2
+IL_04f9: ldc.i4.s -65
+IL_04fb: and
+IL_04fc: stfld Vehicle/Flags2 Vehicle::m_flags2
+IL_0501: ldloc.0
+IL_0502: ldc.i4.4
+IL_0503: shr.un
+IL_0504: ldc.i4.s 15
+IL_0506: and
+IL_0507: conv.u8
+IL_0508: ldarg.s leaderID
+IL_050a: ldc.i4.s 15
+IL_050c: and
+IL_050d: conv.i8
+IL_050e: bne.un IL_05b7
+IL_0513: ldc.i4.0
+IL_0514: stloc.s V_29
+IL_0516: ldarg.s leaderData
+IL_0518: ldfld System.UInt32 Vehicle::m_path
+IL_051d: stloc.s V_30
+IL_051f: ldloc.s V_18
+IL_0521: ldc.i4.1
+IL_0522: shr
+IL_0523: stloc.s V_31
+IL_0525: ldc.i4.0
+IL_0526: stloc.s V_32
+IL_0528: br IL_0595
+IL_052d: ldloca.s V_30
+IL_052f: ldloca.s V_31
+IL_0531: ldloca.s V_23
+IL_0533: ldloca.s V_33
+IL_0535: call System.Boolean PathUnit::GetNextPosition(System.UInt32&,System.Int32&,PathUnit/Position&,System.Boolean&)
+IL_053a: brfalse IL_0574
+IL_053f: ldloc.s V_23
+IL_0541: call System.UInt32 PathManager::GetLaneID(PathUnit/Position)
+IL_0546: stloc.s V_34
+IL_0548: ldloc.s V_34
+IL_054a: brfalse IL_0574
+IL_054f: ldloc.s V_17
+IL_0551: ldfld Array32`1<NetLane> NetManager::m_lanes
+IL_0556: ldfld T[] Array32`1<NetLane>::m_buffer
+IL_055b: ldloc.s V_34
+IL_055d: conv.u
+IL_055e: ldelema NetLane
+IL_0563: ldloc.s V_21
+IL_0565: call System.Boolean NetLane::CheckSpace(System.Single)
+IL_056a: brtrue IL_0574
+IL_056f: br IL_058f
+IL_0574: ldloc.s V_33
+IL_0576: brfalse IL_0587
+IL_057b: ldarg.0
+IL_057c: ldarg.1
+IL_057d: ldarg.2
+IL_057e: ldarg.s leaderID
+IL_0580: ldarg.s leaderData
+IL_0582: callvirt System.Void VehicleAI::InvalidPath(System.UInt16,Vehicle&,System.UInt16,Vehicle&)
+IL_0587: ldc.i4.1
+IL_0588: stloc.s V_29
+IL_058a: br IL_059d
+IL_058f: ldloc.s V_32
+IL_0591: ldc.i4.1
+IL_0592: add
+IL_0593: stloc.s V_32
+IL_0595: ldloc.s V_32
+IL_0597: ldc.i4.5
+IL_0598: blt IL_052d
+IL_059d: ldloc.s V_29
+IL_059f: brtrue IL_05b7
+IL_05a4: ldarg.s leaderData
+IL_05a6: dup
+IL_05a7: ldfld Vehicle/Flags Vehicle::m_flags
+IL_05ac: ldc.i4 67108864
+IL_05b1: or
+IL_05b2: stfld Vehicle/Flags Vehicle::m_flags
+IL_05b7: call !0 ColossalFramework.Singleton`1<VehicleManager>::get_instance()
+IL_05bc: stloc.s V_35
+IL_05be: ldarg.s leaderData
+IL_05c0: ldfld Vehicle/Flags Vehicle::m_flags
+IL_05c5: ldc.i4 512
+IL_05ca: and
+IL_05cb: brfalse IL_05dc
+IL_05d0: ldc.r4 0
+IL_05d5: stloc.s V_36
+IL_05d7: br IL_063f
+IL_05dc: ldarg.2
+IL_05dd: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_05e2: ldfld System.Single UnityEngine.Vector4::w
+IL_05e7: stloc.s V_36
+IL_05e9: ldarg.s leaderData
+IL_05eb: ldfld Vehicle/Flags Vehicle::m_flags
+IL_05f0: ldc.i4 134217728
+IL_05f5: and
+IL_05f6: brtrue IL_063f
+IL_05fb: ldloc.3
+IL_05fc: ldc.r4 100
+IL_0601: mul
+IL_0602: ldc.r4 1
+IL_0607: ldarg.2
+IL_0608: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_060d: ldfld System.Single UnityEngine.Vector4::w
+IL_0612: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0617: div
+IL_0618: stloc.s V_37
+IL_061a: ldloc.s V_35
+IL_061c: dup
+IL_061d: ldfld System.UInt32 VehicleManager::m_totalTrafficFlow
+IL_0622: ldloc.s V_37
+IL_0624: call System.Int32 UnityEngine.Mathf::RoundToInt(System.Single)
+IL_0629: add
+IL_062a: stfld System.UInt32 VehicleManager::m_totalTrafficFlow
+IL_062f: ldloc.s V_35
+IL_0631: dup
+IL_0632: ldfld System.UInt32 VehicleManager::m_maxTrafficFlow
+IL_0637: ldc.i4.s 100
+IL_0639: add
+IL_063a: stfld System.UInt32 VehicleManager::m_maxTrafficFlow
+IL_063f: ldarg.s leaderData
+IL_0641: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0646: ldc.i4 134217728
+IL_064b: and
+IL_064c: brtrue IL_06ce
+IL_0651: ldarg.s leaderData
+IL_0653: ldfld System.UInt32 Vehicle::m_citizenUnits
+IL_0658: brtrue IL_0671
+IL_065d: ldloc.s V_35
+IL_065f: dup
+IL_0660: ldfld System.UInt32 VehicleManager::m_tempVehicleCount
+IL_0665: ldc.i4.1
+IL_0666: add
+IL_0667: stfld System.UInt32 VehicleManager::m_tempVehicleCount
+IL_066c: br IL_06ce
+IL_0671: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+IL_0676: ldfld Array32`1<CitizenUnit> CitizenManager::m_units
+IL_067b: ldfld T[] Array32`1<CitizenUnit>::m_buffer
+IL_0680: ldarg.s leaderData
+IL_0682: ldfld System.UInt32 Vehicle::m_citizenUnits
+IL_0687: conv.u
+IL_0688: ldelema CitizenUnit
+IL_068d: ldfld System.UInt32 CitizenUnit::m_citizen0
+IL_0692: stloc.s V_38
+IL_0694: ldloc.s V_38
+IL_0696: brfalse IL_06bf
+IL_069b: call !0 ColossalFramework.Singleton`1<CitizenManager>::get_instance()
+IL_06a0: ldfld Array32`1<Citizen> CitizenManager::m_citizens
+IL_06a5: ldfld T[] Array32`1<Citizen>::m_buffer
+IL_06aa: ldloc.s V_38
+IL_06ac: conv.u
+IL_06ad: ldelema Citizen
+IL_06b2: ldfld Citizen/Flags Citizen::m_flags
+IL_06b7: ldc.i4.s 64
+IL_06b9: and
+IL_06ba: brtrue IL_06ce
+IL_06bf: ldloc.s V_35
+IL_06c1: dup
+IL_06c2: ldfld System.UInt32 VehicleManager::m_tempVehicleCount
+IL_06c7: ldc.i4.1
+IL_06c8: add
+IL_06c9: stfld System.UInt32 VehicleManager::m_tempVehicleCount
+IL_06ce: ldarg.3
+IL_06cf: ldfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+IL_06d4: call UnityEngine.Quaternion UnityEngine.Quaternion::Inverse(UnityEngine.Quaternion)
+IL_06d9: stloc.s V_39
+IL_06db: ldloc.s V_39
+IL_06dd: ldloc.s V_4
+IL_06df: call UnityEngine.Vector3 UnityEngine.Quaternion::op_Multiply(UnityEngine.Quaternion,UnityEngine.Vector3)
+IL_06e4: stloc.s V_4
+IL_06e6: ldloc.s V_39
+IL_06e8: ldarg.3
+IL_06e9: ldfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+IL_06ee: call UnityEngine.Vector3 UnityEngine.Quaternion::op_Multiply(UnityEngine.Quaternion,UnityEngine.Vector3)
+IL_06f3: stloc.s V_40
+IL_06f5: call UnityEngine.Vector3 UnityEngine.Vector3::get_forward()
+IL_06fa: stloc.s V_41
+IL_06fc: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0701: stloc.s V_42
+IL_0703: call UnityEngine.Vector3 UnityEngine.Vector3::get_zero()
+IL_0708: stloc.s V_43
+IL_070a: ldc.r4 0
+IL_070f: stloc.s V_44
+IL_0711: ldc.r4 0
+IL_0716: stloc.s V_45
+IL_0718: ldc.i4.0
+IL_0719: stloc.s V_46
+IL_071b: ldc.r4 0
+IL_0720: stloc.s V_47
+IL_0722: ldloc.s V_5
+IL_0724: ldc.r4 1
+IL_0729: ble.un IL_0a58
+IL_072e: ldloc.s V_4
+IL_0730: ldloca.s V_47
+IL_0732: call UnityEngine.Vector3 ColossalFramework.Math.VectorUtils::NormalizeXZ(UnityEngine.Vector3,System.Single&)
+IL_0737: stloc.s V_41
+IL_0739: ldloc.s V_47
+IL_073b: ldc.r4 1
+IL_0740: ble.un IL_0a53
+IL_0745: ldloc.s V_4
+IL_0747: stloc.s V_48
+IL_0749: ldloc.3
+IL_074a: ldc.r4 2
+IL_074f: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0754: stloc.s V_7
+IL_0756: ldloc.s V_7
+IL_0758: ldloc.s V_7
+IL_075a: mul
+IL_075b: stloc.s V_9
+IL_075d: ldloc.s V_5
+IL_075f: ldloc.s V_9
+IL_0761: ble.un IL_0779
+IL_0766: ldloc.s V_48
+IL_0768: ldloc.s V_7
+IL_076a: ldloc.s V_5
+IL_076c: call System.Single UnityEngine.Mathf::Sqrt(System.Single)
+IL_0771: div
+IL_0772: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0777: stloc.s V_48
+IL_0779: ldc.i4.0
+IL_077a: stloc.s V_49
+IL_077c: ldloca.s V_48
+IL_077e: ldfld System.Single UnityEngine.Vector3::z
+IL_0783: ldloca.s V_48
+IL_0785: ldfld System.Single UnityEngine.Vector3::x
+IL_078a: call System.Single UnityEngine.Mathf::Abs(System.Single)
+IL_078f: bge.un IL_0802
+IL_0794: ldloca.s V_48
+IL_0796: ldfld System.Single UnityEngine.Vector3::z
+IL_079b: ldc.r4 0
+IL_07a0: bge.un IL_07a8
+IL_07a5: ldc.i4.1
+IL_07a6: stloc.s V_49
+IL_07a8: ldloca.s V_48
+IL_07aa: ldfld System.Single UnityEngine.Vector3::x
+IL_07af: call System.Single UnityEngine.Mathf::Abs(System.Single)
+IL_07b4: stloc.s V_50
+IL_07b6: ldloc.s V_50
+IL_07b8: ldc.r4 1
+IL_07bd: bge.un IL_07f9
+IL_07c2: ldloca.s V_48
+IL_07c4: ldloca.s V_48
+IL_07c6: ldfld System.Single UnityEngine.Vector3::x
+IL_07cb: call System.Single UnityEngine.Mathf::Sign(System.Single)
+IL_07d0: stfld System.Single UnityEngine.Vector3::x
+IL_07d5: ldloca.s V_48
+IL_07d7: ldfld System.Single UnityEngine.Vector3::x
+IL_07dc: ldc.r4 0
+IL_07e1: bne.un IL_07f2
+IL_07e6: ldloca.s V_48
+IL_07e8: ldc.r4 1
+IL_07ed: stfld System.Single UnityEngine.Vector3::x
+IL_07f2: ldc.r4 1
+IL_07f7: stloc.s V_50
+IL_07f9: ldloca.s V_48
+IL_07fb: ldloc.s V_50
+IL_07fd: stfld System.Single UnityEngine.Vector3::z
+IL_0802: ldloc.s V_48
+IL_0804: ldloca.s V_51
+IL_0806: call UnityEngine.Vector3 ColossalFramework.Math.VectorUtils::NormalizeXZ(UnityEngine.Vector3,System.Single&)
+IL_080b: stloc.s V_41
+IL_080d: ldloc.s V_47
+IL_080f: ldloc.s V_51
+IL_0811: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_0816: stloc.s V_47
+IL_0818: ldc.r4 1.570796
+IL_081d: ldc.r4 1
+IL_0822: ldloca.s V_41
+IL_0824: ldfld System.Single UnityEngine.Vector3::z
+IL_0829: sub
+IL_082a: mul
+IL_082b: stloc.s V_52
+IL_082d: ldloc.s V_47
+IL_082f: ldc.r4 1
+IL_0834: ble.un IL_0840
+IL_0839: ldloc.s V_52
+IL_083b: ldloc.s V_47
+IL_083d: div
+IL_083e: stloc.s V_52
+IL_0840: ldloc.s V_47
+IL_0842: stloc.s V_53
+IL_0844: ldarg.2
+IL_0845: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_084a: ldfld System.Single UnityEngine.Vector4::w
+IL_084f: ldc.r4 0.1
+IL_0854: bge.un IL_08a1
+IL_0859: ldarg.0
+IL_085a: ldarg.1
+IL_085b: ldarg.2
+IL_085c: ldc.r4 1000
+IL_0861: ldloc.s V_52
+IL_0863: callvirt System.Single VehicleAI::CalculateTargetSpeed(System.UInt16,Vehicle&,System.Single,System.Single)
+IL_0868: stloc.s V_36
+IL_086a: ldloc.s V_36
+IL_086c: ldloc.s V_53
+IL_086e: ldarg.2
+IL_086f: ldflda UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_0874: ldfld System.Single UnityEngine.Vector4::w
+IL_0879: ldarg.2
+IL_087a: ldflda UnityEngine.Vector4 Vehicle::m_targetPos1
+IL_087f: ldfld System.Single UnityEngine.Vector4::w
+IL_0884: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_0889: ldloc.2
+IL_088a: ldc.r4 0.9
+IL_088f: mul
+IL_0890: call System.Single CarAI::CalculateMaxSpeed(System.Single,System.Single,System.Single)
+IL_0895: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_089a: stloc.s V_36
+IL_089c: br IL_08db
+IL_08a1: ldloc.s V_36
+IL_08a3: ldarg.0
+IL_08a4: ldarg.1
+IL_08a5: ldarg.2
+IL_08a6: ldc.r4 1000
+IL_08ab: ldloc.s V_52
+IL_08ad: callvirt System.Single VehicleAI::CalculateTargetSpeed(System.UInt16,Vehicle&,System.Single,System.Single)
+IL_08b2: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_08b7: stloc.s V_36
+IL_08b9: ldloc.s V_36
+IL_08bb: ldloc.s V_53
+IL_08bd: ldarg.2
+IL_08be: ldflda UnityEngine.Vector4 Vehicle::m_targetPos1
+IL_08c3: ldfld System.Single UnityEngine.Vector4::w
+IL_08c8: ldloc.2
+IL_08c9: ldc.r4 0.9
+IL_08ce: mul
+IL_08cf: call System.Single CarAI::CalculateMaxSpeed(System.Single,System.Single,System.Single)
+IL_08d4: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_08d9: stloc.s V_36
+IL_08db: ldloc.s V_53
+IL_08dd: ldarg.2
+IL_08de: ldfld UnityEngine.Vector4 Vehicle::m_targetPos1
+IL_08e3: ldarg.2
+IL_08e4: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_08e9: call UnityEngine.Vector4 UnityEngine.Vector4::op_Subtraction(UnityEngine.Vector4,UnityEngine.Vector4)
+IL_08ee: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_08f3: call System.Single ColossalFramework.Math.VectorUtils::LengthXZ(UnityEngine.Vector3)
+IL_08f8: add
+IL_08f9: stloc.s V_53
+IL_08fb: ldloc.s V_36
+IL_08fd: ldloc.s V_53
+IL_08ff: ldarg.2
+IL_0900: ldflda UnityEngine.Vector4 Vehicle::m_targetPos2
+IL_0905: ldfld System.Single UnityEngine.Vector4::w
+IL_090a: ldloc.2
+IL_090b: ldc.r4 0.9
+IL_0910: mul
+IL_0911: call System.Single CarAI::CalculateMaxSpeed(System.Single,System.Single,System.Single)
+IL_0916: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_091b: stloc.s V_36
+IL_091d: ldloc.s V_53
+IL_091f: ldarg.2
+IL_0920: ldfld UnityEngine.Vector4 Vehicle::m_targetPos2
+IL_0925: ldarg.2
+IL_0926: ldfld UnityEngine.Vector4 Vehicle::m_targetPos1
+IL_092b: call UnityEngine.Vector4 UnityEngine.Vector4::op_Subtraction(UnityEngine.Vector4,UnityEngine.Vector4)
+IL_0930: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_0935: call System.Single ColossalFramework.Math.VectorUtils::LengthXZ(UnityEngine.Vector3)
+IL_093a: add
+IL_093b: stloc.s V_53
+IL_093d: ldloc.s V_36
+IL_093f: ldloc.s V_53
+IL_0941: ldarg.2
+IL_0942: ldflda UnityEngine.Vector4 Vehicle::m_targetPos3
+IL_0947: ldfld System.Single UnityEngine.Vector4::w
+IL_094c: ldloc.2
+IL_094d: ldc.r4 0.9
+IL_0952: mul
+IL_0953: call System.Single CarAI::CalculateMaxSpeed(System.Single,System.Single,System.Single)
+IL_0958: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_095d: stloc.s V_36
+IL_095f: ldloc.s V_53
+IL_0961: ldarg.2
+IL_0962: ldfld UnityEngine.Vector4 Vehicle::m_targetPos3
+IL_0967: ldarg.2
+IL_0968: ldfld UnityEngine.Vector4 Vehicle::m_targetPos2
+IL_096d: call UnityEngine.Vector4 UnityEngine.Vector4::op_Subtraction(UnityEngine.Vector4,UnityEngine.Vector4)
+IL_0972: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_0977: call System.Single ColossalFramework.Math.VectorUtils::LengthXZ(UnityEngine.Vector3)
+IL_097c: add
+IL_097d: stloc.s V_53
+IL_097f: ldarg.2
+IL_0980: ldflda UnityEngine.Vector4 Vehicle::m_targetPos3
+IL_0985: ldfld System.Single UnityEngine.Vector4::w
+IL_098a: ldc.r4 0.01
+IL_098f: bge.un IL_09be
+IL_0994: ldc.r4 0
+IL_0999: ldloc.s V_53
+IL_099b: ldarg.0
+IL_099c: ldfld VehicleInfo VehicleAI::m_info
+IL_09a1: ldfld VehicleInfoGen VehicleInfoBase::m_generatedInfo
+IL_09a6: ldflda UnityEngine.Vector3 VehicleInfoGen::m_size
+IL_09ab: ldfld System.Single UnityEngine.Vector3::z
+IL_09b0: ldc.r4 0.5
+IL_09b5: mul
+IL_09b6: sub
+IL_09b7: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_09bc: stloc.s V_53
+IL_09be: ldloc.s V_36
+IL_09c0: ldloc.s V_53
+IL_09c2: ldc.r4 0
+IL_09c7: ldloc.2
+IL_09c8: ldc.r4 0.9
+IL_09cd: mul
+IL_09ce: call System.Single CarAI::CalculateMaxSpeed(System.Single,System.Single,System.Single)
+IL_09d3: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_09d8: stloc.s V_36
+IL_09da: ldarg.s leaderID
+IL_09dc: ldarg.s leaderData
+IL_09de: call System.Boolean CarAI::DisableCollisionCheck(System.UInt16,Vehicle&)
+IL_09e3: brtrue IL_0a01
+IL_09e8: ldarg.1
+IL_09e9: ldarg.2
+IL_09ea: ldarg.3
+IL_09eb: ldloca.s V_36
+IL_09ed: ldloca.s V_46
+IL_09ef: ldloca.s V_43
+IL_09f1: ldloc.s V_6
+IL_09f3: ldloc.2
+IL_09f4: ldc.r4 0.9
+IL_09f9: mul
+IL_09fa: ldarg.s lodPhysics
+IL_09fc: call System.Void CarAI::CheckOtherVehicles(System.UInt16,Vehicle&,Vehicle/Frame&,System.Single&,System.Boolean&,UnityEngine.Vector3&,System.Single,System.Single,System.Int32)
+IL_0a01: ldloc.s V_49
+IL_0a03: brfalse IL_0a0d
+IL_0a08: ldloc.s V_36
+IL_0a0a: neg
+IL_0a0b: stloc.s V_36
+IL_0a0d: ldloc.s V_36
+IL_0a0f: ldloc.3
+IL_0a10: bge.un IL_0a36
+IL_0a15: ldloc.1
+IL_0a16: ldloc.2
+IL_0a17: ldloc.3
+IL_0a18: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_0a1d: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0a22: stloc.s V_54
+IL_0a24: ldloc.s V_36
+IL_0a26: ldloc.3
+IL_0a27: ldloc.s V_54
+IL_0a29: sub
+IL_0a2a: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0a2f: stloc.s V_44
+IL_0a31: br IL_0a53
+IL_0a36: ldloc.1
+IL_0a37: ldloc.2
+IL_0a38: ldloc.3
+IL_0a39: neg
+IL_0a3a: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_0a3f: call System.Single UnityEngine.Mathf::Max(System.Single,System.Single)
+IL_0a44: stloc.s V_55
+IL_0a46: ldloc.s V_36
+IL_0a48: ldloc.3
+IL_0a49: ldloc.s V_55
+IL_0a4b: add
+IL_0a4c: call System.Single UnityEngine.Mathf::Min(System.Single,System.Single)
+IL_0a51: stloc.s V_44
+IL_0a53: br IL_0a98
+IL_0a58: ldloc.3
+IL_0a59: ldc.r4 0.1
+IL_0a5e: bge.un IL_0a98
+IL_0a63: ldloc.s V_12
+IL_0a65: brfalse IL_0a98
+IL_0a6a: ldarg.0
+IL_0a6b: ldarg.s leaderID
+IL_0a6d: ldarg.s leaderData
+IL_0a6f: callvirt System.Boolean VehicleAI::ArriveAtDestination(System.UInt16,Vehicle&)
+IL_0a74: brfalse IL_0a98
+IL_0a79: ldarg.s leaderData
+IL_0a7b: ldarg.s leaderID
+IL_0a7d: call System.Void Vehicle::Unspawn(System.UInt16)
+IL_0a82: ldarg.s leaderID
+IL_0a84: ldarg.1
+IL_0a85: bne.un IL_0a97
+IL_0a8a: ldarg.3
+IL_0a8b: ldarg.s leaderData
+IL_0a8d: ldfld Vehicle/Frame Vehicle::m_frame0
+IL_0a92: stobj Vehicle/Frame
+IL_0a97: ret
+IL_0a98: ldarg.s leaderData
+IL_0a9a: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0a9f: ldc.i4 512
+IL_0aa4: and
+IL_0aa5: brtrue IL_0ab9
+IL_0aaa: ldloc.s V_36
+IL_0aac: ldc.r4 0.1
+IL_0ab1: bge.un IL_0ab9
+IL_0ab6: ldc.i4.1
+IL_0ab7: stloc.s V_46
+IL_0ab9: ldloc.s V_46
+IL_0abb: brfalse IL_0ade
+IL_0ac0: ldarg.2
+IL_0ac1: ldarg.2
+IL_0ac2: ldfld System.Byte Vehicle::m_blockCounter
+IL_0ac7: ldc.i4.1
+IL_0ac8: add
+IL_0ac9: ldc.i4 255
+IL_0ace: call System.Int32 UnityEngine.Mathf::Min(System.Int32,System.Int32)
+IL_0ad3: conv.u1
+IL_0ad4: stfld System.Byte Vehicle::m_blockCounter
+IL_0ad9: br IL_0ae5
+IL_0ade: ldarg.2
+IL_0adf: ldc.i4.0
+IL_0ae0: stfld System.Byte Vehicle::m_blockCounter
+IL_0ae5: ldloc.s V_47
+IL_0ae7: ldc.r4 1
+IL_0aec: ble.un IL_0b17
+IL_0af1: ldloca.s V_41
+IL_0af3: ldfld System.Single UnityEngine.Vector3::x
+IL_0af8: call System.Single UnityEngine.Mathf::Asin(System.Single)
+IL_0afd: ldloc.s V_44
+IL_0aff: call System.Single UnityEngine.Mathf::Sign(System.Single)
+IL_0b04: mul
+IL_0b05: stloc.s V_45
+IL_0b07: ldloc.s V_41
+IL_0b09: ldloc.s V_44
+IL_0b0b: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0b10: stloc.s V_42
+IL_0b12: br IL_0b44
+IL_0b17: ldc.r4 0
+IL_0b1c: stloc.s V_44
+IL_0b1e: ldloc.s V_4
+IL_0b20: ldc.r4 0.5
+IL_0b25: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0b2a: ldloc.s V_40
+IL_0b2c: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0b31: ldloc.2
+IL_0b32: call UnityEngine.Vector3 UnityEngine.Vector3::ClampMagnitude(UnityEngine.Vector3,System.Single)
+IL_0b37: stloc.s V_56
+IL_0b39: ldloc.s V_40
+IL_0b3b: ldloc.s V_56
+IL_0b3d: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0b42: stloc.s V_42
+IL_0b44: ldloc.0
+IL_0b45: ldarg.s leaderID
+IL_0b47: add
+IL_0b48: ldc.i4.s 16
+IL_0b4a: and
+IL_0b4b: ldc.i4.0
+IL_0b4c: ceq
+IL_0b4e: ldc.i4.0
+IL_0b4f: ceq
+IL_0b51: stloc.s V_57
+IL_0b53: ldloc.s V_42
+IL_0b55: ldloc.s V_40
+IL_0b57: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0b5c: stloc.s V_58
+IL_0b5e: ldarg.3
+IL_0b5f: ldfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+IL_0b64: ldloc.s V_42
+IL_0b66: call UnityEngine.Vector3 UnityEngine.Quaternion::op_Multiply(UnityEngine.Quaternion,UnityEngine.Vector3)
+IL_0b6b: stloc.s V_59
+IL_0b6d: ldarg.3
+IL_0b6e: ldloc.s V_59
+IL_0b70: ldloc.s V_43
+IL_0b72: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0b77: stfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+IL_0b7c: ldarg.3
+IL_0b7d: dup
+IL_0b7e: ldfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_0b83: ldarg.3
+IL_0b84: ldfld UnityEngine.Vector3 Vehicle/Frame::m_velocity
+IL_0b89: ldc.r4 0.5
+IL_0b8e: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0b93: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0b98: stfld UnityEngine.Vector3 Vehicle/Frame::m_position
+IL_0b9d: ldarg.3
+IL_0b9e: ldarg.3
+IL_0b9f: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayVelocity
+IL_0ba4: ldc.r4 1
+IL_0ba9: ldarg.0
+IL_0baa: ldfld VehicleInfo VehicleAI::m_info
+IL_0baf: ldfld System.Single VehicleInfo::m_dampers
+IL_0bb4: sub
+IL_0bb5: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0bba: ldloc.s V_58
+IL_0bbc: ldc.r4 1
+IL_0bc1: ldarg.0
+IL_0bc2: ldfld VehicleInfo VehicleAI::m_info
+IL_0bc7: ldfld System.Single VehicleInfo::m_springs
+IL_0bcc: sub
+IL_0bcd: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0bd2: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0bd7: ldarg.3
+IL_0bd8: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayPosition
+IL_0bdd: ldarg.0
+IL_0bde: ldfld VehicleInfo VehicleAI::m_info
+IL_0be3: ldfld System.Single VehicleInfo::m_springs
+IL_0be8: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0bed: call UnityEngine.Vector3 UnityEngine.Vector3::op_Subtraction(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0bf2: stfld UnityEngine.Vector3 Vehicle/Frame::m_swayVelocity
+IL_0bf7: ldarg.3
+IL_0bf8: dup
+IL_0bf9: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayPosition
+IL_0bfe: ldarg.3
+IL_0bff: ldfld UnityEngine.Vector3 Vehicle/Frame::m_swayVelocity
+IL_0c04: ldc.r4 0.5
+IL_0c09: call UnityEngine.Vector3 UnityEngine.Vector3::op_Multiply(UnityEngine.Vector3,System.Single)
+IL_0c0e: call UnityEngine.Vector3 UnityEngine.Vector3::op_Addition(UnityEngine.Vector3,UnityEngine.Vector3)
+IL_0c13: stfld UnityEngine.Vector3 Vehicle/Frame::m_swayPosition
+IL_0c18: ldarg.3
+IL_0c19: ldloc.s V_45
+IL_0c1b: stfld System.Single Vehicle/Frame::m_steerAngle
+IL_0c20: ldarg.3
+IL_0c21: dup
+IL_0c22: ldfld System.Single Vehicle/Frame::m_travelDistance
+IL_0c27: ldloca.s V_42
+IL_0c29: ldfld System.Single UnityEngine.Vector3::z
+IL_0c2e: add
+IL_0c2f: stfld System.Single Vehicle/Frame::m_travelDistance
+IL_0c34: ldarg.3
+IL_0c35: ldflda UnityEngine.Vector4 Vehicle/Frame::m_lightIntensity
+IL_0c3a: ldc.r4 5
+IL_0c3f: stfld System.Single UnityEngine.Vector4::x
+IL_0c44: ldarg.3
+IL_0c45: ldflda UnityEngine.Vector4 Vehicle/Frame::m_lightIntensity
+IL_0c4a: ldloca.s V_58
+IL_0c4c: ldfld System.Single UnityEngine.Vector3::z
+IL_0c51: ldc.r4 -0.1
+IL_0c56: bge.un IL_0c65
+IL_0c5b: ldc.r4 5
+IL_0c60: br IL_0c6a
+IL_0c65: ldc.r4 0.5
+IL_0c6a: stfld System.Single UnityEngine.Vector4::y
+IL_0c6f: ldarg.3
+IL_0c70: ldflda UnityEngine.Vector4 Vehicle/Frame::m_lightIntensity
+IL_0c75: ldloc.s V_45
+IL_0c77: ldc.r4 -0.1
+IL_0c7c: bge.un IL_0c92
+IL_0c81: ldloc.s V_57
+IL_0c83: brfalse IL_0c92
+IL_0c88: ldc.r4 5
+IL_0c8d: br IL_0c97
+IL_0c92: ldc.r4 0
+IL_0c97: stfld System.Single UnityEngine.Vector4::z
+IL_0c9c: ldarg.3
+IL_0c9d: ldflda UnityEngine.Vector4 Vehicle/Frame::m_lightIntensity
+IL_0ca2: ldloc.s V_45
+IL_0ca4: ldc.r4 0.1
+IL_0ca9: ble.un IL_0cbf
+IL_0cae: ldloc.s V_57
+IL_0cb0: brfalse IL_0cbf
+IL_0cb5: ldc.r4 5
+IL_0cba: br IL_0cc4
+IL_0cbf: ldc.r4 0
+IL_0cc4: stfld System.Single UnityEngine.Vector4::w
+IL_0cc9: ldarg.3
+IL_0cca: ldarg.2
+IL_0ccb: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0cd0: ldc.i4 268435456
+IL_0cd5: and
+IL_0cd6: ldc.i4.0
+IL_0cd7: ceq
+IL_0cd9: ldc.i4.0
+IL_0cda: ceq
+IL_0cdc: stfld System.Boolean Vehicle/Frame::m_underground
+IL_0ce1: ldarg.3
+IL_0ce2: ldarg.2
+IL_0ce3: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0ce8: ldc.i4 536870912
+IL_0ced: and
+IL_0cee: ldc.i4.0
+IL_0cef: ceq
+IL_0cf1: ldc.i4.0
+IL_0cf2: ceq
+IL_0cf4: stfld System.Boolean Vehicle/Frame::m_transition
+IL_0cf9: ldarg.2
+IL_0cfa: ldfld Vehicle/Flags Vehicle::m_flags
+IL_0cff: ldc.i4 4194304
+IL_0d04: and
+IL_0d05: brfalse IL_0d58
+IL_0d0a: ldloc.s V_47
+IL_0d0c: ldc.r4 1
+IL_0d11: bgt.un IL_0d58
+IL_0d16: ldloc.s V_12
+IL_0d18: brfalse IL_0d58
+IL_0d1d: ldarg.2
+IL_0d1e: ldfld UnityEngine.Vector4 Vehicle::m_targetPos1
+IL_0d23: ldarg.2
+IL_0d24: ldfld UnityEngine.Vector4 Vehicle::m_targetPos0
+IL_0d29: call UnityEngine.Vector4 UnityEngine.Vector4::op_Subtraction(UnityEngine.Vector4,UnityEngine.Vector4)
+IL_0d2e: call UnityEngine.Vector3 UnityEngine.Vector4::op_Implicit(UnityEngine.Vector4)
+IL_0d33: stloc.s V_60
+IL_0d35: ldloca.s V_60
+IL_0d37: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+IL_0d3c: ldc.r4 0.01
+IL_0d41: ble.un IL_0d53
+IL_0d46: ldarg.3
+IL_0d47: ldloc.s V_60
+IL_0d49: call UnityEngine.Quaternion UnityEngine.Quaternion::LookRotation(UnityEngine.Vector3)
+IL_0d4e: stfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+IL_0d53: br IL_0db6
+IL_0d58: ldloc.s V_44
+IL_0d5a: ldc.r4 0.1
+IL_0d5f: ble.un IL_0d87
+IL_0d64: ldloca.s V_59
+IL_0d66: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+IL_0d6b: ldc.r4 0.01
+IL_0d70: ble.un IL_0d82
+IL_0d75: ldarg.3
+IL_0d76: ldloc.s V_59
+IL_0d78: call UnityEngine.Quaternion UnityEngine.Quaternion::LookRotation(UnityEngine.Vector3)
+IL_0d7d: stfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+IL_0d82: br IL_0db6
+IL_0d87: ldloc.s V_44
+IL_0d89: ldc.r4 -0.1
+IL_0d8e: bge.un IL_0db6
+IL_0d93: ldloca.s V_59
+IL_0d95: call System.Single UnityEngine.Vector3::get_sqrMagnitude()
+IL_0d9a: ldc.r4 0.01
+IL_0d9f: ble.un IL_0db6
+IL_0da4: ldarg.3
+IL_0da5: ldloc.s V_59
+IL_0da7: call UnityEngine.Vector3 UnityEngine.Vector3::op_UnaryNegation(UnityEngine.Vector3)
+IL_0dac: call UnityEngine.Quaternion UnityEngine.Quaternion::LookRotation(UnityEngine.Vector3)
+IL_0db1: stfld UnityEngine.Quaternion Vehicle/Frame::m_rotation
+IL_0db6: ldarg.0
+IL_0db7: ldarg.1
+IL_0db8: ldarg.2
+IL_0db9: ldarg.3
+IL_0dba: ldarg.s leaderID
+IL_0dbc: ldarg.s leaderData
+IL_0dbe: ldarg.s lodPhysics
+IL_0dc0: call System.Void VehicleAI::SimulationStep(System.UInt16,Vehicle&,Vehicle/Frame&,System.UInt16,Vehicle&,System.Int32)
+IL_0dc5: ret
