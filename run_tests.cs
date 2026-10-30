@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy");
             Assert(hasBetaBranding, "Renew.cs is correctly branded as Close Beta");
@@ -1914,6 +1915,43 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 40 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 41: NetManager Core Pool Armor & LateUpdateData Timeout Shield (v5.0.29)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 41: NetManager Core Pool Armor & LateUpdateData Timeout Shield (v5.0.29) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+            // 41.1 Core NetManagerCustomizer IsExpanded Prefix
+            bool hasIsExpPrefix = renewCode.Contains("public static bool CoreCustomizer_IsExpanded_Prefix") &&
+                                  renewCode.Contains("m_nodes.m_buffer.Length : 0") &&
+                                  renewCode.Contains("nodeLen >= (int)MNCConstants.CORE_NET_CAPACITY");
+            Assert(hasIsExpPrefix, "Core NetManagerCustomizer.IsExpanded is prefixed to accept all buffers >= CORE_NET_CAPACITY");
+
+            // 41.2 Core NetManagerCustomizer PrepareExpandedSaveForLoad & PrepareVanillaSaveForLoad
+            bool hasPrepPrefix = renewCode.Contains("CoreCustomizer_PrepareExpandedSaveForLoad_Prefix") &&
+                                 renewCode.Contains("CoreCustomizer_PrepareVanillaSaveForLoad_Prefix") &&
+                                 renewCode.Contains("harmony.Patch(mPrepareExpanded, prefix: new HarmonyMethod(prePrepareExpanded));");
+            Assert(hasPrepPrefix, "Core NetManagerCustomizer PrepareExpandedSaveForLoad and PrepareVanillaSaveForLoad are safely armed");
+
+            // 41.3 SimulationManager.LateUpdateData Universal Warm-Up Armor
+            bool hasLatePatch = renewCode.Contains("SimulationManager_LateUpdateData_Prefix") &&
+                                renewCode.Contains("MethodInfo smLate = typeof(SimulationManager).GetMethod(\"LateUpdateData\"") &&
+                                renewCode.Contains("harmony.Patch(smLate, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });");
+            Assert(hasLatePatch, "SimulationManager.LateUpdateData is patched with Universal Warm-Up Armor and Timeout Shield at Priority.First");
+
+            // 41.4 SimulationManager_LateUpdateData_Prefix profiler safety and timeout
+            bool hasLateSafety = renewCode.Contains("profiler.BeginLoading(\"SimulationManager.LateUpdateData\");") &&
+                                 renewCode.Contains("sw.ElapsedMilliseconds > 15000") &&
+                                 renewCode.Contains("mgr.SimulationStep(1000);") &&
+                                 renewCode.Contains("profiler.EndLoading();");
+            Assert(hasLateSafety, "SimulationManager_LateUpdateData_Prefix implements profiler safety, try-catch per manager, and 15s timeout rescue");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 41 exception", ex.ToString());
         }
 
         // ====================================================================

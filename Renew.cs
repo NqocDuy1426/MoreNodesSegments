@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy";
-        public string Description => "[Close Beta v5.0.28] Universal Simulation Shield + Electricity/Water & Container Deserialization Armor (Zero Hang/Crash Guarantee).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy";
+        public string Description => "[Close Beta v5.0.29] Universal Simulation Shield + NetManager Core Armor & LateUpdateData Timeout Shield (Zero Hang/Crash Guarantee).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -1447,7 +1447,7 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
 
-                // 4. Arm NetManagerCustomizer.EnsureExpanded so it NEVER fails and NEVER throws
+                // 4. Arm NetManagerCustomizer methods so it NEVER fails and NEVER throws
                 Type customizerType = mncCore.GetType("MoreNetworkCapacity.NetManagerCustomizer");
                 if (customizerType != null)
                 {
@@ -1457,6 +1457,30 @@ namespace MoreNetworkCapacityRenew
                     {
                         harmony.Patch(mEnsureExpanded, prefix: new HarmonyMethod(preEnsureExpanded));
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.EnsureExpanded against layout mismatch rejection!");
+                    }
+
+                    var mIsExpanded = customizerType.GetMethod("IsExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var preIsExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_IsExpanded_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mIsExpanded != null && preIsExpanded != null)
+                    {
+                        harmony.Patch(mIsExpanded, prefix: new HarmonyMethod(preIsExpanded));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.IsExpanded against length rejection!");
+                    }
+
+                    var mPrepareExpanded = customizerType.GetMethod("PrepareExpandedSaveForLoad", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var prePrepareExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_PrepareExpandedSaveForLoad_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mPrepareExpanded != null && prePrepareExpanded != null)
+                    {
+                        harmony.Patch(mPrepareExpanded, prefix: new HarmonyMethod(prePrepareExpanded));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.PrepareExpandedSaveForLoad!");
+                    }
+
+                    var mPrepareVanilla = customizerType.GetMethod("PrepareVanillaSaveForLoad", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var prePrepareVanilla = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_PrepareVanillaSaveForLoad_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mPrepareVanilla != null && prePrepareVanilla != null)
+                    {
+                        harmony.Patch(mPrepareVanilla, prefix: new HarmonyMethod(prePrepareVanilla));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.PrepareVanillaSaveForLoad!");
                     }
                 }
 
@@ -1586,6 +1610,69 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] CoreCustomizer_EnsureExpanded_Prefix error: " + ex);
                 __result = true; // Still return true so deserialize does not abort
+                return false;
+            }
+        }
+
+        public static bool CoreCustomizer_IsExpanded_Prefix(NetManager manager, ref bool __result)
+        {
+            try
+            {
+                if (manager == null)
+                {
+                    __result = false;
+                    return false;
+                }
+                int nodeLen = (manager.m_nodes != null && manager.m_nodes.m_buffer != null) ? manager.m_nodes.m_buffer.Length : 0;
+                int segLen = (manager.m_segments != null && manager.m_segments.m_buffer != null) ? manager.m_segments.m_buffer.Length : 0;
+                __result = (nodeLen >= (int)MNCConstants.CORE_NET_CAPACITY && segLen >= (int)MNCConstants.CORE_NET_CAPACITY);
+                return false;
+            }
+            catch
+            {
+                __result = true;
+                return false;
+            }
+        }
+
+        public static bool CoreCustomizer_PrepareExpandedSaveForLoad_Prefix(NetManager manager, ref bool __result)
+        {
+            try
+            {
+                if (manager == null)
+                {
+                    __result = false;
+                    return false;
+                }
+                TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
+                TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
+                __result = true;
+                return false;
+            }
+            catch
+            {
+                __result = true;
+                return false;
+            }
+        }
+
+        public static bool CoreCustomizer_PrepareVanillaSaveForLoad_Prefix(NetManager manager, ref bool __result)
+        {
+            try
+            {
+                if (manager == null)
+                {
+                    __result = false;
+                    return false;
+                }
+                TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
+                TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
+                __result = true;
+                return false;
+            }
+            catch
+            {
+                __result = true;
                 return false;
             }
         }
@@ -14322,6 +14409,22 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching LoadingManager.LoadSimulationData MoveNext: " + ex);
                 }
 
+                // 2d. Patch SimulationManager.LateUpdateData (Universal Warm-Up Armor, Profiler Safety & Timeout Shield)
+                try
+                {
+                    MethodInfo smLate = typeof(SimulationManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smLate != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smLate, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.LateUpdateData with Universal Warm-Up Armor and Timeout Shield (Priority.First) ✓");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
+                }
+
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
                 {
@@ -16534,6 +16637,111 @@ namespace MoreNetworkCapacityRenew
                 }
             }
             UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] LoadSimulationData_MoveNext_Transpiler: Replaced {0} call(s) with SafeDeserializeSimulationData.", replaced));
+        }
+
+        public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            var lm = Singleton<LoadingManager>.instance;
+            var profiler = lm != null ? lm.m_loadingProfilerSimulation : null;
+            if (profiler != null)
+            {
+                profiler.BeginLoading("SimulationManager.LateUpdateData");
+            }
+            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData starting (mode={0}, progress={1:F2}..{2:F2})...", mode, minProgress, maxProgress));
+
+            try
+            {
+                if (__instance != null && __instance.m_SerializableDataWrapper != null)
+                {
+                    try
+                    {
+                        __instance.m_SerializableDataWrapper.OnLoadData();
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData: SerializableDataWrapper.OnLoadData() completed cleanly.");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in SerializableDataWrapper.OnLoadData: " + ex);
+                    }
+                }
+
+                int modeVal = (int)mode;
+                if (modeVal == 2 || modeVal == 3 || modeVal == 9 || modeVal == 11 || modeVal == 12 || modeVal == 13)
+                {
+                    int num = 16384;
+                    int stepCount = 0;
+                    System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+
+                    FastList<ISimulationManager> managers = GetSimulationManagers();
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        // Timeout shield: If simulation warm-up takes > 15 seconds, exit gracefully so game never hangs
+                        if (sw.ElapsedMilliseconds > 15000)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData warm-up timeout reached ({0}ms, {1}/{2} ticks). Advancing safely into game ✓", sw.ElapsedMilliseconds, i, num));
+                            break;
+                        }
+
+                        if ((i & 256) == 0 && lm != null)
+                        {
+                            lm.SetSimulationProgress((float)i / (float)num * (maxProgress - minProgress) + minProgress);
+                        }
+
+                        if (__instance != null)
+                        {
+                            __instance.m_currentFrameIndex++;
+                        }
+                        stepCount++;
+
+                        if (managers != null && managers.m_buffer != null)
+                        {
+                            int mgrCount = managers.m_size;
+                            for (int j = 0; j < mgrCount; j++)
+                            {
+                                var mgr = managers.m_buffer[j];
+                                if (mgr != null)
+                                {
+                                    try
+                                    {
+                                        mgr.SimulationStep(1000);
+                                    }
+                                    catch (Exception stepEx)
+                                    {
+                                        if (i == 0)
+                                        {
+                                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Protected against error in {0}.SimulationStep(1000): {1}", mgr.GetType().Name, stepEx.Message));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (__instance != null)
+                    {
+                        __instance.m_currentFrameIndex -= (uint)stepCount;
+                    }
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData warm-up completed: {0} ticks in {1}ms.", stepCount, sw.ElapsedMilliseconds));
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData guarded against fatal error: " + ex);
+            }
+            finally
+            {
+                if (profiler != null)
+                {
+                    try
+                    {
+                        profiler.EndLoading();
+                    }
+                    catch {}
+                }
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData finished successfully ✓");
+            }
+
+            return false; // Skip unarmored vanilla method
         }
 
         public static void SafeCloseProfilerDeserialize(string tag)

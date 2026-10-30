@@ -9,11 +9,13 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.28:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.29:[/h2]
 [list]
-[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Simulation thread: ElectricityManager / TreeManager / WeatherManager failed):[/b]
+[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Simulation thread: SimulationManager.LateUpdateData / TreeManager / ElectricityManager):[/b]
     [list]
-    [*] Triển khai Universal Simulation Shield Transpiler trực tiếp vào LoadingManager.LoadSimulationData.
+    [*] Sửa lỗi NetManager deserialization bị từ chối do Core IsExpanded & PrepareExpandedSaveForLoad chỉ chấp nhận chính xác 65024. Đã arm và mở rộng toàn diện cho mọi bộ đệm >= 65024.
+    [*] Khắc phục triệt để lỗi mất dữ liệu đường (0 nodes/segments) khiến thành phố bị rỗng mạng lưới gây treo simulation.
+    [*] Bọc SimulationManager.LateUpdateData bằng Universal Warm-Up Armor và Timeout Shield (15s): bảo đảm profiler EndLoading luôn được gọi, cứu thread simulation không bao giờ bị đứng khung hình loading.
     [*] Tách biệt vòng lặp deserialization của từng manager (TreeManager, ElectricityManager, NetManager, WaterManager, WeatherManager...) vào các khối try-catch độc lập tuyệt đối.
     [*] Sửa lỗi EightyOne2 (81 Tiles 2) CustomDeserialize bị IndexOutOfRangeException ở ElectricityManager/WaterManager: Khởi chạy static constructor và mở rộng mảng pulse units an toàn.
     [*] Bổ sung SafeCloseProfilerDeserialize và Stream Resynchronization cho toàn bộ Finalizer (ElectricityManager, WaterManager, TreeManager, NetManager...).
@@ -23,5 +25,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.28 Close Beta: Fix ElectricityManager, WaterManager & TreeManager deserialization in 81 Tiles 2. Full simulation thread exception armor & profiler safety close."
+	"changenote"		"v5.0.29 Close Beta: Fix NetManager Core IsExpanded rejection, add SimulationManager.LateUpdateData Universal Armor & 15s timeout shield."
 }
