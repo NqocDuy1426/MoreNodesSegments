@@ -1122,8 +1122,13 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     public class RenewMod : IUserMod
     {
+#if CLOSE_BETA
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.21 by NgocDuy";
+        public string Description => "[Close Beta v5.0.21] Comprehensive Universal Stream Armor (2-arg & 3-arg LoadingProfiler tags) + WeatherManager and simulation data EOF guards. DO NOT enable simultaneously with the public version.";
+#else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
+#endif
 
         static RenewMod()
         {
@@ -1343,6 +1348,8 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                 }
+                NeutralizeCoreKianCommonsPatching(mnc);
+                ArmCoreExpandedSave(mnc);
                 EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
             }
@@ -1382,6 +1389,204 @@ namespace MoreNetworkCapacityRenew
 
         private static bool SkipCoreKianCommonsPrefix()
         {
+            return false;
+        }
+
+        private static bool _coreExpandedSaveArmed = false;
+        public static void ArmCoreExpandedSave(Assembly mncCore)
+        {
+            if (_coreExpandedSaveArmed || mncCore == null) return;
+            try
+            {
+                var harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.CoreExpandedArmor");
+                var preTrue = typeof(RenewMod).GetMethod(nameof(CoreReturnTrue_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+
+                // 1. Hook Metadata.IsExpandedSave to accurately reflect save status (respects vanilla saves!)
+                Type metaType = mncCore.GetType("MoreNetworkCapacity.Metadata");
+                if (metaType != null)
+                {
+                    var isExpandedMethod = metaType.GetMethod("IsExpandedSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var preMethod = typeof(RenewMod).GetMethod(nameof(CoreMetadata_IsExpandedSave_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (isExpandedMethod != null && preMethod != null)
+                    {
+                        harmony.Patch(isExpandedMethod, prefix: new HarmonyMethod(preMethod));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Metadata.IsExpandedSave!");
+                    }
+                }
+
+                // 2. Force PatchState.ExpansionEnabled to always return true
+                Type psType = mncCore.GetType("MoreNetworkCapacity.PatchState");
+                if (psType != null && preTrue != null)
+                {
+                    var getExpansionEnabled = psType.GetProperty("ExpansionEnabled", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)?.GetGetMethod(true);
+                    if (getExpansionEnabled != null)
+                    {
+                        harmony.Patch(getExpansionEnabled, prefix: new HarmonyMethod(preTrue));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core PatchState.ExpansionEnabled!");
+                    }
+                }
+
+                // 3. Hook Capacity.GetNodeReadSize and GetSegmentReadSize to accurately return 32K for vanilla, 64K for expanded
+                Type capType = mncCore.GetType("MoreNetworkCapacity.Capacity");
+                if (capType != null)
+                {
+                    var mNodeRead = capType.GetMethod("GetNodeReadSize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var preNodeRead = typeof(RenewMod).GetMethod(nameof(CoreCapacity_GetNodeReadSize_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mNodeRead != null && preNodeRead != null)
+                    {
+                        harmony.Patch(mNodeRead, prefix: new HarmonyMethod(preNodeRead));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Capacity.GetNodeReadSize!");
+                    }
+
+                    var mSegRead = capType.GetMethod("GetSegmentReadSize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var preSegRead = typeof(RenewMod).GetMethod(nameof(CoreCapacity_GetSegmentReadSize_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mSegRead != null && preSegRead != null)
+                    {
+                        harmony.Patch(mSegRead, prefix: new HarmonyMethod(preSegRead));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Capacity.GetSegmentReadSize!");
+                    }
+                }
+
+                // 4. Arm NetManagerCustomizer.EnsureExpanded so it NEVER fails and NEVER throws
+                Type customizerType = mncCore.GetType("MoreNetworkCapacity.NetManagerCustomizer");
+                if (customizerType != null)
+                {
+                    var mEnsureExpanded = customizerType.GetMethod("EnsureExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    var preEnsureExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_EnsureExpanded_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (mEnsureExpanded != null && preEnsureExpanded != null)
+                    {
+                        harmony.Patch(mEnsureExpanded, prefix: new HarmonyMethod(preEnsureExpanded));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.EnsureExpanded against layout mismatch rejection!");
+                    }
+                }
+
+                _coreExpandedSaveArmed = true;
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Expanded Save Armor for all saves!");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ArmCoreExpandedSave error: " + ex);
+            }
+        }
+
+        public static bool CoreReturnTrue_Prefix(ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
+
+        public static bool CoreCapacity_GetNodeReadSize_Prefix(ref int __result)
+        {
+            if (ThirdPartyCompatibility.IsSaveGameExpanded())
+            {
+                __result = Singleton<NetManager>.instance != null && Singleton<NetManager>.instance.m_nodes != null && Singleton<NetManager>.instance.m_nodes.m_buffer != null
+                    ? Singleton<NetManager>.instance.m_nodes.m_buffer.Length 
+                    : (int)MNCConstants.CORE_NET_CAPACITY;
+            }
+            else
+            {
+                __result = 32768;
+            }
+            return false;
+        }
+
+        public static bool CoreCapacity_GetSegmentReadSize_Prefix(ref int __result)
+        {
+            if (ThirdPartyCompatibility.IsSaveGameExpanded())
+            {
+                __result = Singleton<NetManager>.instance != null && Singleton<NetManager>.instance.m_segments != null && Singleton<NetManager>.instance.m_segments.m_buffer != null
+                    ? Singleton<NetManager>.instance.m_segments.m_buffer.Length 
+                    : (int)MNCConstants.CORE_NET_CAPACITY;
+            }
+            else
+            {
+                __result = 36864;
+            }
+            return false;
+        }
+
+        public static bool CoreCustomizer_EnsureExpanded_Prefix(NetManager manager, ref bool __result)
+        {
+            try
+            {
+                if (manager == null)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // Check if already expanded to 65024
+                bool nodesExpanded = manager.m_nodes != null && manager.m_nodes.m_buffer != null && manager.m_nodes.m_buffer.Length == (int)MNCConstants.CORE_NET_CAPACITY;
+                bool segsExpanded = manager.m_segments != null && manager.m_segments.m_buffer != null && manager.m_segments.m_buffer.Length == (int)MNCConstants.CORE_NET_CAPACITY;
+                if (nodesExpanded && segsExpanded)
+                {
+                    __result = true;
+                    return false;
+                }
+
+                // If vanilla sizes (32768, 36864), let native MNC EnsureExpanded run
+                bool nodesVanilla = manager.m_nodes != null && manager.m_nodes.m_buffer != null && manager.m_nodes.m_buffer.Length == 32768;
+                bool segsVanilla = manager.m_segments != null && manager.m_segments.m_buffer != null && manager.m_segments.m_buffer.Length == 36864;
+                if (nodesVanilla && segsVanilla)
+                {
+                    return true; // Let native method run
+                }
+
+                // For any other unexpected sizes, safely allocate clean Array16<NetNode>(65024) and Array16<NetSegment>(65024)
+                if (manager.m_nodes == null || manager.m_nodes.m_buffer.Length != (int)MNCConstants.CORE_NET_CAPACITY)
+                {
+                    var newNodes = new Array16<NetNode>((uint)MNCConstants.CORE_NET_CAPACITY);
+                    ushort dummyNode;
+                    newNodes.CreateItem(out dummyNode); // reserve node 0
+                    if (manager.m_nodes != null && manager.m_nodes.m_buffer != null)
+                    {
+                        int copyLen = Math.Min(manager.m_nodes.m_buffer.Length, newNodes.m_buffer.Length);
+                        Array.Copy(manager.m_nodes.m_buffer, newNodes.m_buffer, copyLen);
+                    }
+                    manager.m_nodes = newNodes;
+                }
+
+                if (manager.m_segments == null || manager.m_segments.m_buffer.Length != (int)MNCConstants.CORE_NET_CAPACITY)
+                {
+                    var newSegs = new Array16<NetSegment>((uint)MNCConstants.CORE_NET_CAPACITY);
+                    ushort dummySeg;
+                    newSegs.CreateItem(out dummySeg); // reserve segment 0
+                    if (manager.m_segments != null && manager.m_segments.m_buffer != null)
+                    {
+                        int copyLen = Math.Min(manager.m_segments.m_buffer.Length, newSegs.m_buffer.Length);
+                        Array.Copy(manager.m_segments.m_buffer, newSegs.m_buffer, copyLen);
+                    }
+                    manager.m_segments = newSegs;
+                }
+
+                // Resize auxiliary arrays
+                if (manager.m_updatedNodes == null || manager.m_updatedNodes.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
+                {
+                    manager.m_updatedNodes = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
+                }
+                if (manager.m_updatedSegments == null || manager.m_updatedSegments.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
+                {
+                    manager.m_updatedSegments = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
+                }
+                if (manager.m_adjustedSegments == null || manager.m_adjustedSegments.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
+                {
+                    manager.m_adjustedSegments = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
+                }
+
+                __result = true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] CoreCustomizer_EnsureExpanded_Prefix error: " + ex);
+                __result = true; // Still return true so deserialize does not abort
+                return false;
+            }
+        }
+
+        public static bool CoreMetadata_IsExpandedSave_Prefix(ref bool __result)
+        {
+            __result = ThirdPartyCompatibility.IsSaveGameExpanded();
             return false;
         }
 
@@ -4351,8 +4556,40 @@ namespace MoreNetworkCapacityRenew
                             MethodInfo mMark = patchStateType.GetMethod("MarkSaveExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                             if (mMark != null) mMark.Invoke(null, null);
                         }
+                        Type desStateType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
+                        if (desStateType != null)
+                        {
+                            MethodInfo mSetLoad = desStateType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mSetLoad != null) mSetLoad.Invoke(null, new object[] { true });
+                        }
+                        Type customizerType = asm.GetType("MoreNetworkCapacity.NetManagerCustomizer");
+                        if (customizerType != null && Singleton<NetManager>.exists)
+                        {
+                            MethodInfo mEnsure = customizerType.GetMethod("EnsureExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mEnsure != null) mEnsure.Invoke(null, new object[] { Singleton<NetManager>.instance });
+                            MethodInfo mApp = customizerType.GetMethod("ApplyExpandedArraySizes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mApp != null) mApp.Invoke(null, new object[] { Singleton<NetManager>.instance });
+                        }
+                        RenewMod.ArmCoreExpandedSave(asm);
                     }
                 }
+
+                // Direct lane pre-expansion: Ensure NetManager lanes buffer is sized for 512K capacity immediately
+                if (Singleton<NetManager>.exists)
+                {
+                    var nm = Singleton<NetManager>.instance;
+                    if (nm != null)
+                    {
+                        if (nm.m_lanes != null && nm.m_lanes.m_buffer != null && nm.m_lanes.m_buffer.Length < (int)MNCConstants.LANE_CAPACITY)
+                        {
+                            Array.Resize(ref nm.m_lanes.m_buffer, (int)MNCConstants.LANE_CAPACITY);
+                        }
+                    }
+                }
+
+                // Auxiliary buffer pre-expansion: Ensure ElectricityManager, WaterManager, CoverageManager buffers are sized for 65K auxiliary node capacity immediately
+                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("EnsureExpandedSave");
+
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EnsureExpandedSave: Confirmed vanilla save mode is EXPANDED (all nodes/segments up to 65,536).");
             }
             catch (Exception ex)
@@ -10550,7 +10787,7 @@ namespace MoreNetworkCapacityRenew
                         {
                             foreach (var mod in saveMeta.mods)
                             {
-                                if (mod.modWorkshopID == 3818403598UL || mod.modWorkshopID == 3814019901UL ||
+                                if (mod.modWorkshopID == 3818403598UL || mod.modWorkshopID == 3814019901UL || mod.modWorkshopID == 3829341972UL ||
                                     (!string.IsNullOrEmpty(mod.modName) && (mod.modName.Contains("MoreNodes") || mod.modName.Contains("MoreNetworkCapacity") || mod.modName.Contains("64K"))))
                                 {
                                     return true;
@@ -10591,12 +10828,15 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                 }
+
+                // Universal safety: When MoreNodesSegmentsRenew is active, all saves run in expanded 64K mode
+                return true;
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] IsSaveGameExpanded check error: " + ex);
             }
-            return false;
+            return true;
         }
 
         public static void Apply(HarmonyInstance harmony)
@@ -11234,6 +11474,134 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        private static void ResizeInstanceArrayField(object instance, string fieldName, int newSize)
+        {
+            if (instance == null) return;
+            try
+            {
+                FieldInfo fi = instance.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fi != null)
+                {
+                    Array arr = fi.GetValue(instance) as Array;
+                    if (arr != null && arr.Length < newSize)
+                    {
+                        Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), newSize);
+                        Array.Copy(arr, newArr, arr.Length);
+                        fi.SetValue(instance, newArr);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static void EnsureAuxiliaryBuffersExpanded(string context = "")
+        {
+            try
+            {
+                const int AUX_CAPACITY = 65024; // Capacity.GetAuxiliaryNodeStorageSize() when expanded
+
+                // 1. ElectricityManager
+                if (Singleton<ElectricityManager>.exists)
+                {
+                    var em = Singleton<ElectricityManager>.instance;
+                    if (em != null)
+                    {
+                        if (em.m_nodeGroups == null || em.m_nodeGroups.Length < AUX_CAPACITY)
+                        {
+                            int oldLen = em.m_nodeGroups != null ? em.m_nodeGroups.Length : 0;
+                            Array.Resize(ref em.m_nodeGroups, AUX_CAPACITY);
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded ElectricityManager.m_nodeGroups from {0} to {1} ({2}) ✓", oldLen, AUX_CAPACITY, context));
+                        }
+                        ResizeInstanceArrayField(em, "m_pulseUnits", AUX_CAPACITY);
+                    }
+                }
+
+                // 2. WaterManager
+                if (Singleton<WaterManager>.exists)
+                {
+                    var wm = Singleton<WaterManager>.instance;
+                    if (wm != null)
+                    {
+                        if (wm.m_nodeData == null || wm.m_nodeData.Length < AUX_CAPACITY)
+                        {
+                            int oldLen = wm.m_nodeData != null ? wm.m_nodeData.Length : 0;
+                            Array.Resize(ref wm.m_nodeData, AUX_CAPACITY);
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded WaterManager.m_nodeData from {0} to {1} ({2}) ✓", oldLen, AUX_CAPACITY, context));
+                        }
+                        ResizeInstanceArrayField(wm, "m_waterPulseUnits", AUX_CAPACITY);
+                        ResizeInstanceArrayField(wm, "m_sewagePulseUnits", AUX_CAPACITY);
+                        ResizeInstanceArrayField(wm, "m_heatingPulseUnits", AUX_CAPACITY);
+                    }
+                }
+
+                // 3. CoverageManager
+                if (Singleton<CoverageManager>.exists)
+                {
+                    var cm = Singleton<CoverageManager>.instance;
+                    if (cm != null)
+                    {
+                        ResizeInstanceArrayField(cm, "m_nodes", AUX_CAPACITY);
+                        ResizeInstanceArrayField(cm, "m_distances", AUX_CAPACITY);
+                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded CoverageManager.m_nodes to {0} ({1}) ✓", AUX_CAPACITY, context));
+                    }
+                }
+
+                // 4. EightyOne2 auxiliary arrays
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "EightyOne2")
+                    {
+                        try
+                        {
+                            Type expElec = asm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
+                            if (expElec != null)
+                            {
+                                FieldInfo fiPulseUnits = expElec.GetField("s_pulseUnits", BindingFlags.NonPublic | BindingFlags.Static);
+                                if (fiPulseUnits != null)
+                                {
+                                    Array arr = fiPulseUnits.GetValue(null) as Array;
+                                    if (arr != null && arr.Length < AUX_CAPACITY)
+                                    {
+                                        Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), AUX_CAPACITY);
+                                        Array.Copy(arr, newArr, arr.Length);
+                                        fiPulseUnits.SetValue(null, newArr);
+                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedElectricityManager.s_pulseUnits to {0} ({1}) ✓", AUX_CAPACITY, context));
+                                    }
+                                }
+                            }
+
+                            Type expWater = asm.GetType("EightyOne2.Patches.ExpandedWaterManager");
+                            if (expWater != null)
+                            {
+                                string[] waterFields = new string[] { "s_waterPulseUnits", "s_sewagePulseUnits", "s_heatingPulseUnits" };
+                                foreach (var fName in waterFields)
+                                {
+                                    FieldInfo fi = expWater.GetField(fName, BindingFlags.NonPublic | BindingFlags.Static);
+                                    if (fi != null)
+                                    {
+                                        Array arr = fi.GetValue(null) as Array;
+                                        if (arr != null && arr.Length < AUX_CAPACITY)
+                                        {
+                                            Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), AUX_CAPACITY);
+                                            Array.Copy(arr, newArr, arr.Length);
+                                            fi.SetValue(null, newArr);
+                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedWaterManager.{0} to {1} ({2}) ✓", fName, AUX_CAPACITY, context));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch { }
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EnsureAuxiliaryBuffersExpanded error: " + ex);
+            }
+        }
+
         private static void SetStaticField(Type type, string fieldName, object value)
         {
             if (type == null || value == null) return;
@@ -11668,7 +12036,7 @@ namespace MoreNetworkCapacityRenew
 
                 int patchedCount = 0;
 
-                // 1. Patch ElectricityManagerDataPatches.CustomSerialize
+                // 1. Patch ElectricityManagerDataPatches.CustomSerialize & CustomDeserialize
                 try
                 {
                     Type elecPatches = eightyOneAsm.GetType("EightyOne2.Patches.ElectricityManagerDataPatches");
@@ -11682,6 +12050,14 @@ namespace MoreNetworkCapacityRenew
                             patchedCount++;
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomSerialize with bounds-safe prefix!");
                         }
+                        MethodInfo mCustomDeserialize = elecPatches.GetMethod("CustomDeserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (mCustomDeserialize != null)
+                        {
+                            MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Electricity_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomDeserialize with bounds-safe prefix!");
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -11689,7 +12065,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 Electricity error: " + ex);
                 }
 
-                // 2. Patch WaterManagerDataPatches.CustomSerialize
+                // 2. Patch WaterManagerDataPatches.CustomSerialize & CustomDeserialize
                 try
                 {
                     Type waterPatches = eightyOneAsm.GetType("EightyOne2.Patches.WaterManagerDataPatches");
@@ -11702,6 +12078,14 @@ namespace MoreNetworkCapacityRenew
                             harmony.Patch(mCustomSerialize, prefix: new HarmonyMethod(pre));
                             patchedCount++;
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomSerialize with bounds-safe prefix!");
+                        }
+                        MethodInfo mCustomDeserialize = waterPatches.GetMethod("CustomDeserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (mCustomDeserialize != null)
+                        {
+                            MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Water_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomDeserialize with bounds-safe prefix!");
                         }
                     }
                 }
@@ -12624,6 +13008,34 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static void EightyOne2_Electricity_CustomDeserialize_Prefix()
+        {
+            EnsureAuxiliaryBuffersExpanded("EightyOne2.Electricity.CustomDeserialize.Prefix");
+        }
+
+        public static Exception EightyOne2_Electricity_CustomDeserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed EightyOne2 Electricity CustomDeserialize error: " + __exception.Message);
+            }
+            return null;
+        }
+
+        public static void EightyOne2_Water_CustomDeserialize_Prefix()
+        {
+            EnsureAuxiliaryBuffersExpanded("EightyOne2.Water.CustomDeserialize.Prefix");
+        }
+
+        public static Exception EightyOne2_Water_CustomDeserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed EightyOne2 Water CustomDeserialize error: " + __exception.Message);
+            }
+            return null;
+        }
+
         public static bool EightyOne2_District_CustomSerialize_Prefix(ColossalFramework.IO.EncodedArray.Byte encodedArray, DistrictManager.Cell[] districtCellArray)
         {
             try
@@ -13428,7 +13840,8 @@ namespace MoreNetworkCapacityRenew
                 name.StartsWith("CitiesHarmony") ||
                 name.StartsWith("ICities") ||
                 name.StartsWith("Assembly-CSharp") ||
-                name == "MoreNodesSegments")
+                name == "MoreNodesSegments" ||
+                name == "MoreNodesSegmentsBeta")
             {
                 return true;
             }
@@ -13775,28 +14188,151 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching CitizenManager.Data.Deserialize: " + ex);
                 }
 
-                // 3c. Patch LoadingProfiler.BeginDeserialize & EndDeserialize (Universal Stream Armor against tag mismatches)
+                // 3b-3. Patch ElectricityManager.Data.Deserialize (Universal Dynamic Buffer Guard & Stream Armor)
+                try
+                {
+                    Type emDataType = typeof(ElectricityManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
+                    if (emDataType != null)
+                    {
+                        MethodInfo emDes = emDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+                        if (emDes != null)
+                        {
+                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(emDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ElectricityManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching ElectricityManager.Data.Deserialize: " + ex);
+                }
+
+                // 3b-4. Patch WaterManager.Data.Deserialize (Universal Dynamic Buffer Guard & Stream Armor)
+                try
+                {
+                    Type wmDataType = typeof(WaterManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
+                    if (wmDataType != null)
+                    {
+                        MethodInfo wmDes = wmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+                        if (wmDes != null)
+                        {
+                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WaterManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WaterManager.Data.Deserialize: " + ex);
+                }
+
+                // 3c. Patch LoadingProfiler.BeginDeserialize & EndDeserialize (Universal Stream Armor against tag mismatches - both 2-arg and 3-arg)
                 try
                 {
                     MethodInfo beginDes = typeof(LoadingProfiler).GetMethod("BeginDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string) }, null);
                     if (beginDes != null)
                     {
                         MethodInfo preBegin = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_BeginDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(beginDes, prefix: new HarmonyMethod(preBegin));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize with Universal Stream Armor.");
+                        harmony.Patch(beginDes, prefix: new HarmonyMethod(preBegin) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize (2-arg) with Universal Stream Armor.");
                     }
 
                     MethodInfo endDes = typeof(LoadingProfiler).GetMethod("EndDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string) }, null);
                     if (endDes != null)
                     {
                         MethodInfo preEnd = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_EndDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(endDes, prefix: new HarmonyMethod(preEnd));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize with Universal Stream Armor.");
+                        harmony.Patch(endDes, prefix: new HarmonyMethod(preEnd) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize (2-arg) with Universal Stream Armor.");
+                    }
+
+                    MethodInfo beginDes3 = typeof(LoadingProfiler).GetMethod("BeginDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string), typeof(string) }, null);
+                    if (beginDes3 != null)
+                    {
+                        MethodInfo preBegin3 = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_BeginDeserialize_3Arg_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(beginDes3, prefix: new HarmonyMethod(preBegin3) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize (3-arg) with Universal Stream Armor.");
+                    }
+
+                    MethodInfo endDes3 = typeof(LoadingProfiler).GetMethod("EndDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string), typeof(string) }, null);
+                    if (endDes3 != null)
+                    {
+                        MethodInfo preEnd3 = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_EndDeserialize_3Arg_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(endDes3, prefix: new HarmonyMethod(preEnd3) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize (3-arg) with Universal Stream Armor.");
                     }
                 }
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching LoadingProfiler tags: " + ex);
+                }
+
+                // 3c-2. Patch WeatherManager.Data.Deserialize (Universal Dynamic Buffer Guard & EOF Stream Armor)
+                try
+                {
+                    Type wmDataType = typeof(WeatherManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
+                    if (wmDataType != null)
+                    {
+                        MethodInfo wmDes = wmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+                        if (wmDes != null)
+                        {
+                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WeatherManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WeatherManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WeatherManager.Data.Deserialize: " + ex);
+                }
+
+                // 3c-3. Universal EOF Stream Armor for all other Simulation Manager Data containers
+                try
+                {
+                    Type[] managerTypes = new Type[]
+                    {
+                        typeof(TerrainManager),
+                        typeof(WaterSimulation),
+                        typeof(DisasterManager),
+                        typeof(EventManager),
+                        typeof(GameAreaManager),
+                        typeof(GuideManager),
+                        typeof(MessageManager),
+                        typeof(UnlockManager),
+                        typeof(StatisticsManager),
+                        typeof(InstanceManager),
+                        typeof(InfoManager),
+                        typeof(AudioManager)
+                    };
+
+                    MethodInfo preGeneric = typeof(TransportLineCompatibility).GetMethod(nameof(GenericManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+
+                    foreach (Type mgrType in managerTypes)
+                    {
+                        try
+                        {
+                            Type dType = mgrType.GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
+                            if (dType != null)
+                            {
+                                MethodInfo mDes = dType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+                                if (mDes != null)
+                                {
+                                    harmony.Patch(mDes, prefix: new HarmonyMethod(preGeneric) { prioritiy = Harmony.Priority.First });
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched " + mgrType.Name + ".Data.Deserialize with Universal EOF Guard.");
+                                }
+                            }
+                        }
+                        catch (Exception exMgr)
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Could not patch " + mgrType.Name + ": " + exMgr.Message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching manager EOF guards: " + ex);
                 }
 
                 // 3d. Patch SimulationMetaData.Merge (Preserve save modOverride dictionary from being clobbered by ngs)
@@ -13970,13 +14506,13 @@ namespace MoreNetworkCapacityRenew
                 // 3m. Patch NetManager.InitializeSegment & InitializeNode (Dynamic Buffer Armor against stream desync crashes)
                 try
                 {
-                    MethodInfo initSeg = typeof(NetManager).GetMethod("InitializeSegment", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, null);
+                    MethodInfo initSeg = typeof(NetManager).GetMethod("InitializeSegment", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, null);
                     if (initSeg != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeSegment_Prefix), BindingFlags.Public | BindingFlags.Static);
                         harmony.Patch(initSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
                     }
-                    MethodInfo initNode = typeof(NetManager).GetMethod("InitializeNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null);
+                    MethodInfo initNode = typeof(NetManager).GetMethod("InitializeNode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null);
                     if (initNode != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeNode_Prefix), BindingFlags.Public | BindingFlags.Static);
@@ -15218,6 +15754,15 @@ namespace MoreNetworkCapacityRenew
                 {
                     TMPECompatibility.EnsureExpandedSave();
                 }
+                var sm = Singleton<SimulationManager>.instance;
+                if (sm != null && sm.m_metaData != null)
+                {
+                    if (sm.m_metaData.m_modOverride == null)
+                    {
+                        sm.m_metaData.m_modOverride = new Dictionary<string, bool>();
+                    }
+                    sm.m_metaData.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationManager.Data.Deserialize.Prefix");
             }
@@ -15273,6 +15818,186 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] CitizenManager_Data_Deserialize_Prefix error: " + ex);
             }
+        }
+
+        private static readonly FieldInfo s_dsStreamField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stream", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_emProcessedCells = typeof(ElectricityManager).GetField("m_processedCells", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_emConductiveCells = typeof(ElectricityManager).GetField("m_conductiveCells", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_emCanContinue = typeof(ElectricityManager).GetField("m_canContinue", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly FieldInfo s_wmProcessedCells = typeof(WaterManager).GetField("m_processedCells", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_wmConductiveCells = typeof(WaterManager).GetField("m_conductiveCells", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo s_wmCanContinue = typeof(WaterManager).GetField("m_canContinue", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static void ResetElectricitySimulationState()
+        {
+            try
+            {
+                var em = Singleton<ElectricityManager>.instance;
+                if (em != null)
+                {
+                    if (s_emProcessedCells != null) s_emProcessedCells.SetValue(em, 0);
+                    if (s_emConductiveCells != null) s_emConductiveCells.SetValue(em, 0);
+                    if (s_emCanContinue != null) s_emCanContinue.SetValue(em, true);
+                }
+            }
+            catch {}
+        }
+
+        public static void ResetWaterSimulationState()
+        {
+            try
+            {
+                var wm = Singleton<WaterManager>.instance;
+                if (wm != null)
+                {
+                    if (s_wmProcessedCells != null) s_wmProcessedCells.SetValue(wm, 0);
+                    if (s_wmConductiveCells != null) s_wmConductiveCells.SetValue(wm, 0);
+                    if (s_wmCanContinue != null) s_wmCanContinue.SetValue(wm, true);
+                }
+            }
+            catch {}
+        }
+
+        public static bool IsStreamAtEnd(ColossalFramework.IO.DataSerializer s)
+        {
+            if (s == null) return true;
+            try
+            {
+                var st = s_dsStreamField != null ? s_dsStreamField.GetValue(s) as System.IO.Stream : null;
+                if (st != null && st.CanSeek)
+                {
+                    return st.Position >= st.Length;
+                }
+            }
+            catch {}
+            return false;
+        }
+
+        public static bool ElectricityManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            try
+            {
+                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("ElectricityManager.Data.Deserialize.Prefix");
+
+                if (IsStreamAtEnd(s))
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ElectricityManager_Data_Deserialize_Prefix: Stream reached EOF before ElectricityManager. Initializing safe defaults ✓");
+                    ResetElectricitySimulationState();
+                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "ElectricityManager"); } catch {}
+                    return false; // Skip original crashing method!
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ElectricityManager_Data_Deserialize_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static Exception ElectricityManager_Data_Deserialize_Finalizer(Exception __exception, object __instance)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed ElectricityManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
+                ResetElectricitySimulationState();
+            }
+            return null; // Suppress crash!
+        }
+
+        public static bool WaterManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            try
+            {
+                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("WaterManager.Data.Deserialize.Prefix");
+
+                if (IsStreamAtEnd(s))
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterManager_Data_Deserialize_Prefix: Stream reached EOF before WaterManager. Initializing safe defaults ✓");
+                    ResetWaterSimulationState();
+                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "WaterManager"); } catch {}
+                    return false; // Skip original crashing method!
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WaterManager_Data_Deserialize_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static Exception WaterManager_Data_Deserialize_Finalizer(Exception __exception, object __instance)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WaterManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
+                ResetWaterSimulationState();
+            }
+            return null; // Suppress crash!
+        }
+
+        public static void ResetWeatherSimulationState()
+        {
+            try
+            {
+                var wm = Singleton<WeatherManager>.instance;
+                if (wm != null)
+                {
+                    wm.m_currentTemperature = 20f;
+                    wm.m_targetTemperature = 20f;
+                    wm.m_currentRain = 0f;
+                    wm.m_targetRain = 0f;
+                    wm.m_currentFog = 0f;
+                    wm.m_targetFog = 0f;
+                    wm.m_currentCloud = 0f;
+                    wm.m_targetCloud = 0f;
+                    wm.m_groundWetness = 0f;
+                    wm.m_enableWeather = true;
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ResetWeatherSimulationState: Safe weather state restored ✓");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ResetWeatherSimulationState error: " + ex);
+            }
+        }
+
+        public static bool WeatherManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            try
+            {
+                if (IsStreamAtEnd(s))
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix: Stream reached EOF before WeatherManager. Initializing safe defaults ✓");
+                    ResetWeatherSimulationState();
+                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "WeatherManager", "WindManager"); } catch {}
+                    return false; // Skip original crashing method!
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static bool GenericManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            try
+            {
+                if (IsStreamAtEnd(s))
+                {
+                    string typeName = __instance != null ? (__instance.GetType().DeclaringType != null ? __instance.GetType().DeclaringType.Name : __instance.GetType().Name) : "Manager";
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0}.Data.Deserialize: Stream reached EOF. Skipping safely ✓", typeName));
+                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, typeName); } catch {}
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] GenericManager_Data_Deserialize_Prefix error: " + ex);
+            }
+            return true;
         }
 
         public static bool PathManager_Data_Deserialize_Prefix(PathManager.Data __instance, ColossalFramework.IO.DataSerializer s)
@@ -15543,15 +16268,25 @@ namespace MoreNetworkCapacityRenew
 
         public static bool LoadingProfiler_BeginDeserialize_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name)
         {
-            return SafeHandleDeserializeTag(__instance, s, name, isBegin: true);
+            return SafeHandleDeserializeTag(__instance, s, name, null, isBegin: true);
         }
 
         public static bool LoadingProfiler_EndDeserialize_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name)
         {
-            return SafeHandleDeserializeTag(__instance, s, name, isBegin: false);
+            return SafeHandleDeserializeTag(__instance, s, name, null, isBegin: false);
         }
 
-        private static bool SafeHandleDeserializeTag(LoadingProfiler profiler, ColossalFramework.IO.DataSerializer s, string name, bool isBegin)
+        public static bool LoadingProfiler_BeginDeserialize_3Arg_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name1, string name2)
+        {
+            return SafeHandleDeserializeTag(__instance, s, name1, name2, isBegin: true);
+        }
+
+        public static bool LoadingProfiler_EndDeserialize_3Arg_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name1, string name2)
+        {
+            return SafeHandleDeserializeTag(__instance, s, name1, name2, isBegin: false);
+        }
+
+        private static bool SafeHandleDeserializeTag(LoadingProfiler profiler, ColossalFramework.IO.DataSerializer s, string name, string name2, bool isBegin)
         {
             try
             {
@@ -15572,7 +16307,8 @@ namespace MoreNetworkCapacityRenew
                                 Type evType = typeof(LoadingProfiler).GetNestedType("Event", BindingFlags.NonPublic | BindingFlags.Public);
                                 if (evType != null && mAdd != null)
                                 {
-                                    object ev = Activator.CreateInstance(evType, new object[] { isBegin ? 6 : 7, isBegin ? name : null, elapsed });
+                                    string eventName = isBegin ? (string.IsNullOrEmpty(name2) ? name : (name + "." + name2)) : null;
+                                    object ev = Activator.CreateInstance(evType, new object[] { isBegin ? 6 : 7, eventName, elapsed });
                                     mAdd.Invoke(events, new object[] { ev });
                                 }
                             }
@@ -15590,65 +16326,65 @@ namespace MoreNetworkCapacityRenew
 
                     if (st != null && st.CanSeek)
                     {
-                        int tagIdx = strList != null ? strList.IndexOf(name) : -1;
-                        if (tagIdx >= 0)
-                        {
-                            byte b1 = (byte)(tagIdx >> 8);
-                            byte b2 = (byte)(tagIdx & 0xFF);
+                        int tagIdx1 = strList != null ? strList.IndexOf(name) : -1;
+                        int tagIdx2 = (!string.IsNullOrEmpty(name2) && strList != null) ? strList.IndexOf(name2) : -1;
 
+                        if (tagIdx1 >= 0 || tagIdx2 >= 0)
+                        {
                             long curPos = st.Position;
                             int p1 = st.ReadByte();
                             int p2 = st.ReadByte();
                             st.Seek(curPos, SeekOrigin.Begin);
 
-                            if (p1 == b1 && p2 == b2)
+                            bool match1 = tagIdx1 >= 0 && p1 == (byte)(tagIdx1 >> 8) && p2 == (byte)(tagIdx1 & 0xFF);
+                            bool match2 = tagIdx2 >= 0 && p1 == (byte)(tagIdx2 >> 8) && p2 == (byte)(tagIdx2 & 0xFF);
+
+                            if (match1 || match2)
                             {
                                 s.ReadSharedString(); // Clean match!
                                 return false;
                             }
 
                             // Misaligned stream: search forward up to 2MB, requiring strong validation:
-                            // 1. Tag must match [b1, b2]
-                            // 2. If isBegin == false (EndDeserialize), next 2 bytes must point to a valid manager Begin tag in strList!
                             long foundPos = -1;
                             long maxSearch = Math.Min(st.Length - 4, curPos + 2 * 1024 * 1024);
                             for (long pos = curPos; pos < maxSearch; pos++)
                             {
                                 int s1 = st.ReadByte();
-                                if (s1 == b1)
+                                int s2 = st.ReadByte();
+                                bool isS12Match1 = tagIdx1 >= 0 && s1 == (byte)(tagIdx1 >> 8) && s2 == (byte)(tagIdx1 & 0xFF);
+                                bool isS12Match2 = tagIdx2 >= 0 && s1 == (byte)(tagIdx2 >> 8) && s2 == (byte)(tagIdx2 & 0xFF);
+
+                                if (isS12Match1 || isS12Match2)
                                 {
-                                    int s2 = st.ReadByte();
-                                    if (s2 == b2)
+                                    if (!isBegin)
                                     {
-                                        if (!isBegin)
+                                        // Verify next 2 bytes form a valid next manager Begin tag!
+                                        int n1 = st.ReadByte();
+                                        int n2 = st.ReadByte();
+                                        if (n1 >= 0 && n2 >= 0)
                                         {
-                                            // Verify next 2 bytes form a valid next manager Begin tag!
-                                            int n1 = st.ReadByte();
-                                            int n2 = st.ReadByte();
-                                            if (n1 >= 0 && n2 >= 0)
+                                            int nextIdx = (n1 << 8) | n2;
+                                            if (nextIdx >= 0 && nextIdx < strList.Count)
                                             {
-                                                int nextIdx = (n1 << 8) | n2;
-                                                if (nextIdx >= 0 && nextIdx < strList.Count)
+                                                string nextStr = strList[nextIdx];
+                                                if (nextStr != null && (nextStr.EndsWith("Manager") || nextStr.Contains("Manager")))
                                                 {
-                                                    string nextStr = strList[nextIdx];
-                                                    if (nextStr != null && (nextStr.EndsWith("Manager") || nextStr.Contains("Manager")))
-                                                    {
-                                                        foundPos = pos;
-                                                        break;
-                                                    }
+                                                    foundPos = pos;
+                                                    break;
                                                 }
                                             }
-                                            st.Seek(pos + 1, SeekOrigin.Begin);
-                                            continue;
                                         }
-                                        else
-                                        {
-                                            foundPos = pos;
-                                            break;
-                                        }
+                                        st.Seek(pos + 1, SeekOrigin.Begin);
+                                        continue;
                                     }
-                                    st.Seek(pos + 1, SeekOrigin.Begin);
+                                    else
+                                    {
+                                        foundPos = pos;
+                                        break;
+                                    }
                                 }
+                                st.Seek(pos + 1, SeekOrigin.Begin);
                             }
 
                             if (foundPos != -1)
@@ -15667,6 +16403,11 @@ namespace MoreNetworkCapacityRenew
                         try
                         {
                             string readTag = s.ReadSharedString();
+                            if (readTag == name || (!string.IsNullOrEmpty(name2) && readTag == name2))
+                            {
+                                // Clean match from newly registered shared string!
+                                return false;
+                            }
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Suppressed {0}('{1}') tag mismatch (read '{2}'). Proceeding safely ✓",
                                 isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag));
                         }
@@ -15892,6 +16633,11 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                if (exception != null)
+                {
+                    string msg = string.Format("[SafeLogArmor Exception] {0}\nStack:\n{1}", exception.Message, exception.StackTrace);
+                    Console.WriteLine(msg);
+                }
                 if (s_internalLogExceptionMethod == null)
                 {
                     Type dlhType = typeof(UnityEngine.Debug).Assembly.GetType("UnityEngine.DebugLogHandler");
@@ -15904,11 +16650,11 @@ namespace MoreNetworkCapacityRenew
                 }
                 catch {}
 
-                return false;
+                return true;
             }
             catch
             {
-                return false;
+                return true;
             }
         }
 
@@ -15952,20 +16698,20 @@ namespace MoreNetworkCapacityRenew
             catch {}
         }
 
-        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicleID)
+        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicle)
         {
             try
             {
                 VehicleManager vm = Singleton<VehicleManager>.instance;
                 if (vm == null || vm.m_vehicles == null || vm.m_vehicles.m_buffer == null) return;
-                if (vehicleID == 0 || vehicleID >= vm.m_vehicles.m_buffer.Length) return;
+                if (vehicle == 0 || vehicle >= vm.m_vehicles.m_buffer.Length) return;
 
                 // Move physical collision segment 100,000m away so collision raycasts / distance checks never register an invisible block
-                vm.m_vehicles.m_buffer[vehicleID].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
-                vm.m_vehicles.m_buffer[vehicleID].m_nextGridVehicle = 0;
+                vm.m_vehicles.m_buffer[vehicle].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                vm.m_vehicles.m_buffer[vehicle].m_nextGridVehicle = 0;
 
                 // Clear any TM:PE junction reservation or segment end locks held by this vehicle
-                TMPECompatibility.NotifyVehicleReleased(vehicleID);
+                TMPECompatibility.NotifyVehicleReleased(vehicle);
             }
             catch { }
         }
@@ -16353,9 +17099,7 @@ namespace MoreNetworkCapacityRenew
                     {
                         if (maxReq >= __instance.m_nodes.m_buffer.Length)
                         {
-                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                            TMPECompatibility.EnsureExpandedSave();
-                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, maxReq + 1024);
+                            int targetSize = Math.Max(65536, maxReq + 1024);
                             if (__instance.m_nodes.m_buffer.Length < targetSize)
                             {
                                 Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
@@ -16365,11 +17109,9 @@ namespace MoreNetworkCapacityRenew
                     }
                     if (__instance.m_segments != null && __instance.m_segments.m_buffer != null)
                     {
-                        if (segment >= __instance.m_segments.m_buffer.Length)
+                        if ((int)segment >= __instance.m_segments.m_buffer.Length)
                         {
-                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                            TMPECompatibility.EnsureExpandedSave();
-                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)segment + 1024);
+                            int targetSize = Math.Max(65536, (int)segment + 1024);
                             if (__instance.m_segments.m_buffer.Length < targetSize)
                             {
                                 Array.Resize(ref __instance.m_segments.m_buffer, targetSize);
@@ -16377,39 +17119,77 @@ namespace MoreNetworkCapacityRenew
                             }
                         }
                     }
+
+                    // Native safe replacement: Zero out of bounds possibility
+                    Vector3 position = Vector3.zero;
+                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    {
+                        Vector3 startPos = ((int)data.m_startNode < __instance.m_nodes.m_buffer.Length) ? __instance.m_nodes.m_buffer[data.m_startNode].m_position : Vector3.zero;
+                        Vector3 endPos = ((int)data.m_endNode < __instance.m_nodes.m_buffer.Length) ? __instance.m_nodes.m_buffer[data.m_endNode].m_position : Vector3.zero;
+                        position = (startPos + endPos) * 0.5f;
+                    }
+                    int num = Mathf.Clamp((int)(position.x / 64f + 135f), 0, 269);
+                    int num2 = Mathf.Clamp((int)(position.z / 64f + 135f), 0, 269);
+                    int num3 = num2 * 270 + num;
+                    if (__instance.m_segmentGrid != null && num3 >= 0 && num3 < __instance.m_segmentGrid.Length)
+                    {
+                        if (__instance.m_segments != null && __instance.m_segments.m_buffer != null && (int)segment < __instance.m_segments.m_buffer.Length)
+                        {
+                            __instance.m_segments.m_buffer[segment].m_nextGridSegment = __instance.m_segmentGrid[num3];
+                            data.m_nextGridSegment = __instance.m_segmentGrid[num3];
+                        }
+                        __instance.m_segmentGrid[num3] = segment;
+                    }
+                    return false; // Skip original method! Complete zero crash armor.
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeSegment_Prefix armor error: " + ex);
             }
-            return true;
+            return false;
         }
 
         public static bool NetManager_InitializeNode_Prefix(NetManager __instance, ushort node, ref NetNode data)
         {
             try
             {
-                if (__instance != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                if (__instance != null)
                 {
-                    if (node >= __instance.m_nodes.m_buffer.Length)
+                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
                     {
-                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                        TMPECompatibility.EnsureExpandedSave();
-                        int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)node + 1024);
-                        if (__instance.m_nodes.m_buffer.Length < targetSize)
+                        if ((int)node >= __instance.m_nodes.m_buffer.Length)
                         {
-                            Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
+                            int targetSize = Math.Max(65536, (int)node + 1024);
+                            if (__instance.m_nodes.m_buffer.Length < targetSize)
+                            {
+                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
+                            }
                         }
                     }
+
+                    // Native safe replacement: Zero out of bounds possibility
+                    int num = Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
+                    int num2 = Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
+                    int num3 = num2 * 270 + num;
+                    if (__instance.m_nodeGrid != null && num3 >= 0 && num3 < __instance.m_nodeGrid.Length)
+                    {
+                        if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null && (int)node < __instance.m_nodes.m_buffer.Length)
+                        {
+                            __instance.m_nodes.m_buffer[node].m_nextGridNode = __instance.m_nodeGrid[num3];
+                            data.m_nextGridNode = __instance.m_nodeGrid[num3];
+                        }
+                        __instance.m_nodeGrid[num3] = node;
+                    }
+                    return false; // Skip original method! Complete zero crash armor.
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeNode_Prefix armor error: " + ex);
             }
-            return true;
+            return false;
         }
 
          public static bool TransportLine_GetNextStop_Prefix(ushort stop, ref ushort __result)

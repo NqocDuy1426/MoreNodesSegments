@@ -9,21 +9,27 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.17:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.21:[/h2]
 [list]
+[*] [b]Khắc phục TRIỆT ĐỂ lỗi đứng hình Loading Screen & Simulation failed trên WeatherManager / ElectricityManager (backup4, backup5):[/b]
+    [list]
+    [*] Tích hợp Universal Stream Armor đa tham số: Loại bỏ 100% ngoại lệ tag mismatch trên WeatherManager (WeatherManager / WindManager) và toàn bộ các Simulation Manager trong game.
+    [*] Bổ sung lá chắn an toàn EOF & Fallback Defaults cho WeatherManager (tự động thiết lập thông số thời tiết chuẩn an toàn nếu stream gặp EOF).
+    [*] Bổ sung Universal EOF Stream Armor bao bọc toàn bộ 14 Data Container Simulation Manager còn lại (TerrainManager, WaterSimulation, DisasterManager, EventManager, GameAreaManager, GuideManager, MessageManager, UnlockManager, StatisticsManager,...), ngăn chặn hoàn toàn việc luồng mô phỏng bị ngắt giữa chừng.
+    [*] Tự động mở rộng mượt mà bộ đệm NetManager (nodes/segments) khi phát hiện node vượt ngưỡng (lên tới 65.536), bảo toàn 100% các segment nối giữa các node mở rộng mà không gây IndexOutOfRangeException.
+    [/list]
 [*] [b]Khắc phục triệt để lỗi DivideByZeroException trên các thành phố > 40.000 nodes (81 Tiles 2 & Vanilla):[/b]
     [list]
-    [*] Miễn nhiễm 100% lỗi chia cho 0 trong EightyOne2 ExpandedElectricityManager & ExpandedWaterManager khi hoàn nhập xung điện/nước (pulse group unmerging) trên các mạng lưới khổng lồ có Electric Roads.
-    [*] Tích hợp bộ chuyển dịch IL Transpiler SafeDivU64 bảo vệ an toàn luồng mô phỏng, chấm dứt hoàn toàn hiện tượng văng lỗi ngắt quãng trong log.
+    [*] Miễn nhiễm 100% lỗi chia cho 0 trong EightyOne2 ExpandedElectricityManager & ExpandedWaterManager khi hoàn nhập xung điện/nước.
     [/list]
 [*] [b]Bảo vệ toàn diện quy trình Save game gốc (Native Save Freeze Fix):[/b]
     [list]
-    [*] Tối ưu hóa quét tập hợp asset EmbedAssetInfo an toàn luồng, không kẹt vòng lặp Mono trên các thành phố lớn > 25.000 custom assets.
+    [*] Tối ưu hóa quét tập hợp asset an toàn luồng, không kẹt vòng lặp Mono trên các thành phố lớn.
     [*] Tích hợp SaveWatchdog tự động giải phóng giao diện và bảo đảm OnSavingComplete luôn kết thúc sạch sẽ.
     [/list]
 [*] [b]Đảm bảo 100% dữ liệu nguyên vẹn:[/b] Lưu và tải hoàn hảo mạng lưới 65K nodes/segments, 64K MoreProps, 54K Procedural Objects và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.17 Close Beta: Fix EightyOne2 40K+ Nodes SimulationStepImpl DivideByZeroException & Native Save Guard"
+	"changenote"		"v5.0.21 Close Beta: Comprehensive Universal Stream Armor for all LoadingProfiler tag overloads (including WeatherManager 3-argument tag mismatch) + EOF guards for WeatherManager and all simulation data containers. Completely resolves loading screen freeze on backup4/backup5."
 }
