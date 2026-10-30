@@ -9,22 +9,24 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.35:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.36:[/h2]
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
     [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
     [*] Chấm dứt triệt để lỗi LSM giải mã byte nhị phân thành hàng chục nghìn ký tự rác Unicode/tiếng Trung làm tràn font texture atlas (nguyên nhân mất chữ ingame và không hiện missing assets).
     [/list]
-[*] [b]Triệt tiêu văng game khi load save (Native Manager Dispatch & Assembly Isolation):[/b]
+[*] [b]Triệt tiêu văng game khi load save (Universal Simulation Manager Armor):[/b]
     [list]
-    [*] Bỏ bọc prefix trên SimulationManager.Managers_UpdateData/LateUpdateData/EarlyUpdateData, trả về luồng xử lý native nội bộ của Cities: Skylines, loại bỏ hoàn toàn lỗi Mono JIT SIGSEGV (get_object_generic_inst) trên WeatherManager và các open generic classes.
-    [*] Cô lập phân giải assembly EManagersLib, ngăn chặn TypeLoadException spam do nhầm lẫn với EManagersLib.API.
+    [*] Bọc giáp Priority.First cho chu trình SimulationManager.Managers_UpdateData/LateUpdateData/EarlyUpdateData.
+    [*] Bảo toàn lệnh nạp skin của NetworkSkins (OnPreUpdateData).
+    [*] Tự động phát hiện và bỏ qua các method ảo rỗng kế thừa từ generic class SimulationManagerBase (WeatherManager, CoverageManager, NaturalResourceManager...), triệt tiêu hoàn toàn lỗi native Mono JIT SIGSEGV (get_object_generic_inst).
+    [*] Chỉ gọi reflection an toàn trên các manager có method cụ thể (CitizenManager, WaterManager, TreeManager...), kèm try-catch cô lập cho từng manager.
     [*] Duy trì lá chắn 2500ms timeout shield cho SimulationManager.LateUpdateData warm-up và bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string).
     [/list]
 [*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.35 Close Beta: Eliminate Mono generic vtable SIGSEGV crash during manager updates, isolate EManagersLib assembly resolution, retain LateUpdateData warm-up timeout shield & Material.HasProperty null safety."
+	"changenote"		"v5.0.36 Close Beta: Universal Simulation Manager Armor (Defeat Mono generic vtable SIGSEGV crash during manager updates, protect NetworkSkins & Material.HasProperty)."
 }

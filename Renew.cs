@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy";
-        public string Description => "[Close Beta v5.0.35] Stream Alignment & Native Manager Dispatch (Eliminate Mono generic vtable SIGSEGV & protect Material.HasProperty).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.36 by NgocDuy";
+        public string Description => "[Close Beta v5.0.36] Universal Simulation Manager Armor (Defeat Mono generic vtable SIGSEGV crash during manager updates, protect NetworkSkins & Material.HasProperty).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14942,6 +14942,38 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
                 }
 
+                // 2e. Patch SimulationManager.Managers_* methods with Universal Simulation Manager Armor (Priority.First)
+                try
+                {
+                    MethodInfo smUpd = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_UpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
+                    }
+
+                    MethodInfo smLateUpd = typeof(SimulationManager).GetMethod("Managers_LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smLateUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_LateUpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
+                    }
+
+                    MethodInfo smEarlyUpd = typeof(SimulationManager).GetMethod("Managers_EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
+                    if (smEarlyUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_EarlyUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Universal Simulation Manager Armor (Priority.First) ✓");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.Managers_* methods: " + ex);
+                }
+
                 // 2f. Patch UnityEngine.Material.HasProperty (Prevent native C++ null dereference crash in FpsBooster/UI)
                 try
                 {
@@ -17181,6 +17213,235 @@ namespace MoreNetworkCapacityRenew
                 return false;
             }
             return true;
+        }
+
+        private static readonly Dictionary<Type, MethodInfo> s_concreteUpdateDataMethods = new Dictionary<Type, MethodInfo>();
+        private static readonly HashSet<Type> s_noOpUpdateDataManagers = new HashSet<Type>();
+
+        private static readonly Dictionary<Type, MethodInfo> s_concreteLateUpdateDataMethods = new Dictionary<Type, MethodInfo>();
+        private static readonly HashSet<Type> s_noOpLateUpdateDataManagers = new HashSet<Type>();
+
+        private static readonly Dictionary<Type, MethodInfo> s_concreteEarlyUpdateDataMethods = new Dictionary<Type, MethodInfo>();
+        private static readonly HashSet<Type> s_noOpEarlyUpdateDataManagers = new HashSet<Type>();
+
+        private static void InvokeNetworkSkinsPreUpdateData(SimulationManager.UpdateMode mode)
+        {
+            try
+            {
+                Type nsmType = Type.GetType("NetworkSkins.Skins.NetworkSkinManager, NetworkSkins");
+                if (nsmType == null)
+                {
+                    foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        if (a.GetName().Name == "NetworkSkins")
+                        {
+                            nsmType = a.GetType("NetworkSkins.Skins.NetworkSkinManager");
+                            break;
+                        }
+                    }
+                }
+                if (nsmType != null)
+                {
+                    PropertyInfo prop = nsmType.GetProperty("instance", BindingFlags.Public | BindingFlags.Static);
+                    object instance = prop != null ? prop.GetValue(null, null) : null;
+                    if (instance != null)
+                    {
+                        MethodInfo m = nsmType.GetMethod("OnPreUpdateData", BindingFlags.Public | BindingFlags.Instance);
+                        if (m != null)
+                        {
+                            m.Invoke(instance, new object[] { mode });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Safely executed NetworkSkinManager.OnPreUpdateData ✓");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetworkSkins OnPreUpdateData reflection: " + ex.Message);
+            }
+        }
+
+        private static void SafeExecuteUpdateData(ISimulationManager mgr, SimulationManager.UpdateMode mode)
+        {
+            Type t = mgr.GetType();
+            if (s_noOpUpdateDataManagers.Contains(t)) return;
+
+            MethodInfo m;
+            if (!s_concreteUpdateDataMethods.TryGetValue(t, out m))
+            {
+                m = t.GetMethod("UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
+                {
+                    s_noOpUpdateDataManagers.Add(t);
+                    return;
+                }
+                s_concreteUpdateDataMethods[t] = m;
+            }
+
+            try
+            {
+                m.Invoke(mgr, new object[] { mode });
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.UpdateData({1}) error: {2}", t.FullName, mode, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
+            }
+        }
+
+        private static void SafeExecuteLateUpdateData(ISimulationManager mgr, SimulationManager.UpdateMode mode)
+        {
+            Type t = mgr.GetType();
+            if (s_noOpLateUpdateDataManagers.Contains(t)) return;
+
+            MethodInfo m;
+            if (!s_concreteLateUpdateDataMethods.TryGetValue(t, out m))
+            {
+                m = t.GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
+                {
+                    s_noOpLateUpdateDataManagers.Add(t);
+                    return;
+                }
+                s_concreteLateUpdateDataMethods[t] = m;
+            }
+
+            try
+            {
+                m.Invoke(mgr, new object[] { mode });
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.LateUpdateData({1}) error: {2}", t.FullName, mode, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
+            }
+        }
+
+        private static void SafeExecuteEarlyUpdateData(ISimulationManager mgr)
+        {
+            Type t = mgr.GetType();
+            if (s_noOpEarlyUpdateDataManagers.Contains(t)) return;
+
+            MethodInfo m;
+            if (!s_concreteEarlyUpdateDataMethods.TryGetValue(t, out m))
+            {
+                m = t.GetMethod("EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                if (m == null || (m.DeclaringType != null && m.DeclaringType.Name.StartsWith("SimulationManagerBase")))
+                {
+                    s_noOpEarlyUpdateDataManagers.Add(t);
+                    return;
+                }
+                s_concreteEarlyUpdateDataMethods[t] = m;
+            }
+
+            try
+            {
+                m.Invoke(mgr, null);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Guarded {0}.EarlyUpdateData() error: {2}", t.FullName, ex.InnerException != null ? ex.InnerException.Message : ex.Message));
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_EarlyUpdateData_Prefix()
+        {
+            try
+            {
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    for (int i = 0; i < size; i++)
+                    {
+                        var mgr = buffer[i];
+                        if (mgr != null)
+                        {
+                            SafeExecuteEarlyUpdateData(mgr);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_EarlyUpdateData exception: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                // Guarantee NetworkSkins pre-update hook runs cleanly
+                InvokeNetworkSkinsPreUpdateData(mode);
+
+                var lm = Singleton<LoadingManager>.instance;
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    float range = maxProgress - minProgress;
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        try
+                        {
+                            if (lm != null && size > 0)
+                            {
+                                lm.SetSimulationProgress(minProgress + range * (float)i / (float)size);
+                            }
+                        }
+                        catch {}
+
+                        var mgr = buffer[i];
+                        if (mgr != null)
+                        {
+                            SafeExecuteUpdateData(mgr, mode);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_UpdateData exception: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_Managers_LateUpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    for (int i = 0; i < size; i++)
+                    {
+                        var mgr = buffer[i];
+                        if (mgr != null)
+                        {
+                            SafeExecuteLateUpdateData(mgr, mode);
+                        }
+                    }
+                }
+
+                var sm = Singleton<SimulationManager>.instance;
+                if (sm != null)
+                {
+                    SimulationManager_LateUpdateData_Prefix(sm, mode, minProgress, maxProgress);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_LateUpdateData exception: " + ex.Message);
+            }
+            return false;
         }
 
         public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)

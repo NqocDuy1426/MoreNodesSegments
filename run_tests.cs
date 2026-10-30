@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.35)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.36)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.36 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.32 by NgocDuy") ||
@@ -2039,9 +2040,9 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 44: Native Simulation Dispatch, Assembly Resolution & Material Armor (v5.0.35)
+        // TEST GROUP 44: Universal Simulation Manager Armor, NetworkSkins & Assembly Isolation (v5.0.36)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 44: Native Simulation Dispatch, Assembly Resolution & Material Armor (v5.0.35) ---");
+        Console.WriteLine("\n--- Test Group 44: Universal Simulation Manager Armor, NetworkSkins & Assembly Isolation (v5.0.36) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -2051,13 +2052,14 @@ class TestSuite
                                     !renewCode.Contains("curPos + 2 * 1024 * 1024");
             Assert(hasCleanTagArmor, "SafeHandleDeserializeTag reads exact shared tag and suppresses mismatch without stream seeking or scanning");
 
-            // 44.2 SimulationManager.Managers_* methods left to vanilla native dispatch to prevent Mono generic vtable SIGSEGV
-            bool avoidsMonoVTableCrash = !renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
-                                         !renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
-                                         !renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
-                                         renewCode.Contains("public static bool SimulationManager_LateUpdateData_Prefix") &&
-                                         renewCode.Contains("sw.ElapsedMilliseconds > 2500");
-            Assert(avoidsMonoVTableCrash, "SimulationManager.Managers_* left to native vanilla dispatch; LateUpdateData retains 2500ms timeout shield");
+            // 44.2 Universal Simulation Manager Armor intercepts Managers_* methods, runs NetworkSkins pre-update, skips generic no-ops, and returns false
+            bool hasSimManagerArmor = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
+                                      renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
+                                      renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
+                                      renewCode.Contains("InvokeNetworkSkinsPreUpdateData") &&
+                                      renewCode.Contains("s_noOpUpdateDataManagers") &&
+                                      renewCode.Contains("m.DeclaringType.Name.StartsWith(\"SimulationManagerBase\")");
+            Assert(hasSimManagerArmor, "SimulationManager.Managers_* armored at Priority.First, protects NetworkSkins & skips generic no-ops");
 
             // 44.3 Assembly resolve strictly separates EManagersLib and EManagersLib.API
             bool strictEManagersLib = renewCode.Contains("if (a.GetName().Name == \"EManagersLib\") return a;") &&
