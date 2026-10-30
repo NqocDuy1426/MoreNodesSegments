@@ -9,29 +9,23 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.33:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.34:[/h2]
 [list]
-[*] [b]Động cơ Universal Harmony Resilience (Khắc phục triệt để lỗi TypeLoadException & văng game):[/b]
+[*] [b]Động cơ Universal Stream Armor (Khắc phục triệt để lỗi lệch dòng & chữ Trung Quốc biến dạng):[/b]
     [list]
-    [*] Xoá bỏ hoàn toàn phụ thuộc cứng vào assembly 0Harmony.dll phiên bản cũ (v1.2).
-    [*] Tích hợp cơ chế Universal Harmony Binding: Tương thích 100% không xung đột khi chạy cùng CitiesHarmony (Harmony 2.x), Prop Control, Network Anarchy, TM:PE, IMT...
-    [*] Ngăn chặn tận gốc ngoại lệ TypeLoadException: Could not load type 'Harmony.HarmonyInstance' khi nạp hoặc tải lại save (reload).
-    [*] Bọc giáp bảo vệ từng giai đoạn khởi tạo trong OnCreated để đảm bảo quá trình tải save không bao giờ bị huỷ ngang bởi ModException.
+    [*] Loại bỏ hoàn toàn vòng lặp quét dò stream 2MB sai lệch trong LoadingProfiler tag handling.
+    [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
+    [*] Chấm dứt triệt để lỗi LSM giải mã byte nhị phân thành hàng chục nghìn ký tự rác Unicode/tiếng Trung làm tràn font texture atlas (nguyên nhân mất chữ ingame và không hiện missing assets).
     [/list]
-[*] [b]Sửa triệt để 100% lỗi bị đơ / treo loading ở TreeManager & SimulationManager.LateUpdateData:[/b]
+[*] [b]Lá chắn Universal Simulation Shield (Khắc phục đơ / treo loading ở LateUpdateData & UpdateData):[/b]
     [list]
-    [*] Khắc phục tận gốc nguyên nhân khiến savegame thường bị nhận diện nhầm thành save mở rộng (do quét ID workshop 3818403598 trong metadata của save).
-    [*] Đảm bảo savegame thông thường đọc chính xác tuyệt đối 32K nodes và 36K segments, không ăn lạm vào dữ liệu stream của TreeManager và BuildingManager.
-    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm dẫn tới \"Simulation failed: TreeManager\".
+    [*] Bọc giáp an toàn tuyệt đối cho chu trình SimulationManager.Managers_UpdateData, Managers_LateUpdateData và Managers_EarlyUpdateData.
+    [*] Cô lập từng manager trong khối try-catch riêng biệt, bảo vệ luồng mô phỏng không bao giờ bị crash bởi lỗi vtable/SIGSEGV hoặc lỗi khởi tạo của TreeUnlimiter / NetworkSkins.
+    [*] Bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string) khi FpsBooster / UI truy cập material chưa khởi tạo.
     [/list]
-[*] [b]Bọc giáp bảo vệ Loading Screen Mod Revisited AssetLoader.AssetMissing:[/b]
-    [list]
-    [*] Quét và loại bỏ tức thì các chuỗi rác binary corrupt trước khi LSM ghi vào log hoặc render lên màn hình.
-    [*] Chống tràn bộ đệm texture Arial dynamic font atlas, đảm bảo toàn bộ chữ ingame và danh sách asset hiển thị sắc nét.
-    [/list]
-[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
+[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.33 Close Beta: Universal Harmony Resilience Engine (Completely fixes TypeLoadException: Could not load type 'Harmony.HarmonyInstance' when running alongside CitiesHarmony / PropControl / Harmony 2.0+, and eliminates ModException reload crashes)."
+	"changenote"		"v5.0.34 Close Beta: Universal Stream Armor & Simulation Shield (Fix stream tag desync devouring bytes, font texture overflow & LateUpdateData/UpdateData simulation hang)."
 }

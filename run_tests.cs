@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.33)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.34)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.32 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy") ||
@@ -2034,6 +2035,37 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 43 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 44: Universal Simulation Shield & Material Armor (v5.0.34)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 44: Universal Simulation Shield & Material Armor (v5.0.34) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+            // 44.1 SafeHandleDeserializeTag does not scan stream forward or seek
+            bool hasCleanTagArmor = renewCode.Contains("string readTag = s.ReadSharedString();") &&
+                                    renewCode.Contains("Suppressed {0}('{1}') tag mismatch (read '{2}'). Proceeding safely ✓") &&
+                                    !renewCode.Contains("curPos + 2 * 1024 * 1024");
+            Assert(hasCleanTagArmor, "SafeHandleDeserializeTag reads exact shared tag and suppresses mismatch without stream seeking or scanning");
+
+            // 44.2 SimulationManager.Managers_* prefixes with isolated try-catch loops
+            bool hasManagersShield = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
+                                     renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
+                                     renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
+                                     renewCode.Contains("Guarded {0}.UpdateData({1}) error") &&
+                                     renewCode.Contains("Guarded {0}.LateUpdateData({1}) error");
+            Assert(hasManagersShield, "SimulationManager.Managers_* methods are armored with isolated per-manager try-catch execution");
+
+            // 44.3 Material.HasProperty null safety armor
+            bool hasMatArmor = renewCode.Contains("public static bool Material_HasProperty_String_Prefix(Material __instance") &&
+                               renewCode.Contains("if ((object)__instance == null || !__instance)");
+            Assert(hasMatArmor, "Material.HasProperty(string) is guarded against native C++ null pointer dereferences");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 44 exception", ex.ToString());
         }
 
         // ====================================================================

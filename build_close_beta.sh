@@ -8,7 +8,7 @@ GAME_DIR="$HOME/Library/Application Support/Steam/steamapps/common/Cities_Skylin
 CECIL_DLL="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/gac/Mono.Cecil/0.11.1.0__0738eb9f132ed756/Mono.Cecil.dll"
 
 echo "=========================================================="
-echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.33..."
+echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.34..."
 echo "=========================================================="
 
 # 0. Compile and run test suite
@@ -47,6 +47,15 @@ if [ -d "$BETA_WORKSHOP_DIR" ]; then
     cp MoreNodesSegmentsBeta.dll "$BETA_WORKSHOP_DIR/"
     cp MoreNetworkCapacity.Core.dll "$BETA_WORKSHOP_DIR/"
     [ -f preview-image.png ] && cp preview-image.png "$BETA_WORKSHOP_DIR/PreviewImage.png"
+fi
+
+# 4. Deploy to local Addons/Mods directory if exists
+LOCAL_MOD_DIR="$HOME/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/MoreNodesSegments"
+if [ -d "$LOCAL_MOD_DIR" ]; then
+    echo "📦 Updating local Addons/Mods directory ($LOCAL_MOD_DIR)..."
+    cp MoreNodesSegmentsBeta.dll "$LOCAL_MOD_DIR/MoreNodesSegments.dll"
+    cp MoreNetworkCapacity.Core.dll "$LOCAL_MOD_DIR/"
+    [ -f preview-image.png ] && cp preview-image.png "$LOCAL_MOD_DIR/preview-image.png"
 fi
 
 echo "=========================================================="

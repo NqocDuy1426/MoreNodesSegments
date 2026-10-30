@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy";
-        public string Description => "[Close Beta v5.0.33] Resilient Universal Harmony Engine (Fix TypeLoadException with CitiesHarmony/PropControl & OnCreated reload crash).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy";
+        public string Description => "[Close Beta v5.0.34] Universal Stream Armor & Simulation Shield (Fix stream tag desync, font texture overflow & LateUpdateData hang).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -14942,6 +14942,54 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
                 }
 
+                // 2e. Patch SimulationManager.Managers_* methods (Universal Simulation Shield)
+                try
+                {
+                    MethodInfo smUpd = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.Last });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_UpdateData with Universal Simulation Shield (Priority.Last) ✓");
+                    }
+
+                    MethodInfo smLateUpd = typeof(SimulationManager).GetMethod("Managers_LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
+                    if (smLateUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.Last });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_LateUpdateData with Universal Simulation Shield (Priority.Last) ✓");
+                    }
+
+                    MethodInfo smEarlyUpd = typeof(SimulationManager).GetMethod("Managers_EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
+                    if (smEarlyUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_EarlyUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.Last });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Universal Simulation Shield (Priority.Last) ✓");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.Managers_* methods: " + ex);
+                }
+
+                // 2f. Patch UnityEngine.Material.HasProperty (Prevent native C++ null dereference crash in FpsBooster/UI)
+                try
+                {
+                    MethodInfo mHasStr = typeof(Material).GetMethod("HasProperty", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
+                    if (mHasStr != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_String_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mHasStr, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(string) with null-safety armor (Priority.First) ✓");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material.HasProperty: " + ex);
+                }
+
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
                 {
@@ -17156,6 +17204,140 @@ namespace MoreNetworkCapacityRenew
             UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] LoadSimulationData_MoveNext_Transpiler: Replaced {0} call(s) with SafeDeserializeSimulationData.", replaced));
         }
 
+        [HarmonyPriority(Priority.First)]
+        public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
+        {
+            if ((object)__instance == null || !__instance)
+            {
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.Last)]
+        public static bool SimulationManager_Managers_EarlyUpdateData_Prefix()
+        {
+            try
+            {
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    for (int i = 0; i < size; i++)
+                    {
+                        try
+                        {
+                            var mgr = buffer[i];
+                            if (mgr != null)
+                            {
+                                mgr.EarlyUpdateData();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            string mgrName = buffer[i] != null ? buffer[i].GetType().FullName : ("Manager#" + i);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Simulation Shield: Guarded {0}.EarlyUpdateData() error: {1}", mgrName, ex.Message));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_EarlyUpdateData exception: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.Last)]
+        public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                var lm = Singleton<LoadingManager>.instance;
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    float range = maxProgress - minProgress;
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        try
+                        {
+                            if (lm != null && size > 0)
+                            {
+                                lm.SetSimulationProgress(minProgress + range * (float)i / (float)size);
+                            }
+                        }
+                        catch {}
+
+                        try
+                        {
+                            var mgr = buffer[i];
+                            if (mgr != null)
+                            {
+                                mgr.UpdateData(mode);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            string mgrName = buffer[i] != null ? buffer[i].GetType().FullName : ("Manager#" + i);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Simulation Shield: Guarded {0}.UpdateData({1}) error: {2}", mgrName, mode, ex.Message));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_UpdateData exception: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.Last)]
+        public static bool SimulationManager_Managers_LateUpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
+        {
+            try
+            {
+                var managers = GetSimulationManagers();
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    var buffer = managers.m_buffer;
+                    for (int i = 0; i < size; i++)
+                    {
+                        try
+                        {
+                            var mgr = buffer[i];
+                            if (mgr != null)
+                            {
+                                mgr.LateUpdateData(mode);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            string mgrName = buffer[i] != null ? buffer[i].GetType().FullName : ("Manager#" + i);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Simulation Shield: Guarded {0}.LateUpdateData({1}) error: {2}", mgrName, mode, ex.Message));
+                        }
+                    }
+                }
+
+                var sm = Singleton<SimulationManager>.instance;
+                if (sm != null)
+                {
+                    SimulationManager_LateUpdateData_Prefix(sm, mode, minProgress, maxProgress);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: SimulationManager.Managers_LateUpdateData exception: " + ex.Message);
+            }
+            return false;
+        }
+
         public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
         {
             var lm = Singleton<LoadingManager>.instance;
@@ -18626,101 +18808,25 @@ namespace MoreNetworkCapacityRenew
 
                 if (s != null && s.version >= 130u)
                 {
-                    var fiStrings = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stringList", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var fiStream = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stream", BindingFlags.NonPublic | BindingFlags.Instance);
-                    Stream st = fiStream != null ? (Stream)fiStream.GetValue(s) : null;
-                    List<string> strList = fiStrings != null ? (List<string>)fiStrings.GetValue(s) : null;
-
-                    if (st != null && st.CanSeek)
+                    try
                     {
-                        int tagIdx1 = strList != null ? strList.IndexOf(name) : -1;
-                        int tagIdx2 = (!string.IsNullOrEmpty(name2) && strList != null) ? strList.IndexOf(name2) : -1;
-
-                        if (tagIdx1 >= 0 || tagIdx2 >= 0)
+                        string readTag = s.ReadSharedString();
+                        if (!isBegin && s.version < 154u && readTag == null)
                         {
-                            long curPos = st.Position;
-                            int p1 = st.ReadByte();
-                            int p2 = st.ReadByte();
-                            st.Seek(curPos, SeekOrigin.Begin);
-
-                            bool match1 = tagIdx1 >= 0 && p1 == (byte)(tagIdx1 >> 8) && p2 == (byte)(tagIdx1 & 0xFF);
-                            bool match2 = tagIdx2 >= 0 && p1 == (byte)(tagIdx2 >> 8) && p2 == (byte)(tagIdx2 & 0xFF);
-
-                            if (match1 || match2)
-                            {
-                                s.ReadSharedString(); // Clean match!
-                                return false;
-                            }
-
-                            // Misaligned stream: search forward up to 2MB, requiring strong validation:
-                            long foundPos = -1;
-                            long maxSearch = Math.Min(st.Length - 4, curPos + 2 * 1024 * 1024);
-                            for (long pos = curPos; pos < maxSearch; pos++)
-                            {
-                                int s1 = st.ReadByte();
-                                int s2 = st.ReadByte();
-                                bool isS12Match1 = tagIdx1 >= 0 && s1 == (byte)(tagIdx1 >> 8) && s2 == (byte)(tagIdx1 & 0xFF);
-                                bool isS12Match2 = tagIdx2 >= 0 && s1 == (byte)(tagIdx2 >> 8) && s2 == (byte)(tagIdx2 & 0xFF);
-
-                                if (isS12Match1 || isS12Match2)
-                                {
-                                    if (!isBegin)
-                                    {
-                                        // Verify next 2 bytes form a valid next manager Begin tag!
-                                        int n1 = st.ReadByte();
-                                        int n2 = st.ReadByte();
-                                        if (n1 >= 0 && n2 >= 0)
-                                        {
-                                            int nextIdx = (n1 << 8) | n2;
-                                            if (nextIdx >= 0 && nextIdx < strList.Count)
-                                            {
-                                                string nextStr = strList[nextIdx];
-                                                if (nextStr != null && (nextStr.EndsWith("Manager") || nextStr.Contains("Manager")))
-                                                {
-                                                    foundPos = pos;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        st.Seek(pos + 1, SeekOrigin.Begin);
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        foundPos = pos;
-                                        break;
-                                    }
-                                }
-                                st.Seek(pos + 1, SeekOrigin.Begin);
-                            }
-
-                            if (foundPos != -1)
-                            {
-                                st.Seek(foundPos, SeekOrigin.Begin);
-                                s.ReadSharedString(); // Cleanly consume the verified tag
-                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Verified and aligned {0}('{1}') from offset {2} to {3} ✓",
-                                    isBegin ? "BeginDeserialize" : "EndDeserialize", name, curPos, foundPos));
-                                return false;
-                            }
-
-                            st.Seek(curPos, SeekOrigin.Begin);
+                            return false;
                         }
-
-                        // Fallback: Read tag safely without throwing
-                        try
+                        if (readTag != name && (string.IsNullOrEmpty(name2) || readTag != name2))
                         {
-                            string readTag = s.ReadSharedString();
-                            if (readTag == name || (!string.IsNullOrEmpty(name2) && readTag == name2))
-                            {
-                                // Clean match from newly registered shared string!
-                                return false;
-                            }
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Suppressed {0}('{1}') tag mismatch (read '{2}'). Proceeding safely ✓",
-                                isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag));
+                                isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag ?? "<null>"));
                         }
-                        catch { }
-                        return false;
                     }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Exception reading {0}('{1}') tag: {2}",
+                            isBegin ? "BeginDeserialize" : "EndDeserialize", name, ex.Message));
+                    }
+                    return false;
                 }
             }
             catch (Exception ex)
