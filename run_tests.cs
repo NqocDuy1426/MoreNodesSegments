@@ -1488,12 +1488,12 @@ class TestSuite
         {
             string renewCode = File.ReadAllText("Renew.cs");
 
-            // 31.1 IsSaveGameExpanded checks multi-source metadata
+            // 31.1 IsSaveGameExpanded checks authoritative simulation metadata
             bool hasIsSaveGameExpanded = renewCode.Contains("IsSaveGameExpanded(SimulationMetaData meta = null") &&
                                          renewCode.Contains("s_CurrentSaveIsExpanded") &&
-                                         renewCode.Contains("SaveGameMetaData") &&
-                                         renewCode.Contains("3818403598UL");
-            Assert(hasIsSaveGameExpanded, "IsSaveGameExpanded detects expanded saves via metadata, assets, workshop IDs, and in-memory flags");
+                                         renewCode.Contains("HighIdTMPEData") &&
+                                         !renewCode.Contains("modWorkshopID == 3818403598UL");
+            Assert(hasIsSaveGameExpanded, "IsSaveGameExpanded authoritative check without false-positive workshop ID checking");
 
             // 31.2 Merge and LoadSimulationData enforce EnsureExpandedSave
             bool hasMergeAndLoadHooks = renewCode.Contains("SimulationMetaData_Merge_Prefix") &&
@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28 / v5.0.29 / v5.0.30 / v5.0.31)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.32)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.32 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.30 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.29 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||

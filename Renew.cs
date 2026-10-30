@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.31 by NgocDuy";
-        public string Description => "[Close Beta v5.0.31] Vanilla Save 32K/64K Auto-Preservation (Fix TreeManager & LateUpdateData Freeze) + LSM AssetMissing Armor.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.32 by NgocDuy";
+        public string Description => "[Close Beta v5.0.32] Authoritative 32K/64K Save Auto-Detection (Complete Fix for TreeManager Simulation Failure & LateUpdateData Freeze).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -8925,6 +8925,7 @@ namespace MoreNetworkCapacityRenew
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
+            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
             MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
             MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
             RenewMod.EnsureCoreActive();
@@ -11046,24 +11047,22 @@ namespace MoreNetworkCapacityRenew
 
                     if (meta.m_modOverride != null)
                     {
-                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K-v1") && meta.m_modOverride["User/MoreNetworkCapacity/64K-v1"])
+                        if (meta.m_modOverride.TryGetValue("User/MoreNetworkCapacity/64K-v1", out bool v1) && v1)
                             return true;
-                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K") && meta.m_modOverride["User/MoreNetworkCapacity/64K"])
+                        if (meta.m_modOverride.TryGetValue("User/MoreNetworkCapacity/64K", out bool v) && v)
                             return true;
                     }
                 }
 
-                if (asset != null)
+                if (asset != null && asset.package != null)
                 {
                     try
                     {
-                        var saveMeta = asset.Instantiate<SaveGameMetaData>();
-                        if (saveMeta != null && saveMeta.mods != null)
+                        foreach (ColossalFramework.Packaging.Package.Asset entry in asset.package)
                         {
-                            foreach (var mod in saveMeta.mods)
+                            if (entry != null && !string.IsNullOrEmpty(entry.name))
                             {
-                                if (mod.modWorkshopID == 3818403598UL || mod.modWorkshopID == 3814019901UL || mod.modWorkshopID == 3829341972UL ||
-                                    (!string.IsNullOrEmpty(mod.modName) && (mod.modName.Contains("MoreNodes") || mod.modName.Contains("MoreNetworkCapacity") || mod.modName.Contains("64K"))))
+                                if (entry.name == "HighIdTMPEData")
                                 {
                                     return true;
                                 }
@@ -11071,37 +11070,6 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                     catch { }
-
-                    try
-                    {
-                        if (asset.package != null)
-                        {
-                            foreach (ColossalFramework.Packaging.Package.Asset entry in asset.package)
-                            {
-                                if (entry != null && !string.IsNullOrEmpty(entry.name))
-                                {
-                                    if (entry.name.Contains("MoreNetworkCapacity") || entry.name.Contains("MoreNodes") || entry.name.Contains("HighIdTMPEData"))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch { }
-                }
-
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
-                    {
-                        Type metaType = asm.GetType("MoreNetworkCapacity.Metadata");
-                        if (metaType != null)
-                        {
-                            MethodInfo mIs = metaType.GetMethod("IsExpandedSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mIs != null && (bool)mIs.Invoke(null, null)) return true;
-                        }
-                    }
                 }
 
                 // If not identified as an expanded save by any metadata or packages, it is a vanilla save!
@@ -18848,11 +18816,6 @@ namespace MoreNetworkCapacityRenew
             {
                 if (__instance == null || source == null) return;
 
-                if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
-                {
-                    TMPECompatibility.EnsureExpandedSave();
-                }
-
                 // Bidirectional merge to guarantee no key from savegame is EVER lost!
                 if (__instance.m_modOverride != null && source.m_modOverride != null)
                 {
@@ -18882,21 +18845,9 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                if (__instance != null && __instance.m_modOverride == null)
-                {
-                    __instance.m_modOverride = new Dictionary<string, bool>();
-                }
                 if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
                 {
                     TMPECompatibility.EnsureExpandedSave();
-                    if (__instance != null && __instance.m_modOverride != null)
-                    {
-                        __instance.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
-                    }
-                    if (source != null && source.m_modOverride != null)
-                    {
-                        source.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
-                    }
                 }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationMetaData.Merge.Postfix");
@@ -18911,6 +18862,9 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                // Reset loading expanded state for fresh load
+                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+
                 RenewLoading.EnsureAllPatchesApplied();
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("LoadingManager.LoadSimulationData.Prefix");

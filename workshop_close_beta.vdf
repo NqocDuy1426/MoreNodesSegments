@@ -9,12 +9,13 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.31:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.32:[/h2]
 [list]
 [*] [b]Sửa triệt để 100% lỗi bị đơ / treo loading ở TreeManager & SimulationManager.LateUpdateData:[/b]
     [list]
-    [*] Khắc phục tận gốc lỗi đọc quá luồng (stream over-read) khi nạp savegame vanilla: Giữ nguyên giới hạn đọc 32.768 nodes / 36.864 segments trong quá trình Deserialize, sau đó mới mở rộng lên 64K trong bộ nhớ (ExpandPreservingLoadedData).
-    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm khiến TreeManager, WeatherManager, BuildingManager bị bỏ qua dẫn tới "Simulation failed: TreeManager".
+    [*] Khắc phục tận gốc nguyên nhân khiến savegame thường bị nhận diện nhầm thành save mở rộng (do quét ID workshop 3818403598 trong metadata của save).
+    [*] Đảm bảo savegame thông thường đọc chính xác tuyệt đối 32K nodes và 36K segments, không ăn lạm vào dữ liệu stream của TreeManager và BuildingManager.
+    [*] Ngăn chặn hoàn toàn hiện tượng savegame chạm mốc EOF sớm dẫn tới "Simulation failed: TreeManager".
     [*] Đảm bảo toàn bộ cây cối, thời tiết, mạng lưới giao thông của thành phố được nạp nguyên vẹn 100%.
     [/list]
 [*] [b]Bọc giáp bảo vệ Loading Screen Mod Revisited AssetLoader.AssetMissing:[/b]
@@ -26,5 +27,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.31 Close Beta: Fix Vanilla Save stream over-reading (resolve TreeManager simulation failure & LateUpdateData hang) + Early LSM AssetMissing corruption filter."
+	"changenote"		"v5.0.32 Close Beta: Fix false-positive expanded save detection from workshop IDs in save metadata (guarantee clean 32K deserialization for vanilla saves, completely fixing TreeManager simulation failure and LateUpdateData hang)."
 }
