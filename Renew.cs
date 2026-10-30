@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy";
-        public string Description => "[Close Beta v5.0.27] Universal Simulation Shield + Weather & Container Deserialization Armor (Zero Hang/Crash Guarantee).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy";
+        public string Description => "[Close Beta v5.0.28] Universal Simulation Shield + Electricity/Water & Container Deserialization Armor (Zero Hang/Crash Guarantee).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -11562,14 +11562,16 @@ namespace MoreNetworkCapacityRenew
                             Type expElec = asm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
                             if (expElec != null)
                             {
+                                try { System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(expElec.TypeHandle); } catch { }
                                 FieldInfo fiPulseUnits = expElec.GetField("s_pulseUnits", BindingFlags.NonPublic | BindingFlags.Static);
                                 if (fiPulseUnits != null)
                                 {
                                     Array arr = fiPulseUnits.GetValue(null) as Array;
-                                    if (arr != null && arr.Length < AUX_CAPACITY)
+                                    if (arr == null || arr.Length < AUX_CAPACITY)
                                     {
-                                        Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), AUX_CAPACITY);
-                                        Array.Copy(arr, newArr, arr.Length);
+                                        Type elemType = fiPulseUnits.FieldType.GetElementType();
+                                        Array newArr = Array.CreateInstance(elemType, AUX_CAPACITY);
+                                        if (arr != null) Array.Copy(arr, newArr, arr.Length);
                                         fiPulseUnits.SetValue(null, newArr);
                                         UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedElectricityManager.s_pulseUnits to {0} ({1}) ✓", AUX_CAPACITY, context));
                                     }
@@ -11579,6 +11581,7 @@ namespace MoreNetworkCapacityRenew
                             Type expWater = asm.GetType("EightyOne2.Patches.ExpandedWaterManager");
                             if (expWater != null)
                             {
+                                try { System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(expWater.TypeHandle); } catch { }
                                 string[] waterFields = new string[] { "s_waterPulseUnits", "s_sewagePulseUnits", "s_heatingPulseUnits" };
                                 foreach (var fName in waterFields)
                                 {
@@ -11586,10 +11589,11 @@ namespace MoreNetworkCapacityRenew
                                     if (fi != null)
                                     {
                                         Array arr = fi.GetValue(null) as Array;
-                                        if (arr != null && arr.Length < AUX_CAPACITY)
+                                        if (arr == null || arr.Length < AUX_CAPACITY)
                                         {
-                                            Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), AUX_CAPACITY);
-                                            Array.Copy(arr, newArr, arr.Length);
+                                            Type elemType = fi.FieldType.GetElementType();
+                                            Array newArr = Array.CreateInstance(elemType, AUX_CAPACITY);
+                                            if (arr != null) Array.Copy(arr, newArr, arr.Length);
                                             fi.SetValue(null, newArr);
                                             UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedWaterManager.{0} to {1} ({2}) ✓", fName, AUX_CAPACITY, context));
                                         }
@@ -12060,9 +12064,13 @@ namespace MoreNetworkCapacityRenew
                         if (mCustomDeserialize != null)
                         {
                             MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Electricity_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Electricity_CustomDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TransportLineCompatibility.TryPatchHarmony2(mCustomDeserialize, pre, fin, 800))
+                            {
+                                harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            }
                             patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomDeserialize with bounds-safe prefix!");
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomDeserialize with bounds-safe prefix & finalizer!");
                         }
                     }
                 }
@@ -12089,9 +12097,13 @@ namespace MoreNetworkCapacityRenew
                         if (mCustomDeserialize != null)
                         {
                             MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Water_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Water_CustomDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TransportLineCompatibility.TryPatchHarmony2(mCustomDeserialize, pre, fin, 800))
+                            {
+                                harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
+                            }
                             patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomDeserialize with bounds-safe prefix!");
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomDeserialize with bounds-safe prefix & finalizer!");
                         }
                     }
                 }
@@ -16779,11 +16791,13 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public static Exception ElectricityManager_Data_Deserialize_Finalizer(Exception __exception, object __instance)
+        public static Exception ElectricityManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
         {
             if (__exception != null)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed ElectricityManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
+                SafeCloseProfilerDeserialize("ElectricityManager");
+                TryAdvanceStreamToTag(s, "WaterManager");
                 ResetElectricitySimulationState();
             }
             return null; // Suppress crash!
@@ -16810,11 +16824,13 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public static Exception WaterManager_Data_Deserialize_Finalizer(Exception __exception, object __instance)
+        public static Exception WaterManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
         {
             if (__exception != null)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WaterManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
+                SafeCloseProfilerDeserialize("WaterManager");
+                TryAdvanceStreamToTag(s, "ZoneManager");
                 ResetWaterSimulationState();
             }
             return null; // Suppress crash!
@@ -16962,10 +16978,11 @@ namespace MoreNetworkCapacityRenew
                         nm.m_segmentGrid = new ushort[72900];
                     }
 
-                    // 5. Lanes buffer
+                    // 5. Lanes buffer (ensure expanded capacity up to MNCConstants.LANE_CAPACITY to prevent IndexOutOfRangeException on large saves)
                     if (nm.m_lanes != null)
                     {
-                        EnsureArray32LaneCapacity(nm.m_lanes, (nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 262144);
+                        int targetLaneCap = Math.Max((nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 262144, (int)MNCConstants.LANE_CAPACITY);
+                        EnsureArray32LaneCapacity(nm.m_lanes, targetLaneCap);
                     }
                 }
 

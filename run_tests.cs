@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 / v5.0.27 / v5.0.28)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.28 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.27 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.26 by NgocDuy");
             Assert(hasBetaBranding, "Renew.cs is correctly branded as Close Beta");
 
@@ -1900,6 +1901,15 @@ class TestSuite
                                    renewCode.Contains("ResetWeatherSimulationState();") &&
                                    renewCode.Contains("else if (name.Contains(\"Weather\")) ResetWeatherSimulationState();");
             Assert(hasWeatherArmor, "WeatherManager.Data.Deserialize is armored with Finalizer and registered in EnsureContainerSafe");
+
+            // 40.7 Electricity & Water Deserialization Finalizer Profiler Close & EightyOne2 Static Init
+            bool hasElecWaterArmor = renewCode.Contains("SafeCloseProfilerDeserialize(\"ElectricityManager\");") &&
+                                     renewCode.Contains("SafeCloseProfilerDeserialize(\"WaterManager\");") &&
+                                     renewCode.Contains("RunClassConstructor(expElec.TypeHandle);") &&
+                                     renewCode.Contains("RunClassConstructor(expWater.TypeHandle);") &&
+                                     renewCode.Contains("EightyOne2_Electricity_CustomDeserialize_Finalizer") &&
+                                     renewCode.Contains("EightyOne2_Water_CustomDeserialize_Finalizer");
+            Assert(hasElecWaterArmor, "ElectricityManager & WaterManager have complete Profiler close finalizers, stream sync and EightyOne2 static init expansion");
         }
         catch (Exception ex)
         {

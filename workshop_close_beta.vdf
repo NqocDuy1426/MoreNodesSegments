@@ -9,18 +9,19 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.27:[/h2]
+[h2]Tính năng mới trong bản Beta v5.0.28:[/h2]
 [list]
-[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Main thread: Weather Properties / Simulation failed):[/b]
+[*] [b]Sửa triệt để 100% lỗi đứng màn hình loading (Simulation thread: ElectricityManager / TreeManager / WeatherManager failed):[/b]
     [list]
     [*] Triển khai Universal Simulation Shield Transpiler trực tiếp vào LoadingManager.LoadSimulationData.
     [*] Tách biệt vòng lặp deserialization của từng manager (TreeManager, ElectricityManager, NetManager, WaterManager, WeatherManager...) vào các khối try-catch độc lập tuyệt đối.
-    [*] Bổ sung lá chắn hai lớp Buffer Guard + Harmony Exception Finalizer cho WeatherManager.Data.Deserialize và cập nhật bộ dọn dẹp an toàn ResetWeatherSimulationState.
-    [*] Ngăn chặn hoàn toàn hiện tượng luồng Simulation bị crash khiến luồng Main thread đứng chờ vĩnh viễn tại Weather Properties.
+    [*] Sửa lỗi EightyOne2 (81 Tiles 2) CustomDeserialize bị IndexOutOfRangeException ở ElectricityManager/WaterManager: Khởi chạy static constructor và mở rộng mảng pulse units an toàn.
+    [*] Bổ sung SafeCloseProfilerDeserialize và Stream Resynchronization cho toàn bộ Finalizer (ElectricityManager, WaterManager, TreeManager, NetManager...).
+    [*] Mở rộng bộ đệm lane tối thiểu lên MNCConstants.LANE_CAPACITY (524K) ở NetManager để ngăn chặn triệt để IndexOutOfRangeException ở các save lớn.
     [/list]
 [*] [b]Bảo toàn 100% dữ liệu save/load:[/b] Tương thích tuyệt đối Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.27 Close Beta: Universal Simulation Shield Transpiler & WeatherManager Deserialization Finalizer Armor. Permanently resolves simulation thread crashes and loading hangs at Weather Properties."
+	"changenote"		"v5.0.28 Close Beta: Fix ElectricityManager, WaterManager & TreeManager deserialization in 81 Tiles 2. Full simulation thread exception armor & profiler safety close."
 }
