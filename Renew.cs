@@ -1123,8 +1123,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.21 by NgocDuy";
-        public string Description => "[Close Beta v5.0.21] Comprehensive Universal Stream Armor (2-arg & 3-arg LoadingProfiler tags) + WeatherManager and simulation data EOF guards. DO NOT enable simultaneously with the public version.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.22 by NgocDuy";
+        public string Description => "[Close Beta v5.0.22] Universal NetManager & SimulationManager Deserialization Immunity + Finalizer Armor. DO NOT enable simultaneously with the public version.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -1477,30 +1477,36 @@ namespace MoreNetworkCapacityRenew
 
         public static bool CoreCapacity_GetNodeReadSize_Prefix(ref int __result)
         {
+            var nm = Singleton<NetManager>.instance;
+            int bufLen = (nm != null && nm.m_nodes != null && nm.m_nodes.m_buffer != null)
+                ? nm.m_nodes.m_buffer.Length 
+                : (int)MNCConstants.CORE_NET_CAPACITY;
+
             if (ThirdPartyCompatibility.IsSaveGameExpanded())
             {
-                __result = Singleton<NetManager>.instance != null && Singleton<NetManager>.instance.m_nodes != null && Singleton<NetManager>.instance.m_nodes.m_buffer != null
-                    ? Singleton<NetManager>.instance.m_nodes.m_buffer.Length 
-                    : (int)MNCConstants.CORE_NET_CAPACITY;
+                __result = Math.Min(bufLen, (int)MNCConstants.CORE_NET_CAPACITY);
             }
             else
             {
-                __result = 32768;
+                __result = Math.Min(bufLen, 32768);
             }
             return false;
         }
 
         public static bool CoreCapacity_GetSegmentReadSize_Prefix(ref int __result)
         {
+            var nm = Singleton<NetManager>.instance;
+            int bufLen = (nm != null && nm.m_segments != null && nm.m_segments.m_buffer != null)
+                ? nm.m_segments.m_buffer.Length 
+                : (int)MNCConstants.CORE_NET_CAPACITY;
+
             if (ThirdPartyCompatibility.IsSaveGameExpanded())
             {
-                __result = Singleton<NetManager>.instance != null && Singleton<NetManager>.instance.m_segments != null && Singleton<NetManager>.instance.m_segments.m_buffer != null
-                    ? Singleton<NetManager>.instance.m_segments.m_buffer.Length 
-                    : (int)MNCConstants.CORE_NET_CAPACITY;
+                __result = Math.Min(bufLen, (int)MNCConstants.CORE_NET_CAPACITY);
             }
             else
             {
-                __result = 36864;
+                __result = Math.Min(bufLen, 36864);
             }
             return false;
         }
@@ -14074,6 +14080,153 @@ namespace MoreNetworkCapacityRenew
 
     internal static class TransportLineCompatibility
     {
+        private static readonly FieldInfo fArray16NodeUnusedItems = typeof(Array16<NetNode>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo fArray16NodeUnusedCount = typeof(Array16<NetNode>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo fArray16SegUnusedItems = typeof(Array16<NetSegment>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo fArray16SegUnusedCount = typeof(Array16<NetSegment>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo fArray32LaneUnusedItems = typeof(Array32<NetLane>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo fArray32LaneUnusedCount = typeof(Array32<NetLane>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static void EnsureArray16NodeCapacity(Array16<NetNode> arr, int targetCapacity)
+        {
+            if (arr == null) return;
+            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
+            {
+                Array.Resize(ref arr.m_buffer, targetCapacity);
+            }
+            if (arr.m_size < (uint)targetCapacity)
+            {
+                arr.m_size = (uint)targetCapacity;
+            }
+            try
+            {
+                if (fArray16NodeUnusedItems != null)
+                {
+                    ushort[] unused = fArray16NodeUnusedItems.GetValue(arr) as ushort[];
+                    if (unused == null || unused.Length < targetCapacity)
+                    {
+                        Array.Resize(ref unused, targetCapacity);
+                        fArray16NodeUnusedItems.SetValue(arr, unused);
+                    }
+                }
+            }
+            catch {}
+        }
+
+        public static void EnsureArray16SegCapacity(Array16<NetSegment> arr, int targetCapacity)
+        {
+            if (arr == null) return;
+            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
+            {
+                Array.Resize(ref arr.m_buffer, targetCapacity);
+            }
+            if (arr.m_size < (uint)targetCapacity)
+            {
+                arr.m_size = (uint)targetCapacity;
+            }
+            try
+            {
+                if (fArray16SegUnusedItems != null)
+                {
+                    ushort[] unused = fArray16SegUnusedItems.GetValue(arr) as ushort[];
+                    if (unused == null || unused.Length < targetCapacity)
+                    {
+                        Array.Resize(ref unused, targetCapacity);
+                        fArray16SegUnusedItems.SetValue(arr, unused);
+                    }
+                }
+            }
+            catch {}
+        }
+
+        public static void EnsureArray32LaneCapacity(Array32<NetLane> arr, int targetCapacity)
+        {
+            if (arr == null) return;
+            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
+            {
+                Array.Resize(ref arr.m_buffer, targetCapacity);
+            }
+            if (arr.m_size < (uint)targetCapacity)
+            {
+                arr.m_size = (uint)targetCapacity;
+            }
+            try
+            {
+                if (fArray32LaneUnusedItems != null)
+                {
+                    uint[] unused = fArray32LaneUnusedItems.GetValue(arr) as uint[];
+                    if (unused == null || unused.Length < targetCapacity)
+                    {
+                        Array.Resize(ref unused, targetCapacity);
+                        fArray32LaneUnusedItems.SetValue(arr, unused);
+                    }
+                }
+            }
+            catch {}
+        }
+
+        public static Assembly GetMncCoreAssembly()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                string name = asm.GetName().Name;
+                if (name == "MoreNetworkCapacity" || name == "MoreNetworkCapacity.Core")
+                {
+                    return asm;
+                }
+            }
+            return null;
+        }
+
+        public static bool TryPatchHarmony2(MethodBase original, MethodInfo prefix, MethodInfo finalizer, int priority = 800)
+        {
+            try
+            {
+                Type harmony2Type = null;
+                Type harmonyMethodType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (harmony2Type == null) harmony2Type = asm.GetType("HarmonyLib.Harmony");
+                    if (harmonyMethodType == null) harmonyMethodType = asm.GetType("HarmonyLib.HarmonyMethod");
+                    if (harmony2Type != null && harmonyMethodType != null) break;
+                }
+
+                if (harmony2Type != null && harmonyMethodType != null)
+                {
+                    object h2Instance = Activator.CreateInstance(harmony2Type, new object[] { "com.ngocduy.morenetworkcapacityrenew.h2" });
+                    
+                    object preObj = null;
+                    if (prefix != null)
+                    {
+                        preObj = Activator.CreateInstance(harmonyMethodType, new object[] { prefix });
+                        var pPriority = harmonyMethodType.GetField("priority") ?? harmonyMethodType.GetField("prioritiy");
+                        pPriority?.SetValue(preObj, priority);
+                    }
+
+                    object finObj = null;
+                    if (finalizer != null)
+                    {
+                        finObj = Activator.CreateInstance(harmonyMethodType, new object[] { finalizer });
+                    }
+
+                    MethodInfo patchMethod = harmony2Type.GetMethod("Patch", new Type[] {
+                        typeof(MethodBase), harmonyMethodType, harmonyMethodType, harmonyMethodType, harmonyMethodType
+                    });
+
+                    if (patchMethod != null)
+                    {
+                        patchMethod.Invoke(h2Instance, new object[] { original, preObj, null, null, finObj });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched " + original.DeclaringType.Name + "." + original.Name + " with Harmony 2 Finalizer armor ✓");
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TryPatchHarmony2 failed: " + ex);
+            }
+            return false;
+        }
         public static void Apply(HarmonyInstance harmony)
         {
             if (harmony == null) return;
@@ -14119,8 +14272,12 @@ namespace MoreNetworkCapacityRenew
                     if (simDes != null)
                     {
                         MethodInfo preDes = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(simDes, prefix: new HarmonyMethod(preDes) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.Data.Deserialize with early metadata synchronization (Priority.First).");
+                        MethodInfo finDes = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                        if (!TryPatchHarmony2(simDes, preDes, finDes, 900))
+                        {
+                            harmony.Patch(simDes, prefix: new HarmonyMethod(preDes) { prioritiy = Harmony.Priority.First });
+                        }
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.Data.Deserialize with early metadata synchronization and Exception Finalizer (Priority.First).");
                     }
                 }
 
@@ -14198,8 +14355,12 @@ namespace MoreNetworkCapacityRenew
                         if (emDes != null)
                         {
                             MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(emDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ElectricityManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TryPatchHarmony2(emDes, pre, fin, 800))
+                            {
+                                harmony.Patch(emDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ElectricityManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First).");
                         }
                     }
                 }
@@ -14218,14 +14379,42 @@ namespace MoreNetworkCapacityRenew
                         if (wmDes != null)
                         {
                             MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WaterManager.Data.Deserialize with Universal Dynamic Buffer Guard (Priority.First).");
+                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TryPatchHarmony2(wmDes, pre, fin, 800))
+                            {
+                                harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WaterManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First).");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WaterManager.Data.Deserialize: " + ex);
+                }
+
+                // 3b-5. Patch NetManager.Data.Deserialize (Universal Dynamic Buffer Guard, Loop Bounds Armor & Exception Finalizer)
+                try
+                {
+                    Type nmDataType = typeof(NetManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
+                    if (nmDataType != null)
+                    {
+                        MethodInfo nmDes = nmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+                        if (nmDes != null)
+                        {
+                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            if (!TryPatchHarmony2(nmDes, pre, fin, 900))
+                            {
+                                harmony.Patch(nmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetManager.Data.Deserialize: " + ex);
                 }
 
                 // 3c. Patch LoadingProfiler.BeginDeserialize & EndDeserialize (Universal Stream Armor against tag mismatches - both 2-arg and 3-arg)
@@ -14523,6 +14712,34 @@ namespace MoreNetworkCapacityRenew
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetManager InitializeSegment/Node: " + ex);
+                }
+
+                // 3n. Patch Array16/Array32 ReleaseItem (Dynamic bounds armor against unusedItems buffer overflow)
+                try
+                {
+                    MethodInfo relNode = typeof(Array16<NetNode>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
+                    if (relNode != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array16_NetNode_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(relNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    MethodInfo relSeg = typeof(Array16<NetSegment>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
+                    if (relSeg != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array16_NetSegment_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(relSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    MethodInfo relLane = typeof(Array32<NetLane>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
+                    if (relLane != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array32_NetLane_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(relLane, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched Array16/Array32 ReleaseItem (Node, Segment, Lane) with Dynamic Bounds Armor (Priority.First).");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Array16/Array32 ReleaseItem: " + ex);
                 }
 
                 // Do NOT patch external manager Data.Serialize methods (TreeManager, VehicleManager, BuildingManager,
@@ -15772,6 +15989,20 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static Exception SimulationManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed SimulationManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Ensuring simulation load continues ✓");
+                try
+                {
+                    Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "SimulationManager");
+                }
+                catch {}
+            }
+            return null; // Suppress crash!
+        }
+
         public static void CitizenManager_Data_Deserialize_Prefix(CitizenManager.Data __instance, ColossalFramework.IO.DataSerializer s)
         {
             try
@@ -15932,6 +16163,206 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WaterManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
                 ResetWaterSimulationState();
+            }
+            return null; // Suppress crash!
+        }
+
+        public static bool Array16_NetNode_ReleaseItem_Prefix(Array16<NetNode> __instance, ushort item)
+        {
+            if (__instance != null)
+            {
+                try
+                {
+                    if (fArray16NodeUnusedCount != null && fArray16NodeUnusedItems != null)
+                    {
+                        uint unusedCount = (uint)fArray16NodeUnusedCount.GetValue(__instance);
+                        ushort[] unusedItems = fArray16NodeUnusedItems.GetValue(__instance) as ushort[];
+                        if (unusedItems == null || unusedCount >= unusedItems.Length)
+                        {
+                            int newCap = Math.Max((int)(unusedCount + 1024), 65536);
+                            if (unusedItems == null)
+                            {
+                                unusedItems = new ushort[newCap];
+                            }
+                            else
+                            {
+                                Array.Resize(ref unusedItems, newCap);
+                            }
+                            fArray16NodeUnusedItems.SetValue(__instance, unusedItems);
+                        }
+                    }
+                }
+                catch {}
+            }
+            return true;
+        }
+
+        public static bool Array16_NetSegment_ReleaseItem_Prefix(Array16<NetSegment> __instance, ushort item)
+        {
+            if (__instance != null)
+            {
+                try
+                {
+                    if (fArray16SegUnusedCount != null && fArray16SegUnusedItems != null)
+                    {
+                        uint unusedCount = (uint)fArray16SegUnusedCount.GetValue(__instance);
+                        ushort[] unusedItems = fArray16SegUnusedItems.GetValue(__instance) as ushort[];
+                        if (unusedItems == null || unusedCount >= unusedItems.Length)
+                        {
+                            int newCap = Math.Max((int)(unusedCount + 1024), 65536);
+                            if (unusedItems == null)
+                            {
+                                unusedItems = new ushort[newCap];
+                            }
+                            else
+                            {
+                                Array.Resize(ref unusedItems, newCap);
+                            }
+                            fArray16SegUnusedItems.SetValue(__instance, unusedItems);
+                        }
+                    }
+                }
+                catch {}
+            }
+            return true;
+        }
+
+        public static bool Array32_NetLane_ReleaseItem_Prefix(Array32<NetLane> __instance, uint item)
+        {
+            if (__instance != null)
+            {
+                try
+                {
+                    if (fArray32LaneUnusedCount != null && fArray32LaneUnusedItems != null)
+                    {
+                        uint unusedCount = (uint)fArray32LaneUnusedCount.GetValue(__instance);
+                        uint[] unusedItems = fArray32LaneUnusedItems.GetValue(__instance) as uint[];
+                        if (unusedItems == null || unusedCount >= unusedItems.Length)
+                        {
+                            int newCap = Math.Max((int)(unusedCount + 4096), 262144);
+                            if (unusedItems == null)
+                            {
+                                unusedItems = new uint[newCap];
+                            }
+                            else
+                            {
+                                Array.Resize(ref unusedItems, newCap);
+                            }
+                            fArray32LaneUnusedItems.SetValue(__instance, unusedItems);
+                        }
+                    }
+                }
+                catch {}
+            }
+            return true;
+        }
+
+        public static bool NetManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            try
+            {
+                var nm = Singleton<NetManager>.instance;
+                if (nm != null)
+                {
+                    int netCap = (int)MNCConstants.CORE_NET_CAPACITY; // 65024
+
+                    // 1. Pre-expand nodes buffer to CORE_NET_CAPACITY (65024)
+                    if (nm.m_nodes == null)
+                    {
+                        nm.m_nodes = new Array16<NetNode>((uint)netCap);
+                        ushort dummyNode;
+                        nm.m_nodes.CreateItem(out dummyNode);
+                    }
+                    EnsureArray16NodeCapacity(nm.m_nodes, netCap);
+
+                    // 2. Pre-expand segments buffer to CORE_NET_CAPACITY (65024)
+                    if (nm.m_segments == null)
+                    {
+                        nm.m_segments = new Array16<NetSegment>((uint)netCap);
+                        ushort dummySeg;
+                        nm.m_segments.CreateItem(out dummySeg);
+                    }
+                    EnsureArray16SegCapacity(nm.m_segments, netCap);
+
+                    // 3. Auxiliary bitmask arrays
+                    int ulongCount = netCap >> 6;
+                    if (nm.m_updatedNodes == null || nm.m_updatedNodes.Length < ulongCount)
+                    {
+                        nm.m_updatedNodes = new ulong[Math.Max(1024, ulongCount)];
+                    }
+                    if (nm.m_updatedSegments == null || nm.m_updatedSegments.Length < ulongCount)
+                    {
+                        nm.m_updatedSegments = new ulong[Math.Max(1024, ulongCount)];
+                    }
+                    if (nm.m_adjustedSegments == null || nm.m_adjustedSegments.Length < ulongCount)
+                    {
+                        nm.m_adjustedSegments = new ulong[Math.Max(1024, ulongCount)];
+                    }
+
+                    // 4. Grids
+                    if (nm.m_nodeGrid == null || nm.m_nodeGrid.Length < 72900)
+                    {
+                        nm.m_nodeGrid = new ushort[72900];
+                    }
+                    if (nm.m_segmentGrid == null || nm.m_segmentGrid.Length < 72900)
+                    {
+                        nm.m_segmentGrid = new ushort[72900];
+                    }
+
+                    // 5. Lanes buffer
+                    if (nm.m_lanes != null)
+                    {
+                        EnsureArray32LaneCapacity(nm.m_lanes, (nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 262144);
+                    }
+                }
+
+                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("NetManager.Data.Deserialize.Prefix");
+
+                if (IsStreamAtEnd(s))
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_Data_Deserialize_Prefix: Stream reached EOF before NetManager. Initializing safe defaults ✓");
+                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "NetManager"); } catch {}
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] NetManager_Data_Deserialize_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static Exception NetManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed NetManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe network state ✓");
+                try
+                {
+                    Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "NetManager");
+                }
+                catch {}
+
+                try
+                {
+                    var nm = Singleton<NetManager>.instance;
+                    if (nm != null)
+                    {
+                        Assembly mnc = GetMncCoreAssembly();
+                        if (mnc != null)
+                        {
+                            Type customizerType = mnc.GetType("MoreNetworkCapacity.NetManagerCustomizer");
+                            if (customizerType != null)
+                            {
+                                var mRebuild = customizerType.GetMethod("RebuildFreeLists", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                                mRebuild?.Invoke(null, new object[] { nm });
+                                var mUpdateLimits = customizerType.GetMethod("UpdateLoopLimitsForLoadedData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                                mUpdateLimits?.Invoke(null, new object[] { nm });
+                            }
+                        }
+                    }
+                }
+                catch {}
             }
             return null; // Suppress crash!
         }
@@ -17095,28 +17526,24 @@ namespace MoreNetworkCapacityRenew
                 if (__instance != null)
                 {
                     int maxReq = Math.Max((int)data.m_startNode, (int)data.m_endNode);
-                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    if (__instance.m_nodes != null)
                     {
-                        if (maxReq >= __instance.m_nodes.m_buffer.Length)
+                        int nodeBufLen = (__instance.m_nodes.m_buffer != null) ? __instance.m_nodes.m_buffer.Length : 0;
+                        if (maxReq >= nodeBufLen)
                         {
                             int targetSize = Math.Max(65536, maxReq + 1024);
-                            if (__instance.m_nodes.m_buffer.Length < targetSize)
-                            {
-                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
-                            }
+                            EnsureArray16NodeCapacity(__instance.m_nodes, targetSize);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
                         }
                     }
-                    if (__instance.m_segments != null && __instance.m_segments.m_buffer != null)
+                    if (__instance.m_segments != null)
                     {
-                        if ((int)segment >= __instance.m_segments.m_buffer.Length)
+                        int segBufLen = (__instance.m_segments.m_buffer != null) ? __instance.m_segments.m_buffer.Length : 0;
+                        if ((int)segment >= segBufLen)
                         {
                             int targetSize = Math.Max(65536, (int)segment + 1024);
-                            if (__instance.m_segments.m_buffer.Length < targetSize)
-                            {
-                                Array.Resize(ref __instance.m_segments.m_buffer, targetSize);
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
-                            }
+                            EnsureArray16SegCapacity(__instance.m_segments, targetSize);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
                         }
                     }
 
@@ -17156,16 +17583,14 @@ namespace MoreNetworkCapacityRenew
             {
                 if (__instance != null)
                 {
-                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    if (__instance.m_nodes != null)
                     {
-                        if ((int)node >= __instance.m_nodes.m_buffer.Length)
+                        int nodeBufLen = (__instance.m_nodes.m_buffer != null) ? __instance.m_nodes.m_buffer.Length : 0;
+                        if ((int)node >= nodeBufLen)
                         {
                             int targetSize = Math.Max(65536, (int)node + 1024);
-                            if (__instance.m_nodes.m_buffer.Length < targetSize)
-                            {
-                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
-                            }
+                            EnsureArray16NodeCapacity(__instance.m_nodes, targetSize);
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
                         }
                     }
 

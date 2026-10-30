@@ -1675,6 +1675,84 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 36: ElectricityManager & WaterManager 65K Auxiliary Buffer Expansion (v5.0.19 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 36: ElectricityManager & WaterManager 65K Auxiliary Buffer Expansion (v5.0.19) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 36.1 EnsureAuxiliaryBuffersExpanded method is implemented
+            bool hasAuxMethod = renewCode.Contains("EnsureAuxiliaryBuffersExpanded(string context") &&
+                                renewCode.Contains("ElectricityManager.m_nodeGroups") &&
+                                renewCode.Contains("WaterManager.m_nodeData") &&
+                                renewCode.Contains("CoverageManager.m_nodes");
+            Assert(hasAuxMethod, "EnsureAuxiliaryBuffersExpanded handles ElectricityManager, WaterManager, and CoverageManager buffer expansion to 65,024");
+
+            // 36.2 ElectricityManager & WaterManager Data.Deserialize hooked with Priority.First
+            bool hasDesHooks = renewCode.Contains("typeof(ElectricityManager).GetNestedType(\"Data\"") &&
+                               renewCode.Contains("typeof(WaterManager).GetNestedType(\"Data\"") &&
+                               renewCode.Contains("ElectricityManager_Data_Deserialize_Prefix") &&
+                               renewCode.Contains("WaterManager_Data_Deserialize_Prefix");
+            Assert(hasDesHooks, "ElectricityManager.Data.Deserialize and WaterManager.Data.Deserialize are patched with Universal Dynamic Buffer Guard");
+
+            // 36.3 EightyOne2 CustomDeserialize hooks & array expansion
+            bool hasEo2Aux = renewCode.Contains("EightyOne2_Electricity_CustomDeserialize_Prefix") &&
+                             renewCode.Contains("EightyOne2_Water_CustomDeserialize_Prefix") &&
+                             renewCode.Contains("EightyOne2.ExpandedElectricityManager.s_pulseUnits");
+            Assert(hasEo2Aux, "EightyOne2 CustomDeserialize and static auxiliary pulse units are armored with 65K expansion");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 36 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 37: NetManager & SimulationManager Deserialization Immunity & Finalizer Armor (v5.0.22 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 37: NetManager & SimulationManager Deserialization Immunity & Finalizer Armor (v5.0.22) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 37.1 NetManager.Data.Deserialize Prefix & Finalizer implementation
+            bool hasNetDesArmor = renewCode.Contains("NetManager_Data_Deserialize_Prefix") &&
+                                  renewCode.Contains("NetManager_Data_Deserialize_Finalizer") &&
+                                  renewCode.Contains("EnsureArray16NodeCapacity") &&
+                                  renewCode.Contains("EnsureArray16SegCapacity") &&
+                                  renewCode.Contains("EnsureArray32LaneCapacity");
+            Assert(hasNetDesArmor, "NetManager.Data.Deserialize Prefix pre-expands nodes/segments/lanes and Finalizer heals free lists and suppresses crashes");
+
+            // 37.2 SimulationManager.Data.Deserialize Finalizer exception suppression
+            bool hasSimDesArmor = renewCode.Contains("SimulationManager_Data_Deserialize_Finalizer") &&
+                                  renewCode.Contains("m_loadingProfilerSimulation.EndDeserialize(s, \"SimulationManager\")");
+            Assert(hasSimDesArmor, "SimulationManager.Data.Deserialize Finalizer prevents simulation loading failure from unhandled manager exceptions");
+
+            // 37.3 CoreCapacity ReadSize bounds clamping
+            bool hasCapacityClamp = renewCode.Contains("Math.Min(bufLen, (int)MNCConstants.CORE_NET_CAPACITY)") &&
+                                    renewCode.Contains("CoreCapacity_GetNodeReadSize_Prefix") &&
+                                    renewCode.Contains("CoreCapacity_GetSegmentReadSize_Prefix");
+            Assert(hasCapacityClamp, "CoreCapacity node/segment read size is strictly bounded by buffer length to prevent IndexOutOfRangeException loops");
+
+            // 37.4 Array16/Array32 ReleaseItem dynamic bounds auto-expansion
+            bool hasReleaseArmor = renewCode.Contains("Array16_NetNode_ReleaseItem_Prefix") &&
+                                   renewCode.Contains("Array16_NetSegment_ReleaseItem_Prefix") &&
+                                   renewCode.Contains("Array32_NetLane_ReleaseItem_Prefix") &&
+                                   renewCode.Contains("typeof(Array16<NetNode>).GetMethod(\"ReleaseItem\"");
+            Assert(hasReleaseArmor, "Array16 and Array32 ReleaseItem methods are hooked with dynamic bounds armor against unusedItems overflow");
+
+            // 37.5 Harmony 2 Dynamic Finalizer Invocation Engine
+            bool hasH2Engine = renewCode.Contains("TryPatchHarmony2(MethodBase original, MethodInfo prefix, MethodInfo finalizer") &&
+                               renewCode.Contains("HarmonyLib.Harmony") &&
+                               renewCode.Contains("HarmonyLib.HarmonyMethod");
+            Assert(hasH2Engine, "TryPatchHarmony2 dynamic reflection engine connects Harmony 2 Finalizers to neutralize deserialization crashes");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 37 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
