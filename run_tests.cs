@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.51)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.52)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
@@ -2340,12 +2341,14 @@ class TestSuite
             bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.51 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.52 [Close Beta]");
 
-            // 52.2 TrafficLightSimulations array expansion to 65536
-            bool has65536 = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range");
-            Assert(has65536, "TrafficLightSimulations and CustomSegmentLights targetSize expanded to full 65536 ushort range");
+            // 52.2 TrafficLightSimulations array expansion to CORE_NET_CAPACITY (65024)
+            bool hasTargetSize = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY;") ||
+                                 renewCode.Contains("int targetSize = 65536;");
+            Assert(hasTargetSize, "TrafficLightSimulations and CustomSegmentLights targetSize expanded to match MNC Core (65024)");
 
             // 52.3 TrafficLightSimulationManager bounds prefixes
             bool hasTlsmPrefixes = renewCode.Contains("public static bool TrafficLightSimulationManager_HasSimulation_Prefix") &&
@@ -2388,8 +2391,9 @@ class TestSuite
 
             // 53.1 Version bump verification
             bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
-            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 / v5.0.51 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
+            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 - v5.0.52 [Close Beta]");
 
             // 53.2 Verification that intrusive loading hooks are completely removed
             bool noIntrusiveTerrainHook = !renewCode.Contains("TerrainManager_UpdateData_Prefix") &&
@@ -2409,11 +2413,11 @@ class TestSuite
                                          renewCode.Contains("SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, \"TerrainManager.LateUpdateData\");");
             Assert(hasPureNativeDispatch, "Managers_UpdateData and LateUpdateData invoke TerrainManager natively without reflection");
 
-            // 53.5 TM:PE 65536 and Material leaf armor preserved
-            bool hasCoreArmor = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range") &&
+            // 53.5 TM:PE capacity and Material leaf armor preserved
+            bool hasCoreArmor = (renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY;") || renewCode.Contains("int targetSize = 65536;")) &&
                                 renewCode.Contains("Material_HasProperty_Int_Prefix") &&
                                 renewCode.Contains("SimulationManager_OnDestroy_Prefix");
-            Assert(hasCoreArmor, "TM:PE 65536 armor, Material C# property leaf armor, and OnDestroy watchdog preserved");
+            Assert(hasCoreArmor, "TM:PE capacity armor, Material C# property leaf armor, and OnDestroy watchdog preserved");
         }
         catch (Exception ex)
         {
@@ -2429,23 +2433,52 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 54.1 Version bump verification
-            bool hasV51 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
-            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 [Close Beta]");
+            bool hasV51 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
+            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 / v5.0.52 [Close Beta]");
 
             // 54.2 100% managed scan in Material_HasProperty_Int_Prefix
-            bool hasManagedScan = renewCode.Contains("100% managed scan of the 32-bit property name IDs, completely eliminating native C++ invocation!") &&
-                                  renewCode.Contains("Marshal.ReadInt32(propNames, i * 4)") &&
+            bool hasManagedScan = renewCode.Contains("int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);") &&
                                   renewCode.Contains("Marshal.ReadIntPtr(sharedData, 0x40)");
             Assert(hasManagedScan, "Material_HasProperty_Int_Prefix implements 100% managed C# property ID scan");
 
-            // 54.3 Complete native bypass: HasProperty never falls through to native C++
-            bool noNativePassThrough = renewCode.Contains("return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);") &&
-                                       renewCode.Contains("SafeHasPropertyInt(Material mat, int nameID)\n        {\n            bool res = false;\n            Material_HasProperty_Int_Prefix(mat, nameID, ref res);\n            return res;\n        }");
-            Assert(noNativePassThrough, "HasProperty(int) and HasProperty(string) completely bypass native C++ execution");
+            // 54.3 Complete native bypass: HasProperty never falls through to native C++ on macOS
+            bool noNativePassThrough = renewCode.Contains("return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);");
+            Assert(noNativePassThrough, "HasProperty(string) delegates directly to managed scan");
         }
         catch (Exception ex)
         {
             Assert(false, "Test Group 54 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 55: Windows & macOS Cross-Platform Stability Shield (v5.0.52)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 55: Windows & macOS Cross-Platform Stability Shield (v5.0.52) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 55.1 Version bump verification
+            bool hasV52 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
+            Assert(hasV52, "Mod identity correctly bumped to v5.0.52 [Close Beta]");
+
+            // 55.2 TM:PE array expansion strictly matches MNC Core (65024)
+            bool hasMncCoreCap = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY; // 65024 (Matches MoreNetworkCapacity.Core expectation: 32768 or 65024!)");
+            Assert(hasMncCoreCap, "TM:PE customSegments_ & TrafficLightSimulations expanded to 65024 for MNC Core validation");
+
+            // 55.3 Windows / Linux raw pointer bypass in IsMaterialPropertySheetReady
+            bool hasPlatformGuard = renewCode.Contains("if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)") &&
+                                    renewCode.Contains("Running on Windows/Linux: Material methods left 100% native ✓");
+            Assert(hasPlatformGuard, "Windows/Linux platforms bypass raw pointer dereferences to eliminate Access Violation 0xC0000005");
+
+            // 55.4 Material method patches isolated to macOS only
+            bool hasMacOnlyPatch = renewCode.Contains("if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)\n                {\n                    try\n                    {\n                        // 1. HasProperty(int)");
+            Assert(hasMacOnlyPatch, "Material Harmony patches strictly gated to macOS runtime");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 55 exception", ex.ToString());
         }
 
         // ====================================================================

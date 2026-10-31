@@ -9,18 +9,16 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.51:[/h2]
-- 100% Managed C# Material Property Armor & Pure Native Loading:
+[h2]Tính năng mới trong bản Beta v5.0.52:[/h2]
+- Windows & macOS Cross-Platform Stability Shield:
     [list]
-    [*] Quét mảng shader property IDs trực tiếp trên C# managed memory mà không gọi hàm native C++ ShaderPropertySheet::HasProperty (triệt tiêu hoàn toàn lỗi crash SIGABRT trong BuildingManager.InitRenderDataImpl khi game đọc hàng nghìn custom assets).
-    [*] Giữ nguyên 100% cơ chế tải Native cho game engine (không hook coroutine loading, không can thiệp mảng terrain).
-    [*] Loại bỏ hoàn toàn pass-through native C++ trên Material.HasProperty(int) và HasProperty(string).
+    [*] Khắc phục triệt để lỗi crash Access Violation 0xC0000005 trên Windows (trong file log khách hàng output_log.txt tại BuildingInfo.InitializePrefab -> IsMaterialPropertySheetReady -> Marshal:ReadByte).
+    [*] Phân lập giáp con trỏ Material chỉ kích hoạt trên macOS (nơi gặp lỗi Apple malloc free_tiny), trả về 100% native cho Windows và Linux.
+    [*] Chuẩn hóa dung lượng mảng mở rộng TM:PE (TrafficLightSimulations và customSegments_) về đúng 65.024 phần tử (CORE_NET_CAPACITY) thay vì 65.536, thỏa mãn 100% kiểm tra hợp lệ của MoreNetworkCapacity.Core.dll và xóa bỏ lỗi Compatibility array unexpected length.
+    [*] Giữ nguyên lá chắn bắt ngoại lệ cận trên (bounds prefixes) bảo vệ an toàn tuyệt đối mọi truy xuất tới node 65535 khi thoát game.
     [/list]
-- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield từ v5.0.48:
+- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield:
     [list]
-    [*] Bọc giáp Harmony Priority.First lên toàn bộ các phương thức truy xuất của TrafficLightSimulationManager.
-    [*] Mở rộng mảng TrafficLightSimulations và CustomSegmentLights lên đủ 65.536 phần tử.
-    [*] Tối ưu hóa chu trình TrafficPriorityManager.OnLevelUnloading với cơ chế reset bộ nhớ trực tiếp (zero allocation).
     [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
     [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi.
     [/list]
@@ -31,5 +29,5 @@
 - Kế thừa Universal Simulation Manager Armor và tương thích tuyệt đối với TM:PE, NetworkSkins, MoreTransportLines, 81 Tiles 2.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.51 Close Beta: 100% Managed C# Material Property Armor & Pure Native Loading (Eliminated native C++ ShaderPropertySheet SIGABRT in BuildingManager.InitRenderDataImpl via 100% managed C# memory scan, keeping loading completely native)."
+	"changenote"		"v5.0.52 Close Beta: Windows & macOS Cross-Platform Stability Shield (Eliminated Windows Access Violation 0xC0000005 in BuildingInfo.InitializePrefab, and restored TM:PE array capacity to 65024 for 100% MNC Core compatibility)."
 }
