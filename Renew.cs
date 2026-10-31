@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy";
-        public string Description => "[Close Beta v5.0.38] Direct Type-Safe Manager Dispatch (Permanently defeat Mono generic vtable get_object_generic_inst SIGSEGV by dispatching directly to concrete manager singletons and skipping empty generic base methods).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy";
+        public string Description => "[Close Beta v5.0.39] TransportManager UpdateData & PlopTheGrowables Armor (Eliminate Mono get_object_generic_inst SIGSEGV crash caused by MoreTransportLines Harmony dynamic method transpilation).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15043,6 +15043,15 @@ namespace MoreNetworkCapacityRenew
                         harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
                     }
+
+                    // Patch TransportManager.UpdateData with Priority.First returning false to bypass MoreTransportLines crashing dynamic method
+                    MethodInfo tmUpd = typeof(TransportManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                    if (tmUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TransportManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(tmUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TransportManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -17330,6 +17339,242 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        private static void InvokePlopTheGrowablesPreUpdateData(SimulationManager.UpdateMode mode)
+        {
+            try
+            {
+                Type ptgType = null;
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (a.GetName().Name == "PlopTheGrowables")
+                    {
+                        ptgType = a.GetType("PlopTheGrowables.PlopTheGrowables");
+                        break;
+                    }
+                }
+                if (ptgType != null)
+                {
+                    PropertyInfo prop = ptgType.GetProperty("instance", BindingFlags.Public | BindingFlags.Static);
+                    object instance = prop != null ? prop.GetValue(null, null) : null;
+                    if (instance != null)
+                    {
+                        MethodInfo m = ptgType.GetMethod("OnPreUpdateData", BindingFlags.Public | BindingFlags.Instance);
+                        if (m != null)
+                        {
+                            m.Invoke(instance, new object[] { mode });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Safely executed PlopTheGrowables.OnPreUpdateData ✓");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PlopTheGrowables OnPreUpdateData reflection: " + ex.Message);
+            }
+        }
+
+        private static readonly FieldInfo s_fTransportLineVehicleSelection = typeof(TransportManager).GetField("m_transportLineVehicleSelection", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        private static readonly FieldInfo s_fTransportLineVehicleSelectionIndices = typeof(TransportManager).GetField("m_transportLineVehicleSelectionIndices", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+        public static void SafeExecuteTransportManagerUpdateData(TransportManager tm, SimulationManager.UpdateMode mode)
+        {
+            if (tm == null) return;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("TransportManager.UpdateData"); } catch {}
+            }
+
+            try
+            {
+                // NOTE: We do NOT call SimulationManagerBase<TransportManager, TransportProperties>::UpdateData
+                // because SimulationManagerBase's UpdateData is an empty 'ret', but calling it from a Harmony DynamicMethod
+                // on Mono macOS x86_64 causes get_object_generic_inst + 97 SIGSEGV!
+
+                // 1. Validate lines
+                if (tm.m_lines != null && tm.m_lines.m_buffer != null)
+                {
+                    int lineCount = tm.m_lines.m_buffer.Length;
+                    var bm = Singleton<BuildingManager>.instance;
+                    for (int i = 1; i < lineCount; i++)
+                    {
+                        try
+                        {
+                            if (tm.m_lines.m_buffer[i].m_flags != TransportLine.Flags.None)
+                            {
+                                TransportInfo info = tm.m_lines.m_buffer[i].Info;
+                                if (info == null || (tm.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Temporary) != TransportLine.Flags.None)
+                                {
+                                    tm.ReleaseLine((ushort)i);
+                                }
+                                else if (tm.m_lines.m_buffer[i].m_building != 0)
+                                {
+                                    ushort buildingId = tm.m_lines.m_buffer[i].m_building;
+                                    if (bm != null && bm.m_buildings.m_buffer != null && buildingId < bm.m_buildings.m_buffer.Length)
+                                    {
+                                        if ((bm.m_buildings.m_buffer[buildingId].m_flags & (Building.Flags.Created | Building.Flags.Deleted)) != Building.Flags.Created ||
+                                            bm.m_buildings.m_buffer[buildingId].Info == null)
+                                        {
+                                            tm.ReleaseLine((ushort)i);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        tm.ReleaseLine((ushort)i);
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Transport line " + i + " validation error: " + ex.Message);
+                        }
+                    }
+                }
+
+                // 2. Prefab milestones
+                try
+                {
+                    int prefabCount = PrefabCollection<TransportInfo>.PrefabCount();
+                    tm.m_infoCount = prefabCount;
+                    for (int j = 0; j < prefabCount; j++)
+                    {
+                        TransportInfo prefab = PrefabCollection<TransportInfo>.GetPrefab((uint)j);
+                        if (prefab != null && prefab.m_UnlockMilestone != null)
+                        {
+                            switch (mode)
+                            {
+                                case SimulationManager.UpdateMode.NewGameFromMap:
+                                case SimulationManager.UpdateMode.NewGameFromScenario:
+                                case SimulationManager.UpdateMode.UpdateScenarioFromMap:
+                                    prefab.m_UnlockMilestone.Reset(false);
+                                    break;
+                                case SimulationManager.UpdateMode.NewScenarioFromMap:
+                                case SimulationManager.UpdateMode.NewAsset:
+                                case SimulationManager.UpdateMode.LoadAsset:
+                                case SimulationManager.UpdateMode.NewMap:
+                                case SimulationManager.UpdateMode.LoadMap:
+                                    prefab.m_UnlockMilestone.Reset(true);
+                                    break;
+                                case SimulationManager.UpdateMode.LoadGame:
+                                case SimulationManager.UpdateMode.NewScenarioFromGame:
+                                case SimulationManager.UpdateMode.UpdateScenarioFromGame:
+                                    prefab.m_UnlockMilestone.Reset(false);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager milestones reset error: " + ex.Message);
+                }
+
+                // 3. Guides
+                try
+                {
+                    bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
+                    if (isGameLoad || tm.m_monorailLine == null) tm.m_monorailLine = new GenericGuide();
+                    if (isGameLoad || tm.m_endOfLineStation == null) tm.m_endOfLineStation = new BuildingInstanceGuide();
+                    if (isGameLoad || tm.m_ferryBusHub == null) tm.m_ferryBusHub = new BuildingInstanceGuide();
+                    if (isGameLoad || tm.m_ferryLine == null) tm.m_ferryLine = new GenericGuide();
+                    if (isGameLoad || tm.m_ferryDepot == null) tm.m_ferryDepot = new GenericGuide();
+                    if (isGameLoad || tm.m_blimpLine == null) tm.m_blimpLine = new GenericGuide();
+                    if (isGameLoad || tm.m_blimpDepot == null) tm.m_blimpDepot = new GenericGuide();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager guides initialization error: " + ex.Message);
+                }
+
+                // 4. Vehicle Selection Indices
+                try
+                {
+                    var vehicleSelection = s_fTransportLineVehicleSelection != null ? s_fTransportLineVehicleSelection.GetValue(tm) as Dictionary<ushort, string> : null;
+                    var vehicleSelectionIndices = s_fTransportLineVehicleSelectionIndices != null ? s_fTransportLineVehicleSelectionIndices.GetValue(tm) as Dictionary<ushort, int> : null;
+
+                    if (vehicleSelectionIndices != null && vehicleSelection != null)
+                    {
+                        vehicleSelectionIndices.Clear();
+                        int vCount = PrefabCollection<VehicleInfo>.PrefabCount();
+                        for (int k = 0; k < vCount; k++)
+                        {
+                            VehicleInfo vPrefab = PrefabCollection<VehicleInfo>.GetPrefab((uint)k);
+                            if (vPrefab != null)
+                            {
+                                string vName = PrefabCollection<VehicleInfo>.PrefabName((uint)k);
+                                if (vehicleSelection.ContainsValue(vName))
+                                {
+                                    foreach (KeyValuePair<ushort, string> kvp in vehicleSelection)
+                                    {
+                                        if (kvp.Value == vName || (kvp.Value == "#DEFAULT#" && tm.GetDefaultLineVehicleName(kvp.Key) == vName))
+                                        {
+                                            if (tm.m_lines != null && tm.m_lines.m_buffer != null && kvp.Key < tm.m_lines.m_buffer.Length &&
+                                                tm.m_lines.m_buffer[kvp.Key].IsCompatibleVehicle(kvp.Key, vPrefab))
+                                            {
+                                                vehicleSelectionIndices[kvp.Key] = k;
+                                            }
+                                            else
+                                            {
+                                                vehicleSelectionIndices[kvp.Key] = -1;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        var keysToIterate = new List<KeyValuePair<ushort, string>>(vehicleSelection);
+                        for (int idx = 0; idx < keysToIterate.Count; idx++)
+                        {
+                            var kvp = keysToIterate[idx];
+                            int val;
+                            if (!vehicleSelectionIndices.TryGetValue(kvp.Key, out val))
+                            {
+                                int defIdx = tm.GetDefaultLineVehicleIndex(kvp.Key);
+                                if (defIdx >= 0)
+                                {
+                                    vehicleSelectionIndices[kvp.Key] = defIdx;
+                                }
+                            }
+                            else if (val == -1)
+                            {
+                                vehicleSelectionIndices.Remove(kvp.Key);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager vehicle selections error: " + ex.Message);
+                }
+
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTransportManagerUpdateData executed safely ✓");
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TransportManager_UpdateData_Prefix(TransportManager __instance, SimulationManager.UpdateMode mode)
+        {
+            try
+            {
+                SafeExecuteTransportManagerUpdateData(__instance, mode);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager_UpdateData_Prefix error: " + ex.Message);
+            }
+            return false; // Skip MoreTransportLines' crashing dynamic method
+        }
+
         private static void SafeCallManagerAction(Action a, string label)
         {
             try
@@ -17404,8 +17649,9 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                // 1. Invoke NetworkSkins pre-update hook safely
+                // 1. Invoke NetworkSkins and PlopTheGrowables pre-update hooks safely
                 InvokeNetworkSkinsPreUpdateData(mode);
+                InvokePlopTheGrowablesPreUpdateData(mode);
 
                 // 2. Direct concrete manager execution - completely eliminates generic interface callvirt on Mono
                 var lm = Singleton<LoadingManager>.instance;
@@ -17425,7 +17671,7 @@ namespace MoreNetworkCapacityRenew
                 SafeStepManagerAction(() => Singleton<PropManager>.instance.UpdateData(mode), lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
                 SafeStepManagerAction(() => Singleton<TreeManager>.instance.UpdateData(mode), lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
                 SafeStepManagerAction(() => Singleton<VehicleManager>.instance.UpdateData(mode), lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<TransportManager>.instance.UpdateData(mode), lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
+                SafeStepManagerAction(() => SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode), lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
                 SafeStepManagerAction(() => Singleton<EconomyManager>.instance.UpdateData(mode), lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
                 SafeStepManagerAction(() => Singleton<DistrictManager>.instance.UpdateData(mode), lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
                 SafeStepManagerAction(() => Singleton<EventManager>.instance.UpdateData(mode), lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");

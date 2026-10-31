@@ -9,10 +9,10 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.38:[/h2]
-- Fix triệt để crash văng game khi vào save (SIGSEGV get_object_generic_inst) trên macOS/Mono bằng Direct Type-Safe Simulation Manager Dispatch.
-- Trực tiếp gọi 25 Manager Singleton có override, bỏ qua an toàn 8 Generic Manager kế thừa hàm rỗng từ SimulationManagerBase<T,P> (như WeatherManager, ToolManager, PathManager).
-- Tích hợp chuẩn NetworkSkins OnPreUpdateData hook.
+[h2]Tính năng mới trong bản Beta v5.0.39:[/h2]
+- Fix triệt để crash văng game khi vào save (SIGSEGV get_object_generic_inst) tại bước 14 TransportManager.UpdateData do MoreTransportLines Harmony dynamic method transpiler gây ra trên macOS/Mono.
+- Bọc giáp TransportManager.UpdateData bằng SafeExecuteTransportManagerUpdateData độc lập, loại bỏ hoàn toàn lệnh gọi base.UpdateData (vốn là hàm rỗng nhưng kích hoạt lỗi Mono JIT).
+- Tích hợp thêm PlopTheGrowables OnPreUpdateData hook song song cùng NetworkSkins.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -22,14 +22,14 @@
 [*] [b]Triệt tiêu văng game khi load save (Universal Simulation Manager Armor):[/b]
     [list]
     [*] Bọc giáp Priority.First cho chu trình SimulationManager.Managers_UpdateData/LateUpdateData/EarlyUpdateData.
-    [*] Bảo toàn lệnh nạp skin của NetworkSkins (OnPreUpdateData).
+    [*] Bảo toàn lệnh nạp skin của NetworkSkins (OnPreUpdateData) và PlopTheGrowables (OnPreUpdateData).
     [*] Tự động phát hiện và bỏ qua các method ảo rỗng kế thừa từ generic class SimulationManagerBase (WeatherManager, CoverageManager, NaturalResourceManager...), triệt tiêu hoàn toàn lỗi native Mono JIT SIGSEGV (get_object_generic_inst).
-    [*] Chỉ gọi reflection an toàn trên các manager có method cụ thể (CitizenManager, WaterManager, TreeManager...), kèm try-catch cô lập cho từng manager.
+    [*] Thay thế TransportManager.UpdateData bằng bản thực thi an toàn, tương thích mọi giới hạn của MoreTransportLines.
     [*] Duy trì lá chắn 2500ms timeout shield cho SimulationManager.LateUpdateData warm-up và bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string).
     [/list]
-[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles và TM:PE.
+[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles, More Transport Lines và TM:PE.
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.38 Close Beta: Direct Type-Safe Simulation Manager Dispatch (Eliminate Mono get_object_generic_inst SIGSEGV crash during manager updates, protect NetworkSkins & skip empty generic base methods)."
+	"changenote"		"v5.0.39 Close Beta: TransportManager UpdateData & PlopTheGrowables Armor (Eliminate Mono get_object_generic_inst SIGSEGV crash caused by MoreTransportLines Harmony dynamic method transpilation)."
 }

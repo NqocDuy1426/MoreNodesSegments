@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.38)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.39)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.33 by NgocDuy") ||
@@ -2088,6 +2089,35 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 44 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 45: TransportManager UpdateData & PlopTheGrowables Armor (v5.0.39)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 45: TransportManager UpdateData & PlopTheGrowables Armor (v5.0.39) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 45.1 SafeExecuteTransportManagerUpdateData Implementation
+            bool hasSafeTMUpdateData = renewCode.Contains("public static void SafeExecuteTransportManagerUpdateData(TransportManager tm, SimulationManager.UpdateMode mode)") &&
+                                       renewCode.Contains("SafeStepManagerAction(() => SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode), lm, minProgress + range * (14f / totalSteps), \"TransportManager.UpdateData\");");
+            Assert(hasSafeTMUpdateData, "SafeExecuteTransportManagerUpdateData completely replaces crashing TransportManager.UpdateData call");
+
+            // 45.2 TransportManager.UpdateData Harmony Prefix Armor
+            bool hasTMPrefix = renewCode.Contains("public static bool TransportManager_UpdateData_Prefix(TransportManager __instance, SimulationManager.UpdateMode mode)") &&
+                               renewCode.Contains("harmony.Patch(tmUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });") &&
+                               renewCode.Contains("return false; // Skip MoreTransportLines' crashing dynamic method");
+            Assert(hasTMPrefix, "TransportManager.UpdateData is patched with Priority.First returning false to block MoreTransportLines dynamic method");
+
+            // 45.3 PlopTheGrowables PreUpdateData Hook
+            bool hasPTGHook = renewCode.Contains("InvokePlopTheGrowablesPreUpdateData(mode);") &&
+                              renewCode.Contains("Safely executed PlopTheGrowables.OnPreUpdateData ✓");
+            Assert(hasPTGHook, "PlopTheGrowables.OnPreUpdateData hook is safely invoked before manager updates");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 45 exception", ex.ToString());
         }
 
         // ====================================================================
