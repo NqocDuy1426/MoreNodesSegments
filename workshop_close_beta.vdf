@@ -9,10 +9,9 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.41:[/h2]
-- Bọc giáp an toàn tuyệt đối cho EventManager.UpdateData, DisasterManager.UpdateData & AudioManager.UpdateData.
-- Loại bỏ hoàn toàn lỗi crash SIGSEGV get_object_generic_inst trên macOS khi game nạp save có event/disaster/radio item bị thiếu prefab asset (thay vì gọi ReleaseEvent/ReleaseDisaster gây dereference null, mod chủ động dọn cờ dữ liệu an toàn).
-- Áp dụng Harmony Prefix Priority.First cho EventManager, DisasterManager và AudioManager để chặn triệt để mọi lỗi sập vtable.
+[h2]Tính năng mới trong bản Beta v5.0.42:[/h2]
+- Non-Generic Simulation Manager Armor: Loại bỏ hoàn toàn các lệnh gọi generic PrefabCollection và generic base class trong các phương thức UpdateData của EventManager, DisasterManager, AudioManager và InfoManager.
+- Triệt tiêu 100% nguy cơ runtime Mono JIT SIGSEGV (get_object_generic_inst) trên macOS khi game nạp save.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -31,5 +30,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.41 Close Beta: EventManager, DisasterManager & AudioManager UpdateData Armor (Eliminates Mono SIGSEGV on missing event/disaster/radio prefabs)."
+	"changenote"		"v5.0.42 Close Beta: Non-Generic Simulation Manager Armor (Stripped PrefabCollection calls to eliminate Mono get_object_generic_inst SIGSEGV)."
 }

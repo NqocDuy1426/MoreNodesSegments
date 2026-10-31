@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.41)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.42)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
@@ -2152,9 +2153,9 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 47: EventManager, DisasterManager & AudioManager Armor (v5.0.41)
+        // TEST GROUP 47: Non-Generic Simulation Manager Armor (v5.0.42)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 47: EventManager, DisasterManager & AudioManager Armor (v5.0.41) ---");
+        Console.WriteLine("\n--- Test Group 47: Non-Generic Simulation Manager Armor (v5.0.42) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -2176,6 +2177,12 @@ class TestSuite
                              renewCode.Contains("public static bool AudioManager_UpdateData_Prefix(AudioManager __instance, SimulationManager.UpdateMode mode)") &&
                              renewCode.Contains("SafeExecuteAudioManagerUpdateData(Singleton<AudioManager>.instance, mode);");
             Assert(hasSafeAM, "AudioManager.UpdateData is safely executed and patched with Priority.First");
+
+            // 47.4 SafeExecuteInfoManagerUpdateData Implementation & Patch
+            bool hasSafeIM = renewCode.Contains("public static void SafeExecuteInfoManagerUpdateData(InfoManager im, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("public static bool InfoManager_UpdateData_Prefix(InfoManager __instance, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("SafeExecuteInfoManagerUpdateData(Singleton<InfoManager>.instance, mode);");
+            Assert(hasSafeIM, "InfoManager.UpdateData is safely executed and patched with Priority.First");
         }
         catch (Exception ex)
         {

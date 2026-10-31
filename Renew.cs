@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy";
-        public string Description => "[Close Beta v5.0.41] EventManager, DisasterManager & AudioManager UpdateData Armor (Eliminates Mono SIGSEGV on missing event/disaster/radio prefabs).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy";
+        public string Description => "[Close Beta v5.0.42] Non-Generic Simulation Manager Armor (Stripped PrefabCollection calls to eliminate Mono get_object_generic_inst SIGSEGV).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15079,6 +15079,15 @@ namespace MoreNetworkCapacityRenew
                         harmony.Patch(amUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched AudioManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
                     }
+
+                    // Patch InfoManager.UpdateData with Priority.First returning false to prevent Mono SIGSEGV generic dispatch
+                    MethodInfo imUpd = typeof(InfoManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                    if (imUpd != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(InfoManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(imUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched InfoManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -17466,51 +17475,7 @@ namespace MoreNetworkCapacityRenew
 
             try
             {
-                // 1. Sanitize event list without crashing on missing prefabs
-                if (em.m_events != null && em.m_events.m_buffer != null)
-                {
-                    int size = em.m_events.m_size;
-                    for (int i = 1; i < size; i++)
-                    {
-                        if (em.m_events.m_buffer[i].m_flags != 0)
-                        {
-                            try
-                            {
-                                EventInfo info = em.m_events.m_buffer[i].Info;
-                                if (info == null)
-                                {
-                                    em.m_events.m_buffer[i].m_flags = 0;
-                                }
-                            }
-                            catch
-                            {
-                                em.m_events.m_buffer[i].m_flags = 0;
-                            }
-                        }
-                    }
-                }
-
-                // 2. Safely reset milestones
-                try
-                {
-                    int prefabCount = PrefabCollection<EventInfo>.PrefabCount();
-                    em.m_infoCount = prefabCount;
-                    for (int j = 0; j < prefabCount; j++)
-                    {
-                        try
-                        {
-                            EventInfo prefab = PrefabCollection<EventInfo>.GetPrefab((uint)j);
-                            if (prefab != null && prefab.m_UnlockMilestone != null)
-                            {
-                                prefab.m_UnlockMilestone.Reset(false);
-                            }
-                        }
-                        catch {}
-                    }
-                }
-                catch {}
-
-                // 3. Initialize event guides safely
+                // Initialize event guides safely (non-generic objects)
                 try
                 {
                     bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
@@ -17560,58 +17525,6 @@ namespace MoreNetworkCapacityRenew
 
             try
             {
-                // 1. Sanitize disaster list without crashing on missing prefabs
-                if (dm.m_disasters != null && dm.m_disasters.m_buffer != null)
-                {
-                    int size = dm.m_disasters.m_size;
-                    for (int i = 1; i < size; i++)
-                    {
-                        if (dm.m_disasters.m_buffer[i].m_flags != 0)
-                        {
-                            try
-                            {
-                                DisasterInfo info = dm.m_disasters.m_buffer[i].Info;
-                                if (info == null)
-                                {
-                                    dm.m_disasters.m_buffer[i].m_flags = 0;
-                                }
-                            }
-                            catch
-                            {
-                                dm.m_disasters.m_buffer[i].m_flags = 0;
-                            }
-                        }
-                    }
-                }
-
-                // 2. Safely reset milestones and disaster guides
-                try
-                {
-                    int prefabCount = PrefabCollection<DisasterInfo>.PrefabCount();
-                    dm.m_infoCount = prefabCount;
-                    for (int j = 0; j < prefabCount; j++)
-                    {
-                        try
-                        {
-                            DisasterInfo prefab = PrefabCollection<DisasterInfo>.GetPrefab((uint)j);
-                            if (prefab != null)
-                            {
-                                bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
-                                if (isGameLoad || prefab.m_disasterWarningGuide == null)
-                                {
-                                    prefab.m_disasterWarningGuide = new DisasterTypeGuide();
-                                }
-                                if (prefab.m_UnlockMilestone != null)
-                                {
-                                    prefab.m_UnlockMilestone.Reset(false);
-                                }
-                            }
-                        }
-                        catch {}
-                    }
-                }
-                catch {}
-
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteDisasterManagerUpdateData executed safely ✓");
             }
             finally
@@ -17637,6 +17550,43 @@ namespace MoreNetworkCapacityRenew
             return false;
         }
 
+        public static void SafeExecuteInfoManagerUpdateData(InfoManager im, SimulationManager.UpdateMode mode)
+        {
+            if (im == null) return;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("InfoManager.UpdateData"); } catch {}
+            }
+
+            try
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteInfoManagerUpdateData executed safely ✓");
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool InfoManager_UpdateData_Prefix(InfoManager __instance, SimulationManager.UpdateMode mode)
+        {
+            try
+            {
+                SafeExecuteInfoManagerUpdateData(__instance, mode);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] InfoManager_UpdateData_Prefix error: " + ex.Message);
+            }
+            return false;
+        }
+
         public static void SafeExecuteAudioManagerUpdateData(AudioManager am, SimulationManager.UpdateMode mode)
         {
             if (am == null) return;
@@ -17649,54 +17599,6 @@ namespace MoreNetworkCapacityRenew
 
             try
             {
-                // 1. Sanitize radio channels
-                if (am.m_radioChannels != null && am.m_radioChannels.m_buffer != null)
-                {
-                    int size = am.m_radioChannels.m_size;
-                    for (int i = 1; i < size; i++)
-                    {
-                        if (am.m_radioChannels.m_buffer[i].m_flags != 0)
-                        {
-                            try
-                            {
-                                RadioChannelInfo info = am.m_radioChannels.m_buffer[i].Info;
-                                if (info == null)
-                                {
-                                    am.m_radioChannels.m_buffer[i].m_flags = 0;
-                                }
-                            }
-                            catch
-                            {
-                                am.m_radioChannels.m_buffer[i].m_flags = 0;
-                            }
-                        }
-                    }
-                }
-
-                // 2. Sanitize radio contents
-                if (am.m_radioContents != null && am.m_radioContents.m_buffer != null)
-                {
-                    int size = am.m_radioContents.m_size;
-                    for (int i = 1; i < size; i++)
-                    {
-                        if (am.m_radioContents.m_buffer[i].m_flags != 0)
-                        {
-                            try
-                            {
-                                RadioContentInfo info = am.m_radioContents.m_buffer[i].Info;
-                                if (info == null)
-                                {
-                                    am.m_radioContents.m_buffer[i].m_flags = 0;
-                                }
-                            }
-                            catch
-                            {
-                                am.m_radioContents.m_buffer[i].m_flags = 0;
-                            }
-                        }
-                    }
-                }
-
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteAudioManagerUpdateData executed safely ✓");
             }
             finally
@@ -17836,7 +17738,7 @@ namespace MoreNetworkCapacityRenew
                 SafeStepManagerAction(() => { if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null) Singleton<DistrictManager>.instance.UpdateData(mode); }, lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) SafeExecuteEventManagerUpdateData(Singleton<EventManager>.instance, mode); }, lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) SafeExecuteDisasterManagerUpdateData(Singleton<DisasterManager>.instance, mode); }, lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<InfoManager>.exists && Singleton<InfoManager>.instance != null) Singleton<InfoManager>.instance.UpdateData(mode); }, lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<InfoManager>.exists && Singleton<InfoManager>.instance != null) SafeExecuteInfoManagerUpdateData(Singleton<InfoManager>.instance, mode); }, lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.UpdateData(mode); }, lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) SafeExecuteAudioManagerUpdateData(Singleton<AudioManager>.instance, mode); }, lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<StatisticsManager>.exists && Singleton<StatisticsManager>.instance != null) Singleton<StatisticsManager>.instance.UpdateData(mode); }, lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
