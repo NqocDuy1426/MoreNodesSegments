@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy";
-        public string Description => "[Close Beta v5.0.44] Hardware-Level Material & Property Sheet Armor (Inspects SharedMaterialData native property sheet state to block C++ BuildProperties free_tiny abort).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy";
+        public string Description => "[Close Beta v5.0.45] Targeted Iterator Armor (Confines Material Armor strictly to InitRenderDataImpl iterators, preserving native InitMeshData execution).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15146,39 +15146,6 @@ namespace MoreNetworkCapacityRenew
                             }
                         }
 
-                        Type[] infoTypes = new Type[] {
-                            typeof(BuildingInfoBase),
-                            typeof(NetInfo),
-                            typeof(PropInfo),
-                            typeof(VehicleInfoBase)
-                        };
-                        foreach (var infoType in infoTypes)
-                        {
-                            foreach (var m in infoType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                            {
-                                if (m.Name == "InitMeshData")
-                                {
-                                    try
-                                    {
-                                        harmony.Patch(m, transpiler: new HarmonyMethod(transpiler));
-                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully transpiled {0}.{1} with Material Armor ✓", infoType.Name, m.Name));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Warning: Could not patch {0}.{1}: {2}", infoType.Name, m.Name, ex.Message));
-                                    }
-                                }
-                            }
-                        }
-
-                        MethodInfo mBmRender = typeof(BuildingManager).GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mBmRender != null) harmony.Patch(mBmRender, transpiler: new HarmonyMethod(transpiler));
-                        MethodInfo mNmRender = typeof(NetManager).GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mNmRender != null) harmony.Patch(mNmRender, transpiler: new HarmonyMethod(transpiler));
-                        MethodInfo mCiInit = typeof(CitizenInfo).GetMethod("InitializePrefab", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mCiInit != null) harmony.Patch(mCiInit, transpiler: new HarmonyMethod(transpiler));
-                        MethodInfo mViInit = typeof(VehicleInfo).GetMethod("InitializePrefab", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mViInit != null) harmony.Patch(mViInit, transpiler: new HarmonyMethod(transpiler));
                     }
                 }
                 catch (Exception ex)

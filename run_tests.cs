@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.44)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.45)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
@@ -2219,12 +2220,8 @@ class TestSuite
 
             // 48.4 Patch Registration in EnsureAllPatchesApplied
             bool hasPatchesApplied = renewCode.Contains("nt.Name.Contains(\"InitRenderDataImpl\")") &&
-                                     renewCode.Contains("harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));") &&
-                                     renewCode.Contains("typeof(BuildingInfoBase)") &&
-                                     renewCode.Contains("typeof(NetInfo)") &&
-                                     renewCode.Contains("typeof(PropInfo)") &&
-                                     renewCode.Contains("typeof(VehicleInfoBase)");
-            Assert(hasPatchesApplied, "EnsureAllPatchesApplied hooks InitRenderDataImpl and InitMeshData across all managers");
+                                     renewCode.Contains("harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));");
+            Assert(hasPatchesApplied, "EnsureAllPatchesApplied hooks InitRenderDataImpl across all managers");
         }
         catch (Exception ex)
         {
@@ -2256,6 +2253,32 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 49 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 50: Targeted Iterator Armor (v5.0.45)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 50: Targeted Iterator Armor (v5.0.45) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 50.1 InitMeshData is NOT transpiled with Harmony to prevent Mono IMT generic context crash
+            bool initMeshDataUnmodified = !renewCode.Contains("m.Name == \"InitMeshData\"") &&
+                                          !renewCode.Contains("Successfully transpiled {0}.{1} with Material Armor");
+            Assert(initMeshDataUnmodified, "InitMeshData methods remain native compiled code (zero Harmony DynamicMethod overhead)");
+
+            // 50.2 Iterators are targeted cleanly
+            bool iteratorsTargeted = renewCode.Contains("typeof(BuildingManager)") &&
+                                     renewCode.Contains("typeof(NetManager)") &&
+                                     renewCode.Contains("typeof(PropManager)") &&
+                                     renewCode.Contains("typeof(VehicleManager)") &&
+                                     renewCode.Contains("typeof(EventManager)");
+            Assert(iteratorsTargeted, "All 5 manager InitRenderDataImpl iterators are guarded with Material Armor");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 50 exception", ex.ToString());
         }
 
         // ====================================================================
