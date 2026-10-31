@@ -9,22 +9,14 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.55:[/h2]
-- Unlock & Terrain Stability Armor (Khắc phục triệt để lỗi crash unhandled NULL exception tại UnlockManager.LateUpdateData và lỗi NetNode.TerrainUpdated):
-    [list]
-    [*] Bổ sung Harmony Prefix `UnlockManager_LateUpdateData_Prefix` (Priority.First) trả về `false`, ngăn chặn triệt để lỗi generic callvirt SIGSEGV trên Mono macOS kế thừa từ `SimulationManagerBase<UnlockManager, UnlockController>`.
-    [*] Tách biệt toàn bộ lời gọi cập nhật milestone (`OnRefreshMilestones`, `CheckCompletionMilestones`, `FixMilestones`, `RefreshScenarioMilestones`) vào các khối try-catch an toàn, loại bỏ hoàn toàn hiện tượng hủy bỏ save game giữa chừng.
-    [*] Bổ sung `UnlockManager_MilestonesUpdated_Prefix` duyệt từng listener trong delegate invocation list với try-catch độc lập, ngăn chặn việc UI panel hoặc mod ngoài quăng lỗi unhandled NULL làm sập luồng Main Thread.
-    [*] Bổ sung Harmony Prefix `MilestoneCollection_FindMilestone_Prefix` (Priority.First) trả về dummy MilestoneInfo an toàn cho các milestone thuộc các gói DLC người chơi chưa sở hữu (Plazas & Promenades, Financial Districts, Hotels & Retreats), loại bỏ vĩnh viễn lỗi unhandled NULL SIGSEGV khi tải save.
-    [*] Bổ sung Harmony Prefix `TerrainManager_Managers_TerrainUpdated_Prefix` (Priority.First) bao bọc từng ITerrainManager trong khối try-catch an toàn, triệt tiêu mọi ngoại lệ NRE phát sinh từ Adaptive Roads (`NetNode.TerrainUpdated_Patch2`), giúp địa hình cập nhật trơn tru không ngắt quãng.
-    [/list]
-- Kế thừa toàn bộ Terrain & Simulation Deadlock Shield (v5.0.54).
-- Kế thừa toàn bộ Universal CIL Material Transpiler Armor (v5.0.53).
-- Kế thừa toàn bộ Windows & macOS Cross-Platform Stability Shield (v5.0.52).
-- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield (v5.0.48-v5.0.51).
-- Kế thừa toàn bộ Universal Stream Armor & Stream Alignment.
-- Kế thừa Universal Simulation Manager Armor và tương thích tuyệt đối với TM:PE, NetworkSkins, MoreTransportLines, 81 Tiles 2.
+[h2]Revert về bản Close Beta v5.0.15:[/h2]
+- Crash & Compatibility Shield: Neutralized unsafe Core KianCommons reflection loop before HarmonyBootstrap.Enable() to prevent native mono.dll 0xc0000005 access violation.
+- Expanded Stops & Stations (1776052533) PassengerCountLimiter passengerCount buffer to 65,536 elements with simulation tick armor, eliminating recurring IndexOutOfRangeException in ThreadingWrapper on cities > 32K nodes.
+- Normalized TM:PE ExtSegmentEnds & SegmentEnds buffer allocations to 130,048 (CORE_SPLIT_CAPACITY) to eliminate MNC Core length validation errors.
+- Hardened EightyOne 2 Water CustomSerialize with null-safe pulse unit copying and fallback to native serializer.
+- Armored ModsCommon CustomUITextField text selection bounds against ArgumentOutOfRangeException.
+- Preserved 100% native traffic simulation with zero TM:PE hooks.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.55 Close Beta: Unlock & Terrain Stability Armor (Eliminated crash in UnlockManager.LateUpdateData via Safe Dispatch & Milestones Multicast Armor, and protected NetManager.TerrainUpdated from external mod NREs)."
+	"changenote"		"v5.0.15 Close Beta: Reverted to stable v5.0.15 baseline (Crash & Compatibility Shield, 65K Stops/Stations, 130K buffer normalization, and 100% native traffic simulation)."
 }

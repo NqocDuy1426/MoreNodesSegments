@@ -13,391 +13,6 @@ using ColossalFramework.Plugins;
 using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Harmony
-{
-    internal static class Priority
-    {
-        public const int Last = 0;
-        public const int VeryLow = 100;
-        public const int Low = 200;
-        public const int LowerThanNormal = 300;
-        public const int Normal = 400;
-        public const int HigherThanNormal = 500;
-        public const int High = 600;
-        public const int VeryHigh = 700;
-        public const int First = 800;
-    }
-
-    [AttributeUsage(AttributeTargets.Method)]
-    internal class HarmonyPriority : Attribute
-    {
-        public int info;
-        public HarmonyPriority(int priority) { this.info = priority; }
-    }
-
-    internal class HarmonyMethod
-    {
-        public MethodInfo method;
-        public int? priority;
-        public int? prioritiy
-        {
-            get { return priority; }
-            set { priority = value; }
-        }
-
-        public HarmonyMethod() { }
-        public HarmonyMethod(MethodInfo method)
-        {
-            this.method = method;
-        }
-        public HarmonyMethod(MethodInfo method, int priority)
-        {
-            this.method = method;
-            this.priority = priority;
-        }
-    }
-
-    internal class CodeInstruction
-    {
-        public OpCode opcode;
-        public object operand;
-        public List<Label> labels = new List<Label>();
-        public List<object> blocks = new List<object>();
-
-        public CodeInstruction(OpCode opcode, object operand = null)
-        {
-            this.opcode = opcode;
-            this.operand = operand;
-        }
-
-        public CodeInstruction(CodeInstruction instruction)
-        {
-            if (instruction != null)
-            {
-                this.opcode = instruction.opcode;
-                this.operand = instruction.operand;
-                this.labels = new List<Label>(instruction.labels);
-                this.blocks = new List<object>(instruction.blocks);
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0} {1}", opcode, operand);
-        }
-    }
-
-    internal class HarmonyInstance
-    {
-        private readonly string _id;
-        private object _underlyingInstance;
-        private Type _underlyingHarmonyType;
-        private Type _underlyingHarmonyMethodType;
-        private bool _isHarmony2;
-        private static readonly object _engineLock = new object();
-
-        public string Id { get { return _id; } }
-
-        public static HarmonyInstance Create(string id)
-        {
-            return new HarmonyInstance(id);
-        }
-
-        public HarmonyInstance(string id)
-        {
-            _id = id ?? "MoreNetworkCapacityRenew";
-            EnsureEngine();
-        }
-
-        private void EnsureEngine()
-        {
-            if (_underlyingInstance != null) return;
-            lock (_engineLock)
-            {
-                if (_underlyingInstance != null) return;
-                try
-                {
-                    // 1. First preference: Harmony 2 (HarmonyLib.Harmony) used by CitiesHarmony & modern mods
-                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        try
-                        {
-                            Type h2 = asm.GetType("HarmonyLib.Harmony");
-                            if (h2 != null)
-                            {
-                                Type hm2 = asm.GetType("HarmonyLib.HarmonyMethod");
-                                if (hm2 != null)
-                                {
-                                    _underlyingHarmonyType = h2;
-                                    _underlyingHarmonyMethodType = hm2;
-                                    _isHarmony2 = true;
-                                    _underlyingInstance = Activator.CreateInstance(h2, new object[] { _id });
-                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' bound to Harmony 2 ({1} v{2}) ✓", _id, asm.GetName().Name, asm.GetName().Version));
-                                    return;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-
-                    // 2. Second preference: Harmony 1.2 (Harmony.HarmonyInstance) if external 0Harmony is present
-                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        if (asm == Assembly.GetExecutingAssembly()) continue;
-                        try
-                        {
-                            Type h1 = asm.GetType("Harmony.HarmonyInstance");
-                            if (h1 != null)
-                            {
-                                Type hm1 = asm.GetType("Harmony.HarmonyMethod");
-                                MethodInfo createM = h1.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
-                                if (createM != null)
-                                {
-                                    _underlyingHarmonyType = h1;
-                                    _underlyingHarmonyMethodType = hm1;
-                                    _isHarmony2 = false;
-                                    _underlyingInstance = createM.Invoke(null, new object[] { _id });
-                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' bound to Harmony 1 ({1}) ✓", _id, asm.GetName().Name));
-                                    return;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-
-                    // 3. Fallback: search disk for CitiesHarmony.Harmony.dll in mod directories
-                    try
-                    {
-                        var pm = ColossalFramework.Plugins.PluginManager.instance;
-                        if (pm != null)
-                        {
-                            foreach (var plugin in pm.GetPluginsInfo())
-                            {
-                                if (plugin == null || !plugin.isEnabled) continue;
-                                string pPath = plugin.modPath;
-                                if (string.IsNullOrEmpty(pPath)) continue;
-                                string h2Dll = Path.Combine(pPath, "CitiesHarmony.Harmony.dll");
-                                if (File.Exists(h2Dll))
-                                {
-                                    var h2Asm = Assembly.LoadFrom(h2Dll);
-                                    Type h2 = h2Asm.GetType("HarmonyLib.Harmony");
-                                    Type hm2 = h2Asm.GetType("HarmonyLib.HarmonyMethod");
-                                    if (h2 != null && hm2 != null)
-                                    {
-                                        _underlyingHarmonyType = h2;
-                                        _underlyingHarmonyMethodType = hm2;
-                                        _isHarmony2 = true;
-                                        _underlyingInstance = Activator.CreateInstance(h2, new object[] { _id });
-                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' loaded and bound to {1} ✓", _id, h2Dll));
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch { }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] EnsureEngine error for {0}: {1}", _id, ex.Message));
-                }
-            }
-        }
-
-        public void Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null)
-        {
-            Patch(original, prefix, postfix, transpiler, null);
-        }
-
-        public void Patch(MethodBase original, HarmonyMethod prefix, HarmonyMethod postfix, HarmonyMethod transpiler, HarmonyMethod finalizer)
-        {
-            if (original == null) return;
-            EnsureEngine();
-            if (_underlyingInstance == null || _underlyingHarmonyType == null)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Cannot patch {0}.{1}: Harmony engine not available.", original.DeclaringType != null ? original.DeclaringType.Name : "null", original.Name));
-                return;
-            }
-
-            try
-            {
-                object preObj = ConvertHarmonyMethod(prefix);
-                object postObj = ConvertHarmonyMethod(postfix);
-                object transObj = ConvertHarmonyMethod(transpiler);
-                object finObj = ConvertHarmonyMethod(finalizer);
-
-                if (_isHarmony2)
-                {
-                    MethodInfo patchM = _underlyingHarmonyType.GetMethod("Patch", new Type[] {
-                        typeof(MethodBase), _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType
-                    });
-                    if (patchM != null)
-                    {
-                        patchM.Invoke(_underlyingInstance, new object[] { original, preObj, postObj, transObj, finObj });
-                        return;
-                    }
-                }
-                else
-                {
-                    MethodInfo patchM = _underlyingHarmonyType.GetMethod("Patch", new Type[] {
-                        typeof(MethodBase), _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType
-                    });
-                    if (patchM != null)
-                    {
-                        patchM.Invoke(_underlyingInstance, new object[] { original, preObj, postObj, transObj });
-                        return;
-                    }
-                }
-
-                // Fallback overload
-                MethodInfo fallback = _underlyingHarmonyType.GetMethod("Patch");
-                if (fallback != null)
-                {
-                    var pars = fallback.GetParameters();
-                    object[] args = new object[pars.Length];
-                    args[0] = original;
-                    if (pars.Length > 1) args[1] = preObj;
-                    if (pars.Length > 2) args[2] = postObj;
-                    if (pars.Length > 3) args[3] = transObj;
-                    if (pars.Length > 4) args[4] = finObj;
-                    fallback.Invoke(_underlyingInstance, args);
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Error patching {0}.{1}: {2}", original.DeclaringType != null ? original.DeclaringType.Name : "null", original.Name, ex.Message));
-            }
-        }
-
-        public void PatchAll()
-        {
-            PatchAll(Assembly.GetExecutingAssembly());
-        }
-
-        public void PatchAll(Assembly assembly)
-        {
-            EnsureEngine();
-            if (_underlyingInstance == null || _underlyingHarmonyType == null) return;
-            try
-            {
-                MethodInfo patchAllM = _underlyingHarmonyType.GetMethod("PatchAll", new Type[] { typeof(Assembly) });
-                if (patchAllM != null)
-                {
-                    patchAllM.Invoke(_underlyingInstance, new object[] { assembly ?? Assembly.GetExecutingAssembly() });
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] PatchAll error: {0}", ex.Message));
-            }
-        }
-
-        public void UnpatchAll(string harmonyID = null)
-        {
-            EnsureEngine();
-            if (_underlyingInstance == null || _underlyingHarmonyType == null) return;
-            try
-            {
-                MethodInfo unpatchAllM = _underlyingHarmonyType.GetMethod("UnpatchAll", new Type[] { typeof(string) });
-                if (unpatchAllM != null)
-                {
-                    unpatchAllM.Invoke(_underlyingInstance, new object[] { harmonyID ?? _id });
-                }
-            }
-            catch { }
-        }
-
-        /// <summary>
-        /// Unpatch a specific patch method from the original. Works via reflection on the underlying Harmony engine.
-        /// In Harmony 2: harmony.Unpatch(original, patchMethod)
-        /// </summary>
-        public void Unpatch(MethodBase original, MethodInfo patchMethod)
-        {
-            EnsureEngine();
-            if (_underlyingInstance == null || _underlyingHarmonyType == null || original == null || patchMethod == null) return;
-            try
-            {
-                MethodInfo unpatchM = _underlyingHarmonyType.GetMethod("Unpatch", new Type[] { typeof(MethodBase), typeof(MethodInfo) });
-                if (unpatchM != null)
-                {
-                    unpatchM.Invoke(_underlyingInstance, new object[] { original, patchMethod });
-                }
-                else
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Harmony.Unpatch(MethodBase,MethodInfo) not found on engine.");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Unpatch error: {0}", ex.Message));
-            }
-        }
-
-        /// <summary>
-        /// Get patch info for a method. In Harmony 2: Harmony.GetPatchInfo(method) is a static method.
-        /// Returns a dynamic object with Prefixes, Postfixes, Transpilers properties (each is IEnumerable of Patch).
-        /// </summary>
-        public static object GetPatchInfo(MethodBase method)
-        {
-            if (method == null) return null;
-            try
-            {
-                // Harmony 2: HarmonyLib.Harmony.GetPatchInfo(MethodBase) is static
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    Type h2 = asm.GetType("HarmonyLib.Harmony");
-                    if (h2 != null)
-                    {
-                        MethodInfo gpi = h2.GetMethod("GetPatchInfo", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
-                        if (gpi != null)
-                        {
-                            return gpi.Invoke(null, new object[] { method });
-                        }
-                    }
-                }
-                // Harmony 1: HarmonySharedState or HarmonyInstance.GetPatchInfo
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    Type h1 = asm.GetType("Harmony.HarmonyInstance");
-                    if (h1 != null)
-                    {
-                        MethodInfo gpi = h1.GetMethod("GetPatchInfo", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
-                        if (gpi != null)
-                        {
-                            return gpi.Invoke(null, new object[] { method });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GetPatchInfo error: {0}", ex.Message));
-            }
-            return null;
-        }
-
-        private object ConvertHarmonyMethod(HarmonyMethod hm)
-        {
-            if (hm == null || hm.method == null || _underlyingHarmonyMethodType == null) return null;
-            try
-            {
-                object obj = Activator.CreateInstance(_underlyingHarmonyMethodType, new object[] { hm.method });
-                int? pri = hm.priority ?? hm.prioritiy;
-                if (pri.HasValue)
-                {
-                    FieldInfo f = _underlyingHarmonyMethodType.GetField("priority") ?? _underlyingHarmonyMethodType.GetField("prioritiy");
-                    if (f != null) f.SetValue(obj, pri.Value);
-                }
-                return obj;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-    }
-}
-
 namespace MoreNetworkCapacityRenew
 {
     // ============================================================================
@@ -1507,13 +1122,8 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     public class RenewMod : IUserMod
     {
-#if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.55 by NgocDuy";
-        public string Description => "[Close Beta v5.0.55] Unlock & Terrain Stability Armor (Eliminated crash in UnlockManager.LateUpdateData via Safe Dispatch & Milestones Multicast Armor, and protected NetManager.TerrainUpdated from external mod NREs).";
-#else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
-#endif
 
         static RenewMod()
         {
@@ -1531,7 +1141,7 @@ namespace MoreNetworkCapacityRenew
                         {
                             foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                             {
-                                if (a.GetName().Name == "EManagersLib") return a;
+                                if (a.GetName().Name == "EManagersLib.API" || a.GetName().Name == "EManagersLib") return a;
                             }
                         }
                         if (args.Name.StartsWith("0Harmony") || args.Name.StartsWith("Harmony"))
@@ -1733,8 +1343,6 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                 }
-                NeutralizeCoreKianCommonsPatching(mnc);
-                ArmCoreExpandedSave(mnc);
                 EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
             }
@@ -1774,347 +1382,6 @@ namespace MoreNetworkCapacityRenew
 
         private static bool SkipCoreKianCommonsPrefix()
         {
-            return false;
-        }
-
-        private static bool _coreExpandedSaveArmed = false;
-        public static void ArmCoreExpandedSave(Assembly mncCore)
-        {
-            if (_coreExpandedSaveArmed || mncCore == null) return;
-            try
-            {
-                var harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.CoreExpandedArmor");
-                var preTrue = typeof(RenewMod).GetMethod(nameof(CoreReturnTrue_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-
-                // 1. Hook Metadata.IsExpandedSave to accurately reflect save status (respects vanilla saves!)
-                Type metaType = mncCore.GetType("MoreNetworkCapacity.Metadata");
-                if (metaType != null)
-                {
-                    var isExpandedMethod = metaType.GetMethod("IsExpandedSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var preMethod = typeof(RenewMod).GetMethod(nameof(CoreMetadata_IsExpandedSave_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (isExpandedMethod != null && preMethod != null)
-                    {
-                        harmony.Patch(isExpandedMethod, prefix: new HarmonyMethod(preMethod));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Metadata.IsExpandedSave!");
-                    }
-                }
-
-                // 2. Force PatchState.ExpansionEnabled to always return true
-                Type psType = mncCore.GetType("MoreNetworkCapacity.PatchState");
-                if (psType != null && preTrue != null)
-                {
-                    var getExpansionEnabled = psType.GetProperty("ExpansionEnabled", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)?.GetGetMethod(true);
-                    if (getExpansionEnabled != null)
-                    {
-                        harmony.Patch(getExpansionEnabled, prefix: new HarmonyMethod(preTrue));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core PatchState.ExpansionEnabled!");
-                    }
-                }
-
-                // 3. Hook Capacity.GetNodeReadSize and GetSegmentReadSize to accurately return 32K for vanilla, 64K for expanded
-                Type capType = mncCore.GetType("MoreNetworkCapacity.Capacity");
-                if (capType != null)
-                {
-                    var mNodeRead = capType.GetMethod("GetNodeReadSize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var preNodeRead = typeof(RenewMod).GetMethod(nameof(CoreCapacity_GetNodeReadSize_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mNodeRead != null && preNodeRead != null)
-                    {
-                        harmony.Patch(mNodeRead, prefix: new HarmonyMethod(preNodeRead));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Capacity.GetNodeReadSize!");
-                    }
-
-                    var mSegRead = capType.GetMethod("GetSegmentReadSize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var preSegRead = typeof(RenewMod).GetMethod(nameof(CoreCapacity_GetSegmentReadSize_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mSegRead != null && preSegRead != null)
-                    {
-                        harmony.Patch(mSegRead, prefix: new HarmonyMethod(preSegRead));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Capacity.GetSegmentReadSize!");
-                    }
-                }
-
-                // 4. Arm NetManagerCustomizer methods so it NEVER fails and NEVER throws
-                Type customizerType = mncCore.GetType("MoreNetworkCapacity.NetManagerCustomizer");
-                if (customizerType != null)
-                {
-                    var mEnsureExpanded = customizerType.GetMethod("EnsureExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var preEnsureExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_EnsureExpanded_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mEnsureExpanded != null && preEnsureExpanded != null)
-                    {
-                        harmony.Patch(mEnsureExpanded, prefix: new HarmonyMethod(preEnsureExpanded));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.EnsureExpanded against layout mismatch rejection!");
-                    }
-
-                    var mIsExpanded = customizerType.GetMethod("IsExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var preIsExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_IsExpanded_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mIsExpanded != null && preIsExpanded != null)
-                    {
-                        harmony.Patch(mIsExpanded, prefix: new HarmonyMethod(preIsExpanded));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.IsExpanded against length rejection!");
-                    }
-
-                    var mPrepareExpanded = customizerType.GetMethod("PrepareExpandedSaveForLoad", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var prePrepareExpanded = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_PrepareExpandedSaveForLoad_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mPrepareExpanded != null && prePrepareExpanded != null)
-                    {
-                        harmony.Patch(mPrepareExpanded, prefix: new HarmonyMethod(prePrepareExpanded));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.PrepareExpandedSaveForLoad!");
-                    }
-
-                    var mPrepareVanilla = customizerType.GetMethod("PrepareVanillaSaveForLoad", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    var prePrepareVanilla = typeof(RenewMod).GetMethod(nameof(CoreCustomizer_PrepareVanillaSaveForLoad_Prefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (mPrepareVanilla != null && prePrepareVanilla != null)
-                    {
-                        harmony.Patch(mPrepareVanilla, prefix: new HarmonyMethod(prePrepareVanilla));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core NetManagerCustomizer.PrepareVanillaSaveForLoad!");
-                    }
-                }
-
-                _coreExpandedSaveArmed = true;
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armed Core Expanded Save Armor for all saves!");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ArmCoreExpandedSave error: " + ex);
-            }
-        }
-
-        public static bool CoreReturnTrue_Prefix(ref bool __result)
-        {
-            __result = true;
-            return false;
-        }
-
-        public static bool CoreCapacity_GetNodeReadSize_Prefix(ref int __result)
-        {
-            var nm = Singleton<NetManager>.instance;
-            int bufLen = (nm != null && nm.m_nodes != null && nm.m_nodes.m_buffer != null)
-                ? nm.m_nodes.m_buffer.Length 
-                : (int)MNCConstants.CORE_NET_CAPACITY;
-
-            if (ThirdPartyCompatibility.IsSaveGameExpanded())
-            {
-                __result = Math.Min(bufLen, (int)MNCConstants.CORE_NET_CAPACITY);
-            }
-            else
-            {
-                __result = Math.Min(bufLen, 32768);
-            }
-            return false;
-        }
-
-        public static bool CoreCapacity_GetSegmentReadSize_Prefix(ref int __result)
-        {
-            var nm = Singleton<NetManager>.instance;
-            int bufLen = (nm != null && nm.m_segments != null && nm.m_segments.m_buffer != null)
-                ? nm.m_segments.m_buffer.Length 
-                : (int)MNCConstants.CORE_NET_CAPACITY;
-
-            if (ThirdPartyCompatibility.IsSaveGameExpanded())
-            {
-                __result = Math.Min(bufLen, (int)MNCConstants.CORE_NET_CAPACITY);
-            }
-            else
-            {
-                __result = Math.Min(bufLen, 36864);
-            }
-            return false;
-        }
-
-        public static bool CoreCustomizer_EnsureExpanded_Prefix(NetManager manager, ref bool __result)
-        {
-            try
-            {
-                if (manager == null)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                // Check if already expanded to 65024 or higher (e.g. 65536)
-                bool nodesExpanded = manager.m_nodes != null && manager.m_nodes.m_buffer != null && manager.m_nodes.m_buffer.Length >= (int)MNCConstants.CORE_NET_CAPACITY;
-                bool segsExpanded = manager.m_segments != null && manager.m_segments.m_buffer != null && manager.m_segments.m_buffer.Length >= (int)MNCConstants.CORE_NET_CAPACITY;
-                if (nodesExpanded && segsExpanded)
-                {
-                    __result = true;
-                    return false;
-                }
-
-                // If vanilla sizes (32768, 36864), let native MNC EnsureExpanded run
-                bool nodesVanilla = manager.m_nodes != null && manager.m_nodes.m_buffer != null && manager.m_nodes.m_buffer.Length == 32768;
-                bool segsVanilla = manager.m_segments != null && manager.m_segments.m_buffer != null && manager.m_segments.m_buffer.Length == 36864;
-                if (nodesVanilla && segsVanilla)
-                {
-                    return true; // Let native method run
-                }
-
-                // For any other unexpected sizes, safely allocate clean Array16<NetNode>(65024) and Array16<NetSegment>(65024)
-                if (manager.m_nodes == null || manager.m_nodes.m_buffer.Length != (int)MNCConstants.CORE_NET_CAPACITY)
-                {
-                    var newNodes = new Array16<NetNode>((uint)MNCConstants.CORE_NET_CAPACITY);
-                    ushort dummyNode;
-                    newNodes.CreateItem(out dummyNode); // reserve node 0
-                    if (manager.m_nodes != null && manager.m_nodes.m_buffer != null)
-                    {
-                        int copyLen = Math.Min(manager.m_nodes.m_buffer.Length, newNodes.m_buffer.Length);
-                        Array.Copy(manager.m_nodes.m_buffer, newNodes.m_buffer, copyLen);
-                    }
-                    manager.m_nodes = newNodes;
-                }
-
-                if (manager.m_segments == null || manager.m_segments.m_buffer.Length != (int)MNCConstants.CORE_NET_CAPACITY)
-                {
-                    var newSegs = new Array16<NetSegment>((uint)MNCConstants.CORE_NET_CAPACITY);
-                    ushort dummySeg;
-                    newSegs.CreateItem(out dummySeg); // reserve segment 0
-                    if (manager.m_segments != null && manager.m_segments.m_buffer != null)
-                    {
-                        int copyLen = Math.Min(manager.m_segments.m_buffer.Length, newSegs.m_buffer.Length);
-                        Array.Copy(manager.m_segments.m_buffer, newSegs.m_buffer, copyLen);
-                    }
-                    manager.m_segments = newSegs;
-                }
-
-                // Resize auxiliary arrays
-                if (manager.m_updatedNodes == null || manager.m_updatedNodes.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
-                {
-                    manager.m_updatedNodes = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
-                }
-                if (manager.m_updatedSegments == null || manager.m_updatedSegments.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
-                {
-                    manager.m_updatedSegments = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
-                }
-                if (manager.m_adjustedSegments == null || manager.m_adjustedSegments.Length < ((int)MNCConstants.CORE_NET_CAPACITY >> 6))
-                {
-                    manager.m_adjustedSegments = new ulong[(int)MNCConstants.CORE_NET_CAPACITY >> 6];
-                }
-
-                __result = true;
-                return false;
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] CoreCustomizer_EnsureExpanded_Prefix error: " + ex);
-                __result = true; // Still return true so deserialize does not abort
-                return false;
-            }
-        }
-
-        public static bool CoreCustomizer_IsExpanded_Prefix(NetManager manager, ref bool __result)
-        {
-            try
-            {
-                if (manager == null)
-                {
-                    __result = false;
-                    return false;
-                }
-                int nodeLen = (manager.m_nodes != null && manager.m_nodes.m_buffer != null) ? manager.m_nodes.m_buffer.Length : 0;
-                int segLen = (manager.m_segments != null && manager.m_segments.m_buffer != null) ? manager.m_segments.m_buffer.Length : 0;
-                __result = (nodeLen >= (int)MNCConstants.CORE_NET_CAPACITY && segLen >= (int)MNCConstants.CORE_NET_CAPACITY);
-                return false;
-            }
-            catch
-            {
-                __result = true;
-                return false;
-            }
-        }
-
-        public static bool CoreCustomizer_PrepareExpandedSaveForLoad_Prefix(NetManager manager, ref bool __result)
-        {
-            try
-            {
-                if (manager == null)
-                {
-                    __result = false;
-                    return false;
-                }
-                TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
-                TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
-                if (manager.m_nodes != null) manager.m_nodes.ClearUnused();
-                if (manager.m_segments != null) manager.m_segments.ClearUnused();
-
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
-                    {
-                        Type capType = asm.GetType("MoreNetworkCapacity.Capacity");
-                        if (capType != null)
-                        {
-                            FieldInfo fNode = capType.GetField("NodeLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (fNode != null) fNode.SetValue(null, (int)MNCConstants.CORE_NET_CAPACITY);
-                            FieldInfo fSeg = capType.GetField("SegmentLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (fSeg != null) fSeg.SetValue(null, (int)MNCConstants.CORE_NET_CAPACITY);
-                        }
-                        Type desType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
-                        if (desType != null)
-                        {
-                            MethodInfo mSet = desType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mSet != null) mSet.Invoke(null, new object[] { true });
-                        }
-                        break;
-                    }
-                }
-
-                __result = true;
-                return false;
-            }
-            catch
-            {
-                __result = true;
-                return false;
-            }
-        }
-
-        public static bool CoreCustomizer_PrepareVanillaSaveForLoad_Prefix(NetManager manager, ref bool __result)
-        {
-            try
-            {
-                if (manager == null)
-                {
-                    __result = false;
-                    return false;
-                }
-                TransportLineCompatibility.EnsureArray16NodeCapacity(manager.m_nodes, MNCConstants.CORE_NET_CAPACITY);
-                TransportLineCompatibility.EnsureArray16SegCapacity(manager.m_segments, MNCConstants.CORE_NET_CAPACITY);
-                if (manager.m_nodes != null) manager.m_nodes.ClearUnused();
-                if (manager.m_segments != null) manager.m_segments.ClearUnused();
-
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
-                    {
-                        Type capType = asm.GetType("MoreNetworkCapacity.Capacity");
-                        if (capType != null)
-                        {
-                            FieldInfo fNode = capType.GetField("NodeLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (fNode != null) fNode.SetValue(null, 32768);
-                            FieldInfo fSeg = capType.GetField("SegmentLoopLimit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (fSeg != null) fSeg.SetValue(null, 36864);
-                        }
-                        Type desType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
-                        if (desType != null)
-                        {
-                            MethodInfo mSet = desType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mSet != null) mSet.Invoke(null, new object[] { false });
-                        }
-                        break;
-                    }
-                }
-
-                __result = true;
-                return false;
-            }
-            catch
-            {
-                __result = true;
-                return false;
-            }
-        }
-
-        public static bool CoreMetadata_IsExpandedSave_Prefix(ref bool __result)
-        {
-            __result = ThirdPartyCompatibility.IsSaveGameExpanded();
             return false;
         }
 
@@ -2274,7 +1541,6 @@ namespace MoreNetworkCapacityRenew
     {
         private static int nullPrefabCount = 0;
         private static HashSet<uint> reportedIndices = new HashSet<uint>();
-        private static bool _lsmArmed = false;
 
         public static void Initialize(HarmonyInstance harmony)
         {
@@ -2292,110 +1558,12 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched PrefabCollection<BuildingInfo>.GetPrefab");
                 }
 
-                ArmLSMIfPresent(harmony);
-
                 DiagnosticLogger.Checkpoint("AssetProtection.Complete");
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Asset protection initialization error: " + ex);
             }
-        }
-
-        public static void ArmLSMIfPresent(HarmonyInstance harmony)
-        {
-            if (_lsmArmed) return;
-            if (harmony == null)
-            {
-                try
-                {
-                    harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.LSMProtection");
-                }
-                catch
-                {
-                    return;
-                }
-            }
-            try
-            {
-                Type assetLoaderType = null;
-                Type reportsType = null;
-                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (a.GetName().Name == "LoadingScreenModRevisited")
-                    {
-                        assetLoaderType = a.GetType("LoadingScreenModRevisited.AssetLoader");
-                        reportsType = a.GetType("LoadingScreenMod.Reports");
-                        break;
-                    }
-                }
-                if (assetLoaderType != null)
-                {
-                    MethodInfo mAssetMissing = assetLoaderType.GetMethod("AssetMissing", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-                    if (mAssetMissing != null)
-                    {
-                        MethodInfo preMissing = typeof(MissingAssetProtection).GetMethod(nameof(LSM_AssetMissing_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(mAssetMissing, prefix: new HarmonyMethod(preMissing));
-                        _lsmArmed = true;
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armored LoadingScreenModRevisited.AssetLoader.AssetMissing against corrupted asset strings ✓");
-                    }
-                }
-                if (reportsType != null)
-                {
-                    MethodInfo mAddMissing = reportsType.GetMethod("AddMissing", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-                    if (mAddMissing != null)
-                    {
-                        MethodInfo preMissing = typeof(MissingAssetProtection).GetMethod(nameof(LSM_AssetMissing_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(mAddMissing, prefix: new HarmonyMethod(preMissing));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully armored LoadingScreenMod.Reports.AddMissing against corrupted asset strings ✓");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LSM AssetMissing armor check: " + ex.Message);
-            }
-        }
-
-        public static bool LSM_AssetMissing_Prefix(ref string fullName, object type)
-        {
-            if (string.IsNullOrEmpty(fullName)) return false;
-            if (fullName.Length > 256)
-            {
-                fullName = fullName.Substring(0, 128) + "...";
-            }
-            int invalidCount = 0;
-            for (int i = 0; i < fullName.Length; i++)
-            {
-                char c = fullName[i];
-                if (char.IsControl(c) || c == '\0' || (c >= 0xD800 && c <= 0xDFFF) || c > 0x2FFF)
-                {
-                    invalidCount++;
-                }
-            }
-            if (invalidCount > 4)
-            {
-                // Pure corrupted garbage string! Reject and suppress completely so LSM doesn't log or display it
-                return false;
-            }
-            if (invalidCount > 0)
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder(fullName.Length);
-                for (int i = 0; i < fullName.Length; i++)
-                {
-                    char c = fullName[i];
-                    if (!char.IsControl(c) && c != '\0' && !(c >= 0xD800 && c <= 0xDFFF))
-                    {
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.Append('_');
-                    }
-                }
-                fullName = sb.ToString();
-            }
-            return true;
         }
 
         private static void GetPrefabSafePostfix(uint index, ref BuildingInfo __result)
@@ -2477,27 +1645,12 @@ namespace MoreNetworkCapacityRenew
                 {
                     var pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.ForwardException_Prefix));
                     harmony.Patch(forwardEx, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UIView.ForwardException to suppress TM:PE warning popups and BrokenAssetException modals");
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UIView.ForwardException to suppress TM:PE warning popups");
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching UIView.ForwardException: " + ex);
-            }
-
-            try
-            {
-                MethodInfo labelSetText = typeof(ColossalFramework.UI.UILabel).GetProperty("text", BindingFlags.Public | BindingFlags.Instance)?.GetSetMethod();
-                if (labelSetText != null)
-                {
-                    var preText = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.UILabel_set_text_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(labelSetText, prefix: new HarmonyMethod(preText));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched UILabel.text setter with Dynamic Font Texture Atlas Protection ✓");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching UILabel.text setter: " + ex);
             }
 
             try
@@ -2639,107 +1792,7 @@ namespace MoreNetworkCapacityRenew
                             }
                         }
 
-                        // 8. Safe OnLevelUnloading reset
-                        MethodInfo mUnload = tpmType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
-                        if (mUnload != null)
-                        {
-                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            if (pre != null) harmony.Patch(mUnload, prefix: new HarmonyMethod(pre));
-                        }
-
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficPriorityManager with bounds-checking Harmony prefixes and dynamic auto-expansion.");
-                    }
-
-                    // Armored SegmentEndManager UpdateSegmentEnd
-                    try
-                    {
-                        Type semType = tmpe.GetType("TrafficManager.Manager.Impl.SegmentEndManager");
-                        if (semType != null)
-                        {
-                            MethodInfo mUpdateUshort = semType.GetMethod("UpdateSegmentEnd", new Type[] { typeof(ushort), typeof(bool) });
-                            if (mUpdateUshort != null)
-                            {
-                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.SegmentEndManager_UpdateSegmentEnd_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (pre != null) harmony.Patch(mUpdateUshort, prefix: new HarmonyMethod(pre));
-                            }
-                            MethodInfo mUpdateUint = semType.GetMethod("UpdateSegmentEnd", new Type[] { typeof(uint), typeof(bool) });
-                            if (mUpdateUint != null)
-                            {
-                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.SegmentEndManager_UpdateSegmentEnd_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (pre != null) harmony.Patch(mUpdateUint, prefix: new HarmonyMethod(pre));
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored SegmentEndManager.UpdateSegmentEnd with node & segment bounds protection.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SegmentEndManager.UpdateSegmentEnd: " + ex);
-                    }
-
-                    // Armored TrafficLightSimulationManager bounds and unload
-                    try
-                    {
-                        Type tlsmType = tmpe.GetType("TrafficManager.Manager.Impl.TrafficLightSimulationManager");
-                        if (tlsmType != null)
-                        {
-                            string[] hasMethods = new string[] { "HasTimedSimulation", "HasSimulation", "HasManualSimulation", "HasActiveTimedSimulation", "HasActiveSimulation" };
-                            MethodInfo preHas = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_HasSimulation_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo preHasUint = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_HasSimulation_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
-
-                            foreach (string name in hasMethods)
-                            {
-                                MethodInfo mUshort = tlsmType.GetMethod(name, new Type[] { typeof(ushort) });
-                                if (mUshort != null && preHas != null) harmony.Patch(mUshort, prefix: new HarmonyMethod(preHas));
-
-                                MethodInfo mUint = tlsmType.GetMethod(name, new Type[] { typeof(uint) });
-                                if (mUint != null && preHasUint != null) harmony.Patch(mUint, prefix: new HarmonyMethod(preHasUint));
-                            }
-
-                            MethodInfo mRemoveNode = tlsmType.GetMethod("RemoveNodeFromSimulation", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null);
-                            if (mRemoveNode != null)
-                            {
-                                MethodInfo preRem = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_RemoveNode_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (preRem != null) harmony.Patch(mRemoveNode, prefix: new HarmonyMethod(preRem));
-                            }
-                            MethodInfo mRemoveNodeUint = tlsmType.GetMethod("RemoveNodeFromSimulation", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(uint) }, null);
-                            if (mRemoveNodeUint != null)
-                            {
-                                MethodInfo preRem = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_RemoveNode_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (preRem != null) harmony.Patch(mRemoveNodeUint, prefix: new HarmonyMethod(preRem));
-                            }
-
-                            MethodInfo mTlsmUnload = tlsmType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
-                            if (mTlsmUnload != null)
-                            {
-                                MethodInfo preUnload = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (preUnload != null) harmony.Patch(mTlsmUnload, prefix: new HarmonyMethod(preUnload));
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficLightSimulationManager with bounds-checking Harmony prefixes and safe unload shield.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching TrafficLightSimulationManager: " + ex);
-                    }
-
-                    // Armored RoadUI OnLevelUnloading
-                    try
-                    {
-                        Type roadUiType = tmpe.GetType("TrafficManager.UI.Textures.RoadUI");
-                        if (roadUiType != null)
-                        {
-                            MethodInfo mRoadUnload = roadUiType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
-                            if (mRoadUnload != null)
-                            {
-                                MethodInfo preRoad = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.RoadUI_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
-                                if (preRoad != null) harmony.Patch(mRoadUnload, prefix: new HarmonyMethod(preRoad));
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored RoadUI.OnLevelUnloading with null texture exception shield.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching RoadUI.OnLevelUnloading: " + ex);
                     }
 
                     // Synchronize & Arm All TM:PE UI SubTools (Speed Limits, Priority Signs, Junction Restrictions, Lane Connectors, Vehicle Restrictions, Toggle Traffic Lights, Timed Traffic Lights, Parking Restrictions)
@@ -3706,7 +2759,7 @@ namespace MoreNetworkCapacityRenew
                 if (f != null)
                 {
                     Array arr = f.GetValue(inst) as Array;
-                    int targetSize = (int)MNCConstants.CORE_NET_CAPACITY; // 65024 (Matches MoreNetworkCapacity.Core expectation: 32768 or 65024!)
+                    int targetSize = MNCConstants.CORE_NET_CAPACITY;
                     if (arr == null || arr.Length < targetSize)
                     {
                         Type elemType = f.FieldType.GetElementType();
@@ -3740,7 +2793,7 @@ namespace MoreNetworkCapacityRenew
                 if (f != null)
                 {
                     Array arr = f.GetValue(inst) as Array;
-                    int targetSize = (int)MNCConstants.CORE_NET_CAPACITY; // 65024 (Matches MoreNetworkCapacity.Core expectation: 32768 or 65024!)
+                    int targetSize = MNCConstants.CORE_NET_CAPACITY;
                     if (arr == null || arr.Length < targetSize)
                     {
                         Type elemType = arr != null ? arr.GetType().GetElementType() : tmpe.GetType("TrafficManager.TrafficLight.Impl.TrafficLightSimulation");
@@ -5298,40 +4351,8 @@ namespace MoreNetworkCapacityRenew
                             MethodInfo mMark = patchStateType.GetMethod("MarkSaveExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                             if (mMark != null) mMark.Invoke(null, null);
                         }
-                        Type desStateType = asm.GetType("MoreNetworkCapacity.NetManagerDeserializeState");
-                        if (desStateType != null)
-                        {
-                            MethodInfo mSetLoad = desStateType.GetMethod("SetLoadingExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mSetLoad != null) mSetLoad.Invoke(null, new object[] { true });
-                        }
-                        Type customizerType = asm.GetType("MoreNetworkCapacity.NetManagerCustomizer");
-                        if (customizerType != null && Singleton<NetManager>.exists)
-                        {
-                            MethodInfo mEnsure = customizerType.GetMethod("EnsureExpanded", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mEnsure != null) mEnsure.Invoke(null, new object[] { Singleton<NetManager>.instance });
-                            MethodInfo mApp = customizerType.GetMethod("ApplyExpandedArraySizes", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                            if (mApp != null) mApp.Invoke(null, new object[] { Singleton<NetManager>.instance });
-                        }
-                        RenewMod.ArmCoreExpandedSave(asm);
                     }
                 }
-
-                // Direct lane pre-expansion: Ensure NetManager lanes buffer is sized for 512K capacity immediately
-                if (Singleton<NetManager>.exists)
-                {
-                    var nm = Singleton<NetManager>.instance;
-                    if (nm != null)
-                    {
-                        if (nm.m_lanes != null && nm.m_lanes.m_buffer != null && nm.m_lanes.m_buffer.Length < (int)MNCConstants.LANE_CAPACITY)
-                        {
-                            Array.Resize(ref nm.m_lanes.m_buffer, (int)MNCConstants.LANE_CAPACITY);
-                        }
-                    }
-                }
-
-                // Auxiliary buffer pre-expansion: Ensure ElectricityManager, WaterManager, CoverageManager buffers are sized for 65K auxiliary node capacity immediately
-                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("EnsureExpandedSave");
-
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EnsureExpandedSave: Confirmed vanilla save mode is EXPANDED (all nodes/segments up to 65,536).");
             }
             catch (Exception ex)
@@ -6791,30 +5812,18 @@ namespace MoreNetworkCapacityRenew
         {
             if (e != null)
             {
-                string typeName = e.GetType().Name;
                 string msg = e.ToString();
-                if (typeName.Contains("BrokenAsset") ||
-                    msg.Contains("Broken assets") ||
-                    msg.Contains("BrokenAssetException") ||
-                    msg.Contains("Traffic Manager") ||
+                if (msg.Contains("Traffic Manager") ||
                     msg.Contains("timed traffic lights") ||
                     msg.Contains("otherwise your timed traffic lights") ||
                     msg.Contains("TrafficManager") ||
                     msg.Contains("IndexOutOfRangeException"))
                 {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed error modal popup in UIView.ForwardException (" + typeName + "): " + (e.Message != null && e.Message.Length > 100 ? e.Message.Substring(0, 100) + "..." : e.Message));
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed TM:PE error modal popup in UIView.ForwardException: " + e.Message);
                     return false;
                 }
             }
             return true;
-        }
-
-        public static void UILabel_set_text_Prefix(ref string value)
-        {
-            if (value != null && value.Length > 2048)
-            {
-                value = value.Substring(0, 2045) + "...";
-            }
         }
 
         internal delegate void FastRecalcExtSegDelegate(object instance, ushort segmentId);
@@ -6944,10 +5953,9 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        [HarmonyPriority(Priority.First)]
         public static bool SegmentEndManager_UpdateSegmentEnd_Prefix(ushort segmentId, bool startNode, ref bool __result)
         {
-            if (segmentId == 0 || segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
             {
                 __result = false;
                 return false;
@@ -6959,77 +5967,8 @@ namespace MoreNetworkCapacityRenew
                     __result = false;
                     return false;
                 }
-                ushort nodeId = startNode ? NetManager.instance.m_segments.m_buffer[segmentId].m_startNode : NetManager.instance.m_segments.m_buffer[segmentId].m_endNode;
-                if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
-                {
-                    __result = false;
-                    return false;
-                }
             }
             return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SegmentEndManager_UpdateSegmentEnd_UInt_Prefix(uint segmentId, bool startNode, ref bool __result)
-        {
-            if (segmentId == 0 || segmentId >= (uint)MNCConstants.CORE_NET_CAPACITY)
-            {
-                __result = false;
-                return false;
-            }
-            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null)
-            {
-                if (segmentId >= (uint)NetManager.instance.m_segments.m_buffer.Length)
-                {
-                    __result = false;
-                    return false;
-                }
-                ushort nodeId = startNode ? NetManager.instance.m_segments.m_buffer[segmentId].m_startNode : NetManager.instance.m_segments.m_buffer[segmentId].m_endNode;
-                if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
-                {
-                    __result = false;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficPriorityManager_OnLevelUnloading_Prefix(object __instance)
-        {
-            try
-            {
-                if (__instance != null)
-                {
-                    Type tpmType = __instance.GetType();
-                    FieldInfo fInvalid = tpmType.GetField("invalidPrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fInvalid != null && fInvalid.GetValue(__instance) is Array invalidArr)
-                    {
-                        for (int i = 0; i < invalidArr.Length; ++i)
-                        {
-                            object item = invalidArr.GetValue(i);
-                            if (item != null)
-                            {
-                                MethodInfo resetM = item.GetType().GetMethod("Reset", BindingFlags.Public | BindingFlags.Instance);
-                                if (resetM != null)
-                                {
-                                    try { resetM.Invoke(item, null); } catch { }
-                                }
-                            }
-                        }
-                    }
-                    FieldInfo fPrio = tpmType.GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fPrio != null && fPrio.GetValue(__instance) is Array prioArr)
-                    {
-                        Array.Clear(prioArr, 0, prioArr.Length);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TrafficPriorityManager_OnLevelUnloading_Prefix handled safely: " + ex);
-            }
-            return false;
         }
 
         public static void TrafficPriorityManager_Ctor_Postfix(object __instance)
@@ -7202,7 +6141,6 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        [HarmonyPriority(Priority.First)]
         public static bool RoadUI_OnLevelUnloading_Prefix(object __instance)
         {
             try
@@ -7210,126 +6148,15 @@ namespace MoreNetworkCapacityRenew
                 if (__instance != null)
                 {
                     Type t = __instance.GetType();
-                    FieldInfo fVehDict = t.GetField("VehicleInfoSignTextures", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fVehDict != null)
+                    FieldInfo f = t.GetField("VehicleInfoSignTextures", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (f != null && f.GetValue(__instance) == null)
                     {
-                        System.Collections.IDictionary dict = fVehDict.GetValue(__instance) as System.Collections.IDictionary;
-                        if (dict != null)
-                        {
-                            foreach (System.Collections.DictionaryEntry entry in dict)
-                            {
-                                if (entry.Value is UnityEngine.Object uo && uo != null)
-                                {
-                                    try { UnityEngine.Object.Destroy(uo); } catch { }
-                                }
-                            }
-                            dict.Clear();
-                        }
-                    }
-
-                    FieldInfo fClear = t.GetField("SignClear", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fClear != null)
-                    {
-                        if (fClear.GetValue(__instance) is UnityEngine.Object uo && uo != null)
-                        {
-                            try { UnityEngine.Object.Destroy(uo); } catch { }
-                        }
-                        fClear.SetValue(__instance, null);
-                    }
-
-                    FieldInfo fUnder = t.GetField("Underground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fUnder != null)
-                    {
-                        if (fUnder.GetValue(__instance) is UnityEngine.Object uo && uo != null)
-                        {
-                            try { UnityEngine.Object.Destroy(uo); } catch { }
-                        }
-                        fUnder.SetValue(__instance, null);
+                        return false;
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] RoadUI_OnLevelUnloading_Prefix handled safely: " + ex);
-            }
-            return false;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficLightSimulationManager_HasSimulation_Prefix(ushort nodeId, ref bool __result)
-        {
-            if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
-            {
-                __result = false;
-                return false;
-            }
+            catch { }
             return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficLightSimulationManager_HasSimulation_UInt_Prefix(uint nodeId, ref bool __result)
-        {
-            if (nodeId == 0 || nodeId >= (uint)MNCConstants.CORE_NET_CAPACITY)
-            {
-                __result = false;
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficLightSimulationManager_RemoveNode_Prefix(ushort nodeId)
-        {
-            if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficLightSimulationManager_RemoveNode_UInt_Prefix(uint nodeId)
-        {
-            if (nodeId == 0 || nodeId >= (uint)MNCConstants.CORE_NET_CAPACITY)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TrafficLightSimulationManager_OnLevelUnloading_Prefix(object __instance)
-        {
-            try
-            {
-                if (__instance != null)
-                {
-                    Type tlsmType = __instance.GetType();
-                    FieldInfo f = tlsmType.GetField("<TrafficLightSimulations>k__BackingField", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                               ?? tlsmType.GetField("TrafficLightSimulations", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (f != null && f.GetValue(__instance) is Array arr)
-                    {
-                        MethodInfo mDestroy = tlsmType.GetMethod("Destroy", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        for (int i = 0; i < arr.Length; i++)
-                        {
-                            try
-                            {
-                                object sim = arr.GetValue(i);
-                                if (sim != null && mDestroy != null)
-                                {
-                                    mDestroy.Invoke(__instance, new object[] { sim });
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TrafficLightSimulationManager_OnLevelUnloading_Prefix error: " + ex);
-            }
-            return false;
         }
 
         public static bool s_PrioritySignsTranspiled = false;
@@ -9156,7 +7983,6 @@ namespace MoreNetworkCapacityRenew
                     {
                         LogSaveDebug("=== SaveSimulationData COMPLETED CLEANLY! (result=false) ===");
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] === SaveSimulationData COMPLETED CLEANLY! ===");
-                        SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);
                     }
                     CurrentSavingFilename = null;
                 }
@@ -9172,8 +7998,6 @@ namespace MoreNetworkCapacityRenew
     internal static class SavePanelOnSavingCompletePatch
     {
         private static bool s_isApplied = false;
-        private static string s_lastSavedCcsPath = null;
-        private static DateTime s_lastSaveTime = DateTime.MinValue;
 
         public static void ApplySavePanelPatch()
         {
@@ -9189,155 +8013,10 @@ namespace MoreNetworkCapacityRenew
                     s_isApplied = true;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSavingComplete safety patch!");
                 }
-
-                // Patch EmbedAssetInfo to prevent Mono collection stall on 25K+ custom assets
-                try
-                {
-                    Type tBase = typeof(SavePanel).BaseType;
-                    if (tBase != null)
-                    {
-                        MethodInfo mEmbed = tBase.GetMethod("EmbedAssetInfo", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mEmbed != null)
-                        {
-                            var preEmbed = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(EmbedAssetInfo_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mEmbed, prefix: new HarmonyMethod(preEmbed));
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied EmbedAssetInfo thread-safe optimization patch!");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply EmbedAssetInfo patch error: " + ex);
-                }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ApplySavePanelPatch error: " + ex);
-            }
-        }
-
-        public static bool EmbedAssetInfo_Prefix(ref ModInfo[] __result)
-        {
-            try
-            {
-                List<ModInfo> list = new List<ModInfo>();
-                var packages = ColossalFramework.Packaging.PackageManager.allPackages;
-                if (packages != null)
-                {
-                    ColossalFramework.Packaging.Package[] snapshot;
-                    lock (packages)
-                    {
-                        snapshot = System.Linq.Enumerable.ToArray(packages);
-                    }
-                    for (int i = 0; i < snapshot.Length; i++)
-                    {
-                        var p = snapshot[i];
-                        if (p == null) continue;
-                        try
-                        {
-                            foreach (ColossalFramework.Packaging.Package.Asset a in p)
-                            {
-                                if (a != null && a.type == UserAssetType.CustomAssetMetaData && a.isEnabled)
-                                {
-                                    ModInfo info = default(ModInfo);
-                                    info.modName = a.fullName;
-                                    try { info.modWorkshopID = p.GetPublishedFileID().AsUInt64; } catch { }
-                                    list.Add(info);
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-                __result = list.ToArray();
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] EmbedAssetInfo: Fast snapshot safely gathered {0} custom assets without Mono iterator stall ✓", list.Count));
-                return false; // Safely return snapshot without running into Mono iterator deadlocks
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EmbedAssetInfo fast gather exception, falling back: " + ex);
-                return true;
-            }
-        }
-
-        public static void OnSaveSimulationCompletedCleanly(string ccsPath)
-        {
-            s_lastSavedCcsPath = ccsPath;
-            s_lastSaveTime = DateTime.UtcNow;
-            StartSaveWatchdog();
-        }
-
-        public static void StartSaveWatchdog()
-        {
-            try
-            {
-                var lm = Singleton<LoadingManager>.instance;
-                if (lm != null)
-                {
-                    lm.StartCoroutine(SaveWatchdogCoroutine());
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] StartSaveWatchdog error: " + ex);
-            }
-        }
-
-        private static System.Collections.IEnumerator SaveWatchdogCoroutine()
-        {
-            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Started monitoring game save packaging completion...");
-            float elapsed = 0f;
-            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-
-            while (elapsed < 15f)
-            {
-                yield return new UnityEngine.WaitForSeconds(0.5f);
-                elapsed += 0.5f;
-
-                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
-                if (!isSaving)
-                {
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Game save completed cleanly by vanilla game in {0:F1}s ✓", elapsed));
-                    yield break;
-                }
-            }
-
-            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (15s timeout). Safely releasing UI and completing save...");
-
-            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-            if (sp != null)
-            {
-                try
-                {
-                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
-
-                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                    if (mComplete != null)
-                    {
-                        mComplete.Invoke(sp, new object[] { false, false });
-                    }
-
-                    // Also make sure UIView modal and progress spinners are dismissed safely on Main Thread
-                    ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
-                    {
-                        try
-                        {
-                            var modal = ColossalFramework.UI.UIView.GetModalComponent();
-                            if (modal != null)
-                            {
-                                ColossalFramework.UI.UIView.PopModal();
-                            }
-                            ColossalFramework.UI.UIView.library.Hide("SavePanel");
-                        }
-                        catch { }
-                    });
-
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog rescue exception: " + ex);
-                }
             }
         }
 
@@ -9554,7 +8233,6 @@ namespace MoreNetworkCapacityRenew
                 patchApplied = true;
                 DiagnosticLogger.Checkpoint("EnsureAllPatchesApplied.Complete");
 
-                try { MissingAssetProtection.Initialize(harmony); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] MissingAssetProtection init error: " + ex); }
                 try { TMPECompatibility.SynchronizeTMPEBuffersAndArrays("EnsureAllPatchesApplied"); } catch {}
                 try { ThirdPartyCompatibility.SynchronizeThirdPartyMods("EnsureAllPatchesApplied"); } catch {}
                 try { RenewMod.EnsureRenderManagerCapacity(); } catch {}
@@ -9562,7 +8240,7 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        internal static int SafePatchKianCommons(HarmonyInstance harmony, Type type, string methodName, string transpilerName)
+        public static int SafePatchKianCommons(HarmonyInstance harmony, Type type, string methodName, string transpilerName)
         {
             try
             {
@@ -9604,57 +8282,17 @@ namespace MoreNetworkCapacityRenew
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
-            try
-            {
-                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
-                MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
-                MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated memory prep error: " + ex);
-            }
-
-            try
-            {
-                RenewMod.EnsureCoreActive();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureCoreActive error: " + ex);
-            }
-
-            try
-            {
-                SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated SavePanelPatch error: " + ex);
-            }
-
-            try
-            {
-                MemoryOptimizer.PrewarmHeap();
-                ArrayGuardian.Initialize();
-                ArrayGuardian.ExpandAllArrays();
-                SafeFlagsAccessor.Initialize();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ArrayGuardian error: " + ex);
-            }
-
+            MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
+            MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
+            RenewMod.EnsureCoreActive();
+            SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
+            MemoryOptimizer.PrewarmHeap();
+            ArrayGuardian.Initialize();
+            ArrayGuardian.ExpandAllArrays();
+            SafeFlagsAccessor.Initialize();
             DiagnosticLogger.Checkpoint("OnCreated.Start");
             
-            try
-            {
-                EnsureAllPatchesApplied();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureAllPatchesApplied error: " + ex);
-            }
+            EnsureAllPatchesApplied();
         }
 
         public override void OnLevelLoaded(LoadMode mode)
@@ -9664,7 +8302,6 @@ namespace MoreNetworkCapacityRenew
             
             try
             {
-                TransportLineCompatibility.SanitizeAllPrefabMaterials();
                 RenewMod.EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
                 ArrayGuardian.ExpandAllArrays();
@@ -9717,23 +8354,6 @@ namespace MoreNetworkCapacityRenew
                 
                 // Report missing asset stats
                 MissingAssetProtection.ReportFinalStats();
-
-                // Confirm expanded save state for gameplay and all subsequent saves
-                try { TMPECompatibility.EnsureExpandedSave(); } catch { }
-
-                // Dynamic font protection: Clamp LoadingManager.m_brokenAssets to prevent Arial atlas explosion
-                try
-                {
-                    var lm = Singleton<LoadingManager>.instance;
-                    if (lm != null && !string.IsNullOrEmpty(lm.m_brokenAssets) && lm.m_brokenAssets.Length > 2048)
-                    {
-                        lm.m_brokenAssets = lm.m_brokenAssets.Substring(0, 2045) + "...";
-                    }
-                }
-                catch { }
-
-                // Arm LSM asset missing sanitizer if present
-                MissingAssetProtection.ArmLSMIfPresent(null);
 
                 try
                 {
@@ -11766,22 +10386,24 @@ namespace MoreNetworkCapacityRenew
 
                     if (meta.m_modOverride != null)
                     {
-                        if (meta.m_modOverride.TryGetValue("User/MoreNetworkCapacity/64K-v1", out bool v1) && v1)
+                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K-v1") && meta.m_modOverride["User/MoreNetworkCapacity/64K-v1"])
                             return true;
-                        if (meta.m_modOverride.TryGetValue("User/MoreNetworkCapacity/64K", out bool v) && v)
+                        if (meta.m_modOverride.ContainsKey("User/MoreNetworkCapacity/64K") && meta.m_modOverride["User/MoreNetworkCapacity/64K"])
                             return true;
                     }
                 }
 
-                if (asset != null && asset.package != null)
+                if (asset != null)
                 {
                     try
                     {
-                        foreach (ColossalFramework.Packaging.Package.Asset entry in asset.package)
+                        var saveMeta = asset.Instantiate<SaveGameMetaData>();
+                        if (saveMeta != null && saveMeta.mods != null)
                         {
-                            if (entry != null && !string.IsNullOrEmpty(entry.name))
+                            foreach (var mod in saveMeta.mods)
                             {
-                                if (entry.name == "HighIdTMPEData")
+                                if (mod.modWorkshopID == 3818403598UL || mod.modWorkshopID == 3814019901UL ||
+                                    (!string.IsNullOrEmpty(mod.modName) && (mod.modName.Contains("MoreNodes") || mod.modName.Contains("MoreNetworkCapacity") || mod.modName.Contains("64K"))))
                                 {
                                     return true;
                                 }
@@ -11789,10 +10411,38 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                     catch { }
+
+                    try
+                    {
+                        if (asset.package != null)
+                        {
+                            foreach (ColossalFramework.Packaging.Package.Asset entry in asset.package)
+                            {
+                                if (entry != null && !string.IsNullOrEmpty(entry.name))
+                                {
+                                    if (entry.name.Contains("MoreNetworkCapacity") || entry.name.Contains("MoreNodes") || entry.name.Contains("HighIdTMPEData"))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
                 }
 
-                // If not identified as an expanded save by any metadata or packages, it is a vanilla save!
-                return false;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MoreNetworkCapacity" || asm.GetName().Name.StartsWith("MoreNetworkCapacity.Core"))
+                    {
+                        Type metaType = asm.GetType("MoreNetworkCapacity.Metadata");
+                        if (metaType != null)
+                        {
+                            MethodInfo mIs = metaType.GetMethod("IsExpandedSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            if (mIs != null && (bool)mIs.Invoke(null, null)) return true;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -12436,138 +11086,6 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private static void ResizeInstanceArrayField(object instance, string fieldName, int newSize)
-        {
-            if (instance == null) return;
-            try
-            {
-                FieldInfo fi = instance.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fi != null)
-                {
-                    Array arr = fi.GetValue(instance) as Array;
-                    if (arr != null && arr.Length < newSize)
-                    {
-                        Array newArr = Array.CreateInstance(arr.GetType().GetElementType(), newSize);
-                        Array.Copy(arr, newArr, arr.Length);
-                        fi.SetValue(instance, newArr);
-                    }
-                }
-            }
-            catch { }
-        }
-
-        public static void EnsureAuxiliaryBuffersExpanded(string context = "")
-        {
-            try
-            {
-                const int AUX_CAPACITY = 65024; // Capacity.GetAuxiliaryNodeStorageSize() when expanded
-
-                // 1. ElectricityManager
-                if (Singleton<ElectricityManager>.exists)
-                {
-                    var em = Singleton<ElectricityManager>.instance;
-                    if (em != null)
-                    {
-                        if (em.m_nodeGroups == null || em.m_nodeGroups.Length < AUX_CAPACITY)
-                        {
-                            int oldLen = em.m_nodeGroups != null ? em.m_nodeGroups.Length : 0;
-                            Array.Resize(ref em.m_nodeGroups, AUX_CAPACITY);
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded ElectricityManager.m_nodeGroups from {0} to {1} ({2}) ✓", oldLen, AUX_CAPACITY, context));
-                        }
-                        ResizeInstanceArrayField(em, "m_pulseUnits", AUX_CAPACITY);
-                    }
-                }
-
-                // 2. WaterManager
-                if (Singleton<WaterManager>.exists)
-                {
-                    var wm = Singleton<WaterManager>.instance;
-                    if (wm != null)
-                    {
-                        if (wm.m_nodeData == null || wm.m_nodeData.Length < AUX_CAPACITY)
-                        {
-                            int oldLen = wm.m_nodeData != null ? wm.m_nodeData.Length : 0;
-                            Array.Resize(ref wm.m_nodeData, AUX_CAPACITY);
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded WaterManager.m_nodeData from {0} to {1} ({2}) ✓", oldLen, AUX_CAPACITY, context));
-                        }
-                        ResizeInstanceArrayField(wm, "m_waterPulseUnits", AUX_CAPACITY);
-                        ResizeInstanceArrayField(wm, "m_sewagePulseUnits", AUX_CAPACITY);
-                        ResizeInstanceArrayField(wm, "m_heatingPulseUnits", AUX_CAPACITY);
-                    }
-                }
-
-                // 3. CoverageManager
-                if (Singleton<CoverageManager>.exists)
-                {
-                    var cm = Singleton<CoverageManager>.instance;
-                    if (cm != null)
-                    {
-                        ResizeInstanceArrayField(cm, "m_nodes", AUX_CAPACITY);
-                        ResizeInstanceArrayField(cm, "m_distances", AUX_CAPACITY);
-                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded CoverageManager.m_nodes to {0} ({1}) ✓", AUX_CAPACITY, context));
-                    }
-                }
-
-                // 4. EightyOne2 auxiliary arrays
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == "EightyOne2")
-                    {
-                        try
-                        {
-                            Type expElec = asm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
-                            if (expElec != null)
-                            {
-                                try { System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(expElec.TypeHandle); } catch { }
-                                FieldInfo fiPulseUnits = expElec.GetField("s_pulseUnits", BindingFlags.NonPublic | BindingFlags.Static);
-                                if (fiPulseUnits != null)
-                                {
-                                    Array arr = fiPulseUnits.GetValue(null) as Array;
-                                    if (arr == null || arr.Length < AUX_CAPACITY)
-                                    {
-                                        Type elemType = fiPulseUnits.FieldType.GetElementType();
-                                        Array newArr = Array.CreateInstance(elemType, AUX_CAPACITY);
-                                        if (arr != null) Array.Copy(arr, newArr, arr.Length);
-                                        fiPulseUnits.SetValue(null, newArr);
-                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedElectricityManager.s_pulseUnits to {0} ({1}) ✓", AUX_CAPACITY, context));
-                                    }
-                                }
-                            }
-
-                            Type expWater = asm.GetType("EightyOne2.Patches.ExpandedWaterManager");
-                            if (expWater != null)
-                            {
-                                try { System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(expWater.TypeHandle); } catch { }
-                                string[] waterFields = new string[] { "s_waterPulseUnits", "s_sewagePulseUnits", "s_heatingPulseUnits" };
-                                foreach (var fName in waterFields)
-                                {
-                                    FieldInfo fi = expWater.GetField(fName, BindingFlags.NonPublic | BindingFlags.Static);
-                                    if (fi != null)
-                                    {
-                                        Array arr = fi.GetValue(null) as Array;
-                                        if (arr == null || arr.Length < AUX_CAPACITY)
-                                        {
-                                            Type elemType = fi.FieldType.GetElementType();
-                                            Array newArr = Array.CreateInstance(elemType, AUX_CAPACITY);
-                                            if (arr != null) Array.Copy(arr, newArr, arr.Length);
-                                            fi.SetValue(null, newArr);
-                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Buffer Guard: Pre-expanded EightyOne2.ExpandedWaterManager.{0} to {1} ({2}) ✓", fName, AUX_CAPACITY, context));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch { }
-                        break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EnsureAuxiliaryBuffersExpanded error: " + ex);
-            }
-        }
-
         private static void SetStaticField(Type type, string fieldName, object value)
         {
             if (type == null || value == null) return;
@@ -12875,39 +11393,6 @@ namespace MoreNetworkCapacityRenew
 
             // 7. Stops & Stations (Impatient Commuters) 65K bounds armor
             PatchStopsAndStations(harmony);
-
-            // 8. Universal Vanilla ElectricityManager & WaterManager Zero-Division Armor
-            PatchVanillaSimulationZeroDivision(harmony);
-        }
-
-        private static bool _vanillaSimZeroDivPatched = false;
-        private static void PatchVanillaSimulationZeroDivision(HarmonyInstance harmony)
-        {
-            if (_vanillaSimZeroDivPatched || harmony == null) return;
-            try
-            {
-                MethodInfo mVanillaElec = typeof(ElectricityManager).GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (mVanillaElec != null)
-                {
-                    MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(mVanillaElec, transpiler: new HarmonyMethod(tr));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla ElectricityManager.SimulationStepImpl against DivideByZeroException ✓");
-                }
-
-                MethodInfo mVanillaWater = typeof(WaterManager).GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (mVanillaWater != null)
-                {
-                    MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(mVanillaWater, transpiler: new HarmonyMethod(tr));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla WaterManager.SimulationStepImpl against DivideByZeroException ✓");
-                }
-
-                _vanillaSimZeroDivPatched = true;
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PatchVanillaSimulationZeroDivision error: " + ex);
-            }
         }
 
         private static bool _stopsAndStationsPatched = false;
@@ -13002,7 +11487,7 @@ namespace MoreNetworkCapacityRenew
 
                 int patchedCount = 0;
 
-                // 1. Patch ElectricityManagerDataPatches.CustomSerialize & CustomDeserialize
+                // 1. Patch ElectricityManagerDataPatches.CustomSerialize
                 try
                 {
                     Type elecPatches = eightyOneAsm.GetType("EightyOne2.Patches.ElectricityManagerDataPatches");
@@ -13016,18 +11501,6 @@ namespace MoreNetworkCapacityRenew
                             patchedCount++;
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomSerialize with bounds-safe prefix!");
                         }
-                        MethodInfo mCustomDeserialize = elecPatches.GetMethod("CustomDeserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (mCustomDeserialize != null)
-                        {
-                            MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Electricity_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Electricity_CustomDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TransportLineCompatibility.TryPatchHarmony2(mCustomDeserialize, pre, fin, 800))
-                            {
-                                harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
-                            }
-                            patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ElectricityManagerDataPatches.CustomDeserialize with bounds-safe prefix & finalizer!");
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -13035,7 +11508,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 Electricity error: " + ex);
                 }
 
-                // 2. Patch WaterManagerDataPatches.CustomSerialize & CustomDeserialize
+                // 2. Patch WaterManagerDataPatches.CustomSerialize
                 try
                 {
                     Type waterPatches = eightyOneAsm.GetType("EightyOne2.Patches.WaterManagerDataPatches");
@@ -13048,18 +11521,6 @@ namespace MoreNetworkCapacityRenew
                             harmony.Patch(mCustomSerialize, prefix: new HarmonyMethod(pre));
                             patchedCount++;
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomSerialize with bounds-safe prefix!");
-                        }
-                        MethodInfo mCustomDeserialize = waterPatches.GetMethod("CustomDeserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (mCustomDeserialize != null)
-                        {
-                            MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Water_CustomDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(EightyOne2_Water_CustomDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TransportLineCompatibility.TryPatchHarmony2(mCustomDeserialize, pre, fin, 800))
-                            {
-                                harmony.Patch(mCustomDeserialize, prefix: new HarmonyMethod(pre));
-                            }
-                            patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.WaterManagerDataPatches.CustomDeserialize with bounds-safe prefix & finalizer!");
                         }
                     }
                 }
@@ -13148,52 +11609,10 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hook NetManager.Awake error: " + ex);
                 }
 
-                // 7. Hook EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl against DivideByZeroException on 40K+ nodes
-                try
-                {
-                    Type expElec = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
-                    if (expElec != null)
-                    {
-                        MethodInfo mSimStep = expElec.GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (mSimStep != null)
-                        {
-                            MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mSimStep, transpiler: new HarmonyMethod(tr));
-                            patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ExpandedElectricityManager.SimulationStepImpl with zero-division safety transpiler!");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 ExpandedElectricityManager error: " + ex);
-                }
-
-                // 8. Hook EightyOne2.Patches.ExpandedWaterManager.SimulationStepImpl against pulse unmerge division by zero
-                try
-                {
-                    Type expWater = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedWaterManager");
-                    if (expWater != null)
-                    {
-                        MethodInfo mSimStep = expWater.GetMethod("SimulationStepImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (mSimStep != null)
-                        {
-                            MethodInfo tr = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeElectricityDivision_Transpiler), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mSimStep, transpiler: new HarmonyMethod(tr));
-                            patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hooked EightyOne2.ExpandedWaterManager.SimulationStepImpl with zero-division safety transpiler!");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patch EightyOne2 ExpandedWaterManager error: " + ex);
-                }
-
                 if (patchedCount > 0)
                 {
                     _eightyOne2Patched = true;
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization & simulation safety patches!", patchedCount));
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization safety patches!", patchedCount));
                 }
             }
             catch (Exception ex)
@@ -13206,7 +11625,6 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                EnsureEightyOne2Patched();
                 if (!Singleton<NetManager>.exists) return;
                 NetManager nm = Singleton<NetManager>.instance;
                 if (nm == null) return;
@@ -13982,34 +12400,6 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static void EightyOne2_Electricity_CustomDeserialize_Prefix()
-        {
-            EnsureAuxiliaryBuffersExpanded("EightyOne2.Electricity.CustomDeserialize.Prefix");
-        }
-
-        public static Exception EightyOne2_Electricity_CustomDeserialize_Finalizer(Exception __exception)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed EightyOne2 Electricity CustomDeserialize error: " + __exception.Message);
-            }
-            return null;
-        }
-
-        public static void EightyOne2_Water_CustomDeserialize_Prefix()
-        {
-            EnsureAuxiliaryBuffersExpanded("EightyOne2.Water.CustomDeserialize.Prefix");
-        }
-
-        public static Exception EightyOne2_Water_CustomDeserialize_Finalizer(Exception __exception)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Suppressed EightyOne2 Water CustomDeserialize error: " + __exception.Message);
-            }
-            return null;
-        }
-
         public static bool EightyOne2_District_CustomSerialize_Prefix(ColossalFramework.IO.EncodedArray.Byte encodedArray, DistrictManager.Cell[] districtCellArray)
         {
             try
@@ -14180,28 +12570,6 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] EightyOne2_Immaterial_CustomSerialize_Prefix error: " + ex);
                 return false;
-            }
-        }
-
-        public static ulong SafeDivU64(ulong num, ulong den)
-        {
-            if (den == 0UL) return 0UL;
-            return num / den;
-        }
-
-        public static IEnumerable<CodeInstruction> SafeElectricityDivision_Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            MethodInfo mSafeDiv = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeDivU64), BindingFlags.Public | BindingFlags.Static);
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Div_Un || instr.opcode == OpCodes.Div)
-                {
-                    yield return new CodeInstruction(OpCodes.Call, mSafeDiv);
-                }
-                else
-                {
-                    yield return instr;
-                }
             }
         }
 
@@ -14814,8 +13182,7 @@ namespace MoreNetworkCapacityRenew
                 name.StartsWith("CitiesHarmony") ||
                 name.StartsWith("ICities") ||
                 name.StartsWith("Assembly-CSharp") ||
-                name == "MoreNodesSegments" ||
-                name == "MoreNodesSegmentsBeta")
+                name == "MoreNodesSegments")
             {
                 return true;
             }
@@ -15048,153 +13415,6 @@ namespace MoreNetworkCapacityRenew
 
     internal static class TransportLineCompatibility
     {
-        private static readonly FieldInfo fArray16NodeUnusedItems = typeof(Array16<NetNode>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo fArray16NodeUnusedCount = typeof(Array16<NetNode>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo fArray16SegUnusedItems = typeof(Array16<NetSegment>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo fArray16SegUnusedCount = typeof(Array16<NetSegment>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo fArray32LaneUnusedItems = typeof(Array32<NetLane>).GetField("m_unusedItems", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo fArray32LaneUnusedCount = typeof(Array32<NetLane>).GetField("m_unusedCount", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static void EnsureArray16NodeCapacity(Array16<NetNode> arr, int targetCapacity)
-        {
-            if (arr == null) return;
-            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
-            {
-                Array.Resize(ref arr.m_buffer, targetCapacity);
-            }
-            if (arr.m_size < (uint)targetCapacity)
-            {
-                arr.m_size = (uint)targetCapacity;
-            }
-            try
-            {
-                if (fArray16NodeUnusedItems != null)
-                {
-                    ushort[] unused = fArray16NodeUnusedItems.GetValue(arr) as ushort[];
-                    if (unused == null || unused.Length < targetCapacity)
-                    {
-                        Array.Resize(ref unused, targetCapacity);
-                        fArray16NodeUnusedItems.SetValue(arr, unused);
-                    }
-                }
-            }
-            catch {}
-        }
-
-        public static void EnsureArray16SegCapacity(Array16<NetSegment> arr, int targetCapacity)
-        {
-            if (arr == null) return;
-            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
-            {
-                Array.Resize(ref arr.m_buffer, targetCapacity);
-            }
-            if (arr.m_size < (uint)targetCapacity)
-            {
-                arr.m_size = (uint)targetCapacity;
-            }
-            try
-            {
-                if (fArray16SegUnusedItems != null)
-                {
-                    ushort[] unused = fArray16SegUnusedItems.GetValue(arr) as ushort[];
-                    if (unused == null || unused.Length < targetCapacity)
-                    {
-                        Array.Resize(ref unused, targetCapacity);
-                        fArray16SegUnusedItems.SetValue(arr, unused);
-                    }
-                }
-            }
-            catch {}
-        }
-
-        public static void EnsureArray32LaneCapacity(Array32<NetLane> arr, int targetCapacity)
-        {
-            if (arr == null) return;
-            if (arr.m_buffer == null || arr.m_buffer.Length < targetCapacity)
-            {
-                Array.Resize(ref arr.m_buffer, targetCapacity);
-            }
-            if (arr.m_size < (uint)targetCapacity)
-            {
-                arr.m_size = (uint)targetCapacity;
-            }
-            try
-            {
-                if (fArray32LaneUnusedItems != null)
-                {
-                    uint[] unused = fArray32LaneUnusedItems.GetValue(arr) as uint[];
-                    if (unused == null || unused.Length < targetCapacity)
-                    {
-                        Array.Resize(ref unused, targetCapacity);
-                        fArray32LaneUnusedItems.SetValue(arr, unused);
-                    }
-                }
-            }
-            catch {}
-        }
-
-        public static Assembly GetMncCoreAssembly()
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                string name = asm.GetName().Name;
-                if (name == "MoreNetworkCapacity" || name == "MoreNetworkCapacity.Core")
-                {
-                    return asm;
-                }
-            }
-            return null;
-        }
-
-        public static bool TryPatchHarmony2(MethodBase original, MethodInfo prefix, MethodInfo finalizer, int priority = 800)
-        {
-            try
-            {
-                Type harmony2Type = null;
-                Type harmonyMethodType = null;
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (harmony2Type == null) harmony2Type = asm.GetType("HarmonyLib.Harmony");
-                    if (harmonyMethodType == null) harmonyMethodType = asm.GetType("HarmonyLib.HarmonyMethod");
-                    if (harmony2Type != null && harmonyMethodType != null) break;
-                }
-
-                if (harmony2Type != null && harmonyMethodType != null)
-                {
-                    object h2Instance = Activator.CreateInstance(harmony2Type, new object[] { "com.ngocduy.morenetworkcapacityrenew.h2" });
-                    
-                    object preObj = null;
-                    if (prefix != null)
-                    {
-                        preObj = Activator.CreateInstance(harmonyMethodType, new object[] { prefix });
-                        var pPriority = harmonyMethodType.GetField("priority") ?? harmonyMethodType.GetField("prioritiy");
-                        pPriority?.SetValue(preObj, priority);
-                    }
-
-                    object finObj = null;
-                    if (finalizer != null)
-                    {
-                        finObj = Activator.CreateInstance(harmonyMethodType, new object[] { finalizer });
-                    }
-
-                    MethodInfo patchMethod = harmony2Type.GetMethod("Patch", new Type[] {
-                        typeof(MethodBase), harmonyMethodType, harmonyMethodType, harmonyMethodType, harmonyMethodType
-                    });
-
-                    if (patchMethod != null)
-                    {
-                        patchMethod.Invoke(h2Instance, new object[] { original, preObj, null, null, finObj });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched " + original.DeclaringType.Name + "." + original.Name + " with Harmony 2 Finalizer armor ✓");
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TryPatchHarmony2 failed: " + ex);
-            }
-            return false;
-        }
         public static void Apply(HarmonyInstance harmony)
         {
             if (harmony == null) return;
@@ -15240,209 +13460,10 @@ namespace MoreNetworkCapacityRenew
                     if (simDes != null)
                     {
                         MethodInfo preDes = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        MethodInfo finDes = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(simDes, preDes, finDes, 900))
-                        {
-                            harmony.Patch(simDes, prefix: new HarmonyMethod(preDes) { prioritiy = Harmony.Priority.First });
-                        }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.Data.Deserialize with early metadata synchronization and Exception Finalizer (Priority.First).");
+                        harmony.Patch(simDes, prefix: new HarmonyMethod(preDes) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.Data.Deserialize with early metadata synchronization (Priority.First).");
                     }
                 }
-
-                // 2c. Patch LoadingManager.<LoadSimulationData>c__IteratorB.MoveNext (Universal Simulation Shield Transpiler)
-                try
-                {
-                    Type lmType = typeof(LoadingManager);
-                    Type iterType = null;
-                    foreach (var t in lmType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
-                    {
-                        if (t.Name.Contains("LoadSimulationData"))
-                        {
-                            iterType = t;
-                            break;
-                        }
-                    }
-                    if (iterType != null)
-                    {
-                        MethodInfo mMoveNext = iterType.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (mMoveNext != null)
-                        {
-                            MethodInfo transpiler = typeof(TransportLineCompatibility).GetMethod(nameof(LoadSimulationData_MoveNext_Transpiler), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mMoveNext, transpiler: new HarmonyMethod(transpiler) { prioritiy = Harmony.Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched LoadingManager.<LoadSimulationData>.MoveNext with Universal Simulation Shield Transpiler (Priority.First) ✓");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching LoadingManager.LoadSimulationData MoveNext: " + ex);
-                }
-
-                // 2d. Patch SimulationManager.LateUpdateData (Universal Warm-Up Armor, Profiler Safety & Timeout Shield)
-                try
-                {
-                    MethodInfo smLate = typeof(SimulationManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smLate != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smLate, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.LateUpdateData with Universal Warm-Up Armor and Timeout Shield (Priority.First) ✓");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SimulationManager.LateUpdateData: " + ex);
-                }
-
-                 // 2e. Patch SimulationManager.Managers_* with Direct Type-Safe Dispatch Armor (Priority.First)
-                //      On Mono (macOS), dynamic interface dispatch `callvirt ISimulationManager::UpdateData`
-                //      inside any Harmony DynamicMethod crashes with SIGSEGV at get_object_generic_inst + 97
-                //      when reaching managers that inherit empty methods from SimulationManagerBase<T,P>
-                //      (WeatherManager, ToolManager, PathManager, etc.) because their generic_class pointer is NULL.
-                //      Solution: Our Priority.First prefix returns `false` to completely bypass Harmony's dynamic
-                //      loop, and directly calls the 25 concrete manager singletons using non-generic type-safe calls.
-                try
-                {
-                    MethodInfo smUpd = typeof(SimulationManager).GetMethod("Managers_UpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_UpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
-                    }
-
-                    MethodInfo smLateUpd = typeof(SimulationManager).GetMethod("Managers_LateUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(SimulationManager.UpdateMode), typeof(float), typeof(float) }, null);
-                    if (smLateUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_LateUpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
-                    }
-
-                    MethodInfo smEarlyUpd = typeof(SimulationManager).GetMethod("Managers_EarlyUpdateData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
-                    if (smEarlyUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(SimulationManager_Managers_EarlyUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(smEarlyUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched SimulationManager.Managers_EarlyUpdateData with Direct Type-Safe Dispatch Armor (Priority.First) ✓");
-                    }
-
-                    // Patch TransportManager.UpdateData with Priority.First returning false to bypass MoreTransportLines crashing dynamic method
-                    MethodInfo tmUpd = typeof(TransportManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (tmUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TransportManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(tmUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TransportManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch EventManager.UpdateData with Priority.First returning false to prevent Mono SIGSEGV on missing event prefabs
-                    MethodInfo emUpd = typeof(EventManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (emUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(EventManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(emUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched EventManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch DisasterManager.UpdateData with Priority.First returning false to prevent Mono SIGSEGV on missing disaster prefabs
-                    MethodInfo dmUpd = typeof(DisasterManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (dmUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DisasterManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(dmUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched DisasterManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch AudioManager.UpdateData with Priority.First returning false to prevent Mono SIGSEGV on missing radio prefabs
-                    MethodInfo amUpd = typeof(AudioManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (amUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(AudioManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(amUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched AudioManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch InfoManager.UpdateData with Priority.First returning false to prevent Mono SIGSEGV generic dispatch
-                    MethodInfo imUpd = typeof(InfoManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (imUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(InfoManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(imUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched InfoManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch TerrainManager.LateUpdateData with Priority.First to eliminate infinite Monitor.Wait spin lock deadlock
-                    MethodInfo tmLate = typeof(TerrainManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (tmLate != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(tmLate, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.LateUpdateData with Deadlock Timeout Shield (Priority.First) ✓");
-                    }
-
-                    // Patch TerrainManager.UpdateData with Postfix to guarantee patches are never left unqueued
-                    MethodInfo termUpd = typeof(TerrainManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (termUpd != null)
-                    {
-                        MethodInfo post = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_UpdateData_Postfix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(termUpd, postfix: new HarmonyMethod(post) { prioritiy = Priority.Last });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.UpdateData with Postfix Recovery Guard ✓");
-                    }
-
-                    // Patch UnlockManager.LateUpdateData with Priority.First to eliminate Mono SimulationManagerBase SIGSEGV and unhandled NULL faults
-                    MethodInfo umLate = typeof(UnlockManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (umLate != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(UnlockManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(umLate, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched UnlockManager.LateUpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch UnlockManager.MilestonesUpdated with Priority.First to isolate subscriber errors on main thread
-                    MethodInfo umMU = typeof(UnlockManager).GetMethod("MilestonesUpdated", BindingFlags.Public | BindingFlags.Instance);
-                    if (umMU != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(UnlockManager_MilestonesUpdated_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(umMU, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched UnlockManager.MilestonesUpdated with Safe Multicast Armor (Priority.First) ✓");
-                    }
-
-                    // Patch MilestoneCollection.FindMilestone with Fallback Armor to prevent NULL dereferences on missing DLC milestones
-                    MethodInfo mcFM = typeof(MilestoneCollection).GetMethod("FindMilestone", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string) }, null);
-                    if (mcFM != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(MilestoneCollection_FindMilestone_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(mcFM, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched MilestoneCollection.FindMilestone with Fallback Armor (Priority.First) ✓");
-                    }
-
-                    // Patch TerrainManager.Managers_TerrainUpdated to isolate external mod NREs (Adaptive Roads etc.) across all managers
-                    MethodInfo tmMgtu = typeof(TerrainManager).GetMethod("Managers_TerrainUpdated", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(TerrainArea), typeof(TerrainArea), typeof(TerrainArea) }, null);
-                    if (tmMgtu != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_Managers_TerrainUpdated_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(tmMgtu, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.Managers_TerrainUpdated with Shield Armor (Priority.First) ✓");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Managers_* methods: " + ex);
-                }
-
-                // 2f. Material Safety Transpiler Armor (Universal CIL method interception to prevent SIGABRT in InitRenderDataImpl.MoveNext)
-                // Harmony cannot hook native extern/internalcall methods directly on Mono, so we transpile the callers (InitRenderDataImpl, Prefabs, etc.)
-                // replacing all calls to Material.HasProperty, GetTexture, mainTexture with safe managed methods.
-                try
-                {
-                    TransportLineCompatibility.ApplyMaterialSafetyTranspilers(harmony);
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in ApplyMaterialSafetyTranspilers: " + ex);
-                }
-
 
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
@@ -15508,463 +13529,28 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching CitizenManager.Data.Deserialize: " + ex);
                 }
 
-                // 3b-3. Patch ElectricityManager.Data.Deserialize (Universal Dynamic Buffer Guard & Stream Armor)
-                try
-                {
-                    Type emDataType = typeof(ElectricityManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (emDataType != null)
-                    {
-                        MethodInfo emDes = emDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (emDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(emDes, pre, fin, 800))
-                            {
-                                harmony.Patch(emDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ElectricityManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching ElectricityManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-4. Patch WaterManager.Data.Deserialize (Universal Dynamic Buffer Guard & Stream Armor)
-                try
-                {
-                    Type wmDataType = typeof(WaterManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (wmDataType != null)
-                    {
-                        MethodInfo wmDes = wmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (wmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(wmDes, pre, fin, 800))
-                            {
-                                harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WaterManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WaterManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-5. Patch NetManager.Data.Deserialize (Universal Dynamic Buffer Guard, Loop Bounds Armor & Exception Finalizer)
-                try
-                {
-                    Type nmDataType = typeof(NetManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (nmDataType != null)
-                    {
-                        MethodInfo nmDes = nmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (nmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(nmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(nmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-6. Patch TreeManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type treeDataType = typeof(TreeManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (treeDataType != null)
-                    {
-                        MethodInfo treeDes = treeDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (treeDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TreeManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(TreeManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(treeDes, pre, fin, 900))
-                            {
-                                harmony.Patch(treeDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TreeManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching TreeManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-7. Patch PropManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type pmDataType = typeof(PropManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (pmDataType != null)
-                    {
-                        MethodInfo pmDes = pmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (pmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(PropManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(PropManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(pmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(pmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched PropManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching PropManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-8. Patch BuildingManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type bmDataType = typeof(BuildingManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (bmDataType != null)
-                    {
-                        MethodInfo bmDes = bmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (bmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(BuildingManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(BuildingManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(bmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(bmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched BuildingManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching BuildingManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-9. Patch CitizenManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type cmDataType = typeof(CitizenManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (cmDataType != null)
-                    {
-                        MethodInfo cmDes = cmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (cmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(CitizenManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(CitizenManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(cmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(cmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched CitizenManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching CitizenManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-10. Patch ZoneManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type zmDataType = typeof(ZoneManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (zmDataType != null)
-                    {
-                        MethodInfo zmDes = zmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (zmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(ZoneManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(ZoneManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(zmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(zmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ZoneManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching ZoneManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-11. Patch VehicleManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type vmDataType = typeof(VehicleManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (vmDataType != null)
-                    {
-                        MethodInfo vmDes = vmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (vmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(VehicleManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(VehicleManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(vmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(vmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched VehicleManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching VehicleManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-12. Patch DistrictManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type dmDataType = typeof(DistrictManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (dmDataType != null)
-                    {
-                        MethodInfo dmDes = dmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (dmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DistrictManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(DistrictManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(dmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(dmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DistrictManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching DistrictManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-13. Patch NaturalResourceManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type nrmDataType = typeof(NaturalResourceManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (nrmDataType != null)
-                    {
-                        MethodInfo nrmDes = nrmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (nrmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NaturalResourceManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NaturalResourceManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(nrmDes, pre, fin, 900))
-                            {
-                                harmony.Patch(nrmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NaturalResourceManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NaturalResourceManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-14. Patch TransferManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type tmDataType2 = typeof(TransferManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (tmDataType2 != null)
-                    {
-                        MethodInfo tmDes2 = tmDataType2.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (tmDes2 != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TransferManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(TransferManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(tmDes2, pre, fin, 900))
-                            {
-                                harmony.Patch(tmDes2, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TransferManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching TransferManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-15. Patch TerrainManager.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type termDataType = typeof(TerrainManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (termDataType != null)
-                    {
-                        MethodInfo termDes = termDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (termDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(termDes, pre, fin, 900))
-                            {
-                                harmony.Patch(termDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TerrainManager.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching TerrainManager.Data.Deserialize: " + ex);
-                }
-
-                // 3b-16. Patch WaterSimulation.Data.Deserialize (Universal Dynamic Buffer Guard, EOF Armor & Exception Finalizer)
-                try
-                {
-                    Type wsDataType = typeof(WaterSimulation).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (wsDataType != null)
-                    {
-                        MethodInfo wsDes = wsDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (wsDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WaterSimulation_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterSimulation_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(wsDes, pre, fin, 900))
-                            {
-                                harmony.Patch(wsDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WaterSimulation.Data.Deserialize with Universal Dynamic Buffer Guard and Exception Finalizer (Priority.First + 100).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WaterSimulation.Data.Deserialize: " + ex);
-                }
-
-                // 3c. Patch LoadingProfiler.BeginDeserialize & EndDeserialize (Universal Stream Armor against tag mismatches - both 2-arg and 3-arg)
+                // 3c. Patch LoadingProfiler.BeginDeserialize & EndDeserialize (Universal Stream Armor against tag mismatches)
                 try
                 {
                     MethodInfo beginDes = typeof(LoadingProfiler).GetMethod("BeginDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string) }, null);
                     if (beginDes != null)
                     {
                         MethodInfo preBegin = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_BeginDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(beginDes, preBegin, null, 950))
-                        {
-                            harmony.Patch(beginDes, prefix: new HarmonyMethod(preBegin) { prioritiy = Harmony.Priority.First });
-                        }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize (2-arg) with Universal Stream Armor.");
+                        harmony.Patch(beginDes, prefix: new HarmonyMethod(preBegin));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize with Universal Stream Armor.");
                     }
 
                     MethodInfo endDes = typeof(LoadingProfiler).GetMethod("EndDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string) }, null);
                     if (endDes != null)
                     {
                         MethodInfo preEnd = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_EndDeserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(endDes, preEnd, null, 950))
-                        {
-                            harmony.Patch(endDes, prefix: new HarmonyMethod(preEnd) { prioritiy = Harmony.Priority.First });
-                        }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize (2-arg) with Universal Stream Armor.");
-                    }
-
-                    MethodInfo beginDes3 = typeof(LoadingProfiler).GetMethod("BeginDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string), typeof(string) }, null);
-                    if (beginDes3 != null)
-                    {
-                        MethodInfo preBegin3 = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_BeginDeserialize_3Arg_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(beginDes3, preBegin3, null, 950))
-                        {
-                            harmony.Patch(beginDes3, prefix: new HarmonyMethod(preBegin3) { prioritiy = Harmony.Priority.First });
-                        }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.BeginDeserialize (3-arg) with Universal Stream Armor.");
-                    }
-
-                    MethodInfo endDes3 = typeof(LoadingProfiler).GetMethod("EndDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer), typeof(string), typeof(string) }, null);
-                    if (endDes3 != null)
-                    {
-                        MethodInfo preEnd3 = typeof(TransportLineCompatibility).GetMethod(nameof(LoadingProfiler_EndDeserialize_3Arg_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(endDes3, preEnd3, null, 950))
-                        {
-                            harmony.Patch(endDes3, prefix: new HarmonyMethod(preEnd3) { prioritiy = Harmony.Priority.First });
-                        }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize (3-arg) with Universal Stream Armor.");
+                        harmony.Patch(endDes, prefix: new HarmonyMethod(preEnd));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingProfiler.EndDeserialize with Universal Stream Armor.");
                     }
                 }
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching LoadingProfiler tags: " + ex);
-                }
-
-                // 3c-2. Patch WeatherManager.Data.Deserialize (Universal Dynamic Buffer Guard & EOF Stream Armor)
-                try
-                {
-                    Type wmDataType = typeof(WeatherManager).GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                    if (wmDataType != null)
-                    {
-                        MethodInfo wmDes = wmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                        if (wmDes != null)
-                        {
-                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(WeatherManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(WeatherManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            if (!TryPatchHarmony2(wmDes, pre, fin, 800))
-                            {
-                                harmony.Patch(wmDes, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                            }
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched WeatherManager.Data.Deserialize with Universal Dynamic Buffer Guard & Finalizer (Priority.First).");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching WeatherManager.Data.Deserialize: " + ex);
-                }
-
-                // 3c-3. Universal EOF Stream Armor for all other Simulation Manager Data containers
-                try
-                {
-                    Type[] managerTypes = new Type[]
-                    {
-                        typeof(TerrainManager),
-                        typeof(WaterSimulation),
-                        typeof(DisasterManager),
-                        typeof(EventManager),
-                        typeof(GameAreaManager),
-                        typeof(GuideManager),
-                        typeof(MessageManager),
-                        typeof(UnlockManager),
-                        typeof(StatisticsManager),
-                        typeof(InstanceManager),
-                        typeof(InfoManager),
-                        typeof(AudioManager)
-                    };
-
-                    MethodInfo preGeneric = typeof(TransportLineCompatibility).GetMethod(nameof(GenericManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
-
-                    foreach (Type mgrType in managerTypes)
-                    {
-                        try
-                        {
-                            Type dType = mgrType.GetNestedType("Data", BindingFlags.NonPublic | BindingFlags.Public);
-                            if (dType != null)
-                            {
-                                MethodInfo mDes = dType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-                                if (mDes != null)
-                                {
-                                    harmony.Patch(mDes, prefix: new HarmonyMethod(preGeneric) { prioritiy = Harmony.Priority.First });
-                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched " + mgrType.Name + ".Data.Deserialize with Universal EOF Guard.");
-                                }
-                            }
-                        }
-                        catch (Exception exMgr)
-                        {
-                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Could not patch " + mgrType.Name + ": " + exMgr.Message);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching manager EOF guards: " + ex);
                 }
 
                 // 3d. Patch SimulationMetaData.Merge (Preserve save modOverride dictionary from being clobbered by ngs)
@@ -16138,57 +13724,23 @@ namespace MoreNetworkCapacityRenew
                 // 3m. Patch NetManager.InitializeSegment & InitializeNode (Dynamic Buffer Armor against stream desync crashes)
                 try
                 {
-                    MethodInfo initSeg = typeof(NetManager).GetMethod("InitializeSegment", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, null);
+                    MethodInfo initSeg = typeof(NetManager).GetMethod("InitializeSegment", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, null);
                     if (initSeg != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeSegment_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(initSeg, pre, null, 900))
-                        {
-                            harmony.Patch(initSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        }
+                        harmony.Patch(initSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
                     }
-                    MethodInfo initNode = typeof(NetManager).GetMethod("InitializeNode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null);
+                    MethodInfo initNode = typeof(NetManager).GetMethod("InitializeNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }, null);
                     if (initNode != null)
                     {
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeNode_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (!TryPatchHarmony2(initNode, pre, null, 900))
-                        {
-                            harmony.Patch(initNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        }
+                        harmony.Patch(initNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
                     }
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager InitializeSegment & InitializeNode with Harmony 2 Dynamic Buffer Armor (Priority.First + 100).");
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager InitializeSegment & InitializeNode with Dynamic Buffer Armor (Priority.First).");
                 }
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching NetManager InitializeSegment/Node: " + ex);
-                }
-
-                // 3n. Patch Array16/Array32 ReleaseItem (Dynamic bounds armor against unusedItems buffer overflow)
-                try
-                {
-                    MethodInfo relNode = typeof(Array16<NetNode>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
-                    if (relNode != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array16_NetNode_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(relNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                    }
-                    MethodInfo relSeg = typeof(Array16<NetSegment>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
-                    if (relSeg != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array16_NetSegment_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(relSeg, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                    }
-                    MethodInfo relLane = typeof(Array32<NetLane>).GetMethod("ReleaseItem", BindingFlags.Public | BindingFlags.Instance);
-                    if (relLane != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Array32_NetLane_ReleaseItem_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(relLane, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                    }
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched Array16/Array32 ReleaseItem (Node, Segment, Lane) with Dynamic Bounds Armor (Priority.First).");
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Array16/Array32 ReleaseItem: " + ex);
                 }
 
                 // Do NOT patch external manager Data.Serialize methods (TreeManager, VehicleManager, BuildingManager,
@@ -17419,15 +14971,6 @@ namespace MoreNetworkCapacityRenew
                 if (ThirdPartyCompatibility.IsSaveGameExpanded())
                 {
                     TMPECompatibility.EnsureExpandedSave();
-                    var sm = Singleton<SimulationManager>.instance;
-                    if (sm != null && sm.m_metaData != null)
-                    {
-                        if (sm.m_metaData.m_modOverride == null)
-                        {
-                            sm.m_metaData.m_modOverride = new Dictionary<string, bool>();
-                        }
-                        sm.m_metaData.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
-                    }
                 }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationManager.Data.Deserialize.Prefix");
@@ -17436,17 +14979,6 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager_Data_Deserialize_Prefix error: " + ex);
             }
-        }
-
-        public static Exception SimulationManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Simulation Shield: Intercepted SimulationManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Ensuring simulation load continues ✓");
-                SafeCloseProfilerDeserialize("SimulationManager");
-                EnsureAllSimulationManagersSafe();
-            }
-            return null; // Suppress crash!
         }
 
         public static void CitizenManager_Data_Deserialize_Prefix(CitizenManager.Data __instance, ColossalFramework.IO.DataSerializer s)
@@ -17495,3092 +15027,6 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] CitizenManager_Data_Deserialize_Prefix error: " + ex);
             }
-        }
-
-        private static readonly FieldInfo s_dsStreamField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stream", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_emProcessedCells = typeof(ElectricityManager).GetField("m_processedCells", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_emConductiveCells = typeof(ElectricityManager).GetField("m_conductiveCells", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_emCanContinue = typeof(ElectricityManager).GetField("m_canContinue", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        private static readonly FieldInfo s_wmProcessedCells = typeof(WaterManager).GetField("m_processedCells", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_wmConductiveCells = typeof(WaterManager).GetField("m_conductiveCells", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_wmCanContinue = typeof(WaterManager).GetField("m_canContinue", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        private static readonly ConstructorInfo s_dsCtor = typeof(ColossalFramework.IO.DataSerializer).GetConstructor(
-            BindingFlags.NonPublic | BindingFlags.Instance, null,
-            new Type[] { typeof(Stream), typeof(ColossalFramework.IO.DataSerializer.Mode), typeof(bool) }, null);
-
-        private static readonly FieldInfo s_dsVersionField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_version", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_dsAltVersionField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_altVersion", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_dsObjectListField = typeof(ColossalFramework.IO.DataSerializer).GetField("m_objectList", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static ColossalFramework.IO.DataSerializer CreateDataSerializer(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)
-        {
-            if (s_dsCtor != null)
-            {
-                return (ColossalFramework.IO.DataSerializer)s_dsCtor.Invoke(new object[] { stream, mode, false });
-            }
-            return null;
-        }
-
-        public static void EnsureContainerSafe(ColossalFramework.IO.IDataContainer container)
-        {
-            if (container == null) return;
-            try
-            {
-                string name = container.GetType().Name;
-                if (name.Contains("Net")) ResetNetSimulationState();
-                else if (name.Contains("Tree")) ResetTreeSimulationState();
-                else if (name.Contains("Prop")) ResetPropSimulationState();
-                else if (name.Contains("Building")) ResetBuildingSimulationState();
-                else if (name.Contains("Citizen")) ResetCitizenSimulationState();
-                else if (name.Contains("Zone")) ResetZoneSimulationState();
-                else if (name.Contains("Vehicle")) ResetVehicleSimulationState();
-                else if (name.Contains("District")) ResetDistrictSimulationState();
-                else if (name.Contains("Electricity")) ResetElectricitySimulationState();
-                else if (name.Contains("WaterSimulation")) ResetWaterSimulationSimulationState();
-                else if (name.Contains("Water")) ResetWaterSimulationState();
-                else if (name.Contains("NaturalResource")) ResetNaturalResourceSimulationState();
-                else if (name.Contains("Transfer")) ResetTransferManagerSimulationState();
-                else if (name.Contains("Terrain")) ResetTerrainSimulationState();
-                else if (name.Contains("Weather")) ResetWeatherSimulationState();
-                else EnsureAllSimulationManagersSafe();
-            }
-            catch {}
-        }
-
-        public static SimulationManager.Data SafeDeserializeSimulationData(Stream stream, ColossalFramework.IO.DataSerializer.Mode mode)
-        {
-            try
-            {
-                ColossalFramework.IO.DataSerializer s = CreateDataSerializer(stream, mode);
-                if (s == null)
-                {
-                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SafeDeserializeSimulationData: Failed to instantiate DataSerializer! Falling back to vanilla.");
-                    return ColossalFramework.IO.DataSerializer.Deserialize<SimulationManager.Data>(stream, mode);
-                }
-
-                uint altVer = s.ReadUInt16();
-                uint ver = s.ReadUInt16();
-                uint combined = (altVer << 16) | ver;
-                if (ver <= 322 && altVer <= 6)
-                {
-                    s_dsAltVersionField?.SetValue(s, altVer);
-                    s_dsVersionField?.SetValue(s, ver);
-                }
-                else if ((altVer & 0x8000) != 0)
-                {
-                    uint fullAlt = s.ReadUInt32();
-                    s_dsAltVersionField?.SetValue(s, fullAlt);
-                    s_dsVersionField?.SetValue(s, combined & 0x7FFFFFFF);
-                }
-                else
-                {
-                    s_dsAltVersionField?.SetValue(s, 0u);
-                    s_dsVersionField?.SetValue(s, combined);
-                }
-
-                // Read root SimulationManager.Data (which registers all simulation managers into m_objectList)
-                SimulationManager.Data root = s.ReadObject<SimulationManager.Data>(null);
-
-                var objectList = s_dsObjectListField?.GetValue(s) as List<ColossalFramework.IO.IDataContainer>;
-                if (objectList != null)
-                {
-                    int i = 0;
-                    while (i < objectList.Count)
-                    {
-                        ColossalFramework.IO.IDataContainer container = objectList[i];
-                        string cName = container != null ? container.GetType().Name : "null";
-                        try
-                        {
-                            container.Deserialize(s);
-                        }
-                        catch (Exception ex)
-                        {
-                            UnityEngine.Debug.LogWarning(string.Format(
-                                "[MoreNetworkCapacityRenew] Universal Simulation Shield: Protected against error in {0}.Deserialize ({1}: {2}). Continuing load ✓",
-                                cName, ex.GetType().Name, ex.Message));
-                            SafeCloseProfilerDeserialize(cName);
-                            EnsureContainerSafe(container);
-                        }
-                        i++;
-                    }
-
-                    i = 0;
-                    while (i < objectList.Count)
-                    {
-                        ColossalFramework.IO.IDataContainer container = objectList[i];
-                        string cName = container != null ? container.GetType().Name : "null";
-                        try
-                        {
-                            container.AfterDeserialize(s);
-                        }
-                        catch (Exception ex)
-                        {
-                            UnityEngine.Debug.LogWarning(string.Format(
-                                "[MoreNetworkCapacityRenew] Universal Simulation Shield: Protected against error in {0}.AfterDeserialize ({1}: {2}) ✓",
-                                cName, ex.GetType().Name, ex.Message));
-                        }
-                        i++;
-                    }
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Universal Simulation Shield: Simulation data deserialization completed with 100% protection ✓");
-                return root;
-            }
-            catch (Exception fatalEx)
-            {
-                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] Fatal error in SafeDeserializeSimulationData: " + fatalEx);
-                EnsureAllSimulationManagersSafe();
-                SafeCloseProfilerDeserialize("SimulationManager");
-                return new SimulationManager.Data();
-            }
-        }
-
-        public static IEnumerable<CodeInstruction> LoadSimulationData_MoveNext_Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            MethodInfo safeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeDeserializeSimulationData), BindingFlags.Public | BindingFlags.Static);
-            int replaced = 0;
-            foreach (var inst in instructions)
-            {
-                if (inst.opcode == OpCodes.Call && inst.operand is MethodInfo m &&
-                    m.Name == "Deserialize" && m.DeclaringType == typeof(ColossalFramework.IO.DataSerializer) &&
-                    m.IsGenericMethod && m.GetGenericArguments().Length > 0 && m.GetGenericArguments()[0] == typeof(SimulationManager.Data))
-                {
-                    yield return new CodeInstruction(OpCodes.Call, safeMethod);
-                    replaced++;
-                }
-                else
-                {
-                    yield return inst;
-                }
-            }
-            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] LoadSimulationData_MoveNext_Transpiler: Replaced {0} call(s) with SafeDeserializeSimulationData.", replaced));
-        }
-
-        private static readonly FieldInfo s_CachedPtrField = typeof(UnityEngine.Object).GetField("m_CachedPtr", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        public static bool IsMaterialPropertySheetReady(Material mat)
-        {
-            if ((object)mat == null || !mat) return false;
-            try
-            {
-                Shader s = mat.shader;
-                if ((object)s == null || !s || !s.isSupported) return false;
-
-                // On non-macOS platforms (Windows/Linux), do NOT perform raw C++ pointer dereferencing!
-                if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-                {
-                    return true;
-                }
-
-                if (s_CachedPtrField == null) return false;
-                IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(mat);
-                if (ptr == IntPtr.Zero) return false;
-                long p = ptr.ToInt64();
-                if (p < 0x100000 || p > 0x7fffffffffffL) return false;
-
-                // 0x108 is SharedMaterialData* inside Unity C++ Material object
-                IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
-                if (sharedData == IntPtr.Zero) return false;
-                long sd = sharedData.ToInt64();
-                if (sd < 0x100000 || sd > 0x7fffffffffffL) return false;
-
-                // 0xd8 bit 0 must be 1, otherwise native Material::HasProperty triggers Material::BuildProperties()
-                byte flags = System.Runtime.InteropServices.Marshal.ReadByte(sharedData, 0xd8);
-                if ((flags & 1) == 0) return false;
-
-                // 0x10 is base pointer inside SharedMaterialData
-                IntPtr basePtr = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x10);
-                if (basePtr == IntPtr.Zero) return false;
-                long bp = basePtr.ToInt64();
-                if (bp < 0x100000 || bp > 0x7fffffffffffL) return false;
-
-                // 0x50 is property count in ShaderPropertySheet (SharedMaterialData + 0x18 + 0x38)
-                long count = System.Runtime.InteropServices.Marshal.ReadInt64(sharedData, 0x50);
-                if (count < 0 || count > 10000) return false;
-                if (count > 0)
-                {
-                    // 0x40 is property names array pointer in ShaderPropertySheet (SharedMaterialData + 0x18 + 0x28)
-                    IntPtr propNames = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x40);
-                    long pn = propNames.ToInt64();
-                    if (pn < 0x100000 || pn > 0x7fffffffffffL) return false;
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static void SanitizeAllPrefabMaterials()
-        {
-            try
-            {
-                int count = 0;
-                // 1. BuildingInfoBase (covers BuildingInfo and BuildingInfoSub)
-                var buildings = Resources.FindObjectsOfTypeAll(typeof(BuildingInfoBase));
-                if (buildings != null)
-                {
-                    for (int i = 0; i < buildings.Length; i++)
-                    {
-                        if (buildings[i] is BuildingInfoBase bib)
-                        {
-                            if (bib.m_lodMaterial != null && !IsMaterialPropertySheetReady(bib.m_lodMaterial))
-                            {
-                                bib.m_lodMaterial = null;
-                                bib.m_lodMesh = null;
-                                count++;
-                            }
-                            if (bib.m_material != null && !IsMaterialPropertySheetReady(bib.m_material))
-                            {
-                                bib.m_material = null;
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // 2. PropInfo
-                var props = Resources.FindObjectsOfTypeAll(typeof(PropInfo));
-                if (props != null)
-                {
-                    for (int i = 0; i < props.Length; i++)
-                    {
-                        if (props[i] is PropInfo pi)
-                        {
-                            if (pi.m_lodMaterial != null && !IsMaterialPropertySheetReady(pi.m_lodMaterial))
-                            {
-                                pi.m_lodMaterial = null;
-                                pi.m_lodMesh = null;
-                                count++;
-                            }
-                            if (pi.m_material != null && !IsMaterialPropertySheetReady(pi.m_material))
-                            {
-                                pi.m_material = null;
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // 3. TreeInfo
-                var trees = Resources.FindObjectsOfTypeAll(typeof(TreeInfo));
-                if (trees != null)
-                {
-                    for (int i = 0; i < trees.Length; i++)
-                    {
-                        if (trees[i] is TreeInfo ti)
-                        {
-                            if (ti.m_material != null && !IsMaterialPropertySheetReady(ti.m_material))
-                            {
-                                ti.m_material = null;
-                                count++;
-                            }
-                            if (ti.m_lodMaterial != null && !IsMaterialPropertySheetReady(ti.m_lodMaterial))
-                            {
-                                ti.m_lodMaterial = null;
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // 4. VehicleInfoBase (covers VehicleInfo and VehicleInfoSub)
-                var vehicles = Resources.FindObjectsOfTypeAll(typeof(VehicleInfoBase));
-                if (vehicles != null)
-                {
-                    for (int i = 0; i < vehicles.Length; i++)
-                    {
-                        if (vehicles[i] is VehicleInfoBase vib)
-                        {
-                            if (vib.m_lodMaterial != null && !IsMaterialPropertySheetReady(vib.m_lodMaterial))
-                            {
-                                vib.m_lodMaterial = null;
-                                vib.m_lodMesh = null;
-                                count++;
-                            }
-                            if (vib.m_material != null && !IsMaterialPropertySheetReady(vib.m_material))
-                            {
-                                vib.m_material = null;
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // 5. CitizenInfo
-                var citizens = Resources.FindObjectsOfTypeAll(typeof(CitizenInfo));
-                if (citizens != null)
-                {
-                    for (int i = 0; i < citizens.Length; i++)
-                    {
-                        if (citizens[i] is CitizenInfo ci)
-                        {
-                            if (ci.m_lodMaterial != null && !IsMaterialPropertySheetReady(ci.m_lodMaterial))
-                            {
-                                ci.m_lodMaterial = null;
-                                ci.m_lodMesh = null;
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                // 6. NetInfo
-                var nets = Resources.FindObjectsOfTypeAll(typeof(NetInfo));
-                if (nets != null)
-                {
-                    for (int i = 0; i < nets.Length; i++)
-                    {
-                        if (nets[i] is NetInfo ni)
-                        {
-                            if (ni.m_nodes != null)
-                            {
-                                for (int n = 0; n < ni.m_nodes.Length; n++)
-                                {
-                                    var node = ni.m_nodes[n];
-                                    if (node != null)
-                                    {
-                                        if (node.m_lodMaterial != null && !IsMaterialPropertySheetReady(node.m_lodMaterial))
-                                        {
-                                            node.m_lodMaterial = null;
-                                            node.m_lodMesh = null;
-                                            count++;
-                                        }
-                                        if (node.m_material != null && !IsMaterialPropertySheetReady(node.m_material))
-                                        {
-                                            node.m_material = null;
-                                            count++;
-                                        }
-                                        if (node.m_nodeMaterial != null && !IsMaterialPropertySheetReady(node.m_nodeMaterial))
-                                        {
-                                            node.m_nodeMaterial = null;
-                                            node.m_nodeMesh = null;
-                                            count++;
-                                        }
-                                    }
-                                }
-                            }
-                            if (ni.m_segments != null)
-                            {
-                                for (int s = 0; s < ni.m_segments.Length; s++)
-                                {
-                                    var seg = ni.m_segments[s];
-                                    if (seg != null)
-                                    {
-                                        if (seg.m_lodMaterial != null && !IsMaterialPropertySheetReady(seg.m_lodMaterial))
-                                        {
-                                            seg.m_lodMaterial = null;
-                                            seg.m_lodMesh = null;
-                                            count++;
-                                        }
-                                        if (seg.m_material != null && !IsMaterialPropertySheetReady(seg.m_material))
-                                        {
-                                            seg.m_material = null;
-                                            count++;
-                                        }
-                                        if (seg.m_segmentMaterial != null && !IsMaterialPropertySheetReady(seg.m_segmentMaterial))
-                                        {
-                                            seg.m_segmentMaterial = null;
-                                            seg.m_segmentMesh = null;
-                                            count++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 7. PrefabCollection check
-                try
-                {
-                    int bCount = PrefabCollection<BuildingInfo>.LoadedCount();
-                    for (uint bi = 0; bi < bCount; bi++)
-                    {
-                        var b = PrefabCollection<BuildingInfo>.GetLoaded(bi);
-                        if (b != null)
-                        {
-                            if (b.m_lodMaterial != null && !IsMaterialPropertySheetReady(b.m_lodMaterial))
-                            {
-                                b.m_lodMaterial = null;
-                                b.m_lodMesh = null;
-                                count++;
-                            }
-                            if (b.m_material != null && !IsMaterialPropertySheetReady(b.m_material))
-                            {
-                                b.m_material = null;
-                                count++;
-                            }
-                            if (b.m_subMeshes != null)
-                            {
-                                for (int sm = 0; sm < b.m_subMeshes.Length; sm++)
-                                {
-                                    var subInfo = b.m_subMeshes[sm]?.m_subInfo;
-                                    if (subInfo != null)
-                                    {
-                                        if (subInfo.m_lodMaterial != null && !IsMaterialPropertySheetReady(subInfo.m_lodMaterial))
-                                        {
-                                            subInfo.m_lodMaterial = null;
-                                            subInfo.m_lodMesh = null;
-                                            count++;
-                                        }
-                                        if (subInfo.m_material != null && !IsMaterialPropertySheetReady(subInfo.m_material))
-                                        {
-                                            subInfo.m_material = null;
-                                            count++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch {}
-
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SanitizeAllPrefabMaterials complete: sanitized {0} unready material(s) across all prefabs ✓", count));
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in SanitizeAllPrefabMaterials: " + ex);
-            }
-        }
-
-        public static void InitRenderDataImpl_Prefix(object __instance)
-        {
-            try
-            {
-                if (__instance == null) return;
-                FieldInfo pcField = __instance.GetType().GetField("$PC", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (pcField != null && (int)pcField.GetValue(__instance) == 0)
-                {
-                    SanitizeAllPrefabMaterials();
-                }
-            }
-            catch {}
-        }
-
-        public static void ApplyMaterialSafetyTranspilers(HarmonyInstance harmony)
-        {
-            try
-            {
-                int patchedCount = 0;
-                var transpiler = new HarmonyMethod(typeof(TransportLineCompatibility).GetMethod(nameof(TranspileMaterialCalls), BindingFlags.Public | BindingFlags.Static));
-                var initPrefix = new HarmonyMethod(typeof(TransportLineCompatibility).GetMethod(nameof(InitRenderDataImpl_Prefix), BindingFlags.Public | BindingFlags.Static));
-
-                string[] managerNames = new string[] {
-                    "BuildingManager", "NetManager", "PropManager", "VehicleManager", "EventManager"
-                };
-
-                foreach (var mgrName in managerNames)
-                {
-                    Type mgrType = Type.GetType(mgrName + ", Assembly-CSharp");
-                    if (mgrType == null)
-                    {
-                        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-                        {
-                            mgrType = a.GetType(mgrName);
-                            if (mgrType != null) break;
-                        }
-                    }
-                    if (mgrType == null) continue;
-
-                    // 1. Nested InitRenderData iterator types
-                    foreach (var nested in mgrType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
-                    {
-                        if (nested.Name.Contains("InitRenderData"))
-                        {
-                            var moveNext = nested.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (moveNext != null)
-                            {
-                                try
-                                {
-                                    harmony.Patch(moveNext, prefix: initPrefix, transpiler: transpiler);
-                                    patchedCount++;
-                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + nested.FullName + "::MoveNext ✓");
-                                }
-                                catch (Exception ex)
-                                {
-                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + nested.FullName + "::MoveNext: " + ex);
-                                }
-                            }
-                        }
-                    }
-
-                    // 2. BeginRenderingImpl
-                    var beginRendering = mgrType.GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (beginRendering != null)
-                    {
-                        try
-                        {
-                            harmony.Patch(beginRendering, transpiler: transpiler);
-                            patchedCount++;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + mgrType.Name + "::BeginRenderingImpl ✓");
-                        }
-                        catch (Exception ex)
-                        {
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + mgrType.Name + "::BeginRenderingImpl: " + ex);
-                        }
-                    }
-                }
-
-                // 3. Prefab & MeshData methods
-                string[] infoTypes = new string[] {
-                    "BuildingInfo", "BuildingInfoBase", "NetInfo", "PropInfo", "VehicleInfo", "VehicleInfoBase", "CitizenInfo"
-                };
-
-                foreach (var typeName in infoTypes)
-                {
-                    Type t = Type.GetType(typeName + ", Assembly-CSharp");
-                    if (t == null)
-                    {
-                        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-                        {
-                            t = a.GetType(typeName);
-                            if (t != null) break;
-                        }
-                    }
-                    if (t == null) continue;
-
-                    var methods = t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
-                    foreach (var m in methods)
-                    {
-                        if (m.Name == "InitializePrefab" || m.Name == "SetRenderParameters" || m.Name == "InitMeshData" || 
-                            m.Name == "InitSegmentInfo" || m.Name == "InitNodeInfo")
-                        {
-                            try
-                            {
-                                harmony.Patch(m, transpiler: transpiler);
-                                patchedCount++;
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + t.Name + "::" + m.Name + " ✓");
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + t.Name + "::" + m.Name + ": " + ex);
-                            }
-                        }
-                    }
-                }
-
-                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] ApplyMaterialSafetyTranspilers: Successfully armored {0} critical material rendering methods with TranspileMaterialCalls ✓", patchedCount));
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in ApplyMaterialSafetyTranspilers: " + ex);
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool Material_HasProperty_Int_Prefix(Material __instance, int nameID, ref bool __result)
-        {
-            // On Windows/Linux, execute 100% native
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                return true;
-            }
-
-            if (!IsMaterialPropertySheetReady(__instance))
-            {
-                __result = false;
-                return false;
-            }
-
-            try
-            {
-                IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(__instance);
-                if (ptr == IntPtr.Zero)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
-                if (sharedData == IntPtr.Zero)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                long count = System.Runtime.InteropServices.Marshal.ReadInt64(sharedData, 0x50);
-                if (count <= 0 || count > 4096)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                IntPtr propNames = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x40);
-                if (propNames == IntPtr.Zero)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                int limit = (int)count;
-                for (int i = 0; i < limit; i++)
-                {
-                    int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);
-                    if (propId == nameID)
-                    {
-                        __result = true;
-                        return false;
-                    }
-                }
-
-                __result = false;
-                return false;
-            }
-            catch
-            {
-                __result = false;
-                return false;
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
-        {
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                return true; // 100% native on Windows/Linux
-            }
-
-            try
-            {
-                if (string.IsNullOrEmpty(propertyName))
-                {
-                    __result = false;
-                    return false;
-                }
-                int nameId = Shader.PropertyToID(propertyName);
-                return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);
-            }
-            catch
-            {
-                __result = false;
-                return false;
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool Material_GetTexture_Int_Prefix(Material __instance, int nameID, ref Texture __result)
-        {
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                return true; // 100% native on Windows/Linux
-            }
-
-            try
-            {
-                bool hasProp = false;
-                Material_HasProperty_Int_Prefix(__instance, nameID, ref hasProp);
-                if (!hasProp)
-                {
-                    __result = null;
-                    return false;
-                }
-                return true;
-            }
-            catch
-            {
-                __result = null;
-                return false;
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool Material_GetTexture_String_Prefix(Material __instance, string propertyName, ref Texture __result)
-        {
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                return true; // 100% native on Windows/Linux
-            }
-
-            try
-            {
-                if (string.IsNullOrEmpty(propertyName))
-                {
-                    __result = null;
-                    return false;
-                }
-                int nameId = Shader.PropertyToID(propertyName);
-                return Material_GetTexture_Int_Prefix(__instance, nameId, ref __result);
-            }
-            catch
-            {
-                __result = null;
-                return false;
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool Material_get_mainTexture_Prefix(Material __instance, ref Texture __result)
-        {
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                return true; // 100% native on Windows/Linux
-            }
-
-            try
-            {
-                bool hasProp = false;
-                Material_HasProperty_String_Prefix(__instance, "_MainTex", ref hasProp);
-                if (!hasProp)
-                {
-                    __result = null;
-                    return false;
-                }
-                return true;
-            }
-            catch
-            {
-                __result = null;
-                return false;
-            }
-        }
-
-        public static bool SafeHasPropertyInt(Material mat, int nameID)
-        {
-            if ((object)mat == null || !mat) return false;
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
-            {
-                try { return mat.HasProperty(nameID); } catch { return false; }
-            }
-            bool res = false;
-            Material_HasProperty_Int_Prefix(mat, nameID, ref res);
-            return res;
-        }
-
-        public static bool SafeHasPropertyString(Material mat, string propertyName)
-        {
-            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return false;
-            try
-            {
-                int nameId = Shader.PropertyToID(propertyName);
-                return SafeHasPropertyInt(mat, nameId);
-            }
-            catch { return false; }
-        }
-
-        public static Texture SafeGetTextureInt(Material mat, int nameID)
-        {
-            if ((object)mat == null || !mat) return null;
-            if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
-            {
-                if (!IsMaterialPropertySheetReady(mat)) return null;
-                bool hasProp = false;
-                Material_HasProperty_Int_Prefix(mat, nameID, ref hasProp);
-                if (!hasProp) return null;
-            }
-            try { return mat.GetTexture(nameID); } catch { return null; }
-        }
-
-        public static Texture SafeGetTextureString(Material mat, string propertyName)
-        {
-            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return null;
-            try
-            {
-                int nameId = Shader.PropertyToID(propertyName);
-                return SafeGetTextureInt(mat, nameId);
-            }
-            catch { return null; }
-        }
-
-        public static Texture SafeGetMainTexture(Material mat)
-        {
-            if ((object)mat == null || !mat) return null;
-            return SafeGetTextureString(mat, "_MainTex");
-        }
-
-        public static void SafeSetMainTexture(Material mat, Texture tex)
-        {
-            if ((object)mat == null || !mat) return;
-            SafeSetTextureString(mat, "_MainTex", tex);
-        }
-
-        public static void SafeSetTextureInt(Material mat, int nameID, Texture tex)
-        {
-            if ((object)mat == null || !mat) return;
-            if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
-            {
-                if (!IsMaterialPropertySheetReady(mat)) return;
-            }
-            try { mat.SetTexture(nameID, tex); } catch {}
-        }
-
-        public static void SafeSetTextureString(Material mat, string propertyName, Texture tex)
-        {
-            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return;
-            try
-            {
-                int nameId = Shader.PropertyToID(propertyName);
-                SafeSetTextureInt(mat, nameId, tex);
-            }
-            catch {}
-        }
-
-        public static IEnumerable<CodeInstruction> TranspileMaterialCalls(IEnumerable<CodeInstruction> instructions)
-        {
-            MethodInfo mSafeHasPropInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeHasPropertyInt), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeHasPropStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeHasPropertyString), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeGetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureInt), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeGetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureString), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeGetMain = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetMainTexture), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeSetMain = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetMainTexture), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeSetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetTextureInt), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo mSafeSetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetTextureString), BindingFlags.Public | BindingFlags.Static);
-
-            foreach (var code in instructions)
-            {
-                if ((code.opcode == OpCodes.Call || code.opcode == OpCodes.Callvirt) && code.operand is MethodInfo mi)
-                {
-                    if (mi.DeclaringType == typeof(Material))
-                    {
-                        var pars = mi.GetParameters();
-                        if (mi.Name == "HasProperty" && pars.Length == 1 && pars[0].ParameterType == typeof(int))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeHasPropInt);
-                            continue;
-                        }
-                        if (mi.Name == "HasProperty" && pars.Length == 1 && pars[0].ParameterType == typeof(string))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeHasPropStr);
-                            continue;
-                        }
-                        if (mi.Name == "GetTexture" && pars.Length == 1 && pars[0].ParameterType == typeof(int))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeGetTexInt);
-                            continue;
-                        }
-                        if (mi.Name == "GetTexture" && pars.Length == 1 && pars[0].ParameterType == typeof(string))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeGetTexStr);
-                            continue;
-                        }
-                        if (mi.Name == "get_mainTexture" && pars.Length == 0)
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeGetMain);
-                            continue;
-                        }
-                        if (mi.Name == "set_mainTexture" && pars.Length == 1 && typeof(Texture).IsAssignableFrom(pars[0].ParameterType))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeSetMain);
-                            continue;
-                        }
-                        if (mi.Name == "SetTexture" && pars.Length == 2 && pars[0].ParameterType == typeof(int) && typeof(Texture).IsAssignableFrom(pars[1].ParameterType))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeSetTexInt);
-                            continue;
-                        }
-                        if (mi.Name == "SetTexture" && pars.Length == 2 && pars[0].ParameterType == typeof(string) && typeof(Texture).IsAssignableFrom(pars[1].ParameterType))
-                        {
-                            yield return new CodeInstruction(OpCodes.Call, mSafeSetTexStr);
-                            continue;
-                        }
-                    }
-                }
-                yield return code;
-            }
-        }
-
-
-
-
-        private static void InvokeNetworkSkinsPreUpdateData(SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                Type nsmType = Type.GetType("NetworkSkins.Skins.NetworkSkinManager, NetworkSkins");
-                if (nsmType == null)
-                {
-                    foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        if (a.GetName().Name == "NetworkSkins")
-                        {
-                            nsmType = a.GetType("NetworkSkins.Skins.NetworkSkinManager");
-                            break;
-                        }
-                    }
-                }
-                if (nsmType != null)
-                {
-                    PropertyInfo prop = nsmType.GetProperty("instance", BindingFlags.Public | BindingFlags.Static);
-                    object instance = prop != null ? prop.GetValue(null, null) : null;
-                    if (instance != null)
-                    {
-                        MethodInfo m = nsmType.GetMethod("OnPreUpdateData", BindingFlags.Public | BindingFlags.Instance);
-                        if (m != null)
-                        {
-                            m.Invoke(instance, new object[] { mode });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Safely executed NetworkSkinManager.OnPreUpdateData ✓");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetworkSkins OnPreUpdateData reflection: " + ex.Message);
-            }
-        }
-
-        private static void InvokePlopTheGrowablesPreUpdateData(SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                Type ptgType = null;
-                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (a.GetName().Name == "PlopTheGrowables")
-                    {
-                        ptgType = a.GetType("PlopTheGrowables.PlopTheGrowables");
-                        break;
-                    }
-                }
-                if (ptgType != null)
-                {
-                    PropertyInfo prop = ptgType.GetProperty("instance", BindingFlags.Public | BindingFlags.Static);
-                    object instance = prop != null ? prop.GetValue(null, null) : null;
-                    if (instance != null)
-                    {
-                        MethodInfo m = ptgType.GetMethod("OnPreUpdateData", BindingFlags.Public | BindingFlags.Instance);
-                        if (m != null)
-                        {
-                            m.Invoke(instance, new object[] { mode });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Safely executed PlopTheGrowables.OnPreUpdateData ✓");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PlopTheGrowables OnPreUpdateData reflection: " + ex.Message);
-            }
-        }
-
-        public static void SafeExecuteTransportManagerUpdateData(TransportManager tm, SimulationManager.UpdateMode mode)
-        {
-            if (tm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("TransportManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                // Initialize transport guides safely (non-generic objects)
-                try
-                {
-                    bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
-                    if (isGameLoad || tm.m_monorailLine == null) tm.m_monorailLine = new GenericGuide();
-                    if (isGameLoad || tm.m_endOfLineStation == null) tm.m_endOfLineStation = new BuildingInstanceGuide();
-                    if (isGameLoad || tm.m_ferryBusHub == null) tm.m_ferryBusHub = new BuildingInstanceGuide();
-                    if (isGameLoad || tm.m_ferryLine == null) tm.m_ferryLine = new GenericGuide();
-                    if (isGameLoad || tm.m_ferryDepot == null) tm.m_ferryDepot = new GenericGuide();
-                    if (isGameLoad || tm.m_blimpLine == null) tm.m_blimpLine = new GenericGuide();
-                    if (isGameLoad || tm.m_blimpDepot == null) tm.m_blimpDepot = new GenericGuide();
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager guides initialization error: " + ex.Message);
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTransportManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TransportManager_UpdateData_Prefix(TransportManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteTransportManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false; // Skip MoreTransportLines' crashing dynamic method
-        }
-
-        public static void SafeExecuteEventManagerUpdateData(EventManager em, SimulationManager.UpdateMode mode)
-        {
-            if (em == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("EventManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                // Initialize event guides safely (non-generic objects)
-                try
-                {
-                    bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
-                    if (isGameLoad || em.m_matchPreparing == null) em.m_matchPreparing = new BuildingInstanceGuide();
-                    if (isGameLoad || em.m_bandPreparing == null) em.m_bandPreparing = new BuildingInstanceGuide();
-                    if (isGameLoad || em.m_bandPopularity == null) em.m_bandPopularity = new BuildingInstanceGuide();
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EventManager guides initialization error: " + ex.Message);
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteEventManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool EventManager_UpdateData_Prefix(EventManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteEventManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EventManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        public static void SafeExecuteDisasterManagerUpdateData(DisasterManager dm, SimulationManager.UpdateMode mode)
-        {
-            if (dm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("DisasterManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteDisasterManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool DisasterManager_UpdateData_Prefix(DisasterManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteDisasterManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DisasterManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        public static void SafeExecuteInfoManagerUpdateData(InfoManager im, SimulationManager.UpdateMode mode)
-        {
-            if (im == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("InfoManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteInfoManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool InfoManager_UpdateData_Prefix(InfoManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteInfoManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] InfoManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        public static void SafeExecuteAudioManagerUpdateData(AudioManager am, SimulationManager.UpdateMode mode)
-        {
-            if (am == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("AudioManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteAudioManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool AudioManager_UpdateData_Prefix(AudioManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteAudioManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] AudioManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        private static FieldInfo s_fTerrainLastUpdatedPatch;
-        private static MethodInfo s_mUpdateTerrainPatch;
-
-        public static int GetTerrainLastUpdatedPatch(TerrainManager tm)
-        {
-            if (tm == null) return 80;
-            try
-            {
-                if (s_fTerrainLastUpdatedPatch == null)
-                {
-                    s_fTerrainLastUpdatedPatch = typeof(TerrainManager).GetField("m_lastUpdatedPatch", BindingFlags.NonPublic | BindingFlags.Instance);
-                }
-                if (s_fTerrainLastUpdatedPatch != null)
-                {
-                    return (int)s_fTerrainLastUpdatedPatch.GetValue(tm);
-                }
-            }
-            catch {}
-            return 80;
-        }
-
-        public static void SetTerrainLastUpdatedPatch(TerrainManager tm, int value)
-        {
-            if (tm == null) return;
-            try
-            {
-                if (s_fTerrainLastUpdatedPatch == null)
-                {
-                    s_fTerrainLastUpdatedPatch = typeof(TerrainManager).GetField("m_lastUpdatedPatch", BindingFlags.NonPublic | BindingFlags.Instance);
-                }
-                if (s_fTerrainLastUpdatedPatch != null)
-                {
-                    s_fTerrainLastUpdatedPatch.SetValue(tm, value);
-                }
-            }
-            catch {}
-        }
-
-        public static System.Collections.IEnumerator CallUpdateTerrainPatch(TerrainManager tm, int index)
-        {
-            if (tm == null) return null;
-            try
-            {
-                if (s_mUpdateTerrainPatch == null)
-                {
-                    s_mUpdateTerrainPatch = typeof(TerrainManager).GetMethod("UpdateTerrainPatch", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
-                }
-                if (s_mUpdateTerrainPatch != null)
-                {
-                    return (System.Collections.IEnumerator)s_mUpdateTerrainPatch.Invoke(tm, new object[] { index });
-                }
-            }
-            catch {}
-            return null;
-        }
-
-        public static void SafeExecuteTerrainManagerUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)
-        {
-            if (tm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("TerrainManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                tm.UpdateData(mode);
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTerrainManagerUpdateData completed cleanly ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in TerrainManager.UpdateData: " + ex);
-                try
-                {
-                    if (tm.m_terrainToolNotUsed == null) tm.m_terrainToolNotUsed = new GenericGuide();
-                    if (tm.m_notEnoughDirt == null) tm.m_notEnoughDirt = new GenericGuide();
-                    if (tm.m_tooMuchDirt == null) tm.m_tooMuchDirt = new GenericGuide();
-                }
-                catch {}
-
-                int lastPatch = GetTerrainLastUpdatedPatch(tm);
-                if (lastPatch < 80)
-                {
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager.UpdateData failed with m_lastUpdatedPatch = {0}. Auto-queuing missing terrain patches...", lastPatch));
-                    try
-                    {
-                        if (lm != null)
-                        {
-                            int startPatch = Math.Max(0, lastPatch + 1);
-                            for (int i = startPatch; i <= 80; i++)
-                            {
-                                var patchAction = CallUpdateTerrainPatch(tm, i);
-                                if (patchAction != null)
-                                {
-                                    lm.QueueLoadingAction(patchAction);
-                                }
-                            }
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Queued patches {0}..80 to LoadingManager ✓", startPatch));
-                        }
-                        else
-                        {
-                            SetTerrainLastUpdatedPatch(tm, 80);
-                        }
-                    }
-                    catch (Exception qEx)
-                    {
-                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Failed queuing UpdateTerrainPatch: " + qEx + ". Forcing m_lastUpdatedPatch = 80");
-                        SetTerrainLastUpdatedPatch(tm, 80);
-                    }
-                }
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        public static void TerrainManager_UpdateData_Postfix(TerrainManager __instance)
-        {
-            if (__instance == null) return;
-            try
-            {
-                int lastPatch = GetTerrainLastUpdatedPatch(__instance);
-                if (lastPatch < 80)
-                {
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager_UpdateData_Postfix: m_lastUpdatedPatch = {0} (< 80). Ensuring fail-safe patch queue...", lastPatch));
-                    var lm = Singleton<LoadingManager>.instance;
-                    if (lm != null)
-                    {
-                        int start = Math.Max(0, lastPatch + 1);
-                        for (int i = start; i <= 80; i++)
-                        {
-                            var patchAction = CallUpdateTerrainPatch(__instance, i);
-                            if (patchAction != null)
-                            {
-                                lm.QueueLoadingAction(patchAction);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SetTerrainLastUpdatedPatch(__instance, 80);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in TerrainManager_UpdateData_Postfix: " + ex);
-                SetTerrainLastUpdatedPatch(__instance, 80);
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TerrainManager_LateUpdateData_Prefix(TerrainManager __instance, SimulationManager.UpdateMode mode)
-        {
-            if (__instance == null) return true;
-            try
-            {
-                int lastPatch = GetTerrainLastUpdatedPatch(__instance);
-                if (lastPatch != 80)
-                {
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
-                    int waited = 0;
-                    while (GetTerrainLastUpdatedPatch(__instance) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
-                    {
-                        System.Threading.Thread.Sleep(20);
-                        waited += 20;
-                    }
-                    if (GetTerrainLastUpdatedPatch(__instance) != 80)
-                    {
-                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(__instance)));
-                        SetTerrainLastUpdatedPatch(__instance, 80);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in TerrainManager_LateUpdateData_Prefix: " + ex);
-                SetTerrainLastUpdatedPatch(__instance, 80);
-            }
-            return true;
-        }
-
-        public static void SafeExecuteNetManagerUpdateData(NetManager nm, SimulationManager.UpdateMode mode)
-        {
-            if (nm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("NetManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                nm.UpdateData(mode);
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteNetManagerUpdateData completed cleanly ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in NetManager.UpdateData: " + ex);
-                try
-                {
-                    if (nm.m_outsideNodeNotConnected == null) nm.m_outsideNodeNotConnected = new NetNodeInstanceGuide();
-                }
-                catch {}
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        public static void SafeExecuteTreeManagerUpdateData(TreeManager tm, SimulationManager.UpdateMode mode)
-        {
-            if (tm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("TreeManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                tm.UpdateData(mode);
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTreeManagerUpdateData completed cleanly ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in TreeManager.UpdateData: " + ex);
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        private static readonly Dictionary<string, MilestoneInfo> s_dummyMilestones = new Dictionary<string, MilestoneInfo>();
-        private static FieldInfo s_fMilestoneDict;
-        private static FieldInfo s_fTerrainManagers;
-        private static MethodInfo s_mCheckAllMilestones;
-
-        [HarmonyPriority(Priority.First)]
-        public static bool MilestoneCollection_FindMilestone_Prefix(string name, ref MilestoneInfo __result)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                __result = null;
-                return false;
-            }
-            try
-            {
-                if (s_fMilestoneDict == null)
-                {
-                    s_fMilestoneDict = typeof(MilestoneCollection).GetField("m_dict", BindingFlags.NonPublic | BindingFlags.Static);
-                }
-                var dict = (s_fMilestoneDict != null) ? s_fMilestoneDict.GetValue(null) as Dictionary<string, MilestoneInfo> : null;
-                if (dict != null && dict.TryGetValue(name, out __result) && __result != null)
-                {
-                    return false;
-                }
-                lock (s_dummyMilestones)
-                {
-                    if (!s_dummyMilestones.TryGetValue(name, out __result) || __result == null)
-                    {
-                        __result = ScriptableObject.CreateInstance<MilestoneInfo>();
-                        __result.name = name;
-                        __result.m_name = name;
-                        __result.m_data = new MilestoneInfo.Data();
-                        __result.m_data.m_passedCount = 1; // Mark passed to satisfy dependent checks
-                        s_dummyMilestones[name] = __result;
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Created safe dummy milestone for uninstalled DLC milestone: " + name);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] MilestoneCollection.FindMilestone fallback error: " + ex.Message);
-            }
-            return false;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TerrainManager_Managers_TerrainUpdated_Prefix(TerrainArea heightArea, TerrainArea surfaceArea, TerrainArea zoneArea)
-        {
-            try
-            {
-                if (s_fTerrainManagers == null)
-                {
-                    s_fTerrainManagers = typeof(TerrainManager).GetField("m_managers", BindingFlags.NonPublic | BindingFlags.Static);
-                }
-                var managers = (s_fTerrainManagers != null) ? s_fTerrainManagers.GetValue(null) as FastList<ITerrainManager> : null;
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int size = managers.m_size;
-                    for (int i = 0; i < size; i++)
-                    {
-                        var mgr = managers.m_buffer[i];
-                        if (mgr != null)
-                        {
-                            try
-                            {
-                                mgr.TerrainUpdated(heightArea, surfaceArea, zoneArea);
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against ITerrainManager (" + mgr.GetType().Name + ") exception in TerrainUpdated: " + ex.Message);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager_Managers_TerrainUpdated_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool UnlockManager_MilestonesUpdated_Prefix(UnlockManager __instance)
-        {
-            if (__instance == null) return false;
-            try
-            {
-                var fUpdated = typeof(UnlockManager).GetField("m_milestonesUpdated", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fUpdated != null)
-                {
-                    Action act = fUpdated.GetValue(__instance) as Action;
-                    if (act != null)
-                    {
-                        foreach (Delegate d in act.GetInvocationList())
-                        {
-                            try
-                            {
-                                d.DynamicInvoke();
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against milestone listener exception: " + ex.Message);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.MilestonesUpdated protected: " + ex.Message);
-            }
-            return false;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool UnlockManager_LateUpdateData_Prefix(UnlockManager __instance, SimulationManager.UpdateMode mode)
-        {
-            if (__instance == null) return false;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("UnlockManager.LateUpdateData"); } catch {}
-            }
-
-            try
-            {
-                try
-                {
-                    if (__instance.m_MilestonesWrapper != null)
-                    {
-                        __instance.m_MilestonesWrapper.OnRefreshMilestones();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] MilestonesWrapper.OnRefreshMilestones safe guard: " + ex.Message);
-                }
-
-                try
-                {
-                    if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null)
-                    {
-                        Singleton<TransportManager>.instance.CheckCompletionMilestones();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager.CheckCompletionMilestones safe guard: " + ex.Message);
-                }
-
-                try
-                {
-                    FieldInfo fFix = typeof(UnlockManager).GetField("m_fixMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
-                    bool needFix = (fFix != null) && (bool)fFix.GetValue(__instance);
-                    if (needFix && ((int)mode == 10 || (int)mode == 11))
-                    {
-                        __instance.FixMilestones();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.FixMilestones safe guard: " + ex.Message);
-                }
-
-                try
-                {
-                    int loop = 0;
-                    FieldInfo fChanged = typeof(UnlockManager).GetField("m_milestoneChanged", BindingFlags.NonPublic | BindingFlags.Instance);
-                    FieldInfo fChecking = typeof(UnlockManager).GetField("m_checkingMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fChecking != null) fChecking.SetValue(__instance, true);
-
-                    if (s_mCheckAllMilestones == null)
-                    {
-                        s_mCheckAllMilestones = typeof(UnlockManager).GetMethod("CheckAllMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
-                    }
-
-                    while (loop < 65536)
-                    {
-                        if (fChanged != null) fChanged.SetValue(__instance, false);
-                        if (s_mCheckAllMilestones != null) s_mCheckAllMilestones.Invoke(__instance, null);
-                        loop++;
-                        if (fChanged == null || !(bool)fChanged.GetValue(__instance))
-                        {
-                            break;
-                        }
-                    }
-                    if (fChecking != null) fChecking.SetValue(__instance, false);
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.CheckAllMilestones safe guard: " + ex.Message);
-                }
-
-                try
-                {
-                    __instance.MilestonesUpdated();
-                    __instance.RefreshScenarioMilestones();
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.MilestonesUpdated safe guard: " + ex.Message);
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] UnlockManager.LateUpdateData executed safely with zero NULL faults ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against fatal exception in UnlockManager.LateUpdateData: " + ex);
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-            return false; // Skip unarmored vanilla method to prevent Mono generic callvirt SIGSEGV!
-        }
-
-        private static void SafeCallManagerAction(Action a, string label)
-        {
-            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
-            try
-            {
-                if (a != null) a();
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished " + label + " ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.ToString()));
-            }
-        }
-
-        private static void SafeStepManagerAction(Action a, LoadingManager lm, float progress, string label)
-        {
-            try
-            {
-                if (lm != null) lm.SetSimulationProgress(progress);
-            }
-            catch {}
-            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
-            try
-            {
-                if (a != null) a();
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished " + label + " ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.ToString()));
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_EarlyUpdateData_Prefix()
-        {
-            try
-            {
-                // Only 7 managers have concrete EarlyUpdateData:
-                // AudioManager, BuildingManager, DisasterManager, EventManager, NetManager, TransportManager, UnlockManager.
-                // All other managers inherit empty `ret` from SimulationManagerBase<T,P>.
-                SafeCallManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) Singleton<AudioManager>.instance.EarlyUpdateData(); }, "AudioManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.EarlyUpdateData(); }, "BuildingManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.EarlyUpdateData(); }, "DisasterManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) Singleton<EventManager>.instance.EarlyUpdateData(); }, "EventManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.EarlyUpdateData(); }, "NetManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null) Singleton<TransportManager>.instance.EarlyUpdateData(); }, "TransportManager.EarlyUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.EarlyUpdateData(); }, "UnlockManager.EarlyUpdateData");
-
-                // Mod managers outside Assembly-CSharp
-                FastList<ISimulationManager> managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int mgrCount = managers.m_size;
-                    var coreAsm = typeof(NetManager).Assembly;
-                    for (int i = 0; i < mgrCount; i++)
-                    {
-                        var m = managers.m_buffer[i];
-                        if (m != null && m.GetType().Assembly != coreAsm)
-                        {
-                            string mName = m.GetType().FullName;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager EarlyUpdateData: " + mName);
-                            try
-                            {
-                                m.EarlyUpdateData();
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager EarlyUpdateData: " + mName + " ✓");
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager EarlyUpdateData (" + mName + "): " + ex.Message);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_EarlyUpdateData error: " + ex.Message);
-            }
-            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_UpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
-        {
-            try
-            {
-                // 1. Invoke NetworkSkins and PlopTheGrowables pre-update hooks safely
-                InvokeNetworkSkinsPreUpdateData(mode);
-                InvokePlopTheGrowablesPreUpdateData(mode);
-
-                // Pre-sanitize all prefab materials to eliminate native C++ BuildProperties free_tiny aborts
-                TransportLineCompatibility.SanitizeAllPrefabMaterials();
-
-                // 2. Direct concrete manager execution - completely eliminates generic interface callvirt on Mono
-                var lm = Singleton<LoadingManager>.instance;
-                float range = maxProgress - minProgress;
-                const float totalSteps = 26f;
-
-                SafeStepManagerAction(() => { if (Singleton<GameAreaManager>.exists && Singleton<GameAreaManager>.instance != null) Singleton<GameAreaManager>.instance.UpdateData(mode); }, lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) SafeExecuteTerrainManagerUpdateData(Singleton<TerrainManager>.instance, mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<InstanceManager>.exists && Singleton<InstanceManager>.instance != null) Singleton<InstanceManager>.instance.UpdateData(mode); }, lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) SafeExecuteNetManagerUpdateData(Singleton<NetManager>.instance, mode); }, lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.UpdateData(mode); }, lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<CitizenManager>.exists && Singleton<CitizenManager>.instance != null) Singleton<CitizenManager>.instance.UpdateData(mode); }, lm, minProgress + range * (6f / totalSteps), "CitizenManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TransferManager>.exists && Singleton<TransferManager>.instance != null) Singleton<TransferManager>.instance.UpdateData(mode); }, lm, minProgress + range * (7f / totalSteps), "TransferManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<ElectricityManager>.exists && Singleton<ElectricityManager>.instance != null) Singleton<ElectricityManager>.instance.UpdateData(mode); }, lm, minProgress + range * (8f / totalSteps), "ElectricityManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<WaterManager>.exists && Singleton<WaterManager>.instance != null) Singleton<WaterManager>.instance.UpdateData(mode); }, lm, minProgress + range * (9f / totalSteps), "WaterManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<ZoneManager>.exists && Singleton<ZoneManager>.instance != null) Singleton<ZoneManager>.instance.UpdateData(mode); }, lm, minProgress + range * (10f / totalSteps), "ZoneManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<PropManager>.exists && Singleton<PropManager>.instance != null) Singleton<PropManager>.instance.UpdateData(mode); }, lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TreeManager>.exists && Singleton<TreeManager>.instance != null) SafeExecuteTreeManagerUpdateData(Singleton<TreeManager>.instance, mode); }, lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<VehicleManager>.exists && Singleton<VehicleManager>.instance != null) Singleton<VehicleManager>.instance.UpdateData(mode); }, lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null) SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode); }, lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.UpdateData(mode); }, lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null) Singleton<DistrictManager>.instance.UpdateData(mode); }, lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) SafeExecuteEventManagerUpdateData(Singleton<EventManager>.instance, mode); }, lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) SafeExecuteDisasterManagerUpdateData(Singleton<DisasterManager>.instance, mode); }, lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<InfoManager>.exists && Singleton<InfoManager>.instance != null) SafeExecuteInfoManagerUpdateData(Singleton<InfoManager>.instance, mode); }, lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
-                SafeStepManagerAction(() => {
-                    TransportLineCompatibility.SanitizeAllPrefabMaterials();
-                    if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.UpdateData(mode);
-                }, lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) SafeExecuteAudioManagerUpdateData(Singleton<AudioManager>.instance, mode); }, lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<StatisticsManager>.exists && Singleton<StatisticsManager>.instance != null) Singleton<StatisticsManager>.instance.UpdateData(mode); }, lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.UpdateData(mode); }, lm, minProgress + range * (23f / totalSteps), "UnlockManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<MessageManager>.exists && Singleton<MessageManager>.instance != null) Singleton<MessageManager>.instance.UpdateData(mode); }, lm, minProgress + range * (24f / totalSteps), "MessageManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<GuideManager>.exists && Singleton<GuideManager>.instance != null) Singleton<GuideManager>.instance.UpdateData(mode); }, lm, minProgress + range * (25f / totalSteps), "GuideManager.UpdateData");
-
-                // 3. Mod managers outside Assembly-CSharp
-                FastList<ISimulationManager> managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int mgrCount = managers.m_size;
-                    var coreAsm = typeof(NetManager).Assembly;
-                    for (int i = 0; i < mgrCount; i++)
-                    {
-                        var m = managers.m_buffer[i];
-                        if (m != null && m.GetType().Assembly != coreAsm)
-                        {
-                            string mName = m.GetType().FullName;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager UpdateData: " + mName);
-                            try
-                            {
-                                m.UpdateData(mode);
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager UpdateData: " + mName + " ✓");
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager UpdateData (" + mName + "): " + ex.Message);
-                            }
-                        }
-                    }
-                }
-
-                if (lm != null)
-                {
-                    try { lm.SetSimulationProgress(maxProgress); } catch {}
-                }
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Direct Managers_UpdateData executed 25 concrete managers safely ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_UpdateData error: " + ex.Message);
-            }
-            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_Managers_LateUpdateData_Prefix(SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
-        {
-            try
-            {
-                // Only 8 managers have concrete LateUpdateData:
-                // DisasterManager, DistrictManager, EconomyManager, RenderManager, NetManager, ToolManager, TerrainManager, UnlockManager.
-                SafeCallManagerAction(() => {
-                    if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null)
-                    {
-                        try { Singleton<DisasterManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DisasterManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "DisasterManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null)
-                    {
-                        try { Singleton<DistrictManager>.instance.LateUpdateData(mode); }
-                        catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DistrictManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "DistrictManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null)
-                    {
-                        try { Singleton<EconomyManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EconomyManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "EconomyManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null)
-                    {
-                        try { Singleton<RenderManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] RenderManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "RenderManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null)
-                    {
-                        try { Singleton<NetManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "NetManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null)
-                    {
-                        try { Singleton<ToolManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ToolManager.LateUpdateData safe recovery: " + ex); }
-                    }
-                }, "ToolManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null)
-                    {
-                        try
-                        {
-                            var tm = Singleton<TerrainManager>.instance;
-                            int lastPatch = GetTerrainLastUpdatedPatch(tm);
-                            if (lastPatch != 80)
-                            {
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Managers_LateUpdateData: TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
-                                int waited = 0;
-                                while (GetTerrainLastUpdatedPatch(tm) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
-                                {
-                                    System.Threading.Thread.Sleep(20);
-                                    waited += 20;
-                                }
-                                if (GetTerrainLastUpdatedPatch(tm) != 80)
-                                {
-                                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(tm)));
-                                    SetTerrainLastUpdatedPatch(tm, 80);
-                                }
-                            }
-                            tm.LateUpdateData(mode);
-                        }
-                        catch (Exception ex)
-                        {
-                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager.LateUpdateData safe recovery: " + ex);
-                        }
-                    }
-                }, "TerrainManager.LateUpdateData");
-                SafeCallManagerAction(() => {
-                    if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null)
-                    {
-                        UnlockManager_LateUpdateData_Prefix(Singleton<UnlockManager>.instance, mode);
-                    }
-                }, "UnlockManager.LateUpdateData");
-
-                // Mod managers outside Assembly-CSharp
-                FastList<ISimulationManager> managers = GetSimulationManagers();
-                if (managers != null && managers.m_buffer != null)
-                {
-                    int mgrCount = managers.m_size;
-                    var coreAsm = typeof(NetManager).Assembly;
-                    for (int i = 0; i < mgrCount; i++)
-                    {
-                        var m = managers.m_buffer[i];
-                        if (m != null && m.GetType().Assembly != coreAsm)
-                        {
-                            string mName = m.GetType().FullName;
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager LateUpdateData: " + mName);
-                            try
-                            {
-                                m.LateUpdateData(mode);
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager LateUpdateData: " + mName + " ✓");
-                            }
-                            catch (Exception ex)
-                            {
-                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager LateUpdateData (" + mName + "): " + ex.Message);
-                            }
-                        }
-                    }
-                }
-
-                // Instance-level warm-up shield
-                var sm = Singleton<SimulationManager>.instance;
-                if (sm != null)
-                {
-                    SimulationManager_LateUpdateData_Prefix(sm, mode, minProgress, maxProgress);
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Direct Managers_LateUpdateData error: " + ex.Message);
-            }
-            return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV
-        }
-
-        public static bool SimulationManager_LateUpdateData_Prefix(SimulationManager __instance, SimulationManager.UpdateMode mode, float minProgress, float maxProgress)
-        {
-            var lm = Singleton<LoadingManager>.instance;
-            var profiler = lm != null ? lm.m_loadingProfilerSimulation : null;
-            if (profiler != null)
-            {
-                profiler.BeginLoading("SimulationManager.LateUpdateData");
-            }
-            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData starting (mode={0}, progress={1:F2}..{2:F2})...", mode, minProgress, maxProgress));
-
-            try
-            {
-                if (__instance != null && __instance.m_SerializableDataWrapper != null)
-                {
-                    try
-                    {
-                        __instance.m_SerializableDataWrapper.OnLoadData();
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData: SerializableDataWrapper.OnLoadData() completed cleanly.");
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in SerializableDataWrapper.OnLoadData: " + ex);
-                    }
-                }
-
-                int modeVal = (int)mode;
-                if (modeVal == 2 || modeVal == 3 || modeVal == 9 || modeVal == 11 || modeVal == 12 || modeVal == 13)
-                {
-                    // 256 warm-up ticks is optimal for settling water and physics without blocking or deadlocking
-                    int num = 256;
-                    int stepCount = 0;
-                    System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
-
-                    FastList<ISimulationManager> managers = GetSimulationManagers();
-
-                    for (int i = 0; i < num; i++)
-                    {
-                        // Timeout shield: If simulation warm-up takes > 2500ms, exit gracefully so game never hangs
-                        if (sw.ElapsedMilliseconds > 2500)
-                        {
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData warm-up timeout reached ({0}ms, {1}/{2} ticks). Advancing safely into game ✓", sw.ElapsedMilliseconds, i, num));
-                            break;
-                        }
-
-                        if (__instance != null)
-                        {
-                            __instance.m_currentFrameIndex++;
-                        }
-                        stepCount++;
-
-                        if (managers != null && managers.m_buffer != null)
-                        {
-                            int mgrCount = managers.m_size;
-                            for (int j = 0; j < mgrCount; j++)
-                            {
-                                var mgr = managers.m_buffer[j];
-                                if (mgr != null)
-                                {
-                                    try
-                                    {
-                                        mgr.SimulationStep(1000);
-                                    }
-                                    catch (Exception stepEx)
-                                    {
-                                        if (i == 0)
-                                        {
-                                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Protected against error in {0}.SimulationStep(1000): {1}", mgr.GetType().Name, stepEx.Message));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (__instance != null)
-                    {
-                        __instance.m_currentFrameIndex -= (uint)stepCount;
-                    }
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData warm-up completed: {0} ticks in {1}ms.", stepCount, sw.ElapsedMilliseconds));
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData guarded against fatal error: " + ex);
-            }
-            finally
-            {
-                if (profiler != null)
-                {
-                    try
-                    {
-                        profiler.EndLoading();
-                    }
-                    catch {}
-                }
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.LateUpdateData finished successfully ✓");
-            }
-
-            return false; // Skip unarmored vanilla method
-        }
-
-        public static void SafeCloseProfilerDeserialize(string tag)
-        {
-            try
-            {
-                var lm = Singleton<LoadingManager>.instance;
-                if (lm != null && lm.m_loadingProfilerSimulation != null)
-                {
-                    var profiler = lm.m_loadingProfilerSimulation;
-                    FieldInfo fEvents = typeof(LoadingProfiler).GetField("m_events", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                    FieldInfo fStopwatch = typeof(LoadingProfiler).GetField("m_stopwatch", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                    if (fEvents != null && fStopwatch != null)
-                    {
-                        var stopwatch = fStopwatch.GetValue(profiler) as System.Diagnostics.Stopwatch;
-                        long elapsed = stopwatch != null ? stopwatch.ElapsedMilliseconds : 0L;
-                        var events = fEvents.GetValue(profiler);
-                        if (events != null)
-                        {
-                            MethodInfo mAdd = events.GetType().GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
-                            Type evType = typeof(LoadingProfiler).GetNestedType("Event", BindingFlags.NonPublic | BindingFlags.Public);
-                            if (evType != null && mAdd != null)
-                            {
-                                object ev = Activator.CreateInstance(evType, new object[] { 7, null, elapsed });
-                                mAdd.Invoke(events, new object[] { ev });
-                            }
-                        }
-                    }
-                }
-            }
-            catch {}
-        }
-
-        public static void ResetNetSimulationState()
-        {
-            try
-            {
-                var nm = Singleton<NetManager>.instance;
-                if (nm == null) return;
-                int netCap = 65536;
-                if (nm.m_nodes == null)
-                {
-                    nm.m_nodes = new Array16<NetNode>((uint)netCap);
-                    ushort dummyNode;
-                    nm.m_nodes.CreateItem(out dummyNode);
-                }
-                EnsureArray16NodeCapacity(nm.m_nodes, netCap);
-
-                if (nm.m_segments == null)
-                {
-                    nm.m_segments = new Array16<NetSegment>((uint)netCap);
-                    ushort dummySeg;
-                    nm.m_segments.CreateItem(out dummySeg);
-                }
-                EnsureArray16SegCapacity(nm.m_segments, netCap);
-
-                int ulongCount = netCap >> 6;
-                if (nm.m_updatedNodes == null || nm.m_updatedNodes.Length < ulongCount)
-                    nm.m_updatedNodes = new ulong[Math.Max(1024, ulongCount)];
-                if (nm.m_updatedSegments == null || nm.m_updatedSegments.Length < ulongCount)
-                    nm.m_updatedSegments = new ulong[Math.Max(1024, ulongCount)];
-                if (nm.m_adjustedSegments == null || nm.m_adjustedSegments.Length < ulongCount)
-                    nm.m_adjustedSegments = new ulong[Math.Max(1024, ulongCount)];
-
-                if (nm.m_nodeGrid == null || nm.m_nodeGrid.Length < 72900)
-                    nm.m_nodeGrid = new ushort[72900];
-                if (nm.m_segmentGrid == null || nm.m_segmentGrid.Length < 72900)
-                    nm.m_segmentGrid = new ushort[72900];
-                if (nm.m_lanes != null)
-                    EnsureArray32LaneCapacity(nm.m_lanes, (nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 262144);
-            }
-            catch {}
-        }
-
-        public static void ResetCitizenSimulationState()
-        {
-            try
-            {
-                var cm = Singleton<CitizenManager>.instance;
-                if (cm == null) return;
-                if (cm.m_citizens == null) cm.m_citizens = new Array32<Citizen>(1048576);
-                if (cm.m_units == null) cm.m_units = new Array32<CitizenUnit>(524288);
-                if (cm.m_instances == null) cm.m_instances = new Array16<CitizenInstance>(65536);
-                if (cm.m_citizenGrid == null || cm.m_citizenGrid.Length < 72900) cm.m_citizenGrid = new ushort[72900];
-            }
-            catch {}
-        }
-
-        public static void ResetVehicleSimulationState()
-        {
-            try
-            {
-                var vm = Singleton<VehicleManager>.instance;
-                if (vm == null) return;
-                if (vm.m_vehicles == null) vm.m_vehicles = new Array16<Vehicle>(16384);
-                if (vm.m_parkedVehicles == null) vm.m_parkedVehicles = new Array16<VehicleParked>(32768);
-                if (vm.m_vehicleGrid == null || vm.m_vehicleGrid.Length < 72900) vm.m_vehicleGrid = new ushort[72900];
-                if (vm.m_parkedGrid == null || vm.m_parkedGrid.Length < 72900) vm.m_parkedGrid = new ushort[72900];
-                if (vm.m_updatedParked == null || vm.m_updatedParked.Length < 1024) vm.m_updatedParked = new ulong[1024];
-            }
-            catch {}
-        }
-
-        public static void ResetDistrictSimulationState()
-        {
-            try
-            {
-                var dm = Singleton<DistrictManager>.instance;
-                if (dm == null) return;
-                if (dm.m_districts == null) dm.m_districts = new Array8<District>(128);
-                if (dm.m_parks == null) dm.m_parks = new Array8<DistrictPark>(128);
-                if (dm.m_districtGrid == null || dm.m_districtGrid.Length < 262144)
-                {
-                    dm.m_districtGrid = new DistrictManager.Cell[262144];
-                }
-            }
-            catch {}
-        }
-
-        public static void ResetNaturalResourceSimulationState()
-        {
-            try
-            {
-                var nrm = Singleton<NaturalResourceManager>.instance;
-                if (nrm == null) return;
-                if (nrm.m_naturalResources == null || nrm.m_naturalResources.Length < 262144)
-                {
-                    nrm.m_naturalResources = new NaturalResourceManager.ResourceCell[262144];
-                }
-            }
-            catch {}
-        }
-
-        public static void ResetTransferManagerSimulationState()
-        {
-            try
-            {
-                var tm = Singleton<TransferManager>.instance;
-                if (tm == null) return;
-            }
-            catch {}
-        }
-
-        public static void ResetTerrainSimulationState()
-        {
-            try
-            {
-                var tm = Singleton<TerrainManager>.instance;
-                if (tm == null) return;
-                if (tm.m_patches == null) tm.m_patches = new TerrainPatch[1024];
-            }
-            catch {}
-        }
-
-        public static void ResetWaterSimulationSimulationState()
-        {
-            try
-            {
-                var ws = Singleton<WaterSimulation>.instance;
-                if (ws == null) return;
-            }
-            catch {}
-        }
-
-        public static void EnsureAllSimulationManagersSafe()
-        {
-            try { ResetNetSimulationState(); } catch {}
-            try { ResetTreeSimulationState(); } catch {}
-            try { ResetPropSimulationState(); } catch {}
-            try { ResetBuildingSimulationState(); } catch {}
-            try { ResetCitizenSimulationState(); } catch {}
-            try { ResetZoneSimulationState(); } catch {}
-            try { ResetVehicleSimulationState(); } catch {}
-            try { ResetDistrictSimulationState(); } catch {}
-            try { ResetElectricitySimulationState(); } catch {}
-            try { ResetWaterSimulationState(); } catch {}
-            try { ResetNaturalResourceSimulationState(); } catch {}
-            try { ResetTransferManagerSimulationState(); } catch {}
-            try { ResetTerrainSimulationState(); } catch {}
-            try { ResetWaterSimulationSimulationState(); } catch {}
-            try { ResetWeatherSimulationState(); } catch {}
-        }
-
-        public static void ResetElectricitySimulationState()
-        {
-            try
-            {
-                var em = Singleton<ElectricityManager>.instance;
-                if (em != null)
-                {
-                    if (em.m_nodeGroups == null || em.m_nodeGroups.Length < 65536)
-                    {
-                        em.m_nodeGroups = new ushort[65536];
-                    }
-                    if (s_emProcessedCells != null) s_emProcessedCells.SetValue(em, 0);
-                    if (s_emConductiveCells != null) s_emConductiveCells.SetValue(em, 0);
-                    if (s_emCanContinue != null) s_emCanContinue.SetValue(em, true);
-                }
-            }
-            catch {}
-        }
-
-        public static void ResetWaterSimulationState()
-        {
-            try
-            {
-                var wm = Singleton<WaterManager>.instance;
-                if (wm != null)
-                {
-                    if (wm.m_nodeData == null || wm.m_nodeData.Length < 65536)
-                    {
-                        wm.m_nodeData = new WaterManager.Node[65536];
-                    }
-                    if (s_wmProcessedCells != null) s_wmProcessedCells.SetValue(wm, 0);
-                    if (s_wmConductiveCells != null) s_wmConductiveCells.SetValue(wm, 0);
-                    if (s_wmCanContinue != null) s_wmCanContinue.SetValue(wm, true);
-                }
-            }
-            catch {}
-        }
-
-        public static bool IsStreamAtEnd(ColossalFramework.IO.DataSerializer s)
-        {
-            if (s == null) return true;
-            try
-            {
-                var st = s_dsStreamField != null ? s_dsStreamField.GetValue(s) as System.IO.Stream : null;
-                if (st != null && st.CanSeek)
-                {
-                    return st.Position >= st.Length;
-                }
-            }
-            catch {}
-            return false;
-        }
-
-        public static bool ElectricityManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("ElectricityManager.Data.Deserialize.Prefix");
-
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ElectricityManager_Data_Deserialize_Prefix: Stream reached EOF before ElectricityManager. Initializing safe defaults ✓");
-                    ResetElectricitySimulationState();
-                    SafeCloseProfilerDeserialize("ElectricityManager");
-                    return false; // Skip original crashing method!
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ElectricityManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception ElectricityManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed ElectricityManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("ElectricityManager");
-                TryAdvanceStreamToTag(s, "WaterManager");
-                ResetElectricitySimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static bool WaterManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("WaterManager.Data.Deserialize.Prefix");
-
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterManager_Data_Deserialize_Prefix: Stream reached EOF before WaterManager. Initializing safe defaults ✓");
-                    ResetWaterSimulationState();
-                    SafeCloseProfilerDeserialize("WaterManager");
-                    return false; // Skip original crashing method!
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WaterManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception WaterManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WaterManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("WaterManager");
-                TryAdvanceStreamToTag(s, "ZoneManager");
-                ResetWaterSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static bool Array16_NetNode_ReleaseItem_Prefix(Array16<NetNode> __instance, ushort item)
-        {
-            if (__instance != null)
-            {
-                try
-                {
-                    if (fArray16NodeUnusedCount != null && fArray16NodeUnusedItems != null)
-                    {
-                        uint unusedCount = (uint)fArray16NodeUnusedCount.GetValue(__instance);
-                        ushort[] unusedItems = fArray16NodeUnusedItems.GetValue(__instance) as ushort[];
-                        if (unusedItems == null || unusedCount >= unusedItems.Length)
-                        {
-                            int newCap = Math.Max((int)(unusedCount + 1024), 65536);
-                            if (unusedItems == null)
-                            {
-                                unusedItems = new ushort[newCap];
-                            }
-                            else
-                            {
-                                Array.Resize(ref unusedItems, newCap);
-                            }
-                            fArray16NodeUnusedItems.SetValue(__instance, unusedItems);
-                        }
-                    }
-                }
-                catch {}
-            }
-            return true;
-        }
-
-        public static bool Array16_NetSegment_ReleaseItem_Prefix(Array16<NetSegment> __instance, ushort item)
-        {
-            if (__instance != null)
-            {
-                try
-                {
-                    if (fArray16SegUnusedCount != null && fArray16SegUnusedItems != null)
-                    {
-                        uint unusedCount = (uint)fArray16SegUnusedCount.GetValue(__instance);
-                        ushort[] unusedItems = fArray16SegUnusedItems.GetValue(__instance) as ushort[];
-                        if (unusedItems == null || unusedCount >= unusedItems.Length)
-                        {
-                            int newCap = Math.Max((int)(unusedCount + 1024), 65536);
-                            if (unusedItems == null)
-                            {
-                                unusedItems = new ushort[newCap];
-                            }
-                            else
-                            {
-                                Array.Resize(ref unusedItems, newCap);
-                            }
-                            fArray16SegUnusedItems.SetValue(__instance, unusedItems);
-                        }
-                    }
-                }
-                catch {}
-            }
-            return true;
-        }
-
-        public static bool Array32_NetLane_ReleaseItem_Prefix(Array32<NetLane> __instance, uint item)
-        {
-            if (__instance != null)
-            {
-                try
-                {
-                    if (fArray32LaneUnusedCount != null && fArray32LaneUnusedItems != null)
-                    {
-                        uint unusedCount = (uint)fArray32LaneUnusedCount.GetValue(__instance);
-                        uint[] unusedItems = fArray32LaneUnusedItems.GetValue(__instance) as uint[];
-                        if (unusedItems == null || unusedCount >= unusedItems.Length)
-                        {
-                            int newCap = Math.Max((int)(unusedCount + 4096), 262144);
-                            if (unusedItems == null)
-                            {
-                                unusedItems = new uint[newCap];
-                            }
-                            else
-                            {
-                                Array.Resize(ref unusedItems, newCap);
-                            }
-                            fArray32LaneUnusedItems.SetValue(__instance, unusedItems);
-                        }
-                    }
-                }
-                catch {}
-            }
-            return true;
-        }
-
-        public static bool NetManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                var nm = Singleton<NetManager>.instance;
-                if (nm != null)
-                {
-                    int netCap = 65536; // Full 16-bit ushort space (0..65535) to eliminate any possible IndexOutOfRangeException
-
-                    // 1. Pre-expand nodes buffer to 65536
-                    if (nm.m_nodes == null)
-                    {
-                        nm.m_nodes = new Array16<NetNode>((uint)netCap);
-                        ushort dummyNode;
-                        nm.m_nodes.CreateItem(out dummyNode);
-                    }
-                    EnsureArray16NodeCapacity(nm.m_nodes, netCap);
-
-                    // 2. Pre-expand segments buffer to 65536
-                    if (nm.m_segments == null)
-                    {
-                        nm.m_segments = new Array16<NetSegment>((uint)netCap);
-                        ushort dummySeg;
-                        nm.m_segments.CreateItem(out dummySeg);
-                    }
-                    EnsureArray16SegCapacity(nm.m_segments, netCap);
-
-                    // 3. Auxiliary bitmask arrays
-                    int ulongCount = netCap >> 6;
-                    if (nm.m_updatedNodes == null || nm.m_updatedNodes.Length < ulongCount)
-                    {
-                        nm.m_updatedNodes = new ulong[Math.Max(1024, ulongCount)];
-                    }
-                    if (nm.m_updatedSegments == null || nm.m_updatedSegments.Length < ulongCount)
-                    {
-                        nm.m_updatedSegments = new ulong[Math.Max(1024, ulongCount)];
-                    }
-                    if (nm.m_adjustedSegments == null || nm.m_adjustedSegments.Length < ulongCount)
-                    {
-                        nm.m_adjustedSegments = new ulong[Math.Max(1024, ulongCount)];
-                    }
-
-                    // 4. Grids
-                    if (nm.m_nodeGrid == null || nm.m_nodeGrid.Length < 72900)
-                    {
-                        nm.m_nodeGrid = new ushort[72900];
-                    }
-                    if (nm.m_segmentGrid == null || nm.m_segmentGrid.Length < 72900)
-                    {
-                        nm.m_segmentGrid = new ushort[72900];
-                    }
-
-                    // 5. Lanes buffer (ensure expanded capacity up to MNCConstants.LANE_CAPACITY to prevent IndexOutOfRangeException on large saves)
-                    if (nm.m_lanes != null)
-                    {
-                        int targetLaneCap = Math.Max((nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 262144, (int)MNCConstants.LANE_CAPACITY);
-                        EnsureArray32LaneCapacity(nm.m_lanes, targetLaneCap);
-                    }
-                }
-
-                ThirdPartyCompatibility.EnsureAuxiliaryBuffersExpanded("NetManager.Data.Deserialize.Prefix");
-
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_Data_Deserialize_Prefix: Stream reached EOF before NetManager. Initializing safe defaults ✓");
-                    SafeCloseProfilerDeserialize("NetManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] NetManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static byte[] EncodeDataSerializerString(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return null;
-            byte[] res = new byte[3 + text.Length];
-            res[0] = 0x80;
-            res[1] = (byte)((text.Length >> 8) & 0xFF);
-            res[2] = (byte)(text.Length & 0xFF);
-            int running = 128;
-            for (int i = 0; i < text.Length; i++)
-            {
-                int ch = (int)text[i];
-                res[3 + i] = (byte)((ch - running) & 0xFF);
-                running = ch;
-            }
-            return res;
-        }
-
-        public static void TryAdvanceStreamToTag(ColossalFramework.IO.DataSerializer s, string targetTag)
-        {
-            try
-            {
-                if (s == null || string.IsNullOrEmpty(targetTag)) return;
-                var st = s_dsStreamField != null ? s_dsStreamField.GetValue(s) as System.IO.Stream : null;
-                if (st == null || !st.CanSeek) return;
-
-                byte[] encTag = EncodeDataSerializerString(targetTag);
-                if (encTag == null || encTag.Length == 0) return;
-
-                long currentPos = st.Position;
-                long maxScan = Math.Min(st.Length - encTag.Length, currentPos + 50 * 1024 * 1024);
-                byte[] buffer = new byte[65536];
-                st.Position = currentPos;
-
-                while (st.Position < maxScan)
-                {
-                    long chunkStart = st.Position;
-                    int bytesRead = st.Read(buffer, 0, buffer.Length);
-                    if (bytesRead < encTag.Length) break;
-
-                    for (int i = 0; i <= bytesRead - encTag.Length; i++)
-                    {
-                        bool match = true;
-                        for (int j = 0; j < encTag.Length; j++)
-                        {
-                            if (buffer[i + j] != encTag[j]) { match = false; break; }
-                        }
-                        if (match)
-                        {
-                            long targetPos = chunkStart + i;
-                            st.Position = targetPos;
-                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Resynchronized stream: jumped from {0} to {1} ('{2}' tag start) ✓", currentPos, targetPos, targetTag));
-                            return;
-                        }
-                    }
-                    if (st.Position < maxScan)
-                    {
-                        st.Position = chunkStart + bytesRead - encTag.Length + 1;
-                    }
-                }
-                st.Position = currentPos;
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TryAdvanceStreamToTag error: " + ex);
-            }
-        }
-
-        public static Exception NetManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed NetManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe network state ✓");
-                SafeCloseProfilerDeserialize("NetManager");
-
-                // Resynchronize stream: advance to next container (BuildingManager) so subsequent managers are not corrupt
-                TryAdvanceStreamToTag(s, "BuildingManager");
-
-                try
-                {
-                    var nm = Singleton<NetManager>.instance;
-                    if (nm != null)
-                    {
-                        Assembly mnc = GetMncCoreAssembly();
-                        if (mnc != null)
-                        {
-                            Type customizerType = mnc.GetType("MoreNetworkCapacity.NetManagerCustomizer");
-                            if (customizerType != null)
-                            {
-                                var mRebuild = customizerType.GetMethod("RebuildFreeLists", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                                mRebuild?.Invoke(null, new object[] { nm });
-                                var mUpdateLimits = customizerType.GetMethod("UpdateLoopLimitsForLoadedData", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                                mUpdateLimits?.Invoke(null, new object[] { nm });
-                            }
-                        }
-                    }
-                }
-                catch {}
-            }
-            return null; // Suppress crash!
-        }
-
-        public static void ResetTreeSimulationState()
-        {
-            try
-            {
-                var tm = Singleton<TreeManager>.instance;
-                if (tm == null) return;
-                int curBuf = 262144;
-                if (tm.m_trees != null && tm.m_trees.m_buffer != null && tm.m_trees.m_buffer.Length > curBuf)
-                {
-                    curBuf = tm.m_trees.m_buffer.Length;
-                }
-                if (tm.m_trees == null) tm.m_trees = new Array32<TreeInstance>((uint)curBuf);
-                if (tm.m_trees.m_buffer == null || tm.m_trees.m_buffer.Length < curBuf)
-                {
-                    Array.Resize(ref tm.m_trees.m_buffer, curBuf);
-                }
-                if (tm.m_trees.m_size < curBuf) tm.m_trees.m_size = (uint)curBuf;
-                tm.m_trees.ClearUnused();
-                if (tm.m_treeGrid == null || tm.m_treeGrid.Length < 57600) tm.m_treeGrid = new uint[57600];
-                if (tm.m_updatedTrees == null || tm.m_updatedTrees.Length < 4096) tm.m_updatedTrees = new ulong[4096];
-            }
-            catch {}
-        }
-
-        public static bool TreeManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                var tm = Singleton<TreeManager>.instance;
-                if (tm != null && tm.m_trees != null)
-                {
-                    int bufLen = tm.m_trees.m_buffer != null ? tm.m_trees.m_buffer.Length : 262144;
-                    if (tm.m_trees.m_buffer == null || tm.m_trees.m_buffer.Length < bufLen)
-                    {
-                        Array.Resize(ref tm.m_trees.m_buffer, bufLen);
-                    }
-                }
-
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TreeManager_Data_Deserialize_Prefix: Stream reached EOF before TreeManager. Initializing safe defaults ✓");
-                    ResetTreeSimulationState();
-                    SafeCloseProfilerDeserialize("TreeManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TreeManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception TreeManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed TreeManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("TreeManager");
-                ResetTreeSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static void ResetPropSimulationState()
-        {
-            try
-            {
-                var pm = Singleton<PropManager>.instance;
-                if (pm == null) return;
-                if (pm.m_props == null) pm.m_props = new Array16<PropInstance>(65536);
-                if (pm.m_props.m_buffer == null || pm.m_props.m_buffer.Length < 65536)
-                {
-                    Array.Resize(ref pm.m_props.m_buffer, 65536);
-                }
-                if (pm.m_props.m_size < 65536) pm.m_props.m_size = 65536;
-                pm.m_props.ClearUnused();
-                if (pm.m_propGrid == null || pm.m_propGrid.Length < 72900) pm.m_propGrid = new ushort[72900];
-                if (pm.m_updatedProps == null || pm.m_updatedProps.Length < 1024) pm.m_updatedProps = new ulong[1024];
-            }
-            catch {}
-        }
-
-        public static bool PropManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PropManager_Data_Deserialize_Prefix: Stream reached EOF before PropManager. Initializing safe defaults ✓");
-                    ResetPropSimulationState();
-                    SafeCloseProfilerDeserialize("PropManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PropManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception PropManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed PropManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("PropManager");
-                ResetPropSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static void ResetBuildingSimulationState()
-        {
-            try
-            {
-                var bm = Singleton<BuildingManager>.instance;
-                if (bm == null) return;
-                if (bm.m_buildings == null) bm.m_buildings = new Array16<Building>(49152);
-                if (bm.m_buildings.m_buffer == null || bm.m_buildings.m_buffer.Length < 49152)
-                {
-                    Array.Resize(ref bm.m_buildings.m_buffer, 49152);
-                }
-                if (bm.m_buildings.m_size < 49152) bm.m_buildings.m_size = 49152;
-                bm.m_buildings.ClearUnused();
-                if (bm.m_buildingGrid == null || bm.m_buildingGrid.Length < 72900) bm.m_buildingGrid = new ushort[72900];
-                if (bm.m_updatedBuildings == null || bm.m_updatedBuildings.Length < 1024) bm.m_updatedBuildings = new ulong[1024];
-            }
-            catch {}
-        }
-
-        public static bool BuildingManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] BuildingManager_Data_Deserialize_Prefix: Stream reached EOF before BuildingManager. Initializing safe defaults ✓");
-                    ResetBuildingSimulationState();
-                    SafeCloseProfilerDeserialize("BuildingManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] BuildingManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception BuildingManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed BuildingManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("BuildingManager");
-                ResetBuildingSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static Exception CitizenManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed CitizenManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("CitizenManager");
-            }
-            return null;
-        }
-
-        public static void ResetZoneSimulationState()
-        {
-            try
-            {
-                var zm = Singleton<ZoneManager>.instance;
-                if (zm == null) return;
-                if (zm.m_blocks == null) zm.m_blocks = new Array16<ZoneBlock>(49152);
-                if (zm.m_blocks.m_buffer == null || zm.m_blocks.m_buffer.Length < 49152)
-                {
-                    Array.Resize(ref zm.m_blocks.m_buffer, 49152);
-                }
-                if (zm.m_blocks.m_size < 49152) zm.m_blocks.m_size = 49152;
-                zm.m_blocks.ClearUnused();
-                if (zm.m_zoneGrid == null || zm.m_zoneGrid.Length < 72900) zm.m_zoneGrid = new ushort[72900];
-                if (zm.m_updatedBlocks == null || zm.m_updatedBlocks.Length < 1024) zm.m_updatedBlocks = new ulong[1024];
-            }
-            catch {}
-        }
-
-        public static bool ZoneManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ZoneManager_Data_Deserialize_Prefix: Stream reached EOF before ZoneManager. Initializing safe defaults ✓");
-                    ResetZoneSimulationState();
-                    SafeCloseProfilerDeserialize("ZoneManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ZoneManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception ZoneManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed ZoneManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("ZoneManager");
-                ResetZoneSimulationState();
-            }
-            return null;
-        }
-
-        
-        // VehicleManager Deserialization Armor
-        public static bool VehicleManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] VehicleManager_Data_Deserialize_Prefix: Stream reached EOF before VehicleManager. Initializing safe defaults ✓");
-                    ResetVehicleSimulationState();
-                    SafeCloseProfilerDeserialize("VehicleManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] VehicleManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception VehicleManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed VehicleManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("VehicleManager");
-                ResetVehicleSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        // DistrictManager Deserialization Armor
-        public static bool DistrictManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DistrictManager_Data_Deserialize_Prefix: Stream reached EOF before DistrictManager. Initializing safe defaults ✓");
-                    ResetDistrictSimulationState();
-                    SafeCloseProfilerDeserialize("DistrictManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] DistrictManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception DistrictManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed DistrictManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("DistrictManager");
-                ResetDistrictSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        // NaturalResourceManager Deserialization Armor
-        public static bool NaturalResourceManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NaturalResourceManager_Data_Deserialize_Prefix: Stream reached EOF before NaturalResourceManager. Initializing safe defaults ✓");
-                    ResetNaturalResourceSimulationState();
-                    SafeCloseProfilerDeserialize("NaturalResourceManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] NaturalResourceManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception NaturalResourceManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed NaturalResourceManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("NaturalResourceManager");
-                ResetNaturalResourceSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        // TransferManager Deserialization Armor
-        public static bool TransferManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransferManager_Data_Deserialize_Prefix: Stream reached EOF before TransferManager. Initializing safe defaults ✓");
-                    ResetTransferManagerSimulationState();
-                    SafeCloseProfilerDeserialize("TransferManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TransferManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception TransferManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed TransferManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("TransferManager");
-                ResetTransferManagerSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        // TerrainManager Deserialization Armor
-        public static bool TerrainManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager_Data_Deserialize_Prefix: Stream reached EOF before TerrainManager. Initializing safe defaults ✓");
-                    ResetTerrainSimulationState();
-                    SafeCloseProfilerDeserialize("TerrainManager");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TerrainManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception TerrainManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed TerrainManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("TerrainManager");
-                ResetTerrainSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        // WaterSimulation Deserialization Armor
-        public static bool WaterSimulation_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterSimulation_Data_Deserialize_Prefix: Stream reached EOF before WaterSimulation. Initializing safe defaults ✓");
-                    ResetWaterSimulationSimulationState();
-                    SafeCloseProfilerDeserialize("WaterSimulation");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WaterSimulation_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception WaterSimulation_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WaterSimulation deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("WaterSimulation");
-                ResetWaterSimulationSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static void ResetWeatherSimulationState()
-        {
-            try
-            {
-                var wm = Singleton<WeatherManager>.instance;
-                if (wm != null)
-                {
-                    wm.m_currentTemperature = 20f;
-                    wm.m_targetTemperature = 20f;
-                    wm.m_currentRain = 0f;
-                    wm.m_targetRain = 0f;
-                    wm.m_currentFog = 0f;
-                    wm.m_targetFog = 0f;
-                    wm.m_currentCloud = 0f;
-                    wm.m_targetCloud = 0f;
-                    wm.m_groundWetness = 0f;
-                    wm.m_enableWeather = true;
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ResetWeatherSimulationState: Safe weather state restored ✓");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ResetWeatherSimulationState error: " + ex);
-            }
-        }
-
-        public static bool WeatherManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix: Stream reached EOF before WeatherManager. Initializing safe defaults ✓");
-                    ResetWeatherSimulationState();
-                    SafeCloseProfilerDeserialize("WeatherManager");
-                    return false; // Skip original crashing method!
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] WeatherManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
-        }
-
-        public static Exception WeatherManager_Data_Deserialize_Finalizer(Exception __exception, object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Universal Buffer Armor: Suppressed WeatherManager deserialization error (" + __exception.GetType().Name + ": " + __exception.Message + "). Restoring safe defaults ✓");
-                SafeCloseProfilerDeserialize("WeatherManager");
-                ResetWeatherSimulationState();
-            }
-            return null; // Suppress crash!
-        }
-
-        public static bool GenericManager_Data_Deserialize_Prefix(object __instance, ColossalFramework.IO.DataSerializer s)
-        {
-            try
-            {
-                if (IsStreamAtEnd(s))
-                {
-                    string typeName = __instance != null ? (__instance.GetType().DeclaringType != null ? __instance.GetType().DeclaringType.Name : __instance.GetType().Name) : "Manager";
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0}.Data.Deserialize: Stream reached EOF. Skipping safely ✓", typeName));
-                    try { Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, typeName); } catch {}
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] GenericManager_Data_Deserialize_Prefix error: " + ex);
-            }
-            return true;
         }
 
         public static bool PathManager_Data_Deserialize_Prefix(PathManager.Data __instance, ColossalFramework.IO.DataSerializer s)
@@ -20851,25 +15297,15 @@ namespace MoreNetworkCapacityRenew
 
         public static bool LoadingProfiler_BeginDeserialize_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name)
         {
-            return SafeHandleDeserializeTag(__instance, s, name, null, isBegin: true);
+            return SafeHandleDeserializeTag(__instance, s, name, isBegin: true);
         }
 
         public static bool LoadingProfiler_EndDeserialize_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name)
         {
-            return SafeHandleDeserializeTag(__instance, s, name, null, isBegin: false);
+            return SafeHandleDeserializeTag(__instance, s, name, isBegin: false);
         }
 
-        public static bool LoadingProfiler_BeginDeserialize_3Arg_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name1, string name2)
-        {
-            return SafeHandleDeserializeTag(__instance, s, name1, name2, isBegin: true);
-        }
-
-        public static bool LoadingProfiler_EndDeserialize_3Arg_Prefix(LoadingProfiler __instance, ColossalFramework.IO.DataSerializer s, string name1, string name2)
-        {
-            return SafeHandleDeserializeTag(__instance, s, name1, name2, isBegin: false);
-        }
-
-        private static bool SafeHandleDeserializeTag(LoadingProfiler profiler, ColossalFramework.IO.DataSerializer s, string name, string name2, bool isBegin)
+        private static bool SafeHandleDeserializeTag(LoadingProfiler profiler, ColossalFramework.IO.DataSerializer s, string name, bool isBegin)
         {
             try
             {
@@ -20890,8 +15326,7 @@ namespace MoreNetworkCapacityRenew
                                 Type evType = typeof(LoadingProfiler).GetNestedType("Event", BindingFlags.NonPublic | BindingFlags.Public);
                                 if (evType != null && mAdd != null)
                                 {
-                                    string eventName = isBegin ? (string.IsNullOrEmpty(name2) ? name : (name + "." + name2)) : null;
-                                    object ev = Activator.CreateInstance(evType, new object[] { isBegin ? 6 : 7, eventName, elapsed });
+                                    object ev = Activator.CreateInstance(evType, new object[] { isBegin ? 6 : 7, isBegin ? name : null, elapsed });
                                     mAdd.Invoke(events, new object[] { ev });
                                 }
                             }
@@ -20902,25 +15337,96 @@ namespace MoreNetworkCapacityRenew
 
                 if (s != null && s.version >= 130u)
                 {
-                    try
+                    var fiStrings = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stringList", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var fiStream = typeof(ColossalFramework.IO.DataSerializer).GetField("m_stream", BindingFlags.NonPublic | BindingFlags.Instance);
+                    Stream st = fiStream != null ? (Stream)fiStream.GetValue(s) : null;
+                    List<string> strList = fiStrings != null ? (List<string>)fiStrings.GetValue(s) : null;
+
+                    if (st != null && st.CanSeek)
                     {
-                        string readTag = s.ReadSharedString();
-                        if (!isBegin && s.version < 154u && readTag == null)
+                        int tagIdx = strList != null ? strList.IndexOf(name) : -1;
+                        if (tagIdx >= 0)
                         {
-                            return false;
+                            byte b1 = (byte)(tagIdx >> 8);
+                            byte b2 = (byte)(tagIdx & 0xFF);
+
+                            long curPos = st.Position;
+                            int p1 = st.ReadByte();
+                            int p2 = st.ReadByte();
+                            st.Seek(curPos, SeekOrigin.Begin);
+
+                            if (p1 == b1 && p2 == b2)
+                            {
+                                s.ReadSharedString(); // Clean match!
+                                return false;
+                            }
+
+                            // Misaligned stream: search forward up to 2MB, requiring strong validation:
+                            // 1. Tag must match [b1, b2]
+                            // 2. If isBegin == false (EndDeserialize), next 2 bytes must point to a valid manager Begin tag in strList!
+                            long foundPos = -1;
+                            long maxSearch = Math.Min(st.Length - 4, curPos + 2 * 1024 * 1024);
+                            for (long pos = curPos; pos < maxSearch; pos++)
+                            {
+                                int s1 = st.ReadByte();
+                                if (s1 == b1)
+                                {
+                                    int s2 = st.ReadByte();
+                                    if (s2 == b2)
+                                    {
+                                        if (!isBegin)
+                                        {
+                                            // Verify next 2 bytes form a valid next manager Begin tag!
+                                            int n1 = st.ReadByte();
+                                            int n2 = st.ReadByte();
+                                            if (n1 >= 0 && n2 >= 0)
+                                            {
+                                                int nextIdx = (n1 << 8) | n2;
+                                                if (nextIdx >= 0 && nextIdx < strList.Count)
+                                                {
+                                                    string nextStr = strList[nextIdx];
+                                                    if (nextStr != null && (nextStr.EndsWith("Manager") || nextStr.Contains("Manager")))
+                                                    {
+                                                        foundPos = pos;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            st.Seek(pos + 1, SeekOrigin.Begin);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            foundPos = pos;
+                                            break;
+                                        }
+                                    }
+                                    st.Seek(pos + 1, SeekOrigin.Begin);
+                                }
+                            }
+
+                            if (foundPos != -1)
+                            {
+                                st.Seek(foundPos, SeekOrigin.Begin);
+                                s.ReadSharedString(); // Cleanly consume the verified tag
+                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Verified and aligned {0}('{1}') from offset {2} to {3} ✓",
+                                    isBegin ? "BeginDeserialize" : "EndDeserialize", name, curPos, foundPos));
+                                return false;
+                            }
+
+                            st.Seek(curPos, SeekOrigin.Begin);
                         }
-                        if (readTag != name && (string.IsNullOrEmpty(name2) || readTag != name2))
+
+                        // Fallback: Read tag safely without throwing
+                        try
                         {
+                            string readTag = s.ReadSharedString();
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Suppressed {0}('{1}') tag mismatch (read '{2}'). Proceeding safely ✓",
-                                isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag ?? "<null>"));
+                                isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag));
                         }
+                        catch { }
+                        return false;
                     }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Exception reading {0}('{1}') tag: {2}",
-                            isBegin ? "BeginDeserialize" : "EndDeserialize", name, ex.Message));
-                    }
-                    return false;
                 }
             }
             catch (Exception ex)
@@ -21140,11 +15646,6 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                if (exception != null)
-                {
-                    string msg = string.Format("[SafeLogArmor Exception] {0}\nStack:\n{1}", exception.Message, exception.StackTrace);
-                    Console.WriteLine(msg);
-                }
                 if (s_internalLogExceptionMethod == null)
                 {
                     Type dlhType = typeof(UnityEngine.Debug).Assembly.GetType("UnityEngine.DebugLogHandler");
@@ -21157,11 +15658,11 @@ namespace MoreNetworkCapacityRenew
                 }
                 catch {}
 
-                return true;
+                return false;
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 
@@ -21205,20 +15706,20 @@ namespace MoreNetworkCapacityRenew
             catch {}
         }
 
-        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicle)
+        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicleID)
         {
             try
             {
                 VehicleManager vm = Singleton<VehicleManager>.instance;
                 if (vm == null || vm.m_vehicles == null || vm.m_vehicles.m_buffer == null) return;
-                if (vehicle == 0 || vehicle >= vm.m_vehicles.m_buffer.Length) return;
+                if (vehicleID == 0 || vehicleID >= vm.m_vehicles.m_buffer.Length) return;
 
                 // Move physical collision segment 100,000m away so collision raycasts / distance checks never register an invisible block
-                vm.m_vehicles.m_buffer[vehicle].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
-                vm.m_vehicles.m_buffer[vehicle].m_nextGridVehicle = 0;
+                vm.m_vehicles.m_buffer[vehicleID].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                vm.m_vehicles.m_buffer[vehicleID].m_nextGridVehicle = 0;
 
                 // Clear any TM:PE junction reservation or segment end locks held by this vehicle
-                TMPECompatibility.NotifyVehicleReleased(vehicle);
+                TMPECompatibility.NotifyVehicleReleased(vehicleID);
             }
             catch { }
         }
@@ -21383,6 +15884,11 @@ namespace MoreNetworkCapacityRenew
             {
                 if (__instance == null || source == null) return;
 
+                if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
+                {
+                    TMPECompatibility.EnsureExpandedSave();
+                }
+
                 // Bidirectional merge to guarantee no key from savegame is EVER lost!
                 if (__instance.m_modOverride != null && source.m_modOverride != null)
                 {
@@ -21412,9 +15918,21 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                if (__instance != null && __instance.m_modOverride == null)
+                {
+                    __instance.m_modOverride = new Dictionary<string, bool>();
+                }
                 if (ThirdPartyCompatibility.IsSaveGameExpanded(__instance) || ThirdPartyCompatibility.IsSaveGameExpanded(source))
                 {
                     TMPECompatibility.EnsureExpandedSave();
+                    if (__instance != null && __instance.m_modOverride != null)
+                    {
+                        __instance.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                    }
+                    if (source != null && source.m_modOverride != null)
+                    {
+                        source.m_modOverride["User/MoreNetworkCapacity/64K-v1"] = true;
+                    }
                 }
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("SimulationMetaData.Merge.Postfix");
@@ -21429,9 +15947,6 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                // Reset loading expanded state for fresh load
-                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
-
                 RenewLoading.EnsureAllPatchesApplied();
                 ThirdPartyCompatibility.EnsureMorePathUnitsPatched();
                 ThirdPartyCompatibility.SynchronizeMorePathUnits("LoadingManager.LoadSimulationData.Prefix");
@@ -21588,95 +16103,67 @@ namespace MoreNetworkCapacityRenew
                 if (__instance != null)
                 {
                     int maxReq = Math.Max((int)data.m_startNode, (int)data.m_endNode);
-                    if (__instance.m_nodes != null)
-                    {
-                        int nodeBufLen = (__instance.m_nodes.m_buffer != null) ? __instance.m_nodes.m_buffer.Length : 0;
-                        if (maxReq >= nodeBufLen)
-                        {
-                            int targetSize = Math.Max(65536, maxReq + 1024);
-                            EnsureArray16NodeCapacity(__instance.m_nodes, targetSize);
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
-                        }
-                    }
-                    if (__instance.m_segments != null)
-                    {
-                        int segBufLen = (__instance.m_segments.m_buffer != null) ? __instance.m_segments.m_buffer.Length : 0;
-                        if ((int)segment >= segBufLen)
-                        {
-                            int targetSize = Math.Max(65536, (int)segment + 1024);
-                            EnsureArray16SegCapacity(__instance.m_segments, targetSize);
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
-                        }
-                    }
-
-                    // Native safe replacement: Zero out of bounds possibility
-                    Vector3 position = Vector3.zero;
                     if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
                     {
-                        Vector3 startPos = ((int)data.m_startNode < __instance.m_nodes.m_buffer.Length) ? __instance.m_nodes.m_buffer[data.m_startNode].m_position : Vector3.zero;
-                        Vector3 endPos = ((int)data.m_endNode < __instance.m_nodes.m_buffer.Length) ? __instance.m_nodes.m_buffer[data.m_endNode].m_position : Vector3.zero;
-                        position = (startPos + endPos) * 0.5f;
-                    }
-                    int num = Mathf.Clamp((int)(position.x / 64f + 135f), 0, 269);
-                    int num2 = Mathf.Clamp((int)(position.z / 64f + 135f), 0, 269);
-                    int num3 = num2 * 270 + num;
-                    if (__instance.m_segmentGrid != null && num3 >= 0 && num3 < __instance.m_segmentGrid.Length)
-                    {
-                        if (__instance.m_segments != null && __instance.m_segments.m_buffer != null && (int)segment < __instance.m_segments.m_buffer.Length)
+                        if (maxReq >= __instance.m_nodes.m_buffer.Length)
                         {
-                            __instance.m_segments.m_buffer[segment].m_nextGridSegment = __instance.m_segmentGrid[num3];
-                            data.m_nextGridSegment = __instance.m_segmentGrid[num3];
+                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                            TMPECompatibility.EnsureExpandedSave();
+                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, maxReq + 1024);
+                            if (__instance.m_nodes.m_buffer.Length < targetSize)
+                            {
+                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
+                            }
                         }
-                        __instance.m_segmentGrid[num3] = segment;
                     }
-                    return false; // Skip original method! Complete zero crash armor.
+                    if (__instance.m_segments != null && __instance.m_segments.m_buffer != null)
+                    {
+                        if (segment >= __instance.m_segments.m_buffer.Length)
+                        {
+                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                            TMPECompatibility.EnsureExpandedSave();
+                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)segment + 1024);
+                            if (__instance.m_segments.m_buffer.Length < targetSize)
+                            {
+                                Array.Resize(ref __instance.m_segments.m_buffer, targetSize);
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeSegment_Prefix armor error: " + ex);
             }
-            return false;
+            return true;
         }
 
         public static bool NetManager_InitializeNode_Prefix(NetManager __instance, ushort node, ref NetNode data)
         {
             try
             {
-                if (__instance != null)
+                if (__instance != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
                 {
-                    if (__instance.m_nodes != null)
+                    if (node >= __instance.m_nodes.m_buffer.Length)
                     {
-                        int nodeBufLen = (__instance.m_nodes.m_buffer != null) ? __instance.m_nodes.m_buffer.Length : 0;
-                        if ((int)node >= nodeBufLen)
+                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
+                        TMPECompatibility.EnsureExpandedSave();
+                        int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)node + 1024);
+                        if (__instance.m_nodes.m_buffer.Length < targetSize)
                         {
-                            int targetSize = Math.Max(65536, (int)node + 1024);
-                            EnsureArray16NodeCapacity(__instance.m_nodes, targetSize);
+                            Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
                         }
                     }
-
-                    // Native safe replacement: Zero out of bounds possibility
-                    int num = Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
-                    int num2 = Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
-                    int num3 = num2 * 270 + num;
-                    if (__instance.m_nodeGrid != null && num3 >= 0 && num3 < __instance.m_nodeGrid.Length)
-                    {
-                        if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null && (int)node < __instance.m_nodes.m_buffer.Length)
-                        {
-                            __instance.m_nodes.m_buffer[node].m_nextGridNode = __instance.m_nodeGrid[num3];
-                            data.m_nextGridNode = __instance.m_nodeGrid[num3];
-                        }
-                        __instance.m_nodeGrid[num3] = node;
-                    }
-                    return false; // Skip original method! Complete zero crash armor.
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeNode_Prefix armor error: " + ex);
             }
-            return false;
+            return true;
         }
 
          public static bool TransportLine_GetNextStop_Prefix(ushort stop, ref ushort __result)
@@ -23001,45 +17488,6 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching TransportLinesManager: " + ex);
             }
-
-            // 4. SimulationManager.OnDestroy (prevents deadlock on quitting or scene unload)
-            try
-            {
-                MethodInfo onDestroyMethod = typeof(SimulationManager).GetMethod("OnDestroy", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                MethodInfo onDestroyPre = typeof(GameLoadingArmor).GetMethod(nameof(SimulationManager_OnDestroy_Prefix), BindingFlags.Public | BindingFlags.Static);
-                if (onDestroyMethod != null && onDestroyPre != null)
-                {
-                    harmony.Patch(onDestroyMethod, prefix: new HarmonyMethod(onDestroyPre) { prioritiy = Harmony.Priority.First });
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.OnDestroy with deadlock-prevention thread unblock shield.");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching SimulationManager.OnDestroy: " + ex);
-            }
-
-            // 5. LoadingManager.QuitApplication & OnApplicationQuit (watchdog protection to guarantee process terminates within 5 seconds)
-            try
-            {
-                MethodInfo quitAppMethod = typeof(LoadingManager).GetMethod("QuitApplication", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                MethodInfo quitAppPre = typeof(GameLoadingArmor).GetMethod(nameof(LoadingManager_QuitApplication_Prefix), BindingFlags.Public | BindingFlags.Static);
-                if (quitAppMethod != null && quitAppPre != null)
-                {
-                    harmony.Patch(quitAppMethod, prefix: new HarmonyMethod(quitAppPre) { prioritiy = Harmony.Priority.First });
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingManager.QuitApplication with 5s fail-safe termination watchdog.");
-                }
-
-                MethodInfo appQuitMethod = typeof(LoadingManager).GetMethod("OnApplicationQuit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                if (appQuitMethod != null && quitAppPre != null)
-                {
-                    harmony.Patch(appQuitMethod, prefix: new HarmonyMethod(quitAppPre) { prioritiy = Harmony.Priority.First });
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingManager.OnApplicationQuit with 5s fail-safe termination watchdog.");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching LoadingManager quit methods: " + ex);
-            }
         }
 
         [HarmonyPriority(Priority.First)]
@@ -23076,92 +17524,6 @@ namespace MoreNetworkCapacityRenew
                 return false;
             }
             return true;
-        }
-
-        private static bool s_quitWatchdogArmed = false;
-        private static readonly object s_quitWatchdogLock = new object();
-
-        [HarmonyPriority(Priority.First)]
-        public static void LoadingManager_QuitApplication_Prefix()
-        {
-            try
-            {
-                lock (s_quitWatchdogLock)
-                {
-                    if (s_quitWatchdogArmed) return;
-                    s_quitWatchdogArmed = true;
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadingManager shutdown initiated: Arming process watchdog timer (5s).");
-                System.Threading.Thread watchdog = new System.Threading.Thread(() =>
-                {
-                    System.Threading.Thread.Sleep(5000);
-                    try
-                    {
-                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Exit watchdog triggered: Process still active after 5 seconds. Forcing clean exit.");
-                        System.Diagnostics.Process.GetCurrentProcess().Kill();
-                    }
-                    catch { }
-                });
-                watchdog.IsBackground = true;
-                watchdog.Name = "MNC_QuitWatchdog";
-                watchdog.Start();
-            }
-            catch { }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool SimulationManager_OnDestroy_Prefix(SimulationManager __instance)
-        {
-            try
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.OnDestroy initiated. Enforcing clean simulation shutdown.");
-                if (__instance != null)
-                {
-                    Type smType = typeof(SimulationManager);
-                    FieldInfo fTerm = smType.GetField("m_terminated", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    FieldInfo fLock = smType.GetField("m_simulationFrameLock", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    FieldInfo fCounter = smType.GetField("m_updateCounter", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    FieldInfo fStep = smType.GetField("m_inSimulationStep", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    FieldInfo fThread = smType.GetField("m_simulationThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-                    if (fTerm != null) fTerm.SetValue(__instance, true);
-
-                    object lockObj = fLock != null ? fLock.GetValue(__instance) : null;
-                    if (lockObj != null)
-                    {
-                        lock (lockObj)
-                        {
-                            if (fCounter != null)
-                            {
-                                int counter = (int)fCounter.GetValue(__instance);
-                                if (counter <= 0)
-                                {
-                                    fCounter.SetValue(__instance, 1); // Unblock SimulationThread so it tests m_terminated!
-                                }
-                            }
-                            if (fStep != null) fStep.SetValue(__instance, false);
-                            System.Threading.Monitor.PulseAll(lockObj);
-                        }
-                    }
-
-                    System.Threading.Thread simThread = fThread != null ? fThread.GetValue(__instance) as System.Threading.Thread : null;
-                    if (simThread != null && simThread.IsAlive)
-                    {
-                        if (!simThread.Join(1500))
-                        {
-                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SimulationThread hung > 1500ms; aborting to prevent freeze.");
-                            try { simThread.Abort(); } catch { }
-                        }
-                        if (fThread != null) fThread.SetValue(__instance, null);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager_OnDestroy_Prefix error: " + ex);
-            }
-            return false; // Skip original OnDestroy to eliminate deadlock on Monitor.Wait / Thread.Join!
         }
     }
 
