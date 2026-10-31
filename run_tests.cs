@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.48)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.49)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
@@ -2334,8 +2335,9 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 52.1 Version bump verification
-            bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 [Close Beta]");
+            bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 / v5.0.49 [Close Beta]");
 
             // 52.2 TrafficLightSimulations array expansion to 65536
             bool has65536 = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range");
@@ -2370,6 +2372,46 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 52 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 53: Daynight & Terrain Simulation Deadlock Shield (v5.0.49)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 53: Daynight & Terrain Simulation Deadlock Shield (v5.0.49) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 53.1 Version bump verification
+            bool hasV49 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy");
+            Assert(hasV49, "Mod identity correctly bumped to v5.0.49 [Close Beta]");
+
+            // 53.2 TerrainManager array initialization & safe UpdateData
+            bool hasTerrainGuard = renewCode.Contains("public static void EnsureTerrainManagerArrays(TerrainManager tm)") &&
+                                   renewCode.Contains("public static void SafeExecuteTerrainManagerUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)") &&
+                                   renewCode.Contains("SafeExecuteTerrainManagerUpdateData(Singleton<TerrainManager>.instance, mode)");
+            Assert(hasTerrainGuard, "TerrainManager array armor & safe UpdateData dispatch implemented");
+
+            // 53.3 TerrainManager.LateUpdateData timeout shield
+            bool hasTerrainLateGuard = renewCode.Contains("public static void SafeExecuteTerrainManagerLateUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)") &&
+                                       renewCode.Contains("Forcing safe completion to eliminate Daynight Properties hang") &&
+                                       renewCode.Contains("SafeExecuteTerrainManagerLateUpdateData(Singleton<TerrainManager>.instance, mode)");
+            Assert(hasTerrainLateGuard, "TerrainManager.LateUpdateData 2500ms timeout shield and pulse unlock implemented");
+
+            // 53.4 DayNightProperties safe coroutine replacement
+            bool hasDnpGuard = renewCode.Contains("public static IEnumerator SafeInitializeDayNightProperties(DayNightProperties dnp)") &&
+                               renewCode.Contains("public static bool DayNightProperties_InitializeProperties_Prefix(DayNightProperties __instance, ref IEnumerator __result)");
+            Assert(hasDnpGuard, "DayNightProperties safe coroutine initialization replacement implemented");
+
+            // 53.5 Harmony Priority.First patches for Terrain and DayNight
+            bool hasHarmonyPatches = renewCode.Contains("Successfully patched TerrainManager.UpdateData with Safe Replacement Armor") &&
+                                     renewCode.Contains("Successfully patched TerrainManager.LateUpdateData with Timeout Armor") &&
+                                     renewCode.Contains("Successfully patched DayNightProperties.InitializeProperties with Safe Coroutine Armor");
+            Assert(hasHarmonyPatches, "Harmony Priority.First patches installed for TerrainManager & DayNightProperties");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 53 exception", ex.ToString());
         }
 
         // ====================================================================

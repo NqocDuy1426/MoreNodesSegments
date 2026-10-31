@@ -8,7 +8,7 @@ GAME_DIR="$HOME/Library/Application Support/Steam/steamapps/common/Cities_Skylin
 CECIL_DLL="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/gac/Mono.Cecil/0.11.1.0__0738eb9f132ed756/Mono.Cecil.dll"
 
 echo "=========================================================="
-echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.48..."
+echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.49..."
 echo "=========================================================="
 
 # 0. Compile and run test suite

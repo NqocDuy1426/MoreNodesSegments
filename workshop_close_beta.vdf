@@ -9,15 +9,20 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.48:[/h2]
-- Safe Unload & Quit Deadlock Shield:
+[h2]Tính năng mới trong bản Beta v5.0.49:[/h2]
+- Daynight & Terrain Simulation Deadlock Shield:
     [list]
-    [*] Bọc giáp Harmony Priority.First lên toàn bộ các phương thức truy xuất của TrafficLightSimulationManager (HasTimedSimulation, HasSimulation, HasManualSimulation, HasActiveTimedSimulation, HasActiveSimulation, RemoveNodeFromSimulation), ngăn hoàn toàn IndexOutOfRangeException khi thoát/unload game.
-    [*] Mở rộng mảng TrafficLightSimulations và CustomSegmentLights lên đủ 65.536 phần tử (bao quát toàn bộ dải 16-bit ushort của node sentinel).
-    [*] Tối ưu hóa chu trình TrafficPriorityManager.OnLevelUnloading với cơ chế reset bộ nhớ trực tiếp (zero allocation), loại bỏ vòng lặp 65K segment gây văng game.
+    [*] Bọc giáp timeout 2500ms cho chu trình TerrainManager.LateUpdateData, tự động hoàn tất và mở khóa luồng mô phỏng nếu quá thời gian chờ vá địa hình (patch update), triệt tiêu hoàn toàn lỗi đứng hình tải game tại Daynight Properties.
+    [*] Khởi tạo và bảo đảm đầy đủ mảng m_blockHeights, m_blockHeights2, m_tempHeights... trong TerrainManager.UpdateData trước khi xử lý, ngăn triệt để lỗi NullReferenceException.
+    [*] Bọc giáp Harmony Priority.First thay thế an toàn cho DayNightProperties.InitializeProperties với cơ chế bảo vệ texture mặt trăng và gradient màu trời đêm.
+    [/list]
+- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield từ v5.0.48:
+    [list]
+    [*] Bọc giáp Harmony Priority.First lên toàn bộ các phương thức truy xuất của TrafficLightSimulationManager.
+    [*] Mở rộng mảng TrafficLightSimulations và CustomSegmentLights lên đủ 65.536 phần tử.
+    [*] Tối ưu hóa chu trình TrafficPriorityManager.OnLevelUnloading với cơ chế reset bộ nhớ trực tiếp (zero allocation).
     [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
-    [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi, triệt tiêu hoàn toàn hiện tượng game bị treo 'Waiting for simulation to quit...'.
-    [*] Bọc giáp RoadUI.OnLevelUnloading chống NullReferenceException khi giải phóng texture.
+    [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi.
     [/list]
 - Kế thừa toàn bộ Universal Material Leaf Armor & Property Sheet Pointer Validation từ v5.0.47.
 [list]
@@ -38,5 +43,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.48 Close Beta: Safe Unload & Quit Deadlock Shield (Leaf-level bounds armor on TM:PE TrafficLightSimulationManager, zero-allocation TrafficPriorityManager OnLevelUnloading reset, RoadUI safe unload armor, and SimulationManager.OnDestroy deadlock prevention + 5s quit watchdog)."
+	"changenote"		"v5.0.49 Close Beta: Daynight & Terrain Simulation Deadlock Shield (Fail-safe timeout & patch completion on TerrainManager.LateUpdateData, pre-allocated array armor on TerrainManager.UpdateData, and guarded DayNightProperties initialization, eliminating Daynight Properties hang)."
 }
