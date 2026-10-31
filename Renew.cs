@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy";
-        public string Description => "[Close Beta v5.0.39] TransportManager UpdateData & PlopTheGrowables Armor (Eliminate Mono get_object_generic_inst SIGSEGV crash caused by MoreTransportLines Harmony dynamic method transpilation).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy";
+        public string Description => "[Close Beta v5.0.40] Singleton Null-Safe Armor & Precision Step Tracing across all Simulation Managers (Eliminates Mono SIGSEGV on uninitialized DLC managers).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -17429,9 +17429,11 @@ namespace MoreNetworkCapacityRenew
 
         private static void SafeCallManagerAction(Action a, string label)
         {
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
             try
             {
                 if (a != null) a();
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished " + label + " ✓");
             }
             catch (Exception ex)
             {
@@ -17446,9 +17448,11 @@ namespace MoreNetworkCapacityRenew
                 if (lm != null) lm.SetSimulationProgress(progress);
             }
             catch {}
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
             try
             {
                 if (a != null) a();
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished " + label + " ✓");
             }
             catch (Exception ex)
             {
@@ -17464,13 +17468,13 @@ namespace MoreNetworkCapacityRenew
                 // Only 7 managers have concrete EarlyUpdateData:
                 // AudioManager, BuildingManager, DisasterManager, EventManager, NetManager, TransportManager, UnlockManager.
                 // All other managers inherit empty `ret` from SimulationManagerBase<T,P>.
-                SafeCallManagerAction(() => Singleton<AudioManager>.instance.EarlyUpdateData(), "AudioManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<BuildingManager>.instance.EarlyUpdateData(), "BuildingManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<DisasterManager>.instance.EarlyUpdateData(), "DisasterManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<EventManager>.instance.EarlyUpdateData(), "EventManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<NetManager>.instance.EarlyUpdateData(), "NetManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<TransportManager>.instance.EarlyUpdateData(), "TransportManager.EarlyUpdateData");
-                SafeCallManagerAction(() => Singleton<UnlockManager>.instance.EarlyUpdateData(), "UnlockManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) Singleton<AudioManager>.instance.EarlyUpdateData(); }, "AudioManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.EarlyUpdateData(); }, "BuildingManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.EarlyUpdateData(); }, "DisasterManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) Singleton<EventManager>.instance.EarlyUpdateData(); }, "EventManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.EarlyUpdateData(); }, "NetManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null) Singleton<TransportManager>.instance.EarlyUpdateData(); }, "TransportManager.EarlyUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.EarlyUpdateData(); }, "UnlockManager.EarlyUpdateData");
 
                 // Mod managers outside Assembly-CSharp
                 FastList<ISimulationManager> managers = GetSimulationManagers();
@@ -17483,8 +17487,17 @@ namespace MoreNetworkCapacityRenew
                         var m = managers.m_buffer[i];
                         if (m != null && m.GetType().Assembly != coreAsm)
                         {
-                            try { m.EarlyUpdateData(); }
-                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager EarlyUpdateData: " + ex.Message); }
+                            string mName = m.GetType().FullName;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager EarlyUpdateData: " + mName);
+                            try
+                            {
+                                m.EarlyUpdateData();
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager EarlyUpdateData: " + mName + " ✓");
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager EarlyUpdateData (" + mName + "): " + ex.Message);
+                            }
                         }
                     }
                 }
@@ -17510,31 +17523,31 @@ namespace MoreNetworkCapacityRenew
                 float range = maxProgress - minProgress;
                 const float totalSteps = 26f;
 
-                SafeStepManagerAction(() => Singleton<GameAreaManager>.instance.UpdateData(mode), lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<TerrainManager>.instance.UpdateData(mode), lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<InstanceManager>.instance.UpdateData(mode), lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<NetManager>.instance.UpdateData(mode), lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<BuildingManager>.instance.UpdateData(mode), lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<CitizenManager>.instance.UpdateData(mode), lm, minProgress + range * (6f / totalSteps), "CitizenManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<TransferManager>.instance.UpdateData(mode), lm, minProgress + range * (7f / totalSteps), "TransferManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<ElectricityManager>.instance.UpdateData(mode), lm, minProgress + range * (8f / totalSteps), "ElectricityManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<WaterManager>.instance.UpdateData(mode), lm, minProgress + range * (9f / totalSteps), "WaterManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<ZoneManager>.instance.UpdateData(mode), lm, minProgress + range * (10f / totalSteps), "ZoneManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<PropManager>.instance.UpdateData(mode), lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<TreeManager>.instance.UpdateData(mode), lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<VehicleManager>.instance.UpdateData(mode), lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
-                SafeStepManagerAction(() => SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode), lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<EconomyManager>.instance.UpdateData(mode), lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<DistrictManager>.instance.UpdateData(mode), lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<EventManager>.instance.UpdateData(mode), lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<DisasterManager>.instance.UpdateData(mode), lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<InfoManager>.instance.UpdateData(mode), lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<RenderManager>.instance.UpdateData(mode), lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<AudioManager>.instance.UpdateData(mode), lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<StatisticsManager>.instance.UpdateData(mode), lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<UnlockManager>.instance.UpdateData(mode), lm, minProgress + range * (23f / totalSteps), "UnlockManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<MessageManager>.instance.UpdateData(mode), lm, minProgress + range * (24f / totalSteps), "MessageManager.UpdateData");
-                SafeStepManagerAction(() => Singleton<GuideManager>.instance.UpdateData(mode), lm, minProgress + range * (25f / totalSteps), "GuideManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<GameAreaManager>.exists && Singleton<GameAreaManager>.instance != null) Singleton<GameAreaManager>.instance.UpdateData(mode); }, lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.UpdateData(mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<InstanceManager>.exists && Singleton<InstanceManager>.instance != null) Singleton<InstanceManager>.instance.UpdateData(mode); }, lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.UpdateData(mode); }, lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.UpdateData(mode); }, lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<CitizenManager>.exists && Singleton<CitizenManager>.instance != null) Singleton<CitizenManager>.instance.UpdateData(mode); }, lm, minProgress + range * (6f / totalSteps), "CitizenManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TransferManager>.exists && Singleton<TransferManager>.instance != null) Singleton<TransferManager>.instance.UpdateData(mode); }, lm, minProgress + range * (7f / totalSteps), "TransferManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<ElectricityManager>.exists && Singleton<ElectricityManager>.instance != null) Singleton<ElectricityManager>.instance.UpdateData(mode); }, lm, minProgress + range * (8f / totalSteps), "ElectricityManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<WaterManager>.exists && Singleton<WaterManager>.instance != null) Singleton<WaterManager>.instance.UpdateData(mode); }, lm, minProgress + range * (9f / totalSteps), "WaterManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<ZoneManager>.exists && Singleton<ZoneManager>.instance != null) Singleton<ZoneManager>.instance.UpdateData(mode); }, lm, minProgress + range * (10f / totalSteps), "ZoneManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<PropManager>.exists && Singleton<PropManager>.instance != null) Singleton<PropManager>.instance.UpdateData(mode); }, lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TreeManager>.exists && Singleton<TreeManager>.instance != null) Singleton<TreeManager>.instance.UpdateData(mode); }, lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<VehicleManager>.exists && Singleton<VehicleManager>.instance != null) Singleton<VehicleManager>.instance.UpdateData(mode); }, lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null) SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode); }, lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.UpdateData(mode); }, lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null) Singleton<DistrictManager>.instance.UpdateData(mode); }, lm, minProgress + range * (16f / totalSteps), "DistrictManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) Singleton<EventManager>.instance.UpdateData(mode); }, lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.UpdateData(mode); }, lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<InfoManager>.exists && Singleton<InfoManager>.instance != null) Singleton<InfoManager>.instance.UpdateData(mode); }, lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.UpdateData(mode); }, lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) Singleton<AudioManager>.instance.UpdateData(mode); }, lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<StatisticsManager>.exists && Singleton<StatisticsManager>.instance != null) Singleton<StatisticsManager>.instance.UpdateData(mode); }, lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.UpdateData(mode); }, lm, minProgress + range * (23f / totalSteps), "UnlockManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<MessageManager>.exists && Singleton<MessageManager>.instance != null) Singleton<MessageManager>.instance.UpdateData(mode); }, lm, minProgress + range * (24f / totalSteps), "MessageManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<GuideManager>.exists && Singleton<GuideManager>.instance != null) Singleton<GuideManager>.instance.UpdateData(mode); }, lm, minProgress + range * (25f / totalSteps), "GuideManager.UpdateData");
 
                 // 3. Mod managers outside Assembly-CSharp
                 FastList<ISimulationManager> managers = GetSimulationManagers();
@@ -17547,8 +17560,17 @@ namespace MoreNetworkCapacityRenew
                         var m = managers.m_buffer[i];
                         if (m != null && m.GetType().Assembly != coreAsm)
                         {
-                            try { m.UpdateData(mode); }
-                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager UpdateData: " + ex.Message); }
+                            string mName = m.GetType().FullName;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager UpdateData: " + mName);
+                            try
+                            {
+                                m.UpdateData(mode);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager UpdateData: " + mName + " ✓");
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager UpdateData (" + mName + "): " + ex.Message);
+                            }
                         }
                     }
                 }
@@ -17573,14 +17595,14 @@ namespace MoreNetworkCapacityRenew
             {
                 // Only 8 managers have concrete LateUpdateData:
                 // DisasterManager, DistrictManager, EconomyManager, RenderManager, NetManager, ToolManager, TerrainManager, UnlockManager.
-                SafeCallManagerAction(() => Singleton<DisasterManager>.instance.LateUpdateData(mode), "DisasterManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<DistrictManager>.instance.LateUpdateData(mode), "DistrictManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<EconomyManager>.instance.LateUpdateData(mode), "EconomyManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<RenderManager>.instance.LateUpdateData(mode), "RenderManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<NetManager>.instance.LateUpdateData(mode), "NetManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<ToolManager>.instance.LateUpdateData(mode), "ToolManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<TerrainManager>.instance.LateUpdateData(mode), "TerrainManager.LateUpdateData");
-                SafeCallManagerAction(() => Singleton<UnlockManager>.instance.LateUpdateData(mode), "UnlockManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.LateUpdateData(mode); }, "DisasterManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null) Singleton<DistrictManager>.instance.LateUpdateData(mode); }, "DistrictManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.LateUpdateData(mode); }, "EconomyManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.LateUpdateData(mode); }, "RenderManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.LateUpdateData(mode); }, "NetManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null) Singleton<ToolManager>.instance.LateUpdateData(mode); }, "ToolManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, "TerrainManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.LateUpdateData(mode); }, "UnlockManager.LateUpdateData");
 
                 // Mod managers outside Assembly-CSharp
                 FastList<ISimulationManager> managers = GetSimulationManagers();
@@ -17593,8 +17615,17 @@ namespace MoreNetworkCapacityRenew
                         var m = managers.m_buffer[i];
                         if (m != null && m.GetType().Assembly != coreAsm)
                         {
-                            try { m.LateUpdateData(mode); }
-                            catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager LateUpdateData: " + ex.Message); }
+                            string mName = m.GetType().FullName;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting Mod manager LateUpdateData: " + mName);
+                            try
+                            {
+                                m.LateUpdateData(mode);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Finished Mod manager LateUpdateData: " + mName + " ✓");
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Mod manager LateUpdateData (" + mName + "): " + ex.Message);
+                            }
                         }
                     }
                 }

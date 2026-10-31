@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.39)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.40)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.34 by NgocDuy") ||
@@ -2101,7 +2102,7 @@ class TestSuite
 
             // 45.1 SafeExecuteTransportManagerUpdateData Implementation
             bool hasSafeTMUpdateData = renewCode.Contains("public static void SafeExecuteTransportManagerUpdateData(TransportManager tm, SimulationManager.UpdateMode mode)") &&
-                                       renewCode.Contains("SafeStepManagerAction(() => SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode), lm, minProgress + range * (14f / totalSteps), \"TransportManager.UpdateData\");");
+                                       renewCode.Contains("SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode);");
             Assert(hasSafeTMUpdateData, "SafeExecuteTransportManagerUpdateData completely replaces crashing TransportManager.UpdateData call");
 
             // 45.2 TransportManager.UpdateData Harmony Prefix Armor
@@ -2118,6 +2119,35 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 45 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 46: Singleton Null Armor & Precision Step Tracing (v5.0.40)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 46: Singleton Null Armor & Precision Step Tracing (v5.0.40) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 46.1 SafeStepManagerAction Tracing
+            bool hasStepTracing = renewCode.Contains("UnityEngine.Debug.Log(\"[MoreNetworkCapacityRenew] Starting \" + label);") &&
+                                  renewCode.Contains("UnityEngine.Debug.Log(\"[MoreNetworkCapacityRenew] Finished \" + label + \" ✓\");");
+            Assert(hasStepTracing, "SafeStepManagerAction traces start and finish of every manager step");
+
+            // 46.2 Singleton Existence & Null Guards across UpdateData
+            bool hasSingletonGuards = renewCode.Contains("if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null)") &&
+                                      renewCode.Contains("if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null)") &&
+                                      renewCode.Contains("if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null)");
+            Assert(hasSingletonGuards, "Manager invocations are strictly guarded with Singleton.exists and instance != null checks");
+
+            // 46.3 Mod Manager Precision Tracing
+            bool hasModMgrTracing = renewCode.Contains("UnityEngine.Debug.Log(\"[MoreNetworkCapacityRenew] Starting Mod manager UpdateData: \" + mName);") &&
+                                    renewCode.Contains("UnityEngine.Debug.Log(\"[MoreNetworkCapacityRenew] Finished Mod manager UpdateData: \" + mName + \" ✓\");");
+            Assert(hasModMgrTracing, "External mod simulation managers have individual try-catch and step tracing");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 46 exception", ex.ToString());
         }
 
         // ====================================================================

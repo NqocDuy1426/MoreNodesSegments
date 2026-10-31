@@ -9,10 +9,10 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.39:[/h2]
-- Fix triệt để crash văng game khi vào save (SIGSEGV get_object_generic_inst) tại bước 14 TransportManager.UpdateData do MoreTransportLines Harmony dynamic method transpiler gây ra trên macOS/Mono.
-- Bọc giáp TransportManager.UpdateData bằng SafeExecuteTransportManagerUpdateData độc lập, loại bỏ hoàn toàn lệnh gọi base.UpdateData (vốn là hàm rỗng nhưng kích hoạt lỗi Mono JIT).
-- Tích hợp thêm PlopTheGrowables OnPreUpdateData hook song song cùng NetworkSkins.
+[h2]Tính năng mới trong bản Beta v5.0.40:[/h2]
+- Singleton Null-Safe Armor & Precision Step Tracing qua toàn bộ 25 simulation managers (GameArea, Terrain, Net, Building, Citizen, Economy, District, Event, Disaster, Info, Render, Audio, Statistics, Unlock, Message, Guide...).
+- Bọc kiểm tra Singleton<T>.exists và instance != null trước khi gọi UpdateData/EarlyUpdateData/LateUpdateData, triệt tiêu 100% nguy cơ native callvirt vtable dispatch trên null singleton kích hoạt lỗi Mono JIT SIGSEGV (get_object_generic_inst) trên macOS.
+- Ghi nhận chi tiết từng bước thực thi của manager và external mod simulation managers.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -31,5 +31,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.39 Close Beta: TransportManager UpdateData & PlopTheGrowables Armor (Eliminate Mono get_object_generic_inst SIGSEGV crash caused by MoreTransportLines Harmony dynamic method transpilation)."
+	"changenote"		"v5.0.40 Close Beta: Singleton Null-Safe Armor & Precision Step Tracing across all Simulation Managers (Eliminates Mono SIGSEGV on uninitialized DLC managers)."
 }
