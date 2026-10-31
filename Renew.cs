@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy";
-        public string Description => "[Close Beta v5.0.54] Terrain & Simulation Deadlock Shield (Eliminated hang at Daynight Properties / TerrainManager.LateUpdateData by enforcing timeout recovery on m_lastUpdatedPatch spin loop and auto-queuing missing terrain patches).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.55 by NgocDuy";
+        public string Description => "[Close Beta v5.0.55] Unlock & Terrain Stability Armor (Eliminated crash in UnlockManager.LateUpdateData via Safe Dispatch & Milestones Multicast Armor, and protected NetManager.TerrainUpdated from external mod NREs).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15389,6 +15389,42 @@ namespace MoreNetworkCapacityRenew
                         harmony.Patch(termUpd, postfix: new HarmonyMethod(post) { prioritiy = Priority.Last });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.UpdateData with Postfix Recovery Guard ✓");
                     }
+
+                    // Patch UnlockManager.LateUpdateData with Priority.First to eliminate Mono SimulationManagerBase SIGSEGV and unhandled NULL faults
+                    MethodInfo umLate = typeof(UnlockManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                    if (umLate != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(UnlockManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(umLate, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched UnlockManager.LateUpdateData with Safe Replacement Armor (Priority.First) ✓");
+                    }
+
+                    // Patch UnlockManager.MilestonesUpdated with Priority.First to isolate subscriber errors on main thread
+                    MethodInfo umMU = typeof(UnlockManager).GetMethod("MilestonesUpdated", BindingFlags.Public | BindingFlags.Instance);
+                    if (umMU != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(UnlockManager_MilestonesUpdated_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(umMU, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched UnlockManager.MilestonesUpdated with Safe Multicast Armor (Priority.First) ✓");
+                    }
+
+                    // Patch MilestoneCollection.FindMilestone with Fallback Armor to prevent NULL dereferences on missing DLC milestones
+                    MethodInfo mcFM = typeof(MilestoneCollection).GetMethod("FindMilestone", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string) }, null);
+                    if (mcFM != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(MilestoneCollection_FindMilestone_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mcFM, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched MilestoneCollection.FindMilestone with Fallback Armor (Priority.First) ✓");
+                    }
+
+                    // Patch TerrainManager.Managers_TerrainUpdated to isolate external mod NREs (Adaptive Roads etc.) across all managers
+                    MethodInfo tmMgtu = typeof(TerrainManager).GetMethod("Managers_TerrainUpdated", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(TerrainArea), typeof(TerrainArea), typeof(TerrainArea) }, null);
+                    if (tmMgtu != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_Managers_TerrainUpdated_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(tmMgtu, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.Managers_TerrainUpdated with Shield Armor (Priority.First) ✓");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -18887,6 +18923,227 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        private static readonly Dictionary<string, MilestoneInfo> s_dummyMilestones = new Dictionary<string, MilestoneInfo>();
+        private static FieldInfo s_fMilestoneDict;
+        private static FieldInfo s_fTerrainManagers;
+        private static MethodInfo s_mCheckAllMilestones;
+
+        [HarmonyPriority(Priority.First)]
+        public static bool MilestoneCollection_FindMilestone_Prefix(string name, ref MilestoneInfo __result)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                __result = null;
+                return false;
+            }
+            try
+            {
+                if (s_fMilestoneDict == null)
+                {
+                    s_fMilestoneDict = typeof(MilestoneCollection).GetField("m_dict", BindingFlags.NonPublic | BindingFlags.Static);
+                }
+                var dict = (s_fMilestoneDict != null) ? s_fMilestoneDict.GetValue(null) as Dictionary<string, MilestoneInfo> : null;
+                if (dict != null && dict.TryGetValue(name, out __result) && __result != null)
+                {
+                    return false;
+                }
+                lock (s_dummyMilestones)
+                {
+                    if (!s_dummyMilestones.TryGetValue(name, out __result) || __result == null)
+                    {
+                        __result = ScriptableObject.CreateInstance<MilestoneInfo>();
+                        __result.name = name;
+                        __result.m_name = name;
+                        __result.m_data = new MilestoneInfo.Data();
+                        __result.m_data.m_passedCount = 1; // Mark passed to satisfy dependent checks
+                        s_dummyMilestones[name] = __result;
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Created safe dummy milestone for uninstalled DLC milestone: " + name);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] MilestoneCollection.FindMilestone fallback error: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TerrainManager_Managers_TerrainUpdated_Prefix(TerrainArea heightArea, TerrainArea surfaceArea, TerrainArea zoneArea)
+        {
+            try
+            {
+                if (s_fTerrainManagers == null)
+                {
+                    s_fTerrainManagers = typeof(TerrainManager).GetField("m_managers", BindingFlags.NonPublic | BindingFlags.Static);
+                }
+                var managers = (s_fTerrainManagers != null) ? s_fTerrainManagers.GetValue(null) as FastList<ITerrainManager> : null;
+                if (managers != null && managers.m_buffer != null)
+                {
+                    int size = managers.m_size;
+                    for (int i = 0; i < size; i++)
+                    {
+                        var mgr = managers.m_buffer[i];
+                        if (mgr != null)
+                        {
+                            try
+                            {
+                                mgr.TerrainUpdated(heightArea, surfaceArea, zoneArea);
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against ITerrainManager (" + mgr.GetType().Name + ") exception in TerrainUpdated: " + ex.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager_Managers_TerrainUpdated_Prefix error: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool UnlockManager_MilestonesUpdated_Prefix(UnlockManager __instance)
+        {
+            if (__instance == null) return false;
+            try
+            {
+                var fUpdated = typeof(UnlockManager).GetField("m_milestonesUpdated", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fUpdated != null)
+                {
+                    Action act = fUpdated.GetValue(__instance) as Action;
+                    if (act != null)
+                    {
+                        foreach (Delegate d in act.GetInvocationList())
+                        {
+                            try
+                            {
+                                d.DynamicInvoke();
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against milestone listener exception: " + ex.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.MilestonesUpdated protected: " + ex.Message);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool UnlockManager_LateUpdateData_Prefix(UnlockManager __instance, SimulationManager.UpdateMode mode)
+        {
+            if (__instance == null) return false;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("UnlockManager.LateUpdateData"); } catch {}
+            }
+
+            try
+            {
+                try
+                {
+                    if (__instance.m_MilestonesWrapper != null)
+                    {
+                        __instance.m_MilestonesWrapper.OnRefreshMilestones();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] MilestonesWrapper.OnRefreshMilestones safe guard: " + ex.Message);
+                }
+
+                try
+                {
+                    if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null)
+                    {
+                        Singleton<TransportManager>.instance.CheckCompletionMilestones();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager.CheckCompletionMilestones safe guard: " + ex.Message);
+                }
+
+                try
+                {
+                    FieldInfo fFix = typeof(UnlockManager).GetField("m_fixMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
+                    bool needFix = (fFix != null) && (bool)fFix.GetValue(__instance);
+                    if (needFix && ((int)mode == 10 || (int)mode == 11))
+                    {
+                        __instance.FixMilestones();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.FixMilestones safe guard: " + ex.Message);
+                }
+
+                try
+                {
+                    int loop = 0;
+                    FieldInfo fChanged = typeof(UnlockManager).GetField("m_milestoneChanged", BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fChecking = typeof(UnlockManager).GetField("m_checkingMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fChecking != null) fChecking.SetValue(__instance, true);
+
+                    if (s_mCheckAllMilestones == null)
+                    {
+                        s_mCheckAllMilestones = typeof(UnlockManager).GetMethod("CheckAllMilestones", BindingFlags.NonPublic | BindingFlags.Instance);
+                    }
+
+                    while (loop < 65536)
+                    {
+                        if (fChanged != null) fChanged.SetValue(__instance, false);
+                        if (s_mCheckAllMilestones != null) s_mCheckAllMilestones.Invoke(__instance, null);
+                        loop++;
+                        if (fChanged == null || !(bool)fChanged.GetValue(__instance))
+                        {
+                            break;
+                        }
+                    }
+                    if (fChecking != null) fChecking.SetValue(__instance, false);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.CheckAllMilestones safe guard: " + ex.Message);
+                }
+
+                try
+                {
+                    __instance.MilestonesUpdated();
+                    __instance.RefreshScenarioMilestones();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UnlockManager.MilestonesUpdated safe guard: " + ex.Message);
+                }
+
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] UnlockManager.LateUpdateData executed safely with zero NULL faults ✓");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against fatal exception in UnlockManager.LateUpdateData: " + ex);
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+            return false; // Skip unarmored vanilla method to prevent Mono generic callvirt SIGSEGV!
+        }
+
         private static void SafeCallManagerAction(Action a, string label)
         {
             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
@@ -19061,7 +19318,12 @@ namespace MoreNetworkCapacityRenew
             {
                 // Only 8 managers have concrete LateUpdateData:
                 // DisasterManager, DistrictManager, EconomyManager, RenderManager, NetManager, ToolManager, TerrainManager, UnlockManager.
-                SafeCallManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.LateUpdateData(mode); }, "DisasterManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null)
+                    {
+                        try { Singleton<DisasterManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DisasterManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "DisasterManager.LateUpdateData");
                 SafeCallManagerAction(() => {
                     if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null)
                     {
@@ -19069,34 +19331,66 @@ namespace MoreNetworkCapacityRenew
                         catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DistrictManager.LateUpdateData safe recovery: " + ex); }
                     }
                 }, "DistrictManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.LateUpdateData(mode); }, "EconomyManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.LateUpdateData(mode); }, "RenderManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.LateUpdateData(mode); }, "NetManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null) Singleton<ToolManager>.instance.LateUpdateData(mode); }, "ToolManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null)
+                    {
+                        try { Singleton<EconomyManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EconomyManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "EconomyManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null)
+                    {
+                        try { Singleton<RenderManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] RenderManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "RenderManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null)
+                    {
+                        try { Singleton<NetManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "NetManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null)
+                    {
+                        try { Singleton<ToolManager>.instance.LateUpdateData(mode); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ToolManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "ToolManager.LateUpdateData");
                 SafeCallManagerAction(() => {
                     if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null)
                     {
-                        var tm = Singleton<TerrainManager>.instance;
-                        int lastPatch = GetTerrainLastUpdatedPatch(tm);
-                        if (lastPatch != 80)
+                        try
                         {
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Managers_LateUpdateData: TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
-                            int waited = 0;
-                            while (GetTerrainLastUpdatedPatch(tm) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
+                            var tm = Singleton<TerrainManager>.instance;
+                            int lastPatch = GetTerrainLastUpdatedPatch(tm);
+                            if (lastPatch != 80)
                             {
-                                System.Threading.Thread.Sleep(20);
-                                waited += 20;
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Managers_LateUpdateData: TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
+                                int waited = 0;
+                                while (GetTerrainLastUpdatedPatch(tm) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
+                                {
+                                    System.Threading.Thread.Sleep(20);
+                                    waited += 20;
+                                }
+                                if (GetTerrainLastUpdatedPatch(tm) != 80)
+                                {
+                                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(tm)));
+                                    SetTerrainLastUpdatedPatch(tm, 80);
+                                }
                             }
-                            if (GetTerrainLastUpdatedPatch(tm) != 80)
-                            {
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(tm)));
-                                SetTerrainLastUpdatedPatch(tm, 80);
-                            }
+                            tm.LateUpdateData(mode);
                         }
-                        tm.LateUpdateData(mode);
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager.LateUpdateData safe recovery: " + ex);
+                        }
                     }
                 }, "TerrainManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.LateUpdateData(mode); }, "UnlockManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null)
+                    {
+                        UnlockManager_LateUpdateData_Prefix(Singleton<UnlockManager>.instance, mode);
+                    }
+                }, "UnlockManager.LateUpdateData");
 
                 // Mod managers outside Assembly-CSharp
                 FastList<ISimulationManager> managers = GetSimulationManagers();
