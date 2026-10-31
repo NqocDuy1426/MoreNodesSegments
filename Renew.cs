@@ -17373,9 +17373,6 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private static readonly FieldInfo s_fTransportLineVehicleSelection = typeof(TransportManager).GetField("m_transportLineVehicleSelection", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        private static readonly FieldInfo s_fTransportLineVehicleSelectionIndices = typeof(TransportManager).GetField("m_transportLineVehicleSelectionIndices", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
         public static void SafeExecuteTransportManagerUpdateData(TransportManager tm, SimulationManager.UpdateMode mode)
         {
             if (tm == null) return;
@@ -17388,90 +17385,7 @@ namespace MoreNetworkCapacityRenew
 
             try
             {
-                // NOTE: We do NOT call SimulationManagerBase<TransportManager, TransportProperties>::UpdateData
-                // because SimulationManagerBase's UpdateData is an empty 'ret', but calling it from a Harmony DynamicMethod
-                // on Mono macOS x86_64 causes get_object_generic_inst + 97 SIGSEGV!
-
-                // 1. Validate lines
-                if (tm.m_lines != null && tm.m_lines.m_buffer != null)
-                {
-                    int lineCount = tm.m_lines.m_buffer.Length;
-                    var bm = Singleton<BuildingManager>.instance;
-                    for (int i = 1; i < lineCount; i++)
-                    {
-                        try
-                        {
-                            if (tm.m_lines.m_buffer[i].m_flags != TransportLine.Flags.None)
-                            {
-                                TransportInfo info = tm.m_lines.m_buffer[i].Info;
-                                if (info == null || (tm.m_lines.m_buffer[i].m_flags & TransportLine.Flags.Temporary) != TransportLine.Flags.None)
-                                {
-                                    tm.ReleaseLine((ushort)i);
-                                }
-                                else if (tm.m_lines.m_buffer[i].m_building != 0)
-                                {
-                                    ushort buildingId = tm.m_lines.m_buffer[i].m_building;
-                                    if (bm != null && bm.m_buildings.m_buffer != null && buildingId < bm.m_buildings.m_buffer.Length)
-                                    {
-                                        if ((bm.m_buildings.m_buffer[buildingId].m_flags & (Building.Flags.Created | Building.Flags.Deleted)) != Building.Flags.Created ||
-                                            bm.m_buildings.m_buffer[buildingId].Info == null)
-                                        {
-                                            tm.ReleaseLine((ushort)i);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tm.ReleaseLine((ushort)i);
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Transport line " + i + " validation error: " + ex.Message);
-                        }
-                    }
-                }
-
-                // 2. Prefab milestones
-                try
-                {
-                    int prefabCount = PrefabCollection<TransportInfo>.PrefabCount();
-                    tm.m_infoCount = prefabCount;
-                    for (int j = 0; j < prefabCount; j++)
-                    {
-                        TransportInfo prefab = PrefabCollection<TransportInfo>.GetPrefab((uint)j);
-                        if (prefab != null && prefab.m_UnlockMilestone != null)
-                        {
-                            switch (mode)
-                            {
-                                case SimulationManager.UpdateMode.NewGameFromMap:
-                                case SimulationManager.UpdateMode.NewGameFromScenario:
-                                case SimulationManager.UpdateMode.UpdateScenarioFromMap:
-                                    prefab.m_UnlockMilestone.Reset(false);
-                                    break;
-                                case SimulationManager.UpdateMode.NewScenarioFromMap:
-                                case SimulationManager.UpdateMode.NewAsset:
-                                case SimulationManager.UpdateMode.LoadAsset:
-                                case SimulationManager.UpdateMode.NewMap:
-                                case SimulationManager.UpdateMode.LoadMap:
-                                    prefab.m_UnlockMilestone.Reset(true);
-                                    break;
-                                case SimulationManager.UpdateMode.LoadGame:
-                                case SimulationManager.UpdateMode.NewScenarioFromGame:
-                                case SimulationManager.UpdateMode.UpdateScenarioFromGame:
-                                    prefab.m_UnlockMilestone.Reset(false);
-                                    break;
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager milestones reset error: " + ex.Message);
-                }
-
-                // 3. Guides
+                // Initialize transport guides safely (non-generic objects)
                 try
                 {
                     bool isGameLoad = (mode == SimulationManager.UpdateMode.LoadGame || mode == SimulationManager.UpdateMode.NewScenarioFromGame || mode == SimulationManager.UpdateMode.UpdateScenarioFromGame);
@@ -17486,68 +17400,6 @@ namespace MoreNetworkCapacityRenew
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager guides initialization error: " + ex.Message);
-                }
-
-                // 4. Vehicle Selection Indices
-                try
-                {
-                    var vehicleSelection = s_fTransportLineVehicleSelection != null ? s_fTransportLineVehicleSelection.GetValue(tm) as Dictionary<ushort, string> : null;
-                    var vehicleSelectionIndices = s_fTransportLineVehicleSelectionIndices != null ? s_fTransportLineVehicleSelectionIndices.GetValue(tm) as Dictionary<ushort, int> : null;
-
-                    if (vehicleSelectionIndices != null && vehicleSelection != null)
-                    {
-                        vehicleSelectionIndices.Clear();
-                        int vCount = PrefabCollection<VehicleInfo>.PrefabCount();
-                        for (int k = 0; k < vCount; k++)
-                        {
-                            VehicleInfo vPrefab = PrefabCollection<VehicleInfo>.GetPrefab((uint)k);
-                            if (vPrefab != null)
-                            {
-                                string vName = PrefabCollection<VehicleInfo>.PrefabName((uint)k);
-                                if (vehicleSelection.ContainsValue(vName))
-                                {
-                                    foreach (KeyValuePair<ushort, string> kvp in vehicleSelection)
-                                    {
-                                        if (kvp.Value == vName || (kvp.Value == "#DEFAULT#" && tm.GetDefaultLineVehicleName(kvp.Key) == vName))
-                                        {
-                                            if (tm.m_lines != null && tm.m_lines.m_buffer != null && kvp.Key < tm.m_lines.m_buffer.Length &&
-                                                tm.m_lines.m_buffer[kvp.Key].IsCompatibleVehicle(kvp.Key, vPrefab))
-                                            {
-                                                vehicleSelectionIndices[kvp.Key] = k;
-                                            }
-                                            else
-                                            {
-                                                vehicleSelectionIndices[kvp.Key] = -1;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        var keysToIterate = new List<KeyValuePair<ushort, string>>(vehicleSelection);
-                        for (int idx = 0; idx < keysToIterate.Count; idx++)
-                        {
-                            var kvp = keysToIterate[idx];
-                            int val;
-                            if (!vehicleSelectionIndices.TryGetValue(kvp.Key, out val))
-                            {
-                                int defIdx = tm.GetDefaultLineVehicleIndex(kvp.Key);
-                                if (defIdx >= 0)
-                                {
-                                    vehicleSelectionIndices[kvp.Key] = defIdx;
-                                }
-                            }
-                            else if (val == -1)
-                            {
-                                vehicleSelectionIndices.Remove(kvp.Key);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TransportManager vehicle selections error: " + ex.Message);
                 }
 
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTransportManagerUpdateData executed safely ✓");
