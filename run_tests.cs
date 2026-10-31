@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.50)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.51)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
@@ -2338,8 +2339,9 @@ class TestSuite
             // 52.1 Version bump verification
             bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 / v5.0.49 / v5.0.50 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.51 [Close Beta]");
 
             // 52.2 TrafficLightSimulations array expansion to 65536
             bool has65536 = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range");
@@ -2385,8 +2387,9 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 53.1 Version bump verification
-            bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy");
-            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 [Close Beta]");
+            bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
+            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 / v5.0.51 [Close Beta]");
 
             // 53.2 Verification that intrusive loading hooks are completely removed
             bool noIntrusiveTerrainHook = !renewCode.Contains("TerrainManager_UpdateData_Prefix") &&
@@ -2415,6 +2418,34 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 53 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 54: 100% Managed C# Material Property Scan Armor (v5.0.51)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 54: 100% Managed C# Material Property Scan Armor (v5.0.51) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 54.1 Version bump verification
+            bool hasV51 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy");
+            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 [Close Beta]");
+
+            // 54.2 100% managed scan in Material_HasProperty_Int_Prefix
+            bool hasManagedScan = renewCode.Contains("100% managed scan of the 32-bit property name IDs, completely eliminating native C++ invocation!") &&
+                                  renewCode.Contains("Marshal.ReadInt32(propNames, i * 4)") &&
+                                  renewCode.Contains("Marshal.ReadIntPtr(sharedData, 0x40)");
+            Assert(hasManagedScan, "Material_HasProperty_Int_Prefix implements 100% managed C# property ID scan");
+
+            // 54.3 Complete native bypass: HasProperty never falls through to native C++
+            bool noNativePassThrough = renewCode.Contains("return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);") &&
+                                       renewCode.Contains("SafeHasPropertyInt(Material mat, int nameID)\n        {\n            bool res = false;\n            Material_HasProperty_Int_Prefix(mat, nameID, ref res);\n            return res;\n        }");
+            Assert(noNativePassThrough, "HasProperty(int) and HasProperty(string) completely bypass native C++ execution");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 54 exception", ex.ToString());
         }
 
         // ====================================================================

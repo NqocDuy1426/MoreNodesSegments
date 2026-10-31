@@ -9,12 +9,12 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.50:[/h2]
-- Pure Native Loading Architecture (Khởi tạo trò chơi hoàn toàn Native):
+[h2]Tính năng mới trong bản Beta v5.0.51:[/h2]
+- 100% Managed C# Material Property Armor & Pure Native Loading:
     [list]
-    [*] Gỡ bỏ toàn bộ can thiệp và hook trực tiếp vào chu trình khởi tạo màn hình load game (TerrainManager.UpdateData, TerrainManager.LateUpdateData, DayNightProperties.InitializeProperties), trả về 100% cơ chế native của Unity và game engine.
-    [*] Khắc phục triệt để lỗi văng game tức thì (SIGSEGV) khi tải màn chơi do can thiệp bộ nhớ mảng terrain.
-    [*] Giữ nguyên toàn bộ cơ chế gọi type-safe trực tiếp tới các manager độc lập nhằm ngăn lỗi Mono get_object_generic_inst.
+    [*] Quét mảng shader property IDs trực tiếp trên C# managed memory mà không gọi hàm native C++ ShaderPropertySheet::HasProperty (triệt tiêu hoàn toàn lỗi crash SIGABRT trong BuildingManager.InitRenderDataImpl khi game đọc hàng nghìn custom assets).
+    [*] Giữ nguyên 100% cơ chế tải Native cho game engine (không hook coroutine loading, không can thiệp mảng terrain).
+    [*] Loại bỏ hoàn toàn pass-through native C++ trên Material.HasProperty(int) và HasProperty(string).
     [/list]
 - Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield từ v5.0.48:
     [list]
@@ -24,10 +24,6 @@
     [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
     [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi.
     [/list]
-- Kế thừa toàn bộ Universal Material Leaf Armor & 100% Managed C# Property Scan từ v5.0.48/v5.0.47:
-    [list]
-    [*] Quét mảng shader property IDs trực tiếp trên C# managed memory mà không gọi hàm native C++ ShaderPropertySheet::HasProperty, loại bỏ hoàn toàn lỗi crash SIGABRT.
-    [/list]
 - Kế thừa toàn bộ Universal Stream Armor & Stream Alignment:
     [list]
     [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
@@ -35,5 +31,5 @@
 - Kế thừa Universal Simulation Manager Armor và tương thích tuyệt đối với TM:PE, NetworkSkins, MoreTransportLines, 81 Tiles 2.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.50 Close Beta: Pure Native Loading Architecture (Reverted all direct loading and coroutine hooks, leaving game initialization completely native while maintaining 64K network capacity and stability shields)."
+	"changenote"		"v5.0.51 Close Beta: 100% Managed C# Material Property Armor & Pure Native Loading (Eliminated native C++ ShaderPropertySheet SIGABRT in BuildingManager.InitRenderDataImpl via 100% managed C# memory scan, keeping loading completely native)."
 }

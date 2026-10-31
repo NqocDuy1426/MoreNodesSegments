@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy";
-        public string Description => "[Close Beta v5.0.50] Pure Native Loading Architecture (Reverted all direct loading and coroutine hooks, leaving game initialization completely native while maintaining 64K network capacity and stability shields).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy";
+        public string Description => "[Close Beta v5.0.51] 100% Managed C# Material Property Armor & Pure Native Loading (Eliminated native C++ ShaderPropertySheet SIGABRT in BuildingManager.InitRenderDataImpl via 100% managed C# memory scan, keeping loading completely native).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -17916,65 +17916,153 @@ namespace MoreNetworkCapacityRenew
                 __result = false;
                 return false;
             }
-            return true;
+
+            try
+            {
+                IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(__instance);
+                if (ptr == IntPtr.Zero)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
+                if (sharedData == IntPtr.Zero)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                long count = System.Runtime.InteropServices.Marshal.ReadInt64(sharedData, 0x50);
+                if (count <= 0 || count > 4096)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                IntPtr propNames = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x40);
+                if (propNames == IntPtr.Zero)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // 100% managed scan of the 32-bit property name IDs, completely eliminating native C++ invocation!
+                int limit = (int)count;
+                for (int i = 0; i < limit; i++)
+                {
+                    int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);
+                    if (propId == nameID)
+                    {
+                        __result = true;
+                        return false;
+                    }
+                }
+
+                __result = false;
+                return false;
+            }
+            catch
+            {
+                __result = false;
+                return false;
+            }
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
         {
-            if (!IsMaterialPropertySheetReady(__instance))
+            try
+            {
+                if (string.IsNullOrEmpty(propertyName))
+                {
+                    __result = false;
+                    return false;
+                }
+                int nameId = Shader.PropertyToID(propertyName);
+                return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);
+            }
+            catch
             {
                 __result = false;
                 return false;
             }
-            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_GetTexture_Int_Prefix(Material __instance, int nameID, ref Texture __result)
         {
-            if (!IsMaterialPropertySheetReady(__instance))
+            try
+            {
+                bool hasProp = false;
+                Material_HasProperty_Int_Prefix(__instance, nameID, ref hasProp);
+                if (!hasProp)
+                {
+                    __result = null;
+                    return false;
+                }
+                return true;
+            }
+            catch
             {
                 __result = null;
                 return false;
             }
-            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_GetTexture_String_Prefix(Material __instance, string propertyName, ref Texture __result)
         {
-            if (!IsMaterialPropertySheetReady(__instance))
+            try
+            {
+                if (string.IsNullOrEmpty(propertyName))
+                {
+                    __result = null;
+                    return false;
+                }
+                int nameId = Shader.PropertyToID(propertyName);
+                return Material_GetTexture_Int_Prefix(__instance, nameId, ref __result);
+            }
+            catch
             {
                 __result = null;
                 return false;
             }
-            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_get_mainTexture_Prefix(Material __instance, ref Texture __result)
         {
-            if (!IsMaterialPropertySheetReady(__instance))
+            try
+            {
+                bool hasProp = false;
+                Material_HasProperty_String_Prefix(__instance, "_MainTex", ref hasProp);
+                if (!hasProp)
+                {
+                    __result = null;
+                    return false;
+                }
+                return true;
+            }
+            catch
             {
                 __result = null;
                 return false;
             }
-            return true;
         }
 
         public static bool SafeHasPropertyInt(Material mat, int nameID)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return false;
-            return mat.HasProperty(nameID);
+            bool res = false;
+            Material_HasProperty_Int_Prefix(mat, nameID, ref res);
+            return res;
         }
 
         public static bool SafeHasPropertyString(Material mat, string propertyName)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return false;
-            return mat.HasProperty(propertyName);
+            bool res = false;
+            Material_HasProperty_String_Prefix(mat, propertyName, ref res);
+            return res;
         }
 
         public static Texture SafeGetTextureInt(Material mat, int nameID)
