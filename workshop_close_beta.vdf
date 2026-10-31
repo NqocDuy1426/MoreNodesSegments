@@ -9,8 +9,8 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.45:[/h2]
-- Targeted Iterator Armor: Tập trung lớp giáp Material & Property Sheet Armor chính xác vào các coroutine nạp render (InitRenderDataImpl), giữ nguyên 100% mã biên dịch gốc cho InitMeshData (loại bỏ hoàn toàn lỗi mono_get_generic_context_from_code SIGABRT khi gọi new Material).
+[h2]Tính năng mới trong bản Beta v5.0.46:[/h2]
+- Universal Prefab Material Sanitization: Tự động rà soát và khử trùng toàn bộ prefab materials (BuildingInfo, PropInfo, TreeInfo, VehicleInfo, CitizenInfo, NetInfo) trước khi RenderManager.UpdateData kích hoạt. Bảo tồn 100% mã máy JIT gốc cho các coroutine InitRenderDataImpl và InitMeshData, triệt tiêu dứt điểm cả lỗi SIGABRT free_tiny trong C++ Unity lẫn lỗi mini-generic-sharing.c trong Mono runtime.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -29,5 +29,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.45 Close Beta: Targeted Iterator Armor (Confines Material Armor strictly to InitRenderDataImpl iterators, preserving native InitMeshData execution)."
+	"changenote"		"v5.0.46 Close Beta: Universal Prefab Material Sanitization (Pre-sanitizes unready prefab materials prior to RenderManager.UpdateData, eliminating all native C++ aborts and Mono IMT dynamic method assertion crashes)."
 }

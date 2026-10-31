@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.45)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.46)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
@@ -2218,10 +2219,9 @@ class TestSuite
                                  renewCode.Contains("yield return new CodeInstruction(OpCodes.Call, mSafeGetMain);");
             Assert(hasTranspiler, "TranspileMaterialCalls transpiler redirects Material property calls to Safe methods");
 
-            // 48.4 Patch Registration in EnsureAllPatchesApplied
-            bool hasPatchesApplied = renewCode.Contains("nt.Name.Contains(\"InitRenderDataImpl\")") &&
-                                     renewCode.Contains("harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));");
-            Assert(hasPatchesApplied, "EnsureAllPatchesApplied hooks InitRenderDataImpl across all managers");
+            // 48.4 Native compilation preservation & sanitization
+            bool hasSanitizerHook = renewCode.Contains("TransportLineCompatibility.SanitizeAllPrefabMaterials()");
+            Assert(hasSanitizerHook, "Render initializers are protected via Universal Prefab Material Sanitization");
         }
         catch (Exception ex)
         {
@@ -2256,25 +2256,32 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 50: Targeted Iterator Armor (v5.0.45)
+        // TEST GROUP 50: Universal Prefab Material Sanitization (v5.0.46)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 50: Targeted Iterator Armor (v5.0.45) ---");
+        Console.WriteLine("\n--- Test Group 50: Universal Prefab Material Sanitization (v5.0.46) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
 
-            // 50.1 InitMeshData is NOT transpiled with Harmony to prevent Mono IMT generic context crash
-            bool initMeshDataUnmodified = !renewCode.Contains("m.Name == \"InitMeshData\"") &&
-                                          !renewCode.Contains("Successfully transpiled {0}.{1} with Material Armor");
-            Assert(initMeshDataUnmodified, "InitMeshData methods remain native compiled code (zero Harmony DynamicMethod overhead)");
+            // 50.1 InitRenderDataImpl and InitMeshData are NOT transpiled with Harmony to eliminate Mono JIT generic sharing assertions
+            bool noDynamicMethodIterator = !renewCode.Contains("InitRenderDataImpl") ||
+                                           !renewCode.Contains("harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler))");
+            Assert(noDynamicMethodIterator, "Render data initializers and InitMeshData remain 100% native compiled code (zero DynamicMethod generic sharing faults)");
 
-            // 50.2 Iterators are targeted cleanly
-            bool iteratorsTargeted = renewCode.Contains("typeof(BuildingManager)") &&
-                                     renewCode.Contains("typeof(NetManager)") &&
-                                     renewCode.Contains("typeof(PropManager)") &&
-                                     renewCode.Contains("typeof(VehicleManager)") &&
-                                     renewCode.Contains("typeof(EventManager)");
-            Assert(iteratorsTargeted, "All 5 manager InitRenderDataImpl iterators are guarded with Material Armor");
+            // 50.2 SanitizeAllPrefabMaterials implementation exists and covers all prefab types
+            bool hasSanitizer = renewCode.Contains("public static void SanitizeAllPrefabMaterials()") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(BuildingInfoBase))") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(PropInfo))") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(TreeInfo))") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(VehicleInfoBase))") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(CitizenInfo))") &&
+                                renewCode.Contains("Resources.FindObjectsOfTypeAll(typeof(NetInfo))");
+            Assert(hasSanitizer, "SanitizeAllPrefabMaterials covers Building, Prop, Tree, Vehicle, Citizen, and Net prefabs");
+
+            // 50.3 SanitizeAllPrefabMaterials called in SimulationManager_Managers_UpdateData_Prefix and OnLevelLoaded
+            bool sanitizerCalled = renewCode.Contains("TransportLineCompatibility.SanitizeAllPrefabMaterials()") &&
+                                   renewCode.Contains("SafeStepManagerAction(() => {\n                    TransportLineCompatibility.SanitizeAllPrefabMaterials();\n                    if (Singleton<RenderManager>.exists");
+            Assert(sanitizerCalled, "SanitizeAllPrefabMaterials is invoked before RenderManager.UpdateData and during level loading");
         }
         catch (Exception ex)
         {

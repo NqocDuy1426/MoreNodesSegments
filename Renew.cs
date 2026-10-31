@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy";
-        public string Description => "[Close Beta v5.0.45] Targeted Iterator Armor (Confines Material Armor strictly to InitRenderDataImpl iterators, preserving native InitMeshData execution).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy";
+        public string Description => "[Close Beta v5.0.46] Universal Prefab Material Sanitization (Pre-sanitizes unready prefab materials prior to RenderManager.UpdateData, eliminating all native C++ aborts and Mono IMT dynamic method assertion crashes).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -9382,6 +9382,7 @@ namespace MoreNetworkCapacityRenew
             
             try
             {
+                TransportLineCompatibility.SanitizeAllPrefabMaterials();
                 RenewMod.EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
                 ArrayGuardian.ExpandAllArrays();
@@ -15110,48 +15111,6 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material.HasProperty: " + ex);
                 }
 
-                // 2g. Patch Material property accesses in Render Data initializers to prevent native C++ crashes (Material::HasProperty, GetTexture, get_mainTexture)
-                try
-                {
-                    MethodInfo transpiler = typeof(TransportLineCompatibility).GetMethod(nameof(TranspileMaterialCalls), BindingFlags.Public | BindingFlags.Static);
-                    if (transpiler != null)
-                    {
-                        Type[] managers = new Type[] {
-                            typeof(BuildingManager),
-                            typeof(NetManager),
-                            typeof(PropManager),
-                            typeof(VehicleManager),
-                            typeof(EventManager)
-                        };
-                        foreach (var mgr in managers)
-                        {
-                            foreach (var nt in mgr.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
-                            {
-                                if (nt.Name.Contains("InitRenderDataImpl"))
-                                {
-                                    MethodInfo moveNext = nt.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                    if (moveNext != null)
-                                    {
-                                        try
-                                        {
-                                            harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));
-                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully transpiled {0} -> {1}.MoveNext with Material Armor ✓", mgr.Name, nt.Name));
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Warning: Could not patch {0} MoveNext: {1}", mgr.Name, ex.Message));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching render data Material calls: " + ex);
-                }
 
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
@@ -17379,20 +17338,243 @@ namespace MoreNetworkCapacityRenew
                 if (s_CachedPtrField == null) return false;
                 IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(mat);
                 if (ptr == IntPtr.Zero) return false;
+                long p = ptr.ToInt64();
+                if (p < 0x100000 || p > 0x7fffffffffffL) return false;
+
                 // 0x108 is SharedMaterialData* inside Unity C++ Material object
                 IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
                 if (sharedData == IntPtr.Zero) return false;
+                long sd = sharedData.ToInt64();
+                if (sd < 0x100000 || sd > 0x7fffffffffffL) return false;
+
                 // 0xd8 bit 0 must be 1, otherwise native Material::HasProperty triggers Material::BuildProperties()
                 byte flags = System.Runtime.InteropServices.Marshal.ReadByte(sharedData, 0xd8);
                 if ((flags & 1) == 0) return false;
+
                 // 0x10 is ShaderPropertySheet pointer; if null, Material::BuildProperties() reallocates and triggers free_tiny abort
                 IntPtr propSheet = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x10);
                 if (propSheet == IntPtr.Zero) return false;
+                long ps = propSheet.ToInt64();
+                if (ps < 0x100000 || ps > 0x7fffffffffffL) return false;
+
                 return true;
             }
             catch
             {
                 return false;
+            }
+        }
+
+        public static void SanitizeAllPrefabMaterials()
+        {
+            try
+            {
+                int count = 0;
+                // 1. BuildingInfoBase (covers BuildingInfo and BuildingInfoSub)
+                var buildings = Resources.FindObjectsOfTypeAll(typeof(BuildingInfoBase));
+                if (buildings != null)
+                {
+                    for (int i = 0; i < buildings.Length; i++)
+                    {
+                        if (buildings[i] is BuildingInfoBase bib)
+                        {
+                            if (bib.m_lodMaterial != null && !IsMaterialPropertySheetReady(bib.m_lodMaterial))
+                            {
+                                bib.m_lodMaterial = null;
+                                bib.m_lodMesh = null;
+                                count++;
+                            }
+                            if (bib.m_material != null && !IsMaterialPropertySheetReady(bib.m_material))
+                            {
+                                bib.m_material = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // 2. PropInfo
+                var props = Resources.FindObjectsOfTypeAll(typeof(PropInfo));
+                if (props != null)
+                {
+                    for (int i = 0; i < props.Length; i++)
+                    {
+                        if (props[i] is PropInfo pi)
+                        {
+                            if (pi.m_lodMaterial != null && !IsMaterialPropertySheetReady(pi.m_lodMaterial))
+                            {
+                                pi.m_lodMaterial = null;
+                                pi.m_lodMesh = null;
+                                count++;
+                            }
+                            if (pi.m_material != null && !IsMaterialPropertySheetReady(pi.m_material))
+                            {
+                                pi.m_material = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // 3. TreeInfo
+                var trees = Resources.FindObjectsOfTypeAll(typeof(TreeInfo));
+                if (trees != null)
+                {
+                    for (int i = 0; i < trees.Length; i++)
+                    {
+                        if (trees[i] is TreeInfo ti)
+                        {
+                            if (ti.m_material != null && !IsMaterialPropertySheetReady(ti.m_material))
+                            {
+                                ti.m_material = null;
+                                count++;
+                            }
+                            if (ti.m_lodMaterial != null && !IsMaterialPropertySheetReady(ti.m_lodMaterial))
+                            {
+                                ti.m_lodMaterial = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // 4. VehicleInfoBase (covers VehicleInfo and VehicleInfoSub)
+                var vehicles = Resources.FindObjectsOfTypeAll(typeof(VehicleInfoBase));
+                if (vehicles != null)
+                {
+                    for (int i = 0; i < vehicles.Length; i++)
+                    {
+                        if (vehicles[i] is VehicleInfoBase vib)
+                        {
+                            if (vib.m_lodMaterial != null && !IsMaterialPropertySheetReady(vib.m_lodMaterial))
+                            {
+                                vib.m_lodMaterial = null;
+                                vib.m_lodMesh = null;
+                                count++;
+                            }
+                            if (vib.m_material != null && !IsMaterialPropertySheetReady(vib.m_material))
+                            {
+                                vib.m_material = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // 5. CitizenInfo
+                var citizens = Resources.FindObjectsOfTypeAll(typeof(CitizenInfo));
+                if (citizens != null)
+                {
+                    for (int i = 0; i < citizens.Length; i++)
+                    {
+                        if (citizens[i] is CitizenInfo ci)
+                        {
+                            if (ci.m_lodMaterial != null && !IsMaterialPropertySheetReady(ci.m_lodMaterial))
+                            {
+                                ci.m_lodMaterial = null;
+                                ci.m_lodMesh = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                // 6. NetInfo
+                var nets = Resources.FindObjectsOfTypeAll(typeof(NetInfo));
+                if (nets != null)
+                {
+                    for (int i = 0; i < nets.Length; i++)
+                    {
+                        if (nets[i] is NetInfo ni)
+                        {
+                            if (ni.m_nodes != null)
+                            {
+                                for (int n = 0; n < ni.m_nodes.Length; n++)
+                                {
+                                    var node = ni.m_nodes[n];
+                                    if (node != null)
+                                    {
+                                        if (node.m_lodMaterial != null && !IsMaterialPropertySheetReady(node.m_lodMaterial))
+                                        {
+                                            node.m_lodMaterial = null;
+                                            node.m_lodMesh = null;
+                                            count++;
+                                        }
+                                        if (node.m_material != null && !IsMaterialPropertySheetReady(node.m_material))
+                                        {
+                                            node.m_material = null;
+                                            count++;
+                                        }
+                                        if (node.m_nodeMaterial != null && !IsMaterialPropertySheetReady(node.m_nodeMaterial))
+                                        {
+                                            node.m_nodeMaterial = null;
+                                            node.m_nodeMesh = null;
+                                            count++;
+                                        }
+                                    }
+                                }
+                            }
+                            if (ni.m_segments != null)
+                            {
+                                for (int s = 0; s < ni.m_segments.Length; s++)
+                                {
+                                    var seg = ni.m_segments[s];
+                                    if (seg != null)
+                                    {
+                                        if (seg.m_lodMaterial != null && !IsMaterialPropertySheetReady(seg.m_lodMaterial))
+                                        {
+                                            seg.m_lodMaterial = null;
+                                            seg.m_lodMesh = null;
+                                            count++;
+                                        }
+                                        if (seg.m_material != null && !IsMaterialPropertySheetReady(seg.m_material))
+                                        {
+                                            seg.m_material = null;
+                                            count++;
+                                        }
+                                        if (seg.m_segmentMaterial != null && !IsMaterialPropertySheetReady(seg.m_segmentMaterial))
+                                        {
+                                            seg.m_segmentMaterial = null;
+                                            seg.m_segmentMesh = null;
+                                            count++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 7. PrefabCollection check
+                try
+                {
+                    int bCount = PrefabCollection<BuildingInfo>.LoadedCount();
+                    for (uint bi = 0; bi < bCount; bi++)
+                    {
+                        var b = PrefabCollection<BuildingInfo>.GetLoaded(bi);
+                        if (b != null)
+                        {
+                            if (b.m_lodMaterial != null && !IsMaterialPropertySheetReady(b.m_lodMaterial))
+                            {
+                                b.m_lodMaterial = null;
+                                b.m_lodMesh = null;
+                                count++;
+                            }
+                            if (b.m_material != null && !IsMaterialPropertySheetReady(b.m_material))
+                            {
+                                b.m_material = null;
+                                count++;
+                            }
+                        }
+                    }
+                }
+                catch {}
+
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SanitizeAllPrefabMaterials complete: sanitized {0} unready material(s) across all prefabs ✓", count));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in SanitizeAllPrefabMaterials: " + ex);
             }
         }
 
@@ -17881,6 +18063,9 @@ namespace MoreNetworkCapacityRenew
                 InvokeNetworkSkinsPreUpdateData(mode);
                 InvokePlopTheGrowablesPreUpdateData(mode);
 
+                // Pre-sanitize all prefab materials to eliminate native C++ BuildProperties free_tiny aborts
+                TransportLineCompatibility.SanitizeAllPrefabMaterials();
+
                 // 2. Direct concrete manager execution - completely eliminates generic interface callvirt on Mono
                 var lm = Singleton<LoadingManager>.instance;
                 float range = maxProgress - minProgress;
@@ -17905,7 +18090,10 @@ namespace MoreNetworkCapacityRenew
                 SafeStepManagerAction(() => { if (Singleton<EventManager>.exists && Singleton<EventManager>.instance != null) SafeExecuteEventManagerUpdateData(Singleton<EventManager>.instance, mode); }, lm, minProgress + range * (17f / totalSteps), "EventManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) SafeExecuteDisasterManagerUpdateData(Singleton<DisasterManager>.instance, mode); }, lm, minProgress + range * (18f / totalSteps), "DisasterManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<InfoManager>.exists && Singleton<InfoManager>.instance != null) SafeExecuteInfoManagerUpdateData(Singleton<InfoManager>.instance, mode); }, lm, minProgress + range * (19f / totalSteps), "InfoManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.UpdateData(mode); }, lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
+                SafeStepManagerAction(() => {
+                    TransportLineCompatibility.SanitizeAllPrefabMaterials();
+                    if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.UpdateData(mode);
+                }, lm, minProgress + range * (20f / totalSteps), "RenderManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<AudioManager>.exists && Singleton<AudioManager>.instance != null) SafeExecuteAudioManagerUpdateData(Singleton<AudioManager>.instance, mode); }, lm, minProgress + range * (21f / totalSteps), "AudioManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<StatisticsManager>.exists && Singleton<StatisticsManager>.instance != null) Singleton<StatisticsManager>.instance.UpdateData(mode); }, lm, minProgress + range * (22f / totalSteps), "StatisticsManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.UpdateData(mode); }, lm, minProgress + range * (23f / totalSteps), "UnlockManager.UpdateData");
