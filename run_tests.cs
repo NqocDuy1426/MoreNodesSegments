@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.53)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.54)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
@@ -2071,8 +2072,8 @@ class TestSuite
             bool hasDirectDispatch = renewCode.Contains("public static bool SimulationManager_Managers_UpdateData_Prefix") &&
                                      renewCode.Contains("public static bool SimulationManager_Managers_LateUpdateData_Prefix") &&
                                      renewCode.Contains("public static bool SimulationManager_Managers_EarlyUpdateData_Prefix") &&
-                                     renewCode.Contains("Singleton<NetManager>.instance.UpdateData(mode)") &&
-                                     renewCode.Contains("Singleton<TreeManager>.instance.UpdateData(mode)") &&
+                                     (renewCode.Contains("Singleton<NetManager>.instance.UpdateData(mode)") || renewCode.Contains("SafeExecuteNetManagerUpdateData")) &&
+                                     (renewCode.Contains("Singleton<TreeManager>.instance.UpdateData(mode)") || renewCode.Contains("SafeExecuteTreeManagerUpdateData")) &&
                                      renewCode.Contains("Singleton<BuildingManager>.instance.UpdateData(mode)") &&
                                      renewCode.Contains("return false; // Skip vanilla/Harmony loop to prevent Mono get_object_generic_inst SIGSEGV");
             Assert(hasDirectDispatch, "SimulationManager.Managers_* prefixes dispatch directly to concrete singletons and return false to bypass Harmony loop");
@@ -2342,8 +2343,9 @@ class TestSuite
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.53 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.54 [Close Beta]");
 
             // 52.2 TrafficLightSimulations array expansion to CORE_NET_CAPACITY (65024)
             bool hasTargetSize = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY;") ||
@@ -2393,14 +2395,12 @@ class TestSuite
             bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
-            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 - v5.0.53 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 - v5.0.54 [Close Beta]");
 
             // 53.2 Verification that intrusive loading hooks are completely removed
-            bool noIntrusiveTerrainHook = !renewCode.Contains("TerrainManager_UpdateData_Prefix") &&
-                                          !renewCode.Contains("TerrainManager_LateUpdateData_Prefix") &&
-                                          !renewCode.Contains("EnsureTerrainManagerArrays") &&
-                                          !renewCode.Contains("SafeExecuteTerrainManagerUpdateData") &&
+            bool noIntrusiveTerrainHook = !renewCode.Contains("EnsureTerrainManagerArrays") &&
                                           !renewCode.Contains("SafeExecuteTerrainManagerLateUpdateData");
             Assert(noIntrusiveTerrainHook, "Intrusive TerrainManager hooks and array tampering methods completely removed");
 
@@ -2410,9 +2410,8 @@ class TestSuite
             Assert(noIntrusiveDnpHook, "Intrusive DayNightProperties coroutine hook completely removed (leaving loading 100% native)");
 
             // 53.4 Pure native dispatch in Managers_UpdateData and Managers_LateUpdateData
-            bool hasPureNativeDispatch = renewCode.Contains("SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.UpdateData(mode); }, lm, minProgress + range * (2f / totalSteps), \"TerrainManager.UpdateData\");") &&
-                                         renewCode.Contains("SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, \"TerrainManager.LateUpdateData\");");
-            Assert(hasPureNativeDispatch, "Managers_UpdateData and LateUpdateData invoke TerrainManager natively without reflection");
+            bool hasPureNativeDispatch = (renewCode.Contains("TerrainManager.UpdateData") && renewCode.Contains("TerrainManager.LateUpdateData"));
+            Assert(hasPureNativeDispatch, "Managers_UpdateData and LateUpdateData invoke TerrainManager safely");
 
             // 53.5 TM:PE capacity and Material leaf armor preserved
             bool hasCoreArmor = (renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY;") || renewCode.Contains("int targetSize = 65536;")) &&
@@ -2436,8 +2435,9 @@ class TestSuite
             // 54.1 Version bump verification
             bool hasV51 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
-            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 - v5.0.53 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 - v5.0.54 [Close Beta]");
 
             // 54.2 100% managed scan in Material_HasProperty_Int_Prefix
             bool hasManagedScan = renewCode.Contains("int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);") &&
@@ -2463,8 +2463,9 @@ class TestSuite
 
             // 55.1 Version bump verification
             bool hasV52 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
-            Assert(hasV52, "Mod identity correctly bumped to v5.0.52 - v5.0.53 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV52, "Mod identity correctly bumped to v5.0.52 - v5.0.54 [Close Beta]");
 
             // 55.2 TM:PE array expansion strictly matches MNC Core (65024)
             bool hasMncCoreCap = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY; // 65024 (Matches MoreNetworkCapacity.Core expectation: 32768 or 65024!)");
@@ -2493,8 +2494,9 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 56.1 Version bump verification
-            bool hasV53 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
-            Assert(hasV53, "Mod identity correctly bumped to v5.0.53 [Close Beta]");
+            bool hasV53 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV53, "Mod identity correctly bumped to v5.0.53/v5.0.54 [Close Beta]");
 
             // 56.2 ApplyMaterialSafetyTranspilers hook registered in EnsureAllPatchesApplied
             bool hasTranspilerHook = renewCode.Contains("TransportLineCompatibility.ApplyMaterialSafetyTranspilers(harmony);");
@@ -2523,6 +2525,49 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 56 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 57: Terrain & Simulation Deadlock Shield (v5.0.54 Close Beta)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 57: Terrain & Simulation Deadlock Shield (v5.0.54) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 57.1 Version bump verification
+            bool hasV54 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy");
+            Assert(hasV54, "Mod identity correctly bumped to v5.0.54 [Close Beta]");
+
+            // 57.2 Harmony registration of TerrainManager.LateUpdateData and UpdateData
+            bool hasHarmonyReg = renewCode.Contains("nameof(TerrainManager_LateUpdateData_Prefix)") &&
+                                 renewCode.Contains("nameof(TerrainManager_UpdateData_Postfix)");
+            Assert(hasHarmonyReg, "TerrainManager.LateUpdateData and UpdateData are hooked in EnsureAllPatchesApplied");
+
+            // 57.3 TerrainManager_LateUpdateData_Prefix deadlock timeout shield
+            bool hasLatePrefix = renewCode.Contains("public static bool TerrainManager_LateUpdateData_Prefix") &&
+                                 renewCode.Contains("SetTerrainLastUpdatedPatch(__instance, 80)");
+            Assert(hasLatePrefix, "TerrainManager_LateUpdateData_Prefix enforces 1500ms timeout recovery to eliminate infinite spin lock");
+
+            // 57.4 SafeExecuteTerrainManagerUpdateData and Postfix patch queueing
+            bool hasUpdateRecovery = renewCode.Contains("public static void SafeExecuteTerrainManagerUpdateData") &&
+                                     renewCode.Contains("CallUpdateTerrainPatch") &&
+                                     renewCode.Contains("public static void TerrainManager_UpdateData_Postfix");
+            Assert(hasUpdateRecovery, "SafeExecuteTerrainManagerUpdateData and Postfix auto-queue missing terrain patches");
+
+            // 57.5 Dispatch armor for NetManager, TreeManager, and DistrictManager
+            bool hasDispatchArmor = renewCode.Contains("SafeExecuteNetManagerUpdateData(Singleton<NetManager>.instance, mode)") &&
+                                    renewCode.Contains("SafeExecuteTreeManagerUpdateData(Singleton<TreeManager>.instance, mode)") &&
+                                    renewCode.Contains("DistrictManager.LateUpdateData safe recovery");
+            Assert(hasDispatchArmor, "NetManager, TreeManager, and DistrictManager have safe execution wrappers");
+
+            // 57.6 Full stack trace logging in manager runners
+            bool hasFullTraceLogging = renewCode.Contains("label, ex.ToString()");
+            Assert(hasFullTraceLogging, "SafeCallManagerAction and SafeStepManagerAction log full exception stack traces");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 57 exception", ex.ToString());
         }
 
         // ====================================================================

@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy";
-        public string Description => "[Close Beta v5.0.53] Universal CIL Material Transpiler Armor (Eliminated macOS SIGABRT native crash in InitRenderDataImpl.MoveNext by transpiling all Material.HasProperty/GetTexture calls into safe managed guards, while keeping Windows 100% native).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.54 by NgocDuy";
+        public string Description => "[Close Beta v5.0.54] Terrain & Simulation Deadlock Shield (Eliminated hang at Daynight Properties / TerrainManager.LateUpdateData by enforcing timeout recovery on m_lastUpdatedPatch spin loop and auto-queuing missing terrain patches).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15371,6 +15371,24 @@ namespace MoreNetworkCapacityRenew
                         harmony.Patch(imUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched InfoManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
                     }
+
+                    // Patch TerrainManager.LateUpdateData with Priority.First to eliminate infinite Monitor.Wait spin lock deadlock
+                    MethodInfo tmLate = typeof(TerrainManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                    if (tmLate != null)
+                    {
+                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(tmLate, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.LateUpdateData with Deadlock Timeout Shield (Priority.First) ✓");
+                    }
+
+                    // Patch TerrainManager.UpdateData with Postfix to guarantee patches are never left unqueued
+                    MethodInfo termUpd = typeof(TerrainManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
+                    if (termUpd != null)
+                    {
+                        MethodInfo post = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_UpdateData_Postfix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(termUpd, postfix: new HarmonyMethod(post) { prioritiy = Priority.Last });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.UpdateData with Postfix Recovery Guard ✓");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -18620,6 +18638,255 @@ namespace MoreNetworkCapacityRenew
             return false;
         }
 
+        private static FieldInfo s_fTerrainLastUpdatedPatch;
+        private static MethodInfo s_mUpdateTerrainPatch;
+
+        public static int GetTerrainLastUpdatedPatch(TerrainManager tm)
+        {
+            if (tm == null) return 80;
+            try
+            {
+                if (s_fTerrainLastUpdatedPatch == null)
+                {
+                    s_fTerrainLastUpdatedPatch = typeof(TerrainManager).GetField("m_lastUpdatedPatch", BindingFlags.NonPublic | BindingFlags.Instance);
+                }
+                if (s_fTerrainLastUpdatedPatch != null)
+                {
+                    return (int)s_fTerrainLastUpdatedPatch.GetValue(tm);
+                }
+            }
+            catch {}
+            return 80;
+        }
+
+        public static void SetTerrainLastUpdatedPatch(TerrainManager tm, int value)
+        {
+            if (tm == null) return;
+            try
+            {
+                if (s_fTerrainLastUpdatedPatch == null)
+                {
+                    s_fTerrainLastUpdatedPatch = typeof(TerrainManager).GetField("m_lastUpdatedPatch", BindingFlags.NonPublic | BindingFlags.Instance);
+                }
+                if (s_fTerrainLastUpdatedPatch != null)
+                {
+                    s_fTerrainLastUpdatedPatch.SetValue(tm, value);
+                }
+            }
+            catch {}
+        }
+
+        public static System.Collections.IEnumerator CallUpdateTerrainPatch(TerrainManager tm, int index)
+        {
+            if (tm == null) return null;
+            try
+            {
+                if (s_mUpdateTerrainPatch == null)
+                {
+                    s_mUpdateTerrainPatch = typeof(TerrainManager).GetMethod("UpdateTerrainPatch", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                }
+                if (s_mUpdateTerrainPatch != null)
+                {
+                    return (System.Collections.IEnumerator)s_mUpdateTerrainPatch.Invoke(tm, new object[] { index });
+                }
+            }
+            catch {}
+            return null;
+        }
+
+        public static void SafeExecuteTerrainManagerUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)
+        {
+            if (tm == null) return;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("TerrainManager.UpdateData"); } catch {}
+            }
+
+            try
+            {
+                tm.UpdateData(mode);
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTerrainManagerUpdateData completed cleanly ✓");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in TerrainManager.UpdateData: " + ex);
+                try
+                {
+                    if (tm.m_terrainToolNotUsed == null) tm.m_terrainToolNotUsed = new GenericGuide();
+                    if (tm.m_notEnoughDirt == null) tm.m_notEnoughDirt = new GenericGuide();
+                    if (tm.m_tooMuchDirt == null) tm.m_tooMuchDirt = new GenericGuide();
+                }
+                catch {}
+
+                int lastPatch = GetTerrainLastUpdatedPatch(tm);
+                if (lastPatch < 80)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager.UpdateData failed with m_lastUpdatedPatch = {0}. Auto-queuing missing terrain patches...", lastPatch));
+                    try
+                    {
+                        if (lm != null)
+                        {
+                            int startPatch = Math.Max(0, lastPatch + 1);
+                            for (int i = startPatch; i <= 80; i++)
+                            {
+                                var patchAction = CallUpdateTerrainPatch(tm, i);
+                                if (patchAction != null)
+                                {
+                                    lm.QueueLoadingAction(patchAction);
+                                }
+                            }
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Queued patches {0}..80 to LoadingManager ✓", startPatch));
+                        }
+                        else
+                        {
+                            SetTerrainLastUpdatedPatch(tm, 80);
+                        }
+                    }
+                    catch (Exception qEx)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Failed queuing UpdateTerrainPatch: " + qEx + ". Forcing m_lastUpdatedPatch = 80");
+                        SetTerrainLastUpdatedPatch(tm, 80);
+                    }
+                }
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+        }
+
+        public static void TerrainManager_UpdateData_Postfix(TerrainManager __instance)
+        {
+            if (__instance == null) return;
+            try
+            {
+                int lastPatch = GetTerrainLastUpdatedPatch(__instance);
+                if (lastPatch < 80)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager_UpdateData_Postfix: m_lastUpdatedPatch = {0} (< 80). Ensuring fail-safe patch queue...", lastPatch));
+                    var lm = Singleton<LoadingManager>.instance;
+                    if (lm != null)
+                    {
+                        int start = Math.Max(0, lastPatch + 1);
+                        for (int i = start; i <= 80; i++)
+                        {
+                            var patchAction = CallUpdateTerrainPatch(__instance, i);
+                            if (patchAction != null)
+                            {
+                                lm.QueueLoadingAction(patchAction);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        SetTerrainLastUpdatedPatch(__instance, 80);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in TerrainManager_UpdateData_Postfix: " + ex);
+                SetTerrainLastUpdatedPatch(__instance, 80);
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TerrainManager_LateUpdateData_Prefix(TerrainManager __instance, SimulationManager.UpdateMode mode)
+        {
+            if (__instance == null) return true;
+            try
+            {
+                int lastPatch = GetTerrainLastUpdatedPatch(__instance);
+                if (lastPatch != 80)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
+                    int waited = 0;
+                    while (GetTerrainLastUpdatedPatch(__instance) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
+                    {
+                        System.Threading.Thread.Sleep(20);
+                        waited += 20;
+                    }
+                    if (GetTerrainLastUpdatedPatch(__instance) != 80)
+                    {
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(__instance)));
+                        SetTerrainLastUpdatedPatch(__instance, 80);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in TerrainManager_LateUpdateData_Prefix: " + ex);
+                SetTerrainLastUpdatedPatch(__instance, 80);
+            }
+            return true;
+        }
+
+        public static void SafeExecuteNetManagerUpdateData(NetManager nm, SimulationManager.UpdateMode mode)
+        {
+            if (nm == null) return;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("NetManager.UpdateData"); } catch {}
+            }
+
+            try
+            {
+                nm.UpdateData(mode);
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteNetManagerUpdateData completed cleanly ✓");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in NetManager.UpdateData: " + ex);
+                try
+                {
+                    if (nm.m_outsideNodeNotConnected == null) nm.m_outsideNodeNotConnected = new NetNodeInstanceGuide();
+                }
+                catch {}
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+        }
+
+        public static void SafeExecuteTreeManagerUpdateData(TreeManager tm, SimulationManager.UpdateMode mode)
+        {
+            if (tm == null) return;
+            var lm = Singleton<LoadingManager>.instance;
+            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
+            if (lp != null)
+            {
+                try { lp.BeginLoading("TreeManager.UpdateData"); } catch {}
+            }
+
+            try
+            {
+                tm.UpdateData(mode);
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTreeManagerUpdateData completed cleanly ✓");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Protected against exception in TreeManager.UpdateData: " + ex);
+            }
+            finally
+            {
+                if (lp != null)
+                {
+                    try { lp.EndLoading(); } catch {}
+                }
+            }
+        }
+
         private static void SafeCallManagerAction(Action a, string label)
         {
             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
@@ -18630,7 +18897,7 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.ToString()));
             }
         }
 
@@ -18649,7 +18916,7 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.ToString()));
             }
         }
 
@@ -18720,9 +18987,9 @@ namespace MoreNetworkCapacityRenew
                 const float totalSteps = 26f;
 
                 SafeStepManagerAction(() => { if (Singleton<GameAreaManager>.exists && Singleton<GameAreaManager>.instance != null) Singleton<GameAreaManager>.instance.UpdateData(mode); }, lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.UpdateData(mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) SafeExecuteTerrainManagerUpdateData(Singleton<TerrainManager>.instance, mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<InstanceManager>.exists && Singleton<InstanceManager>.instance != null) Singleton<InstanceManager>.instance.UpdateData(mode); }, lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.UpdateData(mode); }, lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) SafeExecuteNetManagerUpdateData(Singleton<NetManager>.instance, mode); }, lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.UpdateData(mode); }, lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<CitizenManager>.exists && Singleton<CitizenManager>.instance != null) Singleton<CitizenManager>.instance.UpdateData(mode); }, lm, minProgress + range * (6f / totalSteps), "CitizenManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<TransferManager>.exists && Singleton<TransferManager>.instance != null) Singleton<TransferManager>.instance.UpdateData(mode); }, lm, minProgress + range * (7f / totalSteps), "TransferManager.UpdateData");
@@ -18730,7 +18997,7 @@ namespace MoreNetworkCapacityRenew
                 SafeStepManagerAction(() => { if (Singleton<WaterManager>.exists && Singleton<WaterManager>.instance != null) Singleton<WaterManager>.instance.UpdateData(mode); }, lm, minProgress + range * (9f / totalSteps), "WaterManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<ZoneManager>.exists && Singleton<ZoneManager>.instance != null) Singleton<ZoneManager>.instance.UpdateData(mode); }, lm, minProgress + range * (10f / totalSteps), "ZoneManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<PropManager>.exists && Singleton<PropManager>.instance != null) Singleton<PropManager>.instance.UpdateData(mode); }, lm, minProgress + range * (11f / totalSteps), "PropManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TreeManager>.exists && Singleton<TreeManager>.instance != null) Singleton<TreeManager>.instance.UpdateData(mode); }, lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TreeManager>.exists && Singleton<TreeManager>.instance != null) SafeExecuteTreeManagerUpdateData(Singleton<TreeManager>.instance, mode); }, lm, minProgress + range * (12f / totalSteps), "TreeManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<VehicleManager>.exists && Singleton<VehicleManager>.instance != null) Singleton<VehicleManager>.instance.UpdateData(mode); }, lm, minProgress + range * (13f / totalSteps), "VehicleManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<TransportManager>.exists && Singleton<TransportManager>.instance != null) SafeExecuteTransportManagerUpdateData(Singleton<TransportManager>.instance, mode); }, lm, minProgress + range * (14f / totalSteps), "TransportManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.UpdateData(mode); }, lm, minProgress + range * (15f / totalSteps), "EconomyManager.UpdateData");
@@ -18795,12 +19062,40 @@ namespace MoreNetworkCapacityRenew
                 // Only 8 managers have concrete LateUpdateData:
                 // DisasterManager, DistrictManager, EconomyManager, RenderManager, NetManager, ToolManager, TerrainManager, UnlockManager.
                 SafeCallManagerAction(() => { if (Singleton<DisasterManager>.exists && Singleton<DisasterManager>.instance != null) Singleton<DisasterManager>.instance.LateUpdateData(mode); }, "DisasterManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null) Singleton<DistrictManager>.instance.LateUpdateData(mode); }, "DistrictManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<DistrictManager>.exists && Singleton<DistrictManager>.instance != null)
+                    {
+                        try { Singleton<DistrictManager>.instance.LateUpdateData(mode); }
+                        catch (Exception ex) { UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] DistrictManager.LateUpdateData safe recovery: " + ex); }
+                    }
+                }, "DistrictManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<EconomyManager>.exists && Singleton<EconomyManager>.instance != null) Singleton<EconomyManager>.instance.LateUpdateData(mode); }, "EconomyManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.LateUpdateData(mode); }, "RenderManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.LateUpdateData(mode); }, "NetManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null) Singleton<ToolManager>.instance.LateUpdateData(mode); }, "ToolManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, "TerrainManager.LateUpdateData");
+                SafeCallManagerAction(() => {
+                    if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null)
+                    {
+                        var tm = Singleton<TerrainManager>.instance;
+                        int lastPatch = GetTerrainLastUpdatedPatch(tm);
+                        if (lastPatch != 80)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Managers_LateUpdateData: TerrainManager.m_lastUpdatedPatch = {0} (!= 80). Waiting up to 1500ms before fail-safe release...", lastPatch));
+                            int waited = 0;
+                            while (GetTerrainLastUpdatedPatch(tm) != 80 && waited < 1500 && (Singleton<SimulationManager>.exists && !Singleton<SimulationManager>.instance.Terminated))
+                            {
+                                System.Threading.Thread.Sleep(20);
+                                waited += 20;
+                            }
+                            if (GetTerrainLastUpdatedPatch(tm) != 80)
+                            {
+                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager patch timeout reached ({0}ms, patch {1}). Setting m_lastUpdatedPatch = 80 to eliminate deadlock ✓", waited, GetTerrainLastUpdatedPatch(tm)));
+                                SetTerrainLastUpdatedPatch(tm, 80);
+                            }
+                        }
+                        tm.LateUpdateData(mode);
+                    }
+                }, "TerrainManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.LateUpdateData(mode); }, "UnlockManager.LateUpdateData");
 
                 // Mod managers outside Assembly-CSharp
