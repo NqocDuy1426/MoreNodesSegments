@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.43)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.44)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
@@ -2087,7 +2088,7 @@ class TestSuite
 
             // 44.6 Material.HasProperty null safety armor
             bool hasMatArmor = renewCode.Contains("public static bool Material_HasProperty_String_Prefix(Material __instance") &&
-                               renewCode.Contains("if ((object)__instance == null || !__instance");
+                               (renewCode.Contains("!IsMaterialPropertySheetReady(__instance)") || renewCode.Contains("if ((object)__instance == null || !__instance"));
             Assert(hasMatArmor, "Material.HasProperty(string) is guarded against native C++ null pointer dereferences");
         }
         catch (Exception ex)
@@ -2198,9 +2199,9 @@ class TestSuite
         {
             string renewCode = File.ReadAllText("Renew.cs");
 
-            // 48.1 Material_HasProperty_String_Prefix Shader Check
-            bool hasShaderCheck = renewCode.Contains("if ((object)__instance == null || !__instance || __instance.shader == null)");
-            Assert(hasShaderCheck, "Material_HasProperty_String_Prefix checks __instance.shader == null");
+            // 48.1 Material_HasProperty_String_Prefix Ready Check
+            bool hasShaderCheck = renewCode.Contains("if (!IsMaterialPropertySheetReady(__instance))");
+            Assert(hasShaderCheck, "Material_HasProperty_String_Prefix delegates to IsMaterialPropertySheetReady");
 
             // 48.2 Safe Material Helper Methods
             bool hasSafeHelpers = renewCode.Contains("public static bool SafeHasPropertyInt(Material mat, int nameID)") &&
@@ -2228,6 +2229,33 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 48 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 49: Hardware-Level Material & Property Sheet Armor (v5.0.44)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 49: Hardware-Level Material & Property Sheet Armor (v5.0.44) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 49.1 IsMaterialPropertySheetReady implementation
+            bool hasReadyCheck = renewCode.Contains("public static bool IsMaterialPropertySheetReady(Material mat)") &&
+                                 renewCode.Contains("s_CachedPtrField = typeof(UnityEngine.Object).GetField(\"m_CachedPtr\"") &&
+                                 renewCode.Contains("Marshal.ReadIntPtr(ptr, 0x108)") &&
+                                 renewCode.Contains("Marshal.ReadByte(sharedData, 0xd8)") &&
+                                 renewCode.Contains("Marshal.ReadIntPtr(sharedData, 0x10)");
+            Assert(hasReadyCheck, "IsMaterialPropertySheetReady verifies native SharedMaterialData property sheet state");
+
+            // 49.2 Safe helper methods use IsMaterialPropertySheetReady
+            bool helpersUseReady = renewCode.Contains("if (!IsMaterialPropertySheetReady(mat))") &&
+                                   renewCode.Contains("public static bool SafeHasPropertyInt(Material mat, int nameID)") &&
+                                   renewCode.Contains("public static Texture SafeGetTextureInt(Material mat, int nameID)");
+            Assert(helpersUseReady, "Safe Material helper methods gate all native calls behind IsMaterialPropertySheetReady");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 49 exception", ex.ToString());
         }
 
         // ====================================================================

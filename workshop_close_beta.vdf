@@ -9,9 +9,8 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.43:[/h2]
-- Material & Render Data Armor: Transpile các lệnh gọi Material.HasProperty(int), GetTexture(int), get_mainTexture và SetTexture(int) trong các coroutine nạp dữ liệu render (InitRenderDataImpl) của BuildingManager, NetManager, PropManager, VehicleManager, EventManager và InitMeshData.
-- Triệt tiêu 100% nguy cơ native Unity C++ SIGSEGV (Material::HasProperty trên null shader) khi khởi tạo render data cho building/prop prefabs.
+[h2]Tính năng mới trong bản Beta v5.0.44:[/h2]
+- Hardware-Level Material & Property Sheet Armor: Kiểm tra trực tiếp cấu trúc bộ nhớ C++ SharedMaterialData của Unity trước khi thực hiện bất kỳ lệnh gọi Material nào. Ngăn chặn triệt để lệnh gọi BuildProperties() và hàm free_tiny abort (SIGABRT) trên macOS.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -30,5 +29,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.43 Close Beta: Material & Render Data Armor (Transpiled HasProperty/GetTexture/mainTexture to eliminate native Unity C++ SIGSEGV during render data init)."
+	"changenote"		"v5.0.44 Close Beta: Hardware-Level Material & Property Sheet Armor (Inspects SharedMaterialData native property sheet state to block C++ BuildProperties free_tiny abort)."
 }

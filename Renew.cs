@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy";
-        public string Description => "[Close Beta v5.0.43] Material & Render Data Armor (Transpiled HasProperty/GetTexture/mainTexture to eliminate native Unity C++ SIGSEGV during render data init).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy";
+        public string Description => "[Close Beta v5.0.44] Hardware-Level Material & Property Sheet Armor (Inspects SharedMaterialData native property sheet state to block C++ BuildProperties free_tiny abort).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -17400,10 +17400,39 @@ namespace MoreNetworkCapacityRenew
             UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] LoadSimulationData_MoveNext_Transpiler: Replaced {0} call(s) with SafeDeserializeSimulationData.", replaced));
         }
 
+        private static readonly FieldInfo s_CachedPtrField = typeof(UnityEngine.Object).GetField("m_CachedPtr", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public static bool IsMaterialPropertySheetReady(Material mat)
+        {
+            if ((object)mat == null || !mat) return false;
+            try
+            {
+                Shader s = mat.shader;
+                if ((object)s == null || !s || !s.isSupported) return false;
+                if (s_CachedPtrField == null) return false;
+                IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(mat);
+                if (ptr == IntPtr.Zero) return false;
+                // 0x108 is SharedMaterialData* inside Unity C++ Material object
+                IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
+                if (sharedData == IntPtr.Zero) return false;
+                // 0xd8 bit 0 must be 1, otherwise native Material::HasProperty triggers Material::BuildProperties()
+                byte flags = System.Runtime.InteropServices.Marshal.ReadByte(sharedData, 0xd8);
+                if ((flags & 1) == 0) return false;
+                // 0x10 is ShaderPropertySheet pointer; if null, Material::BuildProperties() reallocates and triggers free_tiny abort
+                IntPtr propSheet = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x10);
+                if (propSheet == IntPtr.Zero) return false;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         [HarmonyPriority(Priority.First)]
         public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
         {
-            if ((object)__instance == null || !__instance || __instance.shader == null)
+            if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = false;
                 return false;
@@ -17413,42 +17442,42 @@ namespace MoreNetworkCapacityRenew
 
         public static bool SafeHasPropertyInt(Material mat, int nameID)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return false;
             return mat.HasProperty(nameID);
         }
 
         public static bool SafeHasPropertyString(Material mat, string propertyName)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return false;
             return mat.HasProperty(propertyName);
         }
 
         public static Texture SafeGetTextureInt(Material mat, int nameID)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return null;
             return mat.GetTexture(nameID);
         }
 
         public static Texture SafeGetTextureString(Material mat, string propertyName)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return null;
             return mat.GetTexture(propertyName);
         }
 
         public static Texture SafeGetMainTexture(Material mat)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return null;
             return mat.mainTexture;
         }
 
         public static void SafeSetTextureInt(Material mat, int nameID, Texture tex)
         {
-            if ((object)mat == null || !mat || mat.shader == null)
+            if (!IsMaterialPropertySheetReady(mat))
                 return;
             mat.SetTexture(nameID, tex);
         }
