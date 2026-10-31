@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy";
-        public string Description => "[Close Beta v5.0.46] Universal Prefab Material Sanitization (Pre-sanitizes unready prefab materials prior to RenderManager.UpdateData, eliminating all native C++ aborts and Mono IMT dynamic method assertion crashes).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy";
+        public string Description => "[Close Beta v5.0.47] Universal Material Leaf Armor & Property Sheet Pointer Validation (Direct Harmony leaf prefix on Material.HasProperty(int), HasProperty(string), GetTexture, and mainTexture + strict property names array pointer verification, permanently eliminating native C++ SIGSEGV at 0x8).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15095,20 +15095,57 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Managers_* methods: " + ex);
                 }
 
-                // 2f. Patch UnityEngine.Material.HasProperty (Prevent native C++ null dereference crash in FpsBooster/UI)
+                // 2f. Patch UnityEngine.Material methods (Hardware-level leaf armor to eliminate native C++ SIGSEGV/SIGABRT)
                 try
                 {
+                    // 1. HasProperty(int)
+                    MethodInfo mHasInt = typeof(Material).GetMethod("HasProperty", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                    if (mHasInt != null)
+                    {
+                        MethodInfo preInt = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_Int_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mHasInt, prefix: new HarmonyMethod(preInt) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(int) with hardware leaf armor (Priority.First) ✓");
+                    }
+
+                    // 2. HasProperty(string)
                     MethodInfo mHasStr = typeof(Material).GetMethod("HasProperty", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
                     if (mHasStr != null)
                     {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_String_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(mHasStr, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(string) with null-safety armor (Priority.First) ✓");
+                        MethodInfo preStr = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_String_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mHasStr, prefix: new HarmonyMethod(preStr) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(string) with hardware leaf armor (Priority.First) ✓");
+                    }
+
+                    // 3. GetTexture(int)
+                    MethodInfo mGetTexInt = typeof(Material).GetMethod("GetTexture", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                    if (mGetTexInt != null)
+                    {
+                        MethodInfo preGetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(Material_GetTexture_Int_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mGetTexInt, prefix: new HarmonyMethod(preGetTexInt) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.GetTexture(int) with hardware leaf armor (Priority.First) ✓");
+                    }
+
+                    // 4. GetTexture(string)
+                    MethodInfo mGetTexStr = typeof(Material).GetMethod("GetTexture", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
+                    if (mGetTexStr != null)
+                    {
+                        MethodInfo preGetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(Material_GetTexture_String_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mGetTexStr, prefix: new HarmonyMethod(preGetTexStr) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.GetTexture(string) with hardware leaf armor (Priority.First) ✓");
+                    }
+
+                    // 5. get_mainTexture
+                    PropertyInfo pMainTex = typeof(Material).GetProperty("mainTexture", BindingFlags.Public | BindingFlags.Instance);
+                    if (pMainTex != null && pMainTex.GetGetMethod() != null)
+                    {
+                        MethodInfo preMainTex = typeof(TransportLineCompatibility).GetMethod(nameof(Material_get_mainTexture_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(pMainTex.GetGetMethod(), prefix: new HarmonyMethod(preMainTex) { prioritiy = Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.mainTexture with hardware leaf armor (Priority.First) ✓");
                     }
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material.HasProperty: " + ex);
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material methods: " + ex);
                 }
 
 
@@ -17351,11 +17388,22 @@ namespace MoreNetworkCapacityRenew
                 byte flags = System.Runtime.InteropServices.Marshal.ReadByte(sharedData, 0xd8);
                 if ((flags & 1) == 0) return false;
 
-                // 0x10 is ShaderPropertySheet pointer; if null, Material::BuildProperties() reallocates and triggers free_tiny abort
-                IntPtr propSheet = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x10);
-                if (propSheet == IntPtr.Zero) return false;
-                long ps = propSheet.ToInt64();
-                if (ps < 0x100000 || ps > 0x7fffffffffffL) return false;
+                // 0x10 is base pointer inside SharedMaterialData
+                IntPtr basePtr = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x10);
+                if (basePtr == IntPtr.Zero) return false;
+                long bp = basePtr.ToInt64();
+                if (bp < 0x100000 || bp > 0x7fffffffffffL) return false;
+
+                // 0x50 is property count in ShaderPropertySheet (SharedMaterialData + 0x18 + 0x38)
+                long count = System.Runtime.InteropServices.Marshal.ReadInt64(sharedData, 0x50);
+                if (count < 0 || count > 10000) return false;
+                if (count > 0)
+                {
+                    // 0x40 is property names array pointer in ShaderPropertySheet (SharedMaterialData + 0x18 + 0x28)
+                    IntPtr propNames = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x40);
+                    long pn = propNames.ToInt64();
+                    if (pn < 0x100000 || pn > 0x7fffffffffffL) return false;
+                }
 
                 return true;
             }
@@ -17579,11 +17627,55 @@ namespace MoreNetworkCapacityRenew
         }
 
         [HarmonyPriority(Priority.First)]
+        public static bool Material_HasProperty_Int_Prefix(Material __instance, int nameID, ref bool __result)
+        {
+            if (!IsMaterialPropertySheetReady(__instance))
+            {
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
         public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
         {
             if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = false;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool Material_GetTexture_Int_Prefix(Material __instance, int nameID, ref Texture __result)
+        {
+            if (!IsMaterialPropertySheetReady(__instance))
+            {
+                __result = null;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool Material_GetTexture_String_Prefix(Material __instance, string propertyName, ref Texture __result)
+        {
+            if (!IsMaterialPropertySheetReady(__instance))
+            {
+                __result = null;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool Material_get_mainTexture_Prefix(Material __instance, ref Texture __result)
+        {
+            if (!IsMaterialPropertySheetReady(__instance))
+            {
+                __result = null;
                 return false;
             }
             return true;

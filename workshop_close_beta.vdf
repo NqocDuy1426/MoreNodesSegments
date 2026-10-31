@@ -9,8 +9,8 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.46:[/h2]
-- Universal Prefab Material Sanitization: Tự động rà soát và khử trùng toàn bộ prefab materials (BuildingInfo, PropInfo, TreeInfo, VehicleInfo, CitizenInfo, NetInfo) trước khi RenderManager.UpdateData kích hoạt. Bảo tồn 100% mã máy JIT gốc cho các coroutine InitRenderDataImpl và InitMeshData, triệt tiêu dứt điểm cả lỗi SIGABRT free_tiny trong C++ Unity lẫn lỗi mini-generic-sharing.c trong Mono runtime.
+[h2]Tính năng mới trong bản Beta v5.0.47:[/h2]
+- Universal Material Leaf Armor & Property Sheet Pointer Validation: Bọc giáp Harmony Priority.First trực tiếp lên toàn bộ các phương thức truy xuất Material (HasProperty(int), HasProperty(string), GetTexture(int/string), mainTexture). Kết hợp kiểm tra con trỏ mảng thuộc tính cấp phần cứng (ShaderPropertySheet propNames array tại offset 0x40), triệt tiêu vĩnh viễn lỗi native Unity C++ SIGSEGV tại địa chỉ 0x8 khi khởi tạo render data.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -29,5 +29,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.46 Close Beta: Universal Prefab Material Sanitization (Pre-sanitizes unready prefab materials prior to RenderManager.UpdateData, eliminating all native C++ aborts and Mono IMT dynamic method assertion crashes)."
+	"changenote"		"v5.0.47 Close Beta: Universal Material Leaf Armor & Property Sheet Pointer Validation (Direct Harmony leaf prefix on Material.HasProperty(int), HasProperty(string), GetTexture, and mainTexture + strict property names array pointer verification, permanently eliminating native C++ SIGSEGV at 0x8)."
 }

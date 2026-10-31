@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.46)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.47)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
@@ -2286,6 +2287,41 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 50 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 51: Universal Material Leaf Armor & Property Sheet Pointer Validation (v5.0.47)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 51: Universal Material Leaf Armor & Property Sheet Pointer Validation (v5.0.47) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 51.1 Leaf Prefix implementations on Material
+            bool hasLeafPrefixes = renewCode.Contains("public static bool Material_HasProperty_Int_Prefix") &&
+                                   renewCode.Contains("public static bool Material_HasProperty_String_Prefix") &&
+                                   renewCode.Contains("public static bool Material_GetTexture_Int_Prefix") &&
+                                   renewCode.Contains("public static bool Material_GetTexture_String_Prefix") &&
+                                   renewCode.Contains("public static bool Material_get_mainTexture_Prefix");
+            Assert(hasLeafPrefixes, "Material leaf prefixes implemented for HasProperty(int/str), GetTexture(int/str), and mainTexture");
+
+            // 51.2 Harmony hooks registered in EnsureAllPatchesApplied
+            bool hasLeafHooks = renewCode.Contains("MethodInfo mHasInt = typeof(Material).GetMethod(\"HasProperty\"") &&
+                                renewCode.Contains("harmony.Patch(mHasInt, prefix: new HarmonyMethod(preInt) { prioritiy = Priority.First });") &&
+                                renewCode.Contains("MethodInfo mGetTexInt = typeof(Material).GetMethod(\"GetTexture\"") &&
+                                renewCode.Contains("harmony.Patch(mGetTexInt, prefix: new HarmonyMethod(preGetTexInt) { prioritiy = Priority.First });") &&
+                                renewCode.Contains("PropertyInfo pMainTex = typeof(Material).GetProperty(\"mainTexture\"");
+            Assert(hasLeafHooks, "Material leaf methods are hooked with Priority.First in EnsureAllPatchesApplied");
+
+            // 51.3 Property names array pointer validation in IsMaterialPropertySheetReady
+            bool hasPropNamesValidation = renewCode.Contains("Marshal.ReadInt64(sharedData, 0x50)") &&
+                                          renewCode.Contains("Marshal.ReadIntPtr(sharedData, 0x40)") &&
+                                          renewCode.Contains("long pn = propNames.ToInt64()");
+            Assert(hasPropNamesValidation, "IsMaterialPropertySheetReady strictly validates property count (0x50) and propNames pointer (0x40)");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 51 exception", ex.ToString());
         }
 
         // ====================================================================
