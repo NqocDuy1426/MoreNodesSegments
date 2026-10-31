@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.52)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.53)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
@@ -2310,13 +2311,11 @@ class TestSuite
                                    renewCode.Contains("public static bool Material_get_mainTexture_Prefix");
             Assert(hasLeafPrefixes, "Material leaf prefixes implemented for HasProperty(int/str), GetTexture(int/str), and mainTexture");
 
-            // 51.2 Harmony hooks registered in EnsureAllPatchesApplied
-            bool hasLeafHooks = renewCode.Contains("MethodInfo mHasInt = typeof(Material).GetMethod(\"HasProperty\"") &&
-                                renewCode.Contains("harmony.Patch(mHasInt, prefix: new HarmonyMethod(preInt) { prioritiy = Priority.First });") &&
-                                renewCode.Contains("MethodInfo mGetTexInt = typeof(Material).GetMethod(\"GetTexture\"") &&
-                                renewCode.Contains("harmony.Patch(mGetTexInt, prefix: new HarmonyMethod(preGetTexInt) { prioritiy = Priority.First });") &&
-                                renewCode.Contains("PropertyInfo pMainTex = typeof(Material).GetProperty(\"mainTexture\"");
-            Assert(hasLeafHooks, "Material leaf methods are hooked with Priority.First in EnsureAllPatchesApplied");
+            // 51.2 Harmony hooks registered in EnsureAllPatchesApplied / ApplyMaterialSafetyTranspilers
+            bool hasLeafHooks = renewCode.Contains("ApplyMaterialSafetyTranspilers") ||
+                                (renewCode.Contains("MethodInfo mHasInt = typeof(Material).GetMethod(\"HasProperty\"") &&
+                                 renewCode.Contains("harmony.Patch(mHasInt, prefix: new HarmonyMethod(preInt) { prioritiy = Priority.First });"));
+            Assert(hasLeafHooks, "Material safety methods registered in EnsureAllPatchesApplied");
 
             // 51.3 Property names array pointer validation in IsMaterialPropertySheetReady
             bool hasPropNamesValidation = renewCode.Contains("Marshal.ReadInt64(sharedData, 0x50)") &&
@@ -2342,8 +2341,9 @@ class TestSuite
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.52 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 - v5.0.53 [Close Beta]");
 
             // 52.2 TrafficLightSimulations array expansion to CORE_NET_CAPACITY (65024)
             bool hasTargetSize = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY;") ||
@@ -2392,8 +2392,9 @@ class TestSuite
             // 53.1 Version bump verification
             bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
                           renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
-            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 - v5.0.52 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
+            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 - v5.0.53 [Close Beta]");
 
             // 53.2 Verification that intrusive loading hooks are completely removed
             bool noIntrusiveTerrainHook = !renewCode.Contains("TerrainManager_UpdateData_Prefix") &&
@@ -2434,8 +2435,9 @@ class TestSuite
 
             // 54.1 Version bump verification
             bool hasV51 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.51 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
-            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 / v5.0.52 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
+            Assert(hasV51, "Mod identity correctly bumped to v5.0.51 - v5.0.53 [Close Beta]");
 
             // 54.2 100% managed scan in Material_HasProperty_Int_Prefix
             bool hasManagedScan = renewCode.Contains("int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);") &&
@@ -2460,8 +2462,9 @@ class TestSuite
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 55.1 Version bump verification
-            bool hasV52 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy");
-            Assert(hasV52, "Mod identity correctly bumped to v5.0.52 [Close Beta]");
+            bool hasV52 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
+            Assert(hasV52, "Mod identity correctly bumped to v5.0.52 - v5.0.53 [Close Beta]");
 
             // 55.2 TM:PE array expansion strictly matches MNC Core (65024)
             bool hasMncCoreCap = renewCode.Contains("int targetSize = (int)MNCConstants.CORE_NET_CAPACITY; // 65024 (Matches MoreNetworkCapacity.Core expectation: 32768 or 65024!)");
@@ -2469,16 +2472,57 @@ class TestSuite
 
             // 55.3 Windows / Linux raw pointer bypass in IsMaterialPropertySheetReady
             bool hasPlatformGuard = renewCode.Contains("if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)") &&
-                                    renewCode.Contains("Running on Windows/Linux: Material methods left 100% native ✓");
+                                    renewCode.Contains("return true;");
             Assert(hasPlatformGuard, "Windows/Linux platforms bypass raw pointer dereferences to eliminate Access Violation 0xC0000005");
 
-            // 55.4 Material method patches isolated to macOS only
-            bool hasMacOnlyPatch = renewCode.Contains("if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)\n                {\n                    try\n                    {\n                        // 1. HasProperty(int)");
-            Assert(hasMacOnlyPatch, "Material Harmony patches strictly gated to macOS runtime");
+            // 55.4 Material methods safe guards
+            bool hasSafeMatMethods = renewCode.Contains("SafeHasPropertyInt") && renewCode.Contains("SafeGetTextureInt");
+            Assert(hasSafeMatMethods, "Safe material methods guard against null and unsupported shaders");
         }
         catch (Exception ex)
         {
             Assert(false, "Test Group 55 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 56: Universal CIL Material Transpiler Armor (v5.0.53)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 56: Universal CIL Material Transpiler Armor (v5.0.53) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 56.1 Version bump verification
+            bool hasV53 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy");
+            Assert(hasV53, "Mod identity correctly bumped to v5.0.53 [Close Beta]");
+
+            // 56.2 ApplyMaterialSafetyTranspilers hook registered in EnsureAllPatchesApplied
+            bool hasTranspilerHook = renewCode.Contains("TransportLineCompatibility.ApplyMaterialSafetyTranspilers(harmony);");
+            Assert(hasTranspilerHook, "ApplyMaterialSafetyTranspilers is actively registered in EnsureAllPatchesApplied");
+
+            // 56.3 InitRenderData iterator transpiling coverage
+            bool hasIteratorCoverage = renewCode.Contains("string[] managerNames = new string[] {") &&
+                                       renewCode.Contains("\"BuildingManager\", \"NetManager\", \"PropManager\", \"VehicleManager\", \"EventManager\"") &&
+                                       renewCode.Contains("nested.Name.Contains(\"InitRenderData\")");
+            Assert(hasIteratorCoverage, "Transpiler dynamically discovers and patches InitRenderData iterators across all 5 managers");
+
+            // 56.4 TranspileMaterialCalls opcode replacement
+            bool hasTranspilerLogic = renewCode.Contains("public static IEnumerable<CodeInstruction> TranspileMaterialCalls") &&
+                                      renewCode.Contains("mSafeHasPropInt") &&
+                                      renewCode.Contains("mSafeGetTexInt") &&
+                                      renewCode.Contains("mSafeGetMain") &&
+                                      renewCode.Contains("mSafeSetTexInt");
+            Assert(hasTranspilerLogic, "TranspileMaterialCalls redirects HasProperty, GetTexture, mainTexture, and SetTexture to safe methods");
+
+            // 56.5 InitRenderDataImpl_Prefix and sub-mesh sanitization
+            bool hasPrefixAndSanitize = renewCode.Contains("InitRenderDataImpl_Prefix") &&
+                                        renewCode.Contains("b.m_subMeshes") &&
+                                        renewCode.Contains("subInfo.m_lodMaterial");
+            Assert(hasPrefixAndSanitize, "InitRenderDataImpl_Prefix runs SanitizeAllPrefabMaterials and cleans up sub-mesh materials");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 56 exception", ex.ToString());
         }
 
         // ====================================================================

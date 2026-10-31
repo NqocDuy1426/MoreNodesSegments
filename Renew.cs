@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.52 by NgocDuy";
-        public string Description => "[Close Beta v5.0.52] Windows & macOS Cross-Platform Stability Shield (Eliminated Windows Access Violation 0xC0000005 in BuildingInfo.InitializePrefab by isolating Material raw pointer scans to macOS, and restored TM:PE array capacity to 65024 for 100% MNC Core compatibility).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.53 by NgocDuy";
+        public string Description => "[Close Beta v5.0.53] Universal CIL Material Transpiler Armor (Eliminated macOS SIGABRT native crash in InitRenderDataImpl.MoveNext by transpiling all Material.HasProperty/GetTexture calls into safe managed guards, while keeping Windows 100% native).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15377,66 +15377,16 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Managers_* methods: " + ex);
                 }
 
-                // 2f. Patch UnityEngine.Material methods (Hardware-level leaf armor to eliminate native C++ SIGSEGV/SIGABRT)
-                // ONLY required on macOS (where Apple malloc free_tiny triggers aborts on unready materials).
-                // On Windows/Linux, native Unity handles Material properties cleanly; running raw macOS pointer offsets on Windows triggers Access Violation!
-                if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+                // 2f. Material Safety Transpiler Armor (Universal CIL method interception to prevent SIGABRT in InitRenderDataImpl.MoveNext)
+                // Harmony cannot hook native extern/internalcall methods directly on Mono, so we transpile the callers (InitRenderDataImpl, Prefabs, etc.)
+                // replacing all calls to Material.HasProperty, GetTexture, mainTexture with safe managed methods.
+                try
                 {
-                    try
-                    {
-                        // 1. HasProperty(int)
-                        MethodInfo mHasInt = typeof(Material).GetMethod("HasProperty", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
-                        if (mHasInt != null)
-                        {
-                            MethodInfo preInt = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_Int_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mHasInt, prefix: new HarmonyMethod(preInt) { prioritiy = Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(int) with macOS hardware leaf armor (Priority.First) ✓");
-                        }
-
-                        // 2. HasProperty(string)
-                        MethodInfo mHasStr = typeof(Material).GetMethod("HasProperty", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
-                        if (mHasStr != null)
-                        {
-                            MethodInfo preStr = typeof(TransportLineCompatibility).GetMethod(nameof(Material_HasProperty_String_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mHasStr, prefix: new HarmonyMethod(preStr) { prioritiy = Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.HasProperty(string) with macOS hardware leaf armor (Priority.First) ✓");
-                        }
-
-                        // 3. GetTexture(int)
-                        MethodInfo mGetTexInt = typeof(Material).GetMethod("GetTexture", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
-                        if (mGetTexInt != null)
-                        {
-                            MethodInfo preGetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(Material_GetTexture_Int_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mGetTexInt, prefix: new HarmonyMethod(preGetTexInt) { prioritiy = Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.GetTexture(int) with macOS hardware leaf armor (Priority.First) ✓");
-                        }
-
-                        // 4. GetTexture(string)
-                        MethodInfo mGetTexStr = typeof(Material).GetMethod("GetTexture", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
-                        if (mGetTexStr != null)
-                        {
-                            MethodInfo preGetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(Material_GetTexture_String_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(mGetTexStr, prefix: new HarmonyMethod(preGetTexStr) { prioritiy = Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.GetTexture(string) with macOS hardware leaf armor (Priority.First) ✓");
-                        }
-
-                        // 5. get_mainTexture
-                        PropertyInfo pMainTex = typeof(Material).GetProperty("mainTexture", BindingFlags.Public | BindingFlags.Instance);
-                        if (pMainTex != null && pMainTex.GetGetMethod() != null)
-                        {
-                            MethodInfo preMainTex = typeof(TransportLineCompatibility).GetMethod(nameof(Material_get_mainTexture_Prefix), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(pMainTex.GetGetMethod(), prefix: new HarmonyMethod(preMainTex) { prioritiy = Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched Material.mainTexture with macOS hardware leaf armor (Priority.First) ✓");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material methods: " + ex);
-                    }
+                    TransportLineCompatibility.ApplyMaterialSafetyTranspilers(harmony);
                 }
-                else
+                catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Running on Windows/Linux: Material methods left 100% native ✓");
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in ApplyMaterialSafetyTranspilers: " + ex);
                 }
 
 
@@ -17911,6 +17861,27 @@ namespace MoreNetworkCapacityRenew
                                 b.m_material = null;
                                 count++;
                             }
+                            if (b.m_subMeshes != null)
+                            {
+                                for (int sm = 0; sm < b.m_subMeshes.Length; sm++)
+                                {
+                                    var subInfo = b.m_subMeshes[sm]?.m_subInfo;
+                                    if (subInfo != null)
+                                    {
+                                        if (subInfo.m_lodMaterial != null && !IsMaterialPropertySheetReady(subInfo.m_lodMaterial))
+                                        {
+                                            subInfo.m_lodMaterial = null;
+                                            subInfo.m_lodMesh = null;
+                                            count++;
+                                        }
+                                        if (subInfo.m_material != null && !IsMaterialPropertySheetReady(subInfo.m_material))
+                                        {
+                                            subInfo.m_material = null;
+                                            count++;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -17921,6 +17892,130 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in SanitizeAllPrefabMaterials: " + ex);
+            }
+        }
+
+        public static void InitRenderDataImpl_Prefix(object __instance)
+        {
+            try
+            {
+                if (__instance == null) return;
+                FieldInfo pcField = __instance.GetType().GetField("$PC", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (pcField != null && (int)pcField.GetValue(__instance) == 0)
+                {
+                    SanitizeAllPrefabMaterials();
+                }
+            }
+            catch {}
+        }
+
+        public static void ApplyMaterialSafetyTranspilers(HarmonyInstance harmony)
+        {
+            try
+            {
+                int patchedCount = 0;
+                var transpiler = new HarmonyMethod(typeof(TransportLineCompatibility).GetMethod(nameof(TranspileMaterialCalls), BindingFlags.Public | BindingFlags.Static));
+                var initPrefix = new HarmonyMethod(typeof(TransportLineCompatibility).GetMethod(nameof(InitRenderDataImpl_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                string[] managerNames = new string[] {
+                    "BuildingManager", "NetManager", "PropManager", "VehicleManager", "EventManager"
+                };
+
+                foreach (var mgrName in managerNames)
+                {
+                    Type mgrType = Type.GetType(mgrName + ", Assembly-CSharp");
+                    if (mgrType == null)
+                    {
+                        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            mgrType = a.GetType(mgrName);
+                            if (mgrType != null) break;
+                        }
+                    }
+                    if (mgrType == null) continue;
+
+                    // 1. Nested InitRenderData iterator types
+                    foreach (var nested in mgrType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        if (nested.Name.Contains("InitRenderData"))
+                        {
+                            var moveNext = nested.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (moveNext != null)
+                            {
+                                try
+                                {
+                                    harmony.Patch(moveNext, prefix: initPrefix, transpiler: transpiler);
+                                    patchedCount++;
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + nested.FullName + "::MoveNext ✓");
+                                }
+                                catch (Exception ex)
+                                {
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + nested.FullName + "::MoveNext: " + ex);
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. BeginRenderingImpl
+                    var beginRendering = mgrType.GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (beginRendering != null)
+                    {
+                        try
+                        {
+                            harmony.Patch(beginRendering, transpiler: transpiler);
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + mgrType.Name + "::BeginRenderingImpl ✓");
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + mgrType.Name + "::BeginRenderingImpl: " + ex);
+                        }
+                    }
+                }
+
+                // 3. Prefab & MeshData methods
+                string[] infoTypes = new string[] {
+                    "BuildingInfo", "BuildingInfoBase", "NetInfo", "PropInfo", "VehicleInfo", "VehicleInfoBase", "CitizenInfo"
+                };
+
+                foreach (var typeName in infoTypes)
+                {
+                    Type t = Type.GetType(typeName + ", Assembly-CSharp");
+                    if (t == null)
+                    {
+                        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            t = a.GetType(typeName);
+                            if (t != null) break;
+                        }
+                    }
+                    if (t == null) continue;
+
+                    var methods = t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                    foreach (var m in methods)
+                    {
+                        if (m.Name == "InitializePrefab" || m.Name == "SetRenderParameters" || m.Name == "InitMeshData" || 
+                            m.Name == "InitSegmentInfo" || m.Name == "InitNodeInfo")
+                        {
+                            try
+                            {
+                                harmony.Patch(m, transpiler: transpiler);
+                                patchedCount++;
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully applied TranspileMaterialCalls to " + t.Name + "::" + m.Name + " ✓");
+                            }
+                            catch (Exception ex)
+                            {
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error transpiling " + t.Name + "::" + m.Name + ": " + ex);
+                            }
+                        }
+                    }
+                }
+
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] ApplyMaterialSafetyTranspilers: Successfully armored {0} critical material rendering methods with TranspileMaterialCalls ✓", patchedCount));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error in ApplyMaterialSafetyTranspilers: " + ex);
             }
         }
 
@@ -18094,10 +18189,10 @@ namespace MoreNetworkCapacityRenew
 
         public static bool SafeHasPropertyInt(Material mat, int nameID)
         {
+            if ((object)mat == null || !mat) return false;
             if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
             {
-                if ((object)mat == null || !mat) return false;
-                return mat.HasProperty(nameID);
+                try { return mat.HasProperty(nameID); } catch { return false; }
             }
             bool res = false;
             Material_HasProperty_Int_Prefix(mat, nameID, ref res);
@@ -18106,42 +18201,70 @@ namespace MoreNetworkCapacityRenew
 
         public static bool SafeHasPropertyString(Material mat, string propertyName)
         {
-            if (Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.OSXEditor)
+            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return false;
+            try
             {
-                if ((object)mat == null || !mat) return false;
-                return mat.HasProperty(propertyName);
+                int nameId = Shader.PropertyToID(propertyName);
+                return SafeHasPropertyInt(mat, nameId);
             }
-            bool res = false;
-            Material_HasProperty_String_Prefix(mat, propertyName, ref res);
-            return res;
+            catch { return false; }
         }
 
         public static Texture SafeGetTextureInt(Material mat, int nameID)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return null;
-            return mat.GetTexture(nameID);
+            if ((object)mat == null || !mat) return null;
+            if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+            {
+                if (!IsMaterialPropertySheetReady(mat)) return null;
+                bool hasProp = false;
+                Material_HasProperty_Int_Prefix(mat, nameID, ref hasProp);
+                if (!hasProp) return null;
+            }
+            try { return mat.GetTexture(nameID); } catch { return null; }
         }
 
         public static Texture SafeGetTextureString(Material mat, string propertyName)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return null;
-            return mat.GetTexture(propertyName);
+            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return null;
+            try
+            {
+                int nameId = Shader.PropertyToID(propertyName);
+                return SafeGetTextureInt(mat, nameId);
+            }
+            catch { return null; }
         }
 
         public static Texture SafeGetMainTexture(Material mat)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return null;
-            return mat.mainTexture;
+            if ((object)mat == null || !mat) return null;
+            return SafeGetTextureString(mat, "_MainTex");
+        }
+
+        public static void SafeSetMainTexture(Material mat, Texture tex)
+        {
+            if ((object)mat == null || !mat) return;
+            SafeSetTextureString(mat, "_MainTex", tex);
         }
 
         public static void SafeSetTextureInt(Material mat, int nameID, Texture tex)
         {
-            if (!IsMaterialPropertySheetReady(mat))
-                return;
-            mat.SetTexture(nameID, tex);
+            if ((object)mat == null || !mat) return;
+            if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+            {
+                if (!IsMaterialPropertySheetReady(mat)) return;
+            }
+            try { mat.SetTexture(nameID, tex); } catch {}
+        }
+
+        public static void SafeSetTextureString(Material mat, string propertyName, Texture tex)
+        {
+            if ((object)mat == null || !mat || string.IsNullOrEmpty(propertyName)) return;
+            try
+            {
+                int nameId = Shader.PropertyToID(propertyName);
+                SafeSetTextureInt(mat, nameId, tex);
+            }
+            catch {}
         }
 
         public static IEnumerable<CodeInstruction> TranspileMaterialCalls(IEnumerable<CodeInstruction> instructions)
@@ -18151,7 +18274,9 @@ namespace MoreNetworkCapacityRenew
             MethodInfo mSafeGetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureInt), BindingFlags.Public | BindingFlags.Static);
             MethodInfo mSafeGetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureString), BindingFlags.Public | BindingFlags.Static);
             MethodInfo mSafeGetMain = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetMainTexture), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeSetMain = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetMainTexture), BindingFlags.Public | BindingFlags.Static);
             MethodInfo mSafeSetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetTextureInt), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeSetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetTextureString), BindingFlags.Public | BindingFlags.Static);
 
             foreach (var code in instructions)
             {
@@ -18180,14 +18305,24 @@ namespace MoreNetworkCapacityRenew
                             yield return new CodeInstruction(OpCodes.Call, mSafeGetTexStr);
                             continue;
                         }
-                        if (mi.Name == "get_mainTexture")
+                        if (mi.Name == "get_mainTexture" && pars.Length == 0)
                         {
                             yield return new CodeInstruction(OpCodes.Call, mSafeGetMain);
+                            continue;
+                        }
+                        if (mi.Name == "set_mainTexture" && pars.Length == 1 && typeof(Texture).IsAssignableFrom(pars[0].ParameterType))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeSetMain);
                             continue;
                         }
                         if (mi.Name == "SetTexture" && pars.Length == 2 && pars[0].ParameterType == typeof(int) && typeof(Texture).IsAssignableFrom(pars[1].ParameterType))
                         {
                             yield return new CodeInstruction(OpCodes.Call, mSafeSetTexInt);
+                            continue;
+                        }
+                        if (mi.Name == "SetTexture" && pars.Length == 2 && pars[0].ParameterType == typeof(string) && typeof(Texture).IsAssignableFrom(pars[1].ParameterType))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeSetTexStr);
                             continue;
                         }
                     }

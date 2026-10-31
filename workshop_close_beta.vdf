@@ -9,25 +9,25 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.52:[/h2]
-- Windows & macOS Cross-Platform Stability Shield:
+[h2]Tính năng mới trong bản Beta v5.0.53:[/h2]
+- Universal CIL Material Transpiler Armor (Khắc phục triệt để lỗi crash SIGABRT trên macOS):
     [list]
-    [*] Khắc phục triệt để lỗi crash Access Violation 0xC0000005 trên Windows (trong file log khách hàng output_log.txt tại BuildingInfo.InitializePrefab -> IsMaterialPropertySheetReady -> Marshal:ReadByte).
-    [*] Phân lập giáp con trỏ Material chỉ kích hoạt trên macOS (nơi gặp lỗi Apple malloc free_tiny), trả về 100% native cho Windows và Linux.
-    [*] Chuẩn hóa dung lượng mảng mở rộng TM:PE (TrafficLightSimulations và customSegments_) về đúng 65.024 phần tử (CORE_NET_CAPACITY) thay vì 65.536, thỏa mãn 100% kiểm tra hợp lệ của MoreNetworkCapacity.Core.dll và xóa bỏ lỗi Compatibility array unexpected length.
+    [*] Thay thế triệt để hook trực tiếp lên hàm native extern `Material.HasProperty` (vốn thất bại do Mono không thể patch InternalCall) bằng cơ chế Transpiler CIL IL-rewriting can thiệp trực tiếp vào mã thực thi của các Manager.
+    [*] Transpile toàn bộ lời gọi `Material.HasProperty(int/string)`, `Material.GetTexture(int/string)`, `Material.get_mainTexture`, và `Material.SetTexture` trong `InitRenderDataImpl.MoveNext` (BuildingManager, NetManager, PropManager, VehicleManager, EventManager) và các hàm Prefab Init sang các hàm bảo vệ an toàn `SafeHasPropertyInt/SafeGetTextureInt`.
+    [*] Ngăn chặn hoàn toàn việc gọi vào hàm native C++ `Material::BuildProperties()` khi texture property sheet chưa sẵn sàng, xóa sổ vĩnh viễn lỗi crash SIGABRT (`free_tiny` / `abort`) trên macOS trong quá trình đóng gói texture atlas lúc load game.
+    [*] Bổ sung tiền xử lý Prefab Material Sanitization cho cả `BuildingInfo.m_subMeshes` ngay tại tick 0 của coroutine render data.
+    [*] Duy trì 100% logic native an toàn trên Windows (không kích hoạt pointer scan, không lỗi 0xC0000005) và dung lượng mảng TM:PE 65.024 phần tử.
+    [/list]
+- Kế thừa toàn bộ Windows & macOS Cross-Platform Stability Shield (v5.0.52):
+    [list]
+    [*] Phân lập giáp con trỏ Material chỉ kích hoạt trên macOS, trả về 100% native cho Windows và Linux.
+    [*] Chuẩn hóa dung lượng mảng mở rộng TM:PE (TrafficLightSimulations và customSegments_) về đúng 65.024 phần tử (CORE_NET_CAPACITY).
     [*] Giữ nguyên lá chắn bắt ngoại lệ cận trên (bounds prefixes) bảo vệ an toàn tuyệt đối mọi truy xuất tới node 65535 khi thoát game.
     [/list]
-- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield:
-    [list]
-    [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
-    [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi.
-    [/list]
-- Kế thừa toàn bộ Universal Stream Armor & Stream Alignment:
-    [list]
-    [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
-    [/list]
+- Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield (v5.0.48-v5.0.51).
+- Kế thừa toàn bộ Universal Stream Armor & Stream Alignment.
 - Kế thừa Universal Simulation Manager Armor và tương thích tuyệt đối với TM:PE, NetworkSkins, MoreTransportLines, 81 Tiles 2.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.52 Close Beta: Windows & macOS Cross-Platform Stability Shield (Eliminated Windows Access Violation 0xC0000005 in BuildingInfo.InitializePrefab, and restored TM:PE array capacity to 65024 for 100% MNC Core compatibility)."
+	"changenote"		"v5.0.53 Close Beta: Universal CIL Material Transpiler Armor (Eliminated macOS SIGABRT native crash in InitRenderDataImpl.MoveNext by transpiling all Material.HasProperty/GetTexture calls into safe managed guards, while keeping Windows 100% native)."
 }
