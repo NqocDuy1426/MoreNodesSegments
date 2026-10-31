@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.42)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.43)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
@@ -2086,7 +2087,7 @@ class TestSuite
 
             // 44.6 Material.HasProperty null safety armor
             bool hasMatArmor = renewCode.Contains("public static bool Material_HasProperty_String_Prefix(Material __instance") &&
-                               renewCode.Contains("if ((object)__instance == null || !__instance)");
+                               renewCode.Contains("if ((object)__instance == null || !__instance");
             Assert(hasMatArmor, "Material.HasProperty(string) is guarded against native C++ null pointer dereferences");
         }
         catch (Exception ex)
@@ -2187,6 +2188,46 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 47 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 48: Material & Render Data Armor (v5.0.43)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 48: Material & Render Data Armor (v5.0.43) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 48.1 Material_HasProperty_String_Prefix Shader Check
+            bool hasShaderCheck = renewCode.Contains("if ((object)__instance == null || !__instance || __instance.shader == null)");
+            Assert(hasShaderCheck, "Material_HasProperty_String_Prefix checks __instance.shader == null");
+
+            // 48.2 Safe Material Helper Methods
+            bool hasSafeHelpers = renewCode.Contains("public static bool SafeHasPropertyInt(Material mat, int nameID)") &&
+                                  renewCode.Contains("public static Texture SafeGetTextureInt(Material mat, int nameID)") &&
+                                  renewCode.Contains("public static Texture SafeGetMainTexture(Material mat)") &&
+                                  renewCode.Contains("public static void SafeSetTextureInt(Material mat, int nameID, Texture tex)");
+            Assert(hasSafeHelpers, "Safe Material helper methods are defined with null & shader checks");
+
+            // 48.3 TranspileMaterialCalls Implementation
+            bool hasTranspiler = renewCode.Contains("public static IEnumerable<CodeInstruction> TranspileMaterialCalls(IEnumerable<CodeInstruction> instructions)") &&
+                                 renewCode.Contains("yield return new CodeInstruction(OpCodes.Call, mSafeHasPropInt);") &&
+                                 renewCode.Contains("yield return new CodeInstruction(OpCodes.Call, mSafeGetTexInt);") &&
+                                 renewCode.Contains("yield return new CodeInstruction(OpCodes.Call, mSafeGetMain);");
+            Assert(hasTranspiler, "TranspileMaterialCalls transpiler redirects Material property calls to Safe methods");
+
+            // 48.4 Patch Registration in EnsureAllPatchesApplied
+            bool hasPatchesApplied = renewCode.Contains("nt.Name.Contains(\"InitRenderDataImpl\")") &&
+                                     renewCode.Contains("harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));") &&
+                                     renewCode.Contains("typeof(BuildingInfoBase)") &&
+                                     renewCode.Contains("typeof(NetInfo)") &&
+                                     renewCode.Contains("typeof(PropInfo)") &&
+                                     renewCode.Contains("typeof(VehicleInfoBase)");
+            Assert(hasPatchesApplied, "EnsureAllPatchesApplied hooks InitRenderDataImpl and InitMeshData across all managers");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 48 exception", ex.ToString());
         }
 
         // ====================================================================

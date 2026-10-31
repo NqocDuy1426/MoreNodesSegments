@@ -9,9 +9,9 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.42:[/h2]
-- Non-Generic Simulation Manager Armor: Loại bỏ hoàn toàn các lệnh gọi generic PrefabCollection và generic base class trong các phương thức UpdateData của EventManager, DisasterManager, AudioManager và InfoManager.
-- Triệt tiêu 100% nguy cơ runtime Mono JIT SIGSEGV (get_object_generic_inst) trên macOS khi game nạp save.
+[h2]Tính năng mới trong bản Beta v5.0.43:[/h2]
+- Material & Render Data Armor: Transpile các lệnh gọi Material.HasProperty(int), GetTexture(int), get_mainTexture và SetTexture(int) trong các coroutine nạp dữ liệu render (InitRenderDataImpl) của BuildingManager, NetManager, PropManager, VehicleManager, EventManager và InitMeshData.
+- Triệt tiêu 100% nguy cơ native Unity C++ SIGSEGV (Material::HasProperty trên null shader) khi khởi tạo render data cho building/prop prefabs.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -30,5 +30,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.42 Close Beta: Non-Generic Simulation Manager Armor (Stripped PrefabCollection calls to eliminate Mono get_object_generic_inst SIGSEGV)."
+	"changenote"		"v5.0.43 Close Beta: Material & Render Data Armor (Transpiled HasProperty/GetTexture/mainTexture to eliminate native Unity C++ SIGSEGV during render data init)."
 }

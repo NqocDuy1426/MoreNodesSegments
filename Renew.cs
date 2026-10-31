@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.42 by NgocDuy";
-        public string Description => "[Close Beta v5.0.42] Non-Generic Simulation Manager Armor (Stripped PrefabCollection calls to eliminate Mono get_object_generic_inst SIGSEGV).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy";
+        public string Description => "[Close Beta v5.0.43] Material & Render Data Armor (Transpiled HasProperty/GetTexture/mainTexture to eliminate native Unity C++ SIGSEGV during render data init).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15110,6 +15110,82 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching Material.HasProperty: " + ex);
                 }
 
+                // 2g. Patch Material property accesses in Render Data initializers to prevent native C++ crashes (Material::HasProperty, GetTexture, get_mainTexture)
+                try
+                {
+                    MethodInfo transpiler = typeof(TransportLineCompatibility).GetMethod(nameof(TranspileMaterialCalls), BindingFlags.Public | BindingFlags.Static);
+                    if (transpiler != null)
+                    {
+                        Type[] managers = new Type[] {
+                            typeof(BuildingManager),
+                            typeof(NetManager),
+                            typeof(PropManager),
+                            typeof(VehicleManager),
+                            typeof(EventManager)
+                        };
+                        foreach (var mgr in managers)
+                        {
+                            foreach (var nt in mgr.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
+                            {
+                                if (nt.Name.Contains("InitRenderDataImpl"))
+                                {
+                                    MethodInfo moveNext = nt.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                    if (moveNext != null)
+                                    {
+                                        try
+                                        {
+                                            harmony.Patch(moveNext, transpiler: new HarmonyMethod(transpiler));
+                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully transpiled {0} -> {1}.MoveNext with Material Armor ✓", mgr.Name, nt.Name));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Warning: Could not patch {0} MoveNext: {1}", mgr.Name, ex.Message));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Type[] infoTypes = new Type[] {
+                            typeof(BuildingInfoBase),
+                            typeof(NetInfo),
+                            typeof(PropInfo),
+                            typeof(VehicleInfoBase)
+                        };
+                        foreach (var infoType in infoTypes)
+                        {
+                            foreach (var m in infoType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                            {
+                                if (m.Name == "InitMeshData")
+                                {
+                                    try
+                                    {
+                                        harmony.Patch(m, transpiler: new HarmonyMethod(transpiler));
+                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully transpiled {0}.{1} with Material Armor ✓", infoType.Name, m.Name));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Warning: Could not patch {0}.{1}: {2}", infoType.Name, m.Name, ex.Message));
+                                    }
+                                }
+                            }
+                        }
+
+                        MethodInfo mBmRender = typeof(BuildingManager).GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mBmRender != null) harmony.Patch(mBmRender, transpiler: new HarmonyMethod(transpiler));
+                        MethodInfo mNmRender = typeof(NetManager).GetMethod("BeginRenderingImpl", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mNmRender != null) harmony.Patch(mNmRender, transpiler: new HarmonyMethod(transpiler));
+                        MethodInfo mCiInit = typeof(CitizenInfo).GetMethod("InitializePrefab", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mCiInit != null) harmony.Patch(mCiInit, transpiler: new HarmonyMethod(transpiler));
+                        MethodInfo mViInit = typeof(VehicleInfo).GetMethod("InitializePrefab", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mViInit != null) harmony.Patch(mViInit, transpiler: new HarmonyMethod(transpiler));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching render data Material calls: " + ex);
+                }
+
                 // Enforce vanilla SimulationManager.SYNCHRONIZE_TIMEOUT = 0 to prevent simulation thread blocking
                 try
                 {
@@ -17327,12 +17403,106 @@ namespace MoreNetworkCapacityRenew
         [HarmonyPriority(Priority.First)]
         public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
         {
-            if ((object)__instance == null || !__instance)
+            if ((object)__instance == null || !__instance || __instance.shader == null)
             {
                 __result = false;
                 return false;
             }
             return true;
+        }
+
+        public static bool SafeHasPropertyInt(Material mat, int nameID)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return false;
+            return mat.HasProperty(nameID);
+        }
+
+        public static bool SafeHasPropertyString(Material mat, string propertyName)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return false;
+            return mat.HasProperty(propertyName);
+        }
+
+        public static Texture SafeGetTextureInt(Material mat, int nameID)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return null;
+            return mat.GetTexture(nameID);
+        }
+
+        public static Texture SafeGetTextureString(Material mat, string propertyName)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return null;
+            return mat.GetTexture(propertyName);
+        }
+
+        public static Texture SafeGetMainTexture(Material mat)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return null;
+            return mat.mainTexture;
+        }
+
+        public static void SafeSetTextureInt(Material mat, int nameID, Texture tex)
+        {
+            if ((object)mat == null || !mat || mat.shader == null)
+                return;
+            mat.SetTexture(nameID, tex);
+        }
+
+        public static IEnumerable<CodeInstruction> TranspileMaterialCalls(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo mSafeHasPropInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeHasPropertyInt), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeHasPropStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeHasPropertyString), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeGetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureInt), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeGetTexStr = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetTextureString), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeGetMain = typeof(TransportLineCompatibility).GetMethod(nameof(SafeGetMainTexture), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo mSafeSetTexInt = typeof(TransportLineCompatibility).GetMethod(nameof(SafeSetTextureInt), BindingFlags.Public | BindingFlags.Static);
+
+            foreach (var code in instructions)
+            {
+                if ((code.opcode == OpCodes.Call || code.opcode == OpCodes.Callvirt) && code.operand is MethodInfo mi)
+                {
+                    if (mi.DeclaringType == typeof(Material))
+                    {
+                        var pars = mi.GetParameters();
+                        if (mi.Name == "HasProperty" && pars.Length == 1 && pars[0].ParameterType == typeof(int))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeHasPropInt);
+                            continue;
+                        }
+                        if (mi.Name == "HasProperty" && pars.Length == 1 && pars[0].ParameterType == typeof(string))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeHasPropStr);
+                            continue;
+                        }
+                        if (mi.Name == "GetTexture" && pars.Length == 1 && pars[0].ParameterType == typeof(int))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeGetTexInt);
+                            continue;
+                        }
+                        if (mi.Name == "GetTexture" && pars.Length == 1 && pars[0].ParameterType == typeof(string))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeGetTexStr);
+                            continue;
+                        }
+                        if (mi.Name == "get_mainTexture")
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeGetMain);
+                            continue;
+                        }
+                        if (mi.Name == "SetTexture" && pars.Length == 2 && pars[0].ParameterType == typeof(int) && typeof(Texture).IsAssignableFrom(pars[1].ParameterType))
+                        {
+                            yield return new CodeInstruction(OpCodes.Call, mSafeSetTexInt);
+                            continue;
+                        }
+                    }
+                }
+                yield return code;
+            }
         }
 
 
