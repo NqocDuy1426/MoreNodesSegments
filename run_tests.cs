@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.49)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.50)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
@@ -2336,8 +2337,9 @@ class TestSuite
 
             // 52.1 Version bump verification
             bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
-                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy");
-            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 / v5.0.49 [Close Beta]");
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy") ||
+                          renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 / v5.0.49 / v5.0.50 [Close Beta]");
 
             // 52.2 TrafficLightSimulations array expansion to 65536
             bool has65536 = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range");
@@ -2375,39 +2377,40 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 53: Daynight & Terrain Simulation Deadlock Shield (v5.0.49)
+        // TEST GROUP 53: Pure Native Loading Architecture (v5.0.50)
         // ====================================================================
-        Console.WriteLine("\n--- Test Group 53: Daynight & Terrain Simulation Deadlock Shield (v5.0.49) ---");
+        Console.WriteLine("\n--- Test Group 53: Pure Native Loading Architecture (v5.0.50) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
 
             // 53.1 Version bump verification
-            bool hasV49 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy");
-            Assert(hasV49, "Mod identity correctly bumped to v5.0.49 [Close Beta]");
+            bool hasV50 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy");
+            Assert(hasV50, "Mod identity correctly bumped to v5.0.50 [Close Beta]");
 
-            // 53.2 TerrainManager array initialization & safe UpdateData
-            bool hasTerrainGuard = renewCode.Contains("public static void EnsureTerrainManagerArrays(TerrainManager tm)") &&
-                                   renewCode.Contains("public static void SafeExecuteTerrainManagerUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)") &&
-                                   renewCode.Contains("SafeExecuteTerrainManagerUpdateData(Singleton<TerrainManager>.instance, mode)");
-            Assert(hasTerrainGuard, "TerrainManager array armor & safe UpdateData dispatch implemented");
+            // 53.2 Verification that intrusive loading hooks are completely removed
+            bool noIntrusiveTerrainHook = !renewCode.Contains("TerrainManager_UpdateData_Prefix") &&
+                                          !renewCode.Contains("TerrainManager_LateUpdateData_Prefix") &&
+                                          !renewCode.Contains("EnsureTerrainManagerArrays") &&
+                                          !renewCode.Contains("SafeExecuteTerrainManagerUpdateData") &&
+                                          !renewCode.Contains("SafeExecuteTerrainManagerLateUpdateData");
+            Assert(noIntrusiveTerrainHook, "Intrusive TerrainManager hooks and array tampering methods completely removed");
 
-            // 53.3 TerrainManager.LateUpdateData timeout shield
-            bool hasTerrainLateGuard = renewCode.Contains("public static void SafeExecuteTerrainManagerLateUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)") &&
-                                       renewCode.Contains("Forcing safe completion to eliminate Daynight Properties hang") &&
-                                       renewCode.Contains("SafeExecuteTerrainManagerLateUpdateData(Singleton<TerrainManager>.instance, mode)");
-            Assert(hasTerrainLateGuard, "TerrainManager.LateUpdateData 2500ms timeout shield and pulse unlock implemented");
+            // 53.3 Verification that DayNightProperties coroutine replacement is completely removed
+            bool noIntrusiveDnpHook = !renewCode.Contains("DayNightProperties_InitializeProperties_Prefix") &&
+                                      !renewCode.Contains("SafeInitializeDayNightProperties");
+            Assert(noIntrusiveDnpHook, "Intrusive DayNightProperties coroutine hook completely removed (leaving loading 100% native)");
 
-            // 53.4 DayNightProperties safe coroutine replacement
-            bool hasDnpGuard = renewCode.Contains("public static IEnumerator SafeInitializeDayNightProperties(DayNightProperties dnp)") &&
-                               renewCode.Contains("public static bool DayNightProperties_InitializeProperties_Prefix(DayNightProperties __instance, ref IEnumerator __result)");
-            Assert(hasDnpGuard, "DayNightProperties safe coroutine initialization replacement implemented");
+            // 53.4 Pure native dispatch in Managers_UpdateData and Managers_LateUpdateData
+            bool hasPureNativeDispatch = renewCode.Contains("SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.UpdateData(mode); }, lm, minProgress + range * (2f / totalSteps), \"TerrainManager.UpdateData\");") &&
+                                         renewCode.Contains("SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, \"TerrainManager.LateUpdateData\");");
+            Assert(hasPureNativeDispatch, "Managers_UpdateData and LateUpdateData invoke TerrainManager natively without reflection");
 
-            // 53.5 Harmony Priority.First patches for Terrain and DayNight
-            bool hasHarmonyPatches = renewCode.Contains("Successfully patched TerrainManager.UpdateData with Safe Replacement Armor") &&
-                                     renewCode.Contains("Successfully patched TerrainManager.LateUpdateData with Timeout Armor") &&
-                                     renewCode.Contains("Successfully patched DayNightProperties.InitializeProperties with Safe Coroutine Armor");
-            Assert(hasHarmonyPatches, "Harmony Priority.First patches installed for TerrainManager & DayNightProperties");
+            // 53.5 TM:PE 65536 and Material leaf armor preserved
+            bool hasCoreArmor = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range") &&
+                                renewCode.Contains("Material_HasProperty_Int_Prefix") &&
+                                renewCode.Contains("SimulationManager_OnDestroy_Prefix");
+            Assert(hasCoreArmor, "TM:PE 65536 armor, Material C# property leaf armor, and OnDestroy watchdog preserved");
         }
         catch (Exception ex)
         {

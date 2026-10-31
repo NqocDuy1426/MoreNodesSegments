@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.49 by NgocDuy";
-        public string Description => "[Close Beta v5.0.49] Daynight & Terrain Simulation Deadlock Shield (Fail-safe timeout & patch completion on TerrainManager.LateUpdateData, pre-allocated array armor on TerrainManager.UpdateData, and guarded DayNightProperties initialization, completely eliminating loading screen freezes at Daynight Properties).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.50 by NgocDuy";
+        public string Description => "[Close Beta v5.0.50] Pure Native Loading Architecture (Reverted all direct loading and coroutine hooks, leaving game initialization completely native while maintaining 64K network capacity and stability shields).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -15371,33 +15371,6 @@ namespace MoreNetworkCapacityRenew
                         harmony.Patch(imUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched InfoManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
                     }
-
-                    // Patch TerrainManager.UpdateData with Priority.First returning false to prevent NRE crashes
-                    MethodInfo terrainUpd = typeof(TerrainManager).GetMethod("UpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (terrainUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_UpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(terrainUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.UpdateData with Safe Replacement Armor (Priority.First) ✓");
-                    }
-
-                    // Patch TerrainManager.LateUpdateData with Priority.First returning false to eliminate spinlock deadlocks at Daynight Properties
-                    MethodInfo tmLateUpd = typeof(TerrainManager).GetMethod("LateUpdateData", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(SimulationManager.UpdateMode) }, null);
-                    if (tmLateUpd != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TerrainManager_LateUpdateData_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(tmLateUpd, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched TerrainManager.LateUpdateData with Timeout Armor (Priority.First) ✓");
-                    }
-
-                    // Patch DayNightProperties.InitializeProperties with Priority.First returning false to ensure Daynight Properties loading stage always completes
-                    MethodInfo dnpInit = typeof(DayNightProperties).GetMethod("InitializeProperties", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (dnpInit != null)
-                    {
-                        MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(DayNightProperties_InitializeProperties_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(dnpInit, prefix: new HarmonyMethod(pre) { prioritiy = Priority.First });
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully patched DayNightProperties.InitializeProperties with Safe Coroutine Armor (Priority.First) ✓");
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -17673,14 +17646,6 @@ namespace MoreNetworkCapacityRenew
         }
 
         private static readonly FieldInfo s_CachedPtrField = typeof(UnityEngine.Object).GetField("m_CachedPtr", BindingFlags.Instance | BindingFlags.NonPublic);
-        private static readonly FieldInfo s_blockHeightsField = typeof(TerrainManager).GetField("m_blockHeights", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_blockHeights2Field = typeof(TerrainManager).GetField("m_blockHeights2", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_rawHeightsField = typeof(TerrainManager).GetField("m_rawHeights", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_rawHeights2Field = typeof(TerrainManager).GetField("m_rawHeights2", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_finalHeightsField = typeof(TerrainManager).GetField("m_finalHeights", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_updateLockField = typeof(TerrainManager).GetField("m_updateLock", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_lastUpdatedPatchField = typeof(TerrainManager).GetField("m_lastUpdatedPatch", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo s_waterSimulationField = typeof(TerrainManager).GetField("m_waterSimulation", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static bool IsMaterialPropertySheetReady(Material mat)
         {
@@ -17951,135 +17916,65 @@ namespace MoreNetworkCapacityRenew
                 __result = false;
                 return false;
             }
-
-            try
-            {
-                IntPtr ptr = (IntPtr)s_CachedPtrField.GetValue(__instance);
-                IntPtr sharedData = System.Runtime.InteropServices.Marshal.ReadIntPtr(ptr, 0x108);
-                long count = System.Runtime.InteropServices.Marshal.ReadInt64(sharedData, 0x50);
-                if (count <= 0)
-                {
-                    __result = false;
-                    return false;
-                }
-
-                IntPtr propNames = System.Runtime.InteropServices.Marshal.ReadIntPtr(sharedData, 0x40);
-
-                // 100% managed scan of the 32-bit property name IDs, completely eliminating native C++ invocation!
-                for (int i = 0; i < (int)count; i++)
-                {
-                    int propId = System.Runtime.InteropServices.Marshal.ReadInt32(propNames, i * 4);
-                    if (propId == nameID)
-                    {
-                        __result = true;
-                        return false;
-                    }
-                }
-
-                __result = false;
-                return false;
-            }
-            catch
-            {
-                __result = false;
-                return false;
-            }
+            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_HasProperty_String_Prefix(Material __instance, string propertyName, ref bool __result)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(propertyName))
-                {
-                    __result = false;
-                    return false;
-                }
-                int nameId = Shader.PropertyToID(propertyName);
-                return Material_HasProperty_Int_Prefix(__instance, nameId, ref __result);
-            }
-            catch
+            if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = false;
                 return false;
             }
+            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_GetTexture_Int_Prefix(Material __instance, int nameID, ref Texture __result)
         {
-            try
-            {
-                bool hasProp = false;
-                Material_HasProperty_Int_Prefix(__instance, nameID, ref hasProp);
-                if (!hasProp)
-                {
-                    __result = null;
-                    return false;
-                }
-                return true;
-            }
-            catch
+            if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = null;
                 return false;
             }
+            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_GetTexture_String_Prefix(Material __instance, string propertyName, ref Texture __result)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(propertyName))
-                {
-                    __result = null;
-                    return false;
-                }
-                int nameId = Shader.PropertyToID(propertyName);
-                return Material_GetTexture_Int_Prefix(__instance, nameId, ref __result);
-            }
-            catch
+            if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = null;
                 return false;
             }
+            return true;
         }
 
         [HarmonyPriority(Priority.First)]
         public static bool Material_get_mainTexture_Prefix(Material __instance, ref Texture __result)
         {
-            try
-            {
-                bool hasProp = false;
-                Material_HasProperty_String_Prefix(__instance, "_MainTex", ref hasProp);
-                if (!hasProp)
-                {
-                    __result = null;
-                    return false;
-                }
-                return true;
-            }
-            catch
+            if (!IsMaterialPropertySheetReady(__instance))
             {
                 __result = null;
                 return false;
             }
+            return true;
         }
 
         public static bool SafeHasPropertyInt(Material mat, int nameID)
         {
-            bool res = false;
-            Material_HasProperty_Int_Prefix(mat, nameID, ref res);
-            return res;
+            if (!IsMaterialPropertySheetReady(mat))
+                return false;
+            return mat.HasProperty(nameID);
         }
 
         public static bool SafeHasPropertyString(Material mat, string propertyName)
         {
-            bool res = false;
-            Material_HasProperty_String_Prefix(mat, propertyName, ref res);
-            return res;
+            if (!IsMaterialPropertySheetReady(mat))
+                return false;
+            return mat.HasProperty(propertyName);
         }
 
         public static Texture SafeGetTextureInt(Material mat, int nameID)
@@ -18451,315 +18346,6 @@ namespace MoreNetworkCapacityRenew
             return false;
         }
 
-        private static object GetTerrainUpdateLock(TerrainManager tm)
-        {
-            if (tm == null || s_updateLockField == null) return null;
-            return s_updateLockField.GetValue(tm);
-        }
-
-        private static int GetTerrainLastUpdatedPatch(TerrainManager tm)
-        {
-            if (tm == null || s_lastUpdatedPatchField == null) return 80;
-            return (int)s_lastUpdatedPatchField.GetValue(tm);
-        }
-
-        private static void SetTerrainLastUpdatedPatch(TerrainManager tm, int val)
-        {
-            if (tm == null || s_lastUpdatedPatchField == null) return;
-            s_lastUpdatedPatchField.SetValue(tm, val);
-        }
-
-        private static WaterSimulation GetTerrainWaterSimulation(TerrainManager tm)
-        {
-            if (tm == null || s_waterSimulationField == null) return null;
-            return s_waterSimulationField.GetValue(tm) as WaterSimulation;
-        }
-
-        public static void EnsureTerrainManagerArrays(TerrainManager tm)
-        {
-            if (tm == null) return;
-            try
-            {
-                if (s_blockHeightsField != null && s_blockHeightsField.GetValue(tm) == null)
-                    s_blockHeightsField.SetValue(tm, new ushort[1168561]);
-                if (s_blockHeights2Field != null && s_blockHeights2Field.GetValue(tm) == null)
-                    s_blockHeights2Field.SetValue(tm, new ushort[1168561]);
-                if (s_rawHeightsField != null && s_rawHeightsField.GetValue(tm) == null)
-                    s_rawHeightsField.SetValue(tm, new ushort[1168561]);
-                if (s_rawHeights2Field != null && s_rawHeights2Field.GetValue(tm) == null)
-                    s_rawHeights2Field.SetValue(tm, new ushort[1168561]);
-                if (s_finalHeightsField != null && s_finalHeightsField.GetValue(tm) == null)
-                    s_finalHeightsField.SetValue(tm, new ushort[1168561]);
-                if (tm.m_detailHeights == null)
-                    tm.m_detailHeights = new ushort[231361];
-                if (tm.m_detailHeights2 == null)
-                    tm.m_detailHeights2 = new ushort[231361];
-
-                if (tm.m_tempHeights == null) tm.m_tempHeights = new TerrainModify.HeightModification[263169];
-                if (tm.m_tempSurface == null) tm.m_tempSurface = new TerrainManager.SurfaceCell[263169];
-                if (tm.m_tempZones == null) tm.m_tempZones = new TerrainModify.ZoneModification[263169];
-                if (tm.m_patches == null)
-                {
-                    tm.m_patches = new TerrainPatch[1024];
-                    for (int i = 0; i < 1024; i++)
-                    {
-                        tm.m_patches[i] = new TerrainPatch(i % 32, i / 32);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < tm.m_patches.Length; i++)
-                    {
-                        if (tm.m_patches[i] == null) tm.m_patches[i] = new TerrainPatch(i % 32, i / 32);
-                    }
-                }
-                if (tm.m_heightsModified == null) tm.m_heightsModified = new TerrainArea(0, 0, 1081);
-                if (tm.m_surfaceModified == null) tm.m_surfaceModified = new TerrainArea(0, 0, 1080);
-                if (tm.m_zonesModified == null) tm.m_zonesModified = new TerrainArea(0, 0, 1080);
-                if (s_updateLockField != null && s_updateLockField.GetValue(tm) == null)
-                    s_updateLockField.SetValue(tm, new object());
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in EnsureTerrainManagerArrays: " + ex.Message);
-            }
-        }
-
-        public static void SafeExecuteTerrainManagerUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)
-        {
-            if (tm == null) return;
-            EnsureTerrainManagerArrays(tm);
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("TerrainManager.UpdateData"); } catch {}
-            }
-
-            try
-            {
-                try
-                {
-                    tm.UpdateData(mode);
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager.UpdateData native exception: " + ex + ". Applying fail-safe patch queueing ✓");
-                    if (GetTerrainLastUpdatedPatch(tm) < 80)
-                    {
-                        SetTerrainLastUpdatedPatch(tm, 80);
-                    }
-                    object uLock = GetTerrainUpdateLock(tm);
-                    if (uLock != null)
-                    {
-                        lock (uLock)
-                        {
-                            System.Threading.Monitor.PulseAll(uLock);
-                        }
-                    }
-                }
-
-                try
-                {
-                    if (tm.m_terrainToolNotUsed == null) tm.m_terrainToolNotUsed = new GenericGuide();
-                    if (tm.m_notEnoughDirt == null) tm.m_notEnoughDirt = new GenericGuide();
-                    if (tm.m_tooMuchDirt == null) tm.m_tooMuchDirt = new GenericGuide();
-                }
-                catch {}
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTerrainManagerUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TerrainManager_UpdateData_Prefix(TerrainManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteTerrainManagerUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager_UpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        public static void SafeExecuteTerrainManagerLateUpdateData(TerrainManager tm, SimulationManager.UpdateMode mode)
-        {
-            if (tm == null) return;
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerSimulation : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("TerrainManager.LateUpdateData"); } catch {}
-            }
-
-            try
-            {
-                object uLock = GetTerrainUpdateLock(tm);
-                if (GetTerrainLastUpdatedPatch(tm) != 80 && uLock != null)
-                {
-                    if (lp != null) { try { lp.PauseLoading(); } catch {} }
-                    int waitElapsed = 0;
-                    while (GetTerrainLastUpdatedPatch(tm) != 80 && waitElapsed < 2500)
-                    {
-                        if (System.Threading.Monitor.TryEnter(uLock, 20))
-                        {
-                            try
-                            {
-                                System.Threading.Monitor.Wait(uLock, 20);
-                            }
-                            finally
-                            {
-                                System.Threading.Monitor.Exit(uLock);
-                            }
-                        }
-                        else
-                        {
-                            System.Threading.Thread.Sleep(20);
-                        }
-                        waitElapsed += 20;
-                        if (Singleton<SimulationManager>.instance.Terminated) break;
-                    }
-
-                    if (GetTerrainLastUpdatedPatch(tm) != 80)
-                    {
-                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] TerrainManager.LateUpdateData: Timed out waiting for patch update (m_lastUpdatedPatch={0}). Forcing safe completion to eliminate Daynight Properties hang ✓", GetTerrainLastUpdatedPatch(tm)));
-                        SetTerrainLastUpdatedPatch(tm, 80);
-                        lock (uLock)
-                        {
-                            System.Threading.Monitor.PulseAll(uLock);
-                        }
-                    }
-                    if (lp != null) { try { lp.ContinueLoading(); } catch {} }
-                }
-
-                WaterSimulation ws = GetTerrainWaterSimulation(tm);
-                if (ws != null)
-                {
-                    try
-                    {
-                        ws.EnableWaterFlow();
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterSimulation.EnableWaterFlow error: " + ex.Message);
-                    }
-                }
-
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeExecuteTerrainManagerLateUpdateData executed safely ✓");
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool TerrainManager_LateUpdateData_Prefix(TerrainManager __instance, SimulationManager.UpdateMode mode)
-        {
-            try
-            {
-                SafeExecuteTerrainManagerLateUpdateData(__instance, mode);
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TerrainManager_LateUpdateData_Prefix error: " + ex.Message);
-            }
-            return false;
-        }
-
-        public static IEnumerator SafeInitializeDayNightProperties(DayNightProperties dnp)
-        {
-            var lm = Singleton<LoadingManager>.instance;
-            LoadingProfiler lp = (lm != null) ? lm.m_loadingProfilerMain : null;
-            if (lp != null)
-            {
-                try { lp.BeginLoading("Daynight Properties"); } catch {}
-            }
-
-            try
-            {
-                if (dnp != null && Singleton<SimulationManager>.exists)
-                {
-                    var meta = Singleton<SimulationManager>.instance.m_metaData;
-                    var mtmd = (meta != null) ? meta.m_MapThemeMetaData : null;
-                    if (mtmd != null)
-                    {
-                        try { dnp.m_Longitude = mtmd.longitude; } catch {}
-                        try { dnp.m_Latitude = mtmd.latitude; } catch {}
-                        try { dnp.m_SunSize = mtmd.sunSize; } catch {}
-                        try { dnp.m_SunAnisotropyFactor = mtmd.sunAnisotropy; } catch {}
-                        try
-                        {
-                            if (mtmd.moonTexture != null)
-                            {
-                                dnp.m_MoonTexture = mtmd.moonTexture.Instantiate<Texture2D>();
-                                if (dnp.m_MoonTexture != null) dnp.m_MoonTexture.wrapMode = TextureWrapMode.Clamp;
-                            }
-                        }
-                        catch {}
-                        try { dnp.m_MoonSize = mtmd.moonSize; } catch {}
-                        try { dnp.m_MoonInnerCorona = mtmd.moonInnerCorona; } catch {}
-                        try { dnp.m_MoonOuterCorona = mtmd.moonOuterCorona; } catch {}
-                        try { dnp.m_RayleighScattering = mtmd.rayleight; } catch {}
-                        try { dnp.m_MieScattering = mtmd.mie; } catch {}
-                        try { dnp.m_Exposure = mtmd.exposure; } catch {}
-                        try { dnp.m_StarsIntensity = mtmd.starsIntensity; } catch {}
-                        try { dnp.m_OuterSpaceIntensity = mtmd.outerSpaceIntensity; } catch {}
-                        try { dnp.m_SkyTint = mtmd.skyTint; } catch {}
-                        try { dnp.m_NightHorizonColor = mtmd.nightHorizonColor; } catch {}
-                        try
-                        {
-                            if (dnp.m_NightZenithColor != null)
-                            {
-                                var colorKeys = dnp.m_NightZenithColor.colorKeys;
-                                var alphaKeys = dnp.m_NightZenithColor.alphaKeys;
-                                if (colorKeys != null && colorKeys.Length >= 4)
-                                {
-                                    colorKeys[0].color = colorKeys[3].color = mtmd.lateNightZenithColor;
-                                    colorKeys[1].color = colorKeys[2].color = mtmd.earlyNightZenithColor;
-                                    dnp.m_NightZenithColor.SetKeys(colorKeys, alphaKeys);
-                                }
-                            }
-                        }
-                        catch {}
-                    }
-                }
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeInitializeDayNightProperties completed safely ✓");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Error in SafeInitializeDayNightProperties: " + ex.Message);
-            }
-            finally
-            {
-                if (lp != null)
-                {
-                    try { lp.EndLoading(); } catch {}
-                }
-            }
-            yield return 0;
-        }
-
-        [HarmonyPriority(Priority.First)]
-        public static bool DayNightProperties_InitializeProperties_Prefix(DayNightProperties __instance, ref IEnumerator __result)
-        {
-            __result = SafeInitializeDayNightProperties(__instance);
-            return false;
-        }
-
         private static void SafeCallManagerAction(Action a, string label)
         {
             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Starting " + label);
@@ -18770,7 +18356,7 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}\n{2}", label, ex.Message, ex.StackTrace));
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
             }
         }
 
@@ -18789,7 +18375,7 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}\n{2}", label, ex.Message, ex.StackTrace));
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] {0} error: {1}", label, ex.Message));
             }
         }
 
@@ -18860,7 +18446,7 @@ namespace MoreNetworkCapacityRenew
                 const float totalSteps = 26f;
 
                 SafeStepManagerAction(() => { if (Singleton<GameAreaManager>.exists && Singleton<GameAreaManager>.instance != null) Singleton<GameAreaManager>.instance.UpdateData(mode); }, lm, minProgress + range * (1f / totalSteps), "GameAreaManager.UpdateData");
-                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) SafeExecuteTerrainManagerUpdateData(Singleton<TerrainManager>.instance, mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
+                SafeStepManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.UpdateData(mode); }, lm, minProgress + range * (2f / totalSteps), "TerrainManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<InstanceManager>.exists && Singleton<InstanceManager>.instance != null) Singleton<InstanceManager>.instance.UpdateData(mode); }, lm, minProgress + range * (3f / totalSteps), "InstanceManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.UpdateData(mode); }, lm, minProgress + range * (4f / totalSteps), "NetManager.UpdateData");
                 SafeStepManagerAction(() => { if (Singleton<BuildingManager>.exists && Singleton<BuildingManager>.instance != null) Singleton<BuildingManager>.instance.UpdateData(mode); }, lm, minProgress + range * (5f / totalSteps), "BuildingManager.UpdateData");
@@ -18940,7 +18526,7 @@ namespace MoreNetworkCapacityRenew
                 SafeCallManagerAction(() => { if (Singleton<RenderManager>.exists && Singleton<RenderManager>.instance != null) Singleton<RenderManager>.instance.LateUpdateData(mode); }, "RenderManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<NetManager>.exists && Singleton<NetManager>.instance != null) Singleton<NetManager>.instance.LateUpdateData(mode); }, "NetManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<ToolManager>.exists && Singleton<ToolManager>.instance != null) Singleton<ToolManager>.instance.LateUpdateData(mode); }, "ToolManager.LateUpdateData");
-                SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) SafeExecuteTerrainManagerLateUpdateData(Singleton<TerrainManager>.instance, mode); }, "TerrainManager.LateUpdateData");
+                SafeCallManagerAction(() => { if (Singleton<TerrainManager>.exists && Singleton<TerrainManager>.instance != null) Singleton<TerrainManager>.instance.LateUpdateData(mode); }, "TerrainManager.LateUpdateData");
                 SafeCallManagerAction(() => { if (Singleton<UnlockManager>.exists && Singleton<UnlockManager>.instance != null) Singleton<UnlockManager>.instance.LateUpdateData(mode); }, "UnlockManager.LateUpdateData");
 
                 // Mod managers outside Assembly-CSharp

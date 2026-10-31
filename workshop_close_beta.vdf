@@ -9,12 +9,12 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.49:[/h2]
-- Daynight & Terrain Simulation Deadlock Shield:
+[h2]Tính năng mới trong bản Beta v5.0.50:[/h2]
+- Pure Native Loading Architecture (Khởi tạo trò chơi hoàn toàn Native):
     [list]
-    [*] Bọc giáp timeout 2500ms cho chu trình TerrainManager.LateUpdateData, tự động hoàn tất và mở khóa luồng mô phỏng nếu quá thời gian chờ vá địa hình (patch update), triệt tiêu hoàn toàn lỗi đứng hình tải game tại Daynight Properties.
-    [*] Khởi tạo và bảo đảm đầy đủ mảng m_blockHeights, m_blockHeights2, m_tempHeights... trong TerrainManager.UpdateData trước khi xử lý, ngăn triệt để lỗi NullReferenceException.
-    [*] Bọc giáp Harmony Priority.First thay thế an toàn cho DayNightProperties.InitializeProperties với cơ chế bảo vệ texture mặt trăng và gradient màu trời đêm.
+    [*] Gỡ bỏ toàn bộ can thiệp và hook trực tiếp vào chu trình khởi tạo màn hình load game (TerrainManager.UpdateData, TerrainManager.LateUpdateData, DayNightProperties.InitializeProperties), trả về 100% cơ chế native của Unity và game engine.
+    [*] Khắc phục triệt để lỗi văng game tức thì (SIGSEGV) khi tải màn chơi do can thiệp bộ nhớ mảng terrain.
+    [*] Giữ nguyên toàn bộ cơ chế gọi type-safe trực tiếp tới các manager độc lập nhằm ngăn lỗi Mono get_object_generic_inst.
     [/list]
 - Kế thừa toàn bộ Safe Unload & Quit Deadlock Shield từ v5.0.48:
     [list]
@@ -24,24 +24,16 @@
     [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
     [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi.
     [/list]
-- Kế thừa toàn bộ Universal Material Leaf Armor & Property Sheet Pointer Validation từ v5.0.47.
-[list]
-[*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
+- Kế thừa toàn bộ Universal Material Leaf Armor & 100% Managed C# Property Scan từ v5.0.48/v5.0.47:
+    [list]
+    [*] Quét mảng shader property IDs trực tiếp trên C# managed memory mà không gọi hàm native C++ ShaderPropertySheet::HasProperty, loại bỏ hoàn toàn lỗi crash SIGABRT.
+    [/list]
+- Kế thừa toàn bộ Universal Stream Armor & Stream Alignment:
     [list]
     [*] Đọc chuẩn xác từng shared string tag mà không làm dịch chuyển con trỏ đọc của DataSerializer, ngăn tuyệt đối hiện tượng stream chạm EOF sớm.
-    [*] Chấm dứt triệt để lỗi LSM giải mã byte nhị phân thành hàng chục nghìn ký tự rác Unicode/tiếng Trung làm tràn font texture atlas (nguyên nhân mất chữ ingame và không hiện missing assets).
     [/list]
-[*] [b]Triệt tiêu văng game khi load save (Universal Simulation Manager Armor):[/b]
-    [list]
-    [*] Bọc giáp Priority.First cho chu trình SimulationManager.Managers_UpdateData/LateUpdateData/EarlyUpdateData.
-    [*] Bảo toàn lệnh nạp skin của NetworkSkins (OnPreUpdateData) và PlopTheGrowables (OnPreUpdateData).
-    [*] Tự động phát hiện và bỏ qua các method ảo rỗng kế thừa từ generic class SimulationManagerBase (WeatherManager, CoverageManager, NaturalResourceManager...), triệt tiêu hoàn toàn lỗi native Mono JIT SIGSEGV (get_object_generic_inst).
-    [*] Thay thế TransportManager.UpdateData bằng bản thực thi an toàn, tương thích mọi giới hạn của MoreTransportLines.
-    [*] Duy trì lá chắn 2500ms timeout shield cho SimulationManager.LateUpdateData warm-up và bọc giáp chống sập native Unity C++ crash trên Material.HasProperty(string).
-    [/list]
-[*] [b]Tương thích tuyệt đối:[/b] Loading Screen Mod, Tree Control, Unlimited Trees, 81 Tiles 2, MoreProps 64K, More Vehicles, More Transport Lines và TM:PE.
-[/list]
+- Kế thừa Universal Simulation Manager Armor và tương thích tuyệt đối với TM:PE, NetworkSkins, MoreTransportLines, 81 Tiles 2.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.49 Close Beta: Daynight & Terrain Simulation Deadlock Shield (Fail-safe timeout & patch completion on TerrainManager.LateUpdateData, pre-allocated array armor on TerrainManager.UpdateData, and guarded DayNightProperties initialization, eliminating Daynight Properties hang)."
+	"changenote"		"v5.0.50 Close Beta: Pure Native Loading Architecture (Reverted all direct loading and coroutine hooks, leaving game initialization completely native while maintaining 64K network capacity and stability shields)."
 }
