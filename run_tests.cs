@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.47)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.48)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.46 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.45 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.44 by NgocDuy") ||
@@ -2322,6 +2323,53 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 51 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 52: Safe Unload & Quit Deadlock Shield (v5.0.48)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 52: Safe Unload & Quit Deadlock Shield (v5.0.48) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 52.1 Version bump verification
+            bool hasV48 = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy");
+            Assert(hasV48, "Mod identity correctly bumped to v5.0.48 [Close Beta]");
+
+            // 52.2 TrafficLightSimulations array expansion to 65536
+            bool has65536 = renewCode.Contains("int targetSize = 65536; // Full 16-bit ushort range");
+            Assert(has65536, "TrafficLightSimulations and CustomSegmentLights targetSize expanded to full 65536 ushort range");
+
+            // 52.3 TrafficLightSimulationManager bounds prefixes
+            bool hasTlsmPrefixes = renewCode.Contains("public static bool TrafficLightSimulationManager_HasSimulation_Prefix") &&
+                                   renewCode.Contains("public static bool TrafficLightSimulationManager_HasSimulation_UInt_Prefix") &&
+                                   renewCode.Contains("public static bool TrafficLightSimulationManager_RemoveNode_Prefix") &&
+                                   renewCode.Contains("public static bool TrafficLightSimulationManager_RemoveNode_UInt_Prefix") &&
+                                   renewCode.Contains("public static bool TrafficLightSimulationManager_OnLevelUnloading_Prefix");
+            Assert(hasTlsmPrefixes, "TrafficLightSimulationManager leaf bounds prefixes & safe unload implemented");
+
+            // 52.4 TrafficPriorityManager & SegmentEndManager safe unload & bounds
+            bool hasTpmUnload = renewCode.Contains("public static bool TrafficPriorityManager_OnLevelUnloading_Prefix") &&
+                                renewCode.Contains("public static bool SegmentEndManager_UpdateSegmentEnd_Prefix") &&
+                                renewCode.Contains("public static bool SegmentEndManager_UpdateSegmentEnd_UInt_Prefix");
+            Assert(hasTpmUnload, "TrafficPriorityManager safe OnLevelUnloading & SegmentEndManager bounds prefixes implemented");
+
+            // 52.5 RoadUI safe unload armor
+            bool hasRoadUiArmor = renewCode.Contains("public static bool RoadUI_OnLevelUnloading_Prefix") &&
+                                  renewCode.Contains("RoadUI.OnLevelUnloading with null texture exception shield");
+            Assert(hasRoadUiArmor, "RoadUI.OnLevelUnloading hooked with null-safe dictionary and texture cleanup");
+
+            // 52.6 SimulationManager.OnDestroy & LoadingManager quit deadlock prevention
+            bool hasShutdownShield = renewCode.Contains("public static bool SimulationManager_OnDestroy_Prefix") &&
+                                     renewCode.Contains("public static void LoadingManager_QuitApplication_Prefix") &&
+                                     renewCode.Contains("Patched SimulationManager.OnDestroy with deadlock-prevention thread unblock shield") &&
+                                     renewCode.Contains("Patched LoadingManager.QuitApplication with 5s fail-safe termination watchdog");
+            Assert(hasShutdownShield, "SimulationManager.OnDestroy deadlock unblock & LoadingManager 5s fail-safe watchdog implemented");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 52 exception", ex.ToString());
         }
 
         // ====================================================================

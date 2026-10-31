@@ -1508,8 +1508,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.47 by NgocDuy";
-        public string Description => "[Close Beta v5.0.47] Universal Material Leaf Armor & Property Sheet Pointer Validation (Direct Harmony leaf prefix on Material.HasProperty(int), HasProperty(string), GetTexture, and mainTexture + strict property names array pointer verification, permanently eliminating native C++ SIGSEGV at 0x8).";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.48 by NgocDuy";
+        public string Description => "[Close Beta v5.0.48] Safe Unload & Quit Deadlock Shield (Leaf-level bounds armor on TM:PE TrafficLightSimulationManager, zero-allocation TrafficPriorityManager OnLevelUnloading reset, and SimulationManager.OnDestroy deadlock prevention).";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -2639,7 +2639,107 @@ namespace MoreNetworkCapacityRenew
                             }
                         }
 
+                        // 8. Safe OnLevelUnloading reset
+                        MethodInfo mUnload = tpmType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
+                        if (mUnload != null)
+                        {
+                            MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficPriorityManager_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            if (pre != null) harmony.Patch(mUnload, prefix: new HarmonyMethod(pre));
+                        }
+
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficPriorityManager with bounds-checking Harmony prefixes and dynamic auto-expansion.");
+                    }
+
+                    // Armored SegmentEndManager UpdateSegmentEnd
+                    try
+                    {
+                        Type semType = tmpe.GetType("TrafficManager.Manager.Impl.SegmentEndManager");
+                        if (semType != null)
+                        {
+                            MethodInfo mUpdateUshort = semType.GetMethod("UpdateSegmentEnd", new Type[] { typeof(ushort), typeof(bool) });
+                            if (mUpdateUshort != null)
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.SegmentEndManager_UpdateSegmentEnd_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (pre != null) harmony.Patch(mUpdateUshort, prefix: new HarmonyMethod(pre));
+                            }
+                            MethodInfo mUpdateUint = semType.GetMethod("UpdateSegmentEnd", new Type[] { typeof(uint), typeof(bool) });
+                            if (mUpdateUint != null)
+                            {
+                                MethodInfo pre = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.SegmentEndManager_UpdateSegmentEnd_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (pre != null) harmony.Patch(mUpdateUint, prefix: new HarmonyMethod(pre));
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored SegmentEndManager.UpdateSegmentEnd with node & segment bounds protection.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching SegmentEndManager.UpdateSegmentEnd: " + ex);
+                    }
+
+                    // Armored TrafficLightSimulationManager bounds and unload
+                    try
+                    {
+                        Type tlsmType = tmpe.GetType("TrafficManager.Manager.Impl.TrafficLightSimulationManager");
+                        if (tlsmType != null)
+                        {
+                            string[] hasMethods = new string[] { "HasTimedSimulation", "HasSimulation", "HasManualSimulation", "HasActiveTimedSimulation", "HasActiveSimulation" };
+                            MethodInfo preHas = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_HasSimulation_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo preHasUint = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_HasSimulation_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
+
+                            foreach (string name in hasMethods)
+                            {
+                                MethodInfo mUshort = tlsmType.GetMethod(name, new Type[] { typeof(ushort) });
+                                if (mUshort != null && preHas != null) harmony.Patch(mUshort, prefix: new HarmonyMethod(preHas));
+
+                                MethodInfo mUint = tlsmType.GetMethod(name, new Type[] { typeof(uint) });
+                                if (mUint != null && preHasUint != null) harmony.Patch(mUint, prefix: new HarmonyMethod(preHasUint));
+                            }
+
+                            MethodInfo mRemoveNode = tlsmType.GetMethod("RemoveNodeFromSimulation", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null);
+                            if (mRemoveNode != null)
+                            {
+                                MethodInfo preRem = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_RemoveNode_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (preRem != null) harmony.Patch(mRemoveNode, prefix: new HarmonyMethod(preRem));
+                            }
+                            MethodInfo mRemoveNodeUint = tlsmType.GetMethod("RemoveNodeFromSimulation", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(uint) }, null);
+                            if (mRemoveNodeUint != null)
+                            {
+                                MethodInfo preRem = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_RemoveNode_UInt_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (preRem != null) harmony.Patch(mRemoveNodeUint, prefix: new HarmonyMethod(preRem));
+                            }
+
+                            MethodInfo mTlsmUnload = tlsmType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
+                            if (mTlsmUnload != null)
+                            {
+                                MethodInfo preUnload = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.TrafficLightSimulationManager_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (preUnload != null) harmony.Patch(mTlsmUnload, prefix: new HarmonyMethod(preUnload));
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TrafficLightSimulationManager with bounds-checking Harmony prefixes and safe unload shield.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching TrafficLightSimulationManager: " + ex);
+                    }
+
+                    // Armored RoadUI OnLevelUnloading
+                    try
+                    {
+                        Type roadUiType = tmpe.GetType("TrafficManager.UI.Textures.RoadUI");
+                        if (roadUiType != null)
+                        {
+                            MethodInfo mRoadUnload = roadUiType.GetMethod("OnLevelUnloading", BindingFlags.Public | BindingFlags.Instance);
+                            if (mRoadUnload != null)
+                            {
+                                MethodInfo preRoad = typeof(TMPEPatches).GetMethod(nameof(TMPEPatches.RoadUI_OnLevelUnloading_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                if (preRoad != null) harmony.Patch(mRoadUnload, prefix: new HarmonyMethod(preRoad));
+                            }
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored RoadUI.OnLevelUnloading with null texture exception shield.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching RoadUI.OnLevelUnloading: " + ex);
                     }
 
                     // Synchronize & Arm All TM:PE UI SubTools (Speed Limits, Priority Signs, Junction Restrictions, Lane Connectors, Vehicle Restrictions, Toggle Traffic Lights, Timed Traffic Lights, Parking Restrictions)
@@ -3606,7 +3706,7 @@ namespace MoreNetworkCapacityRenew
                 if (f != null)
                 {
                     Array arr = f.GetValue(inst) as Array;
-                    int targetSize = MNCConstants.CORE_NET_CAPACITY;
+                    int targetSize = 65536; // Full 16-bit ushort range to prevent any IndexOutOfRangeException
                     if (arr == null || arr.Length < targetSize)
                     {
                         Type elemType = f.FieldType.GetElementType();
@@ -3640,7 +3740,7 @@ namespace MoreNetworkCapacityRenew
                 if (f != null)
                 {
                     Array arr = f.GetValue(inst) as Array;
-                    int targetSize = MNCConstants.CORE_NET_CAPACITY;
+                    int targetSize = 65536; // Full 16-bit ushort range to prevent any IndexOutOfRangeException
                     if (arr == null || arr.Length < targetSize)
                     {
                         Type elemType = arr != null ? arr.GetType().GetElementType() : tmpe.GetType("TrafficManager.TrafficLight.Impl.TrafficLightSimulation");
@@ -6844,9 +6944,10 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
+        [HarmonyPriority(Priority.First)]
         public static bool SegmentEndManager_UpdateSegmentEnd_Prefix(ushort segmentId, bool startNode, ref bool __result)
         {
-            if (segmentId >= MNCConstants.CORE_NET_CAPACITY)
+            if (segmentId == 0 || segmentId >= MNCConstants.CORE_NET_CAPACITY)
             {
                 __result = false;
                 return false;
@@ -6858,8 +6959,77 @@ namespace MoreNetworkCapacityRenew
                     __result = false;
                     return false;
                 }
+                ushort nodeId = startNode ? NetManager.instance.m_segments.m_buffer[segmentId].m_startNode : NetManager.instance.m_segments.m_buffer[segmentId].m_endNode;
+                if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
+                {
+                    __result = false;
+                    return false;
+                }
             }
             return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SegmentEndManager_UpdateSegmentEnd_UInt_Prefix(uint segmentId, bool startNode, ref bool __result)
+        {
+            if (segmentId == 0 || segmentId >= (uint)MNCConstants.CORE_NET_CAPACITY)
+            {
+                __result = false;
+                return false;
+            }
+            if (NetManager.instance != null && NetManager.instance.m_segments != null && NetManager.instance.m_segments.m_buffer != null)
+            {
+                if (segmentId >= (uint)NetManager.instance.m_segments.m_buffer.Length)
+                {
+                    __result = false;
+                    return false;
+                }
+                ushort nodeId = startNode ? NetManager.instance.m_segments.m_buffer[segmentId].m_startNode : NetManager.instance.m_segments.m_buffer[segmentId].m_endNode;
+                if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
+                {
+                    __result = false;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficPriorityManager_OnLevelUnloading_Prefix(object __instance)
+        {
+            try
+            {
+                if (__instance != null)
+                {
+                    Type tpmType = __instance.GetType();
+                    FieldInfo fInvalid = tpmType.GetField("invalidPrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fInvalid != null && fInvalid.GetValue(__instance) is Array invalidArr)
+                    {
+                        for (int i = 0; i < invalidArr.Length; ++i)
+                        {
+                            object item = invalidArr.GetValue(i);
+                            if (item != null)
+                            {
+                                MethodInfo resetM = item.GetType().GetMethod("Reset", BindingFlags.Public | BindingFlags.Instance);
+                                if (resetM != null)
+                                {
+                                    try { resetM.Invoke(item, null); } catch { }
+                                }
+                            }
+                        }
+                    }
+                    FieldInfo fPrio = tpmType.GetField("PrioritySegments", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fPrio != null && fPrio.GetValue(__instance) is Array prioArr)
+                    {
+                        Array.Clear(prioArr, 0, prioArr.Length);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TrafficPriorityManager_OnLevelUnloading_Prefix handled safely: " + ex);
+            }
+            return false;
         }
 
         public static void TrafficPriorityManager_Ctor_Postfix(object __instance)
@@ -7032,6 +7202,7 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
+        [HarmonyPriority(Priority.First)]
         public static bool RoadUI_OnLevelUnloading_Prefix(object __instance)
         {
             try
@@ -7039,15 +7210,126 @@ namespace MoreNetworkCapacityRenew
                 if (__instance != null)
                 {
                     Type t = __instance.GetType();
-                    FieldInfo f = t.GetField("VehicleInfoSignTextures", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (f != null && f.GetValue(__instance) == null)
+                    FieldInfo fVehDict = t.GetField("VehicleInfoSignTextures", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fVehDict != null)
                     {
-                        return false;
+                        System.Collections.IDictionary dict = fVehDict.GetValue(__instance) as System.Collections.IDictionary;
+                        if (dict != null)
+                        {
+                            foreach (System.Collections.DictionaryEntry entry in dict)
+                            {
+                                if (entry.Value is UnityEngine.Object uo && uo != null)
+                                {
+                                    try { UnityEngine.Object.Destroy(uo); } catch { }
+                                }
+                            }
+                            dict.Clear();
+                        }
+                    }
+
+                    FieldInfo fClear = t.GetField("SignClear", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fClear != null)
+                    {
+                        if (fClear.GetValue(__instance) is UnityEngine.Object uo && uo != null)
+                        {
+                            try { UnityEngine.Object.Destroy(uo); } catch { }
+                        }
+                        fClear.SetValue(__instance, null);
+                    }
+
+                    FieldInfo fUnder = t.GetField("Underground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fUnder != null)
+                    {
+                        if (fUnder.GetValue(__instance) is UnityEngine.Object uo && uo != null)
+                        {
+                            try { UnityEngine.Object.Destroy(uo); } catch { }
+                        }
+                        fUnder.SetValue(__instance, null);
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] RoadUI_OnLevelUnloading_Prefix handled safely: " + ex);
+            }
+            return false;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficLightSimulationManager_HasSimulation_Prefix(ushort nodeId, ref bool __result)
+        {
+            if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
+            {
+                __result = false;
+                return false;
+            }
             return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficLightSimulationManager_HasSimulation_UInt_Prefix(uint nodeId, ref bool __result)
+        {
+            if (nodeId == 0 || nodeId >= (uint)MNCConstants.CORE_NET_CAPACITY)
+            {
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficLightSimulationManager_RemoveNode_Prefix(ushort nodeId)
+        {
+            if (nodeId == 0 || nodeId >= MNCConstants.CORE_NET_CAPACITY)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficLightSimulationManager_RemoveNode_UInt_Prefix(uint nodeId)
+        {
+            if (nodeId == 0 || nodeId >= (uint)MNCConstants.CORE_NET_CAPACITY)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TrafficLightSimulationManager_OnLevelUnloading_Prefix(object __instance)
+        {
+            try
+            {
+                if (__instance != null)
+                {
+                    Type tlsmType = __instance.GetType();
+                    FieldInfo f = tlsmType.GetField("<TrafficLightSimulations>k__BackingField", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                               ?? tlsmType.GetField("TrafficLightSimulations", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (f != null && f.GetValue(__instance) is Array arr)
+                    {
+                        MethodInfo mDestroy = tlsmType.GetMethod("Destroy", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        for (int i = 0; i < arr.Length; i++)
+                        {
+                            try
+                            {
+                                object sim = arr.GetValue(i);
+                                if (sim != null && mDestroy != null)
+                                {
+                                    mDestroy.Invoke(__instance, new object[] { sim });
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TrafficLightSimulationManager_OnLevelUnloading_Prefix error: " + ex);
+            }
+            return false;
         }
 
         public static bool s_PrioritySignsTranspiled = false;
@@ -21856,6 +22138,45 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching TransportLinesManager: " + ex);
             }
+
+            // 4. SimulationManager.OnDestroy (prevents deadlock on quitting or scene unload)
+            try
+            {
+                MethodInfo onDestroyMethod = typeof(SimulationManager).GetMethod("OnDestroy", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                MethodInfo onDestroyPre = typeof(GameLoadingArmor).GetMethod(nameof(SimulationManager_OnDestroy_Prefix), BindingFlags.Public | BindingFlags.Static);
+                if (onDestroyMethod != null && onDestroyPre != null)
+                {
+                    harmony.Patch(onDestroyMethod, prefix: new HarmonyMethod(onDestroyPre) { prioritiy = Harmony.Priority.First });
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched SimulationManager.OnDestroy with deadlock-prevention thread unblock shield.");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching SimulationManager.OnDestroy: " + ex);
+            }
+
+            // 5. LoadingManager.QuitApplication & OnApplicationQuit (watchdog protection to guarantee process terminates within 5 seconds)
+            try
+            {
+                MethodInfo quitAppMethod = typeof(LoadingManager).GetMethod("QuitApplication", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                MethodInfo quitAppPre = typeof(GameLoadingArmor).GetMethod(nameof(LoadingManager_QuitApplication_Prefix), BindingFlags.Public | BindingFlags.Static);
+                if (quitAppMethod != null && quitAppPre != null)
+                {
+                    harmony.Patch(quitAppMethod, prefix: new HarmonyMethod(quitAppPre) { prioritiy = Harmony.Priority.First });
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingManager.QuitApplication with 5s fail-safe termination watchdog.");
+                }
+
+                MethodInfo appQuitMethod = typeof(LoadingManager).GetMethod("OnApplicationQuit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                if (appQuitMethod != null && quitAppPre != null)
+                {
+                    harmony.Patch(appQuitMethod, prefix: new HarmonyMethod(quitAppPre) { prioritiy = Harmony.Priority.First });
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched LoadingManager.OnApplicationQuit with 5s fail-safe termination watchdog.");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching LoadingManager quit methods: " + ex);
+            }
         }
 
         [HarmonyPriority(Priority.First)]
@@ -21892,6 +22213,92 @@ namespace MoreNetworkCapacityRenew
                 return false;
             }
             return true;
+        }
+
+        private static bool s_quitWatchdogArmed = false;
+        private static readonly object s_quitWatchdogLock = new object();
+
+        [HarmonyPriority(Priority.First)]
+        public static void LoadingManager_QuitApplication_Prefix()
+        {
+            try
+            {
+                lock (s_quitWatchdogLock)
+                {
+                    if (s_quitWatchdogArmed) return;
+                    s_quitWatchdogArmed = true;
+                }
+
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadingManager shutdown initiated: Arming process watchdog timer (5s).");
+                System.Threading.Thread watchdog = new System.Threading.Thread(() =>
+                {
+                    System.Threading.Thread.Sleep(5000);
+                    try
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Exit watchdog triggered: Process still active after 5 seconds. Forcing clean exit.");
+                        System.Diagnostics.Process.GetCurrentProcess().Kill();
+                    }
+                    catch { }
+                });
+                watchdog.IsBackground = true;
+                watchdog.Name = "MNC_QuitWatchdog";
+                watchdog.Start();
+            }
+            catch { }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool SimulationManager_OnDestroy_Prefix(SimulationManager __instance)
+        {
+            try
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager.OnDestroy initiated. Enforcing clean simulation shutdown.");
+                if (__instance != null)
+                {
+                    Type smType = typeof(SimulationManager);
+                    FieldInfo fTerm = smType.GetField("m_terminated", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fLock = smType.GetField("m_simulationFrameLock", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fCounter = smType.GetField("m_updateCounter", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fStep = smType.GetField("m_inSimulationStep", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fThread = smType.GetField("m_simulationThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (fTerm != null) fTerm.SetValue(__instance, true);
+
+                    object lockObj = fLock != null ? fLock.GetValue(__instance) : null;
+                    if (lockObj != null)
+                    {
+                        lock (lockObj)
+                        {
+                            if (fCounter != null)
+                            {
+                                int counter = (int)fCounter.GetValue(__instance);
+                                if (counter <= 0)
+                                {
+                                    fCounter.SetValue(__instance, 1); // Unblock SimulationThread so it tests m_terminated!
+                                }
+                            }
+                            if (fStep != null) fStep.SetValue(__instance, false);
+                            System.Threading.Monitor.PulseAll(lockObj);
+                        }
+                    }
+
+                    System.Threading.Thread simThread = fThread != null ? fThread.GetValue(__instance) as System.Threading.Thread : null;
+                    if (simThread != null && simThread.IsAlive)
+                    {
+                        if (!simThread.Join(1500))
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SimulationThread hung > 1500ms; aborting to prevent freeze.");
+                            try { simThread.Abort(); } catch { }
+                        }
+                        if (fThread != null) fThread.SetValue(__instance, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SimulationManager_OnDestroy_Prefix error: " + ex);
+            }
+            return false; // Skip original OnDestroy to eliminate deadlock on Monitor.Wait / Thread.Join!
         }
     }
 

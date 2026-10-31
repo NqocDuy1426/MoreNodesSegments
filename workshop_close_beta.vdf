@@ -9,8 +9,17 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Tính năng mới trong bản Beta v5.0.47:[/h2]
-- Universal Material Leaf Armor & Property Sheet Pointer Validation: Bọc giáp Harmony Priority.First trực tiếp lên toàn bộ các phương thức truy xuất Material (HasProperty(int), HasProperty(string), GetTexture(int/string), mainTexture). Kết hợp kiểm tra con trỏ mảng thuộc tính cấp phần cứng (ShaderPropertySheet propNames array tại offset 0x40), triệt tiêu vĩnh viễn lỗi native Unity C++ SIGSEGV tại địa chỉ 0x8 khi khởi tạo render data.
+[h2]Tính năng mới trong bản Beta v5.0.48:[/h2]
+- Safe Unload & Quit Deadlock Shield:
+    [list]
+    [*] Bọc giáp Harmony Priority.First lên toàn bộ các phương thức truy xuất của TrafficLightSimulationManager (HasTimedSimulation, HasSimulation, HasManualSimulation, HasActiveTimedSimulation, HasActiveSimulation, RemoveNodeFromSimulation), ngăn hoàn toàn IndexOutOfRangeException khi thoát/unload game.
+    [*] Mở rộng mảng TrafficLightSimulations và CustomSegmentLights lên đủ 65.536 phần tử (bao quát toàn bộ dải 16-bit ushort của node sentinel).
+    [*] Tối ưu hóa chu trình TrafficPriorityManager.OnLevelUnloading với cơ chế reset bộ nhớ trực tiếp (zero allocation), loại bỏ vòng lặp 65K segment gây văng game.
+    [*] Bọc giáp chống treo (deadlock) trong SimulationManager.OnDestroy bằng cơ chế unblock m_updateCounter và ép timeout 1500ms cho SimulationThread.
+    [*] Thiết lập watchdog timer 5 giây tự động kết thúc tiến trình an toàn khi LoadingManager.QuitApplication/OnApplicationQuit được gọi, triệt tiêu hoàn toàn hiện tượng game bị treo 'Waiting for simulation to quit...'.
+    [*] Bọc giáp RoadUI.OnLevelUnloading chống NullReferenceException khi giải phóng texture.
+    [/list]
+- Kế thừa toàn bộ Universal Material Leaf Armor & Property Sheet Pointer Validation từ v5.0.47.
 [list]
 [*] [b]Động cơ Universal Stream Armor & Stream Alignment:[/b]
     [list]
@@ -29,5 +38,5 @@
 [/list]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.47 Close Beta: Universal Material Leaf Armor & Property Sheet Pointer Validation (Direct Harmony leaf prefix on Material.HasProperty(int), HasProperty(string), GetTexture, and mainTexture + strict property names array pointer verification, permanently eliminating native C++ SIGSEGV at 0x8)."
+	"changenote"		"v5.0.48 Close Beta: Safe Unload & Quit Deadlock Shield (Leaf-level bounds armor on TM:PE TrafficLightSimulationManager, zero-allocation TrafficPriorityManager OnLevelUnloading reset, RoadUI safe unload armor, and SimulationManager.OnDestroy deadlock prevention + 5s quit watchdog)."
 }
