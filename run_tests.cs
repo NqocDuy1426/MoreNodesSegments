@@ -1865,8 +1865,9 @@ class TestSuite
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
-            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.40)
-            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
+            // 40.1 Close Beta Version Branding (v5.0.26 - v5.0.41)
+            bool hasBetaBranding = renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy") ||
+                                   renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy") ||
                                    renewCode.Contains("More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy") ||
@@ -2148,6 +2149,37 @@ class TestSuite
         catch (Exception ex)
         {
             Assert(false, "Test Group 46 exception", ex.ToString());
+        }
+
+        // ====================================================================
+        // TEST GROUP 47: EventManager, DisasterManager & AudioManager Armor (v5.0.41)
+        // ====================================================================
+        Console.WriteLine("\n--- Test Group 47: EventManager, DisasterManager & AudioManager Armor (v5.0.41) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 47.1 SafeExecuteEventManagerUpdateData Implementation & Patch
+            bool hasSafeEM = renewCode.Contains("public static void SafeExecuteEventManagerUpdateData(EventManager em, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("public static bool EventManager_UpdateData_Prefix(EventManager __instance, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("SafeExecuteEventManagerUpdateData(Singleton<EventManager>.instance, mode);");
+            Assert(hasSafeEM, "EventManager.UpdateData is safely executed and patched with Priority.First");
+
+            // 47.2 SafeExecuteDisasterManagerUpdateData Implementation & Patch
+            bool hasSafeDM = renewCode.Contains("public static void SafeExecuteDisasterManagerUpdateData(DisasterManager dm, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("public static bool DisasterManager_UpdateData_Prefix(DisasterManager __instance, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("SafeExecuteDisasterManagerUpdateData(Singleton<DisasterManager>.instance, mode);");
+            Assert(hasSafeDM, "DisasterManager.UpdateData is safely executed and patched with Priority.First");
+
+            // 47.3 SafeExecuteAudioManagerUpdateData Implementation & Patch
+            bool hasSafeAM = renewCode.Contains("public static void SafeExecuteAudioManagerUpdateData(AudioManager am, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("public static bool AudioManager_UpdateData_Prefix(AudioManager __instance, SimulationManager.UpdateMode mode)") &&
+                             renewCode.Contains("SafeExecuteAudioManagerUpdateData(Singleton<AudioManager>.instance, mode);");
+            Assert(hasSafeAM, "AudioManager.UpdateData is safely executed and patched with Priority.First");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 47 exception", ex.ToString());
         }
 
         // ====================================================================
