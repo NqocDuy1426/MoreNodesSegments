@@ -1605,12 +1605,21 @@ internal static class SimulationStepDiagnostics
 			PatchedMethods.Add(method);
 			try
 			{
-				MethodInfo method2 = typeof(SimulationStepDiagnostics).GetMethod(argumentMode switch
+				string methodName;
+				switch (argumentMode)
 				{
-					2 => "DetailIntPrefix", 
-					1 => "DetailIdPrefix", 
-					_ => "DetailPrefix", 
-				}, BindingFlags.Static | BindingFlags.NonPublic);
+					case 2:
+						methodName = "DetailIntPrefix";
+						break;
+					case 1:
+						methodName = "DetailIdPrefix";
+						break;
+					default:
+						methodName = "DetailPrefix";
+						break;
+				}
+				
+				MethodInfo method2 = typeof(SimulationStepDiagnostics).GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic);
 				MethodInfo method3 = typeof(SimulationStepDiagnostics).GetMethod("DetailPostfix", BindingFlags.Static | BindingFlags.NonPublic);
 				_harmony.Patch(method, new HarmonyMethod(method2), new HarmonyMethod(method3), (HarmonyMethod)null, (HarmonyMethod)null);
 				return 1;

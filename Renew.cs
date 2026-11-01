@@ -8929,7 +8929,7 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 GridSanitizerArmor.SanitizeAllGrids("OnLevelLoaded");
-                GridSanitizerArmor.RescueOrphanedTempSaves();
+                // GridSanitizerArmor.RescueOrphanedTempSaves(); // DISABLED: Causes race condition with vanilla save process (IOException: Stream does not support writing or already closed)
                 RenewMod.EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
                 ArrayGuardian.ExpandAllArrays();
