@@ -8836,12 +8836,7 @@ namespace MoreNetworkCapacityRenew
                     try
                     {
                         try { LoadSaveStatus.activeTask = null; } catch { }
-
-                        var modal = ColossalFramework.UI.UIView.GetModalComponent();
-                        if (modal != null)
-                        {
-                            ColossalFramework.UI.UIView.PopModal();
-                        }
+                        ColossalFramework.UI.UIView.PopAllModal();
                         ColossalFramework.UI.UIView.library.Hide("SavePanel");
                     }
                     catch { }
@@ -9042,12 +9037,7 @@ namespace MoreNetworkCapacityRenew
                         }
 
                         try { LoadSaveStatus.activeTask = null; } catch { }
-
-                        var modal = ColossalFramework.UI.UIView.GetModalComponent();
-                        if (modal != null)
-                        {
-                            ColossalFramework.UI.UIView.PopModal();
-                        }
+                        ColossalFramework.UI.UIView.PopAllModal();
                         ColossalFramework.UI.UIView.library.Hide("SavePanel");
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
                     }
