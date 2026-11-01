@@ -1611,6 +1611,48 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 34: Universal Harmony Resilience Engine & Save Packaging Rescue (v5.0.35)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 34: Universal Harmony Resilience Engine & Save Packaging Rescue (v5.0.35) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 34.1 Universal Harmony Resilience Engine
+            bool hasHarmonyEngine = renewCode.Contains("namespace Harmony") &&
+                                    renewCode.Contains("internal class HarmonyInstance") &&
+                                    renewCode.Contains("internal class HarmonyMethod") &&
+                                    renewCode.Contains("HarmonyLib.Harmony");
+            Assert(hasHarmonyEngine, "Universal Harmony Resilience Engine embedded internally (eliminates TypeLoadException #4)");
+
+            // 34.2 SafePatchKianCommons declared internal
+            bool hasInternalKian = renewCode.Contains("internal static int SafePatchKianCommons");
+            Assert(hasInternalKian, "SafePatchKianCommons is declared internal to prevent Harmony type leakage");
+
+            // 34.3 EmbedAssetInfo & EmbedModInfo thread-safe snapshotting
+            bool hasEmbedPatch = renewCode.Contains("EmbedAssetInfo_Prefix") &&
+                                 renewCode.Contains("EmbedModInfo_Prefix") &&
+                                 renewCode.Contains("GatherAssetInfoSnapshot") &&
+                                 renewCode.Contains("GatherModInfoSnapshot");
+            Assert(hasEmbedPatch, "EmbedAssetInfo and EmbedModInfo thread-safe snapshots eliminate Mono collection stalls and exceptions");
+
+            // 34.4 SaveWatchdog and RescueSavePackagingIfStalled
+            bool hasWatchdogRescue = renewCode.Contains("SaveWatchdogCoroutine") &&
+                                     renewCode.Contains("OnSaveSimulationCompletedCleanly") &&
+                                     renewCode.Contains("RescueSavePackagingIfStalled") &&
+                                     renewCode.Contains("Direct rescue packaging completed successfully");
+            Assert(hasWatchdogRescue, "SaveWatchdog monitors packaging and rescues stalled saves by packaging directly to .crp");
+
+            // 34.5 SaveSimulationData connects cleanly to SaveWatchdog
+            bool hasCleanSaveHook = renewCode.Contains("SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);");
+            Assert(hasCleanSaveHook, "SaveSimulationData connects cleanly to SaveWatchdog on successful simulation completion");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 34 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");

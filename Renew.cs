@@ -4,7 +4,6 @@ using System.Reflection;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Harmony;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +12,325 @@ using ColossalFramework.Plugins;
 using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 
+namespace Harmony
+{
+    internal static class Priority
+    {
+        public const int Last = 0;
+        public const int VeryLow = 100;
+        public const int Low = 200;
+        public const int LowerThanNormal = 300;
+        public const int Normal = 400;
+        public const int HigherThanNormal = 500;
+        public const int High = 600;
+        public const int VeryHigh = 700;
+        public const int First = 800;
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    internal class HarmonyPriority : Attribute
+    {
+        public int info;
+        public HarmonyPriority(int priority) { this.info = priority; }
+    }
+
+    internal class HarmonyMethod
+    {
+        public MethodInfo method;
+        public int? priority;
+        public int? prioritiy
+        {
+            get { return priority; }
+            set { priority = value; }
+        }
+
+        public HarmonyMethod() { }
+        public HarmonyMethod(MethodInfo method)
+        {
+            this.method = method;
+        }
+        public HarmonyMethod(MethodInfo method, int priority)
+        {
+            this.method = method;
+            this.priority = priority;
+        }
+    }
+
+    internal class CodeInstruction
+    {
+        public OpCode opcode;
+        public object operand;
+        public List<Label> labels = new List<Label>();
+        public List<object> blocks = new List<object>();
+
+        public CodeInstruction(OpCode opcode, object operand = null)
+        {
+            this.opcode = opcode;
+            this.operand = operand;
+        }
+
+        public CodeInstruction(CodeInstruction instruction)
+        {
+            if (instruction != null)
+            {
+                this.opcode = instruction.opcode;
+                this.operand = instruction.operand;
+                this.labels = new List<Label>(instruction.labels);
+                this.blocks = new List<object>(instruction.blocks);
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", opcode, operand);
+        }
+    }
+
+    internal class HarmonyInstance
+    {
+        private readonly string _id;
+        private object _underlyingInstance;
+        private Type _underlyingHarmonyType;
+        private Type _underlyingHarmonyMethodType;
+        private bool _isHarmony2;
+        private static readonly object _engineLock = new object();
+
+        public string Id { get { return _id; } }
+
+        public static HarmonyInstance Create(string id)
+        {
+            return new HarmonyInstance(id);
+        }
+
+        public HarmonyInstance(string id)
+        {
+            _id = id ?? "MoreNetworkCapacityRenew";
+            EnsureEngine();
+        }
+
+        private void EnsureEngine()
+        {
+            if (_underlyingInstance != null) return;
+            lock (_engineLock)
+            {
+                if (_underlyingInstance != null) return;
+                try
+                {
+                    // 1. First preference: Harmony 2 (HarmonyLib.Harmony) used by CitiesHarmony & modern mods
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        try
+                        {
+                            Type h2 = asm.GetType("HarmonyLib.Harmony");
+                            if (h2 != null)
+                            {
+                                Type hm2 = asm.GetType("HarmonyLib.HarmonyMethod");
+                                if (hm2 != null)
+                                {
+                                    _underlyingHarmonyType = h2;
+                                    _underlyingHarmonyMethodType = hm2;
+                                    _isHarmony2 = true;
+                                    _underlyingInstance = Activator.CreateInstance(h2, new object[] { _id });
+                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' bound to Harmony 2 ({1} v{2}) ✓", _id, asm.GetName().Name, asm.GetName().Version));
+                                    return;
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+
+                    // 2. Second preference: Harmony 1.2 (Harmony.HarmonyInstance) if external 0Harmony is present
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        if (asm == Assembly.GetExecutingAssembly()) continue;
+                        try
+                        {
+                            Type h1 = asm.GetType("Harmony.HarmonyInstance");
+                            if (h1 != null)
+                            {
+                                Type hm1 = asm.GetType("Harmony.HarmonyMethod");
+                                MethodInfo createM = h1.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+                                if (createM != null)
+                                {
+                                    _underlyingHarmonyType = h1;
+                                    _underlyingHarmonyMethodType = hm1;
+                                    _isHarmony2 = false;
+                                    _underlyingInstance = createM.Invoke(null, new object[] { _id });
+                                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' bound to Harmony 1 ({1}) ✓", _id, asm.GetName().Name));
+                                    return;
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+
+                    // 3. Fallback: search disk for CitiesHarmony.Harmony.dll in mod directories
+                    try
+                    {
+                        var pm = ColossalFramework.Plugins.PluginManager.instance;
+                        if (pm != null)
+                        {
+                            foreach (var plugin in pm.GetPluginsInfo())
+                            {
+                                if (plugin == null || !plugin.isEnabled) continue;
+                                string pPath = plugin.modPath;
+                                if (string.IsNullOrEmpty(pPath)) continue;
+                                string h2Dll = Path.Combine(pPath, "CitiesHarmony.Harmony.dll");
+                                if (File.Exists(h2Dll))
+                                {
+                                    var h2Asm = Assembly.LoadFrom(h2Dll);
+                                    Type h2 = h2Asm.GetType("HarmonyLib.Harmony");
+                                    Type hm2 = h2Asm.GetType("HarmonyLib.HarmonyMethod");
+                                    if (h2 != null && hm2 != null)
+                                    {
+                                        _underlyingHarmonyType = h2;
+                                        _underlyingHarmonyMethodType = hm2;
+                                        _isHarmony2 = true;
+                                        _underlyingInstance = Activator.CreateInstance(h2, new object[] { _id });
+                                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] UniversalHarmony '{0}' loaded and bound to {1} ✓", _id, h2Dll));
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] EnsureEngine error for {0}: {1}", _id, ex.Message));
+                }
+            }
+        }
+
+        public void Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null)
+        {
+            Patch(original, prefix, postfix, transpiler, null);
+        }
+
+        public void Patch(MethodBase original, HarmonyMethod prefix, HarmonyMethod postfix, HarmonyMethod transpiler, HarmonyMethod finalizer)
+        {
+            if (original == null) return;
+            EnsureEngine();
+            if (_underlyingInstance == null || _underlyingHarmonyType == null)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Cannot patch {0}.{1}: Harmony engine not available.", original.DeclaringType != null ? original.DeclaringType.Name : "null", original.Name));
+                return;
+            }
+
+            try
+            {
+                object preObj = ConvertHarmonyMethod(prefix);
+                object postObj = ConvertHarmonyMethod(postfix);
+                object transObj = ConvertHarmonyMethod(transpiler);
+                object finObj = ConvertHarmonyMethod(finalizer);
+
+                if (_isHarmony2)
+                {
+                    MethodInfo patchM = _underlyingHarmonyType.GetMethod("Patch", new Type[] {
+                        typeof(MethodBase), _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType
+                    });
+                    if (patchM != null)
+                    {
+                        patchM.Invoke(_underlyingInstance, new object[] { original, preObj, postObj, transObj, finObj });
+                        return;
+                    }
+                }
+                else
+                {
+                    MethodInfo patchM = _underlyingHarmonyType.GetMethod("Patch", new Type[] {
+                        typeof(MethodBase), _underlyingHarmonyMethodType, _underlyingHarmonyMethodType, _underlyingHarmonyMethodType
+                    });
+                    if (patchM != null)
+                    {
+                        patchM.Invoke(_underlyingInstance, new object[] { original, preObj, postObj, transObj });
+                        return;
+                    }
+                }
+
+                // Fallback overload
+                MethodInfo fallback = _underlyingHarmonyType.GetMethod("Patch");
+                if (fallback != null)
+                {
+                    var pars = fallback.GetParameters();
+                    object[] args = new object[pars.Length];
+                    args[0] = original;
+                    if (pars.Length > 1) args[1] = preObj;
+                    if (pars.Length > 2) args[2] = postObj;
+                    if (pars.Length > 3) args[3] = transObj;
+                    if (pars.Length > 4) args[4] = finObj;
+                    fallback.Invoke(_underlyingInstance, args);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Error patching {0}.{1}: {2}", original.DeclaringType != null ? original.DeclaringType.Name : "null", original.Name, ex.Message));
+            }
+        }
+
+        public void PatchAll()
+        {
+            PatchAll(Assembly.GetExecutingAssembly());
+        }
+
+        public void PatchAll(Assembly assembly)
+        {
+            EnsureEngine();
+            if (_underlyingInstance == null || _underlyingHarmonyType == null) return;
+            try
+            {
+                MethodInfo patchAllM = _underlyingHarmonyType.GetMethod("PatchAll", new Type[] { typeof(Assembly) });
+                if (patchAllM != null)
+                {
+                    patchAllM.Invoke(_underlyingInstance, new object[] { assembly ?? Assembly.GetExecutingAssembly() });
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] PatchAll error: {0}", ex.Message));
+            }
+        }
+
+        public void UnpatchAll(string harmonyID = null)
+        {
+            EnsureEngine();
+            if (_underlyingInstance == null || _underlyingHarmonyType == null) return;
+            try
+            {
+                MethodInfo unpatchAllM = _underlyingHarmonyType.GetMethod("UnpatchAll", new Type[] { typeof(string) });
+                if (unpatchAllM != null)
+                {
+                    unpatchAllM.Invoke(_underlyingInstance, new object[] { harmonyID ?? _id });
+                }
+            }
+            catch { }
+        }
+
+        private object ConvertHarmonyMethod(HarmonyMethod hm)
+        {
+            if (hm == null || hm.method == null || _underlyingHarmonyMethodType == null) return null;
+            try
+            {
+                object obj = Activator.CreateInstance(_underlyingHarmonyMethodType, new object[] { hm.method });
+                int? pri = hm.priority ?? hm.prioritiy;
+                if (pri.HasValue)
+                {
+                    FieldInfo f = _underlyingHarmonyMethodType.GetField("priority") ?? _underlyingHarmonyMethodType.GetField("prioritiy");
+                    if (f != null) f.SetValue(obj, pri.Value);
+                }
+                return obj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+}
+
 namespace MoreNetworkCapacityRenew
 {
+    using Harmony;
     // ============================================================================
     // DIAGNOSTIC LOGGER
     // ============================================================================
@@ -1122,8 +1438,13 @@ namespace MoreNetworkCapacityRenew
     // ============================================================================
     public class RenewMod : IUserMod
     {
+#if CLOSE_BETA
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.35 by NgocDuy";
+        public string Description => "[Close Beta v5.0.35] Resilient Universal Harmony Engine (Fix TypeLoadException #4) & Save Packaging Rescue.";
+#else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
+#endif
 
         static RenewMod()
         {
@@ -7983,6 +8304,7 @@ namespace MoreNetworkCapacityRenew
                     {
                         LogSaveDebug("=== SaveSimulationData COMPLETED CLEANLY! (result=false) ===");
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] === SaveSimulationData COMPLETED CLEANLY! ===");
+                        SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);
                     }
                     CurrentSavingFilename = null;
                 }
@@ -7998,6 +8320,8 @@ namespace MoreNetworkCapacityRenew
     internal static class SavePanelOnSavingCompletePatch
     {
         private static bool s_isApplied = false;
+        private static string s_lastSavedCcsPath = null;
+        private static DateTime s_lastSaveTime = DateTime.MinValue;
 
         public static void ApplySavePanelPatch()
         {
@@ -8013,10 +8337,278 @@ namespace MoreNetworkCapacityRenew
                     s_isApplied = true;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSavingComplete safety patch!");
                 }
+
+                // Patch EmbedAssetInfo to prevent Mono collection stall on 25K+ custom assets
+                try
+                {
+                    Type tBase = typeof(SavePanel).BaseType;
+                    if (tBase != null)
+                    {
+                        MethodInfo mEmbed = tBase.GetMethod("EmbedAssetInfo", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mEmbed != null)
+                        {
+                            var preEmbed = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(EmbedAssetInfo_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mEmbed, prefix: new HarmonyMethod(preEmbed));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied EmbedAssetInfo thread-safe optimization patch!");
+                        }
+
+                        MethodInfo mEmbedMod = tBase.GetMethod("EmbedModInfo", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mEmbedMod != null)
+                        {
+                            var preEmbedMod = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(EmbedModInfo_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mEmbedMod, prefix: new HarmonyMethod(preEmbedMod));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied EmbedModInfo thread-safe patch!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply EmbedAssetInfo/EmbedModInfo patch error: " + ex);
+                }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ApplySavePanelPatch error: " + ex);
+            }
+        }
+
+        public static bool EmbedAssetInfo_Prefix(ref ModInfo[] __result)
+        {
+            try
+            {
+                __result = GatherAssetInfoSnapshot();
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] EmbedAssetInfo: Fast snapshot safely gathered {0} custom assets without Mono iterator stall ✓", __result.Length));
+                return false; // Safely return snapshot without running into Mono iterator deadlocks
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EmbedAssetInfo fast gather exception, returning safe empty array: " + ex);
+                __result = new ModInfo[0];
+                return false;
+            }
+        }
+
+        public static bool EmbedModInfo_Prefix(ref ModInfo[] __result)
+        {
+            try
+            {
+                __result = GatherModInfoSnapshot();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] EmbedModInfo fast gather exception, returning safe empty array: " + ex);
+                __result = new ModInfo[0];
+                return false;
+            }
+        }
+
+        internal static ModInfo[] GatherAssetInfoSnapshot()
+        {
+            List<ModInfo> list = new List<ModInfo>();
+            try
+            {
+                var packages = ColossalFramework.Packaging.PackageManager.allPackages;
+                if (packages != null)
+                {
+                    ColossalFramework.Packaging.Package[] snapshot;
+                    lock (packages)
+                    {
+                        snapshot = System.Linq.Enumerable.ToArray(packages);
+                    }
+                    for (int i = 0; i < snapshot.Length; i++)
+                    {
+                        var p = snapshot[i];
+                        if (p == null) continue;
+                        try
+                        {
+                            foreach (ColossalFramework.Packaging.Package.Asset a in p)
+                            {
+                                if (a != null && a.type == UserAssetType.CustomAssetMetaData && a.isEnabled)
+                                {
+                                    ModInfo info = default(ModInfo);
+                                    info.modName = a.fullName;
+                                    try { info.modWorkshopID = p.GetPublishedFileID().AsUInt64; } catch { }
+                                    list.Add(info);
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+            return list.ToArray();
+        }
+
+        internal static ModInfo[] GatherModInfoSnapshot()
+        {
+            List<ModInfo> list = new List<ModInfo>();
+            try
+            {
+                var pm = ColossalFramework.Plugins.PluginManager.instance;
+                if (pm != null)
+                {
+                    foreach (var plugin in pm.GetPluginsInfo())
+                    {
+                        if (plugin != null && plugin.isEnabled)
+                        {
+                            ModInfo info = default(ModInfo);
+                            info.modName = plugin.name;
+                            try { info.modWorkshopID = plugin.publishedFileID.AsUInt64; } catch { }
+                            list.Add(info);
+                        }
+                    }
+                }
+            }
+            catch { }
+            return list.ToArray();
+        }
+
+        public static void OnSaveSimulationCompletedCleanly(string ccsPath)
+        {
+            s_lastSavedCcsPath = ccsPath;
+            s_lastSaveTime = DateTime.UtcNow;
+            StartSaveWatchdog();
+        }
+
+        public static void StartSaveWatchdog()
+        {
+            try
+            {
+                var lm = Singleton<LoadingManager>.instance;
+                if (lm != null)
+                {
+                    lm.StartCoroutine(SaveWatchdogCoroutine());
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] StartSaveWatchdog error: " + ex);
+            }
+        }
+
+        private static System.Collections.IEnumerator SaveWatchdogCoroutine()
+        {
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Started monitoring game save packaging completion...");
+            float elapsed = 0f;
+            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+
+            while (elapsed < 15f)
+            {
+                yield return new UnityEngine.WaitForSeconds(0.5f);
+                elapsed += 0.5f;
+
+                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
+                if (!isSaving)
+                {
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Game save completed cleanly by vanilla game in {0:F1}s ✓", elapsed));
+                    yield break;
+                }
+            }
+
+            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (15s timeout). Checking save file status and rescuing...");
+
+            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+            if (sp != null)
+            {
+                try
+                {
+                    RescueSavePackagingIfStalled(sp);
+
+                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
+
+                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                    if (mComplete != null)
+                    {
+                        mComplete.Invoke(sp, new object[] { false, false });
+                    }
+
+                    // Also make sure UIView modal and progress spinners are dismissed safely on Main Thread
+                    ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
+                    {
+                        try
+                        {
+                            var modal = ColossalFramework.UI.UIView.GetModalComponent();
+                            if (modal != null)
+                            {
+                                ColossalFramework.UI.UIView.PopModal();
+                            }
+                            ColossalFramework.UI.UIView.library.Hide("SavePanel");
+                        }
+                        catch { }
+                    });
+
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog rescue exception: " + ex);
+                }
+            }
+        }
+
+        private static void RescueSavePackagingIfStalled(SavePanel sp)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(s_lastSavedCcsPath) || !File.Exists(s_lastSavedCcsPath))
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: No orphaned .ccs file found, skipping fallback packaging.");
+                    return;
+                }
+
+                string saveName = null;
+                FieldInfo fLastSave = typeof(SavePanel).GetField("m_LastSaveName", BindingFlags.NonPublic | BindingFlags.Static);
+                if (fLastSave != null) saveName = fLastSave.GetValue(null) as string;
+                if (string.IsNullOrEmpty(saveName))
+                {
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
+                        saveName = sm.m_metaData.m_CityName;
+                    else
+                        saveName = "SavedGame";
+                }
+
+                bool useCloud = false;
+                FieldInfo fLastCloud = typeof(SavePanel).GetField("m_LastCloudSetting", BindingFlags.NonPublic | BindingFlags.Static);
+                if (fLastCloud != null) useCloud = (bool)fLastCloud.GetValue(null);
+
+                MethodInfo mGetSavePath = typeof(SavePanel).GetMethod("GetSavePathName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string), typeof(bool) }, null);
+                string packagePathName = null;
+                if (mGetSavePath != null) packagePathName = (string)mGetSavePath.Invoke(null, new object[] { saveName, useCloud });
+
+                if (!string.IsNullOrEmpty(packagePathName) && !File.Exists(packagePathName) && File.Exists(s_lastSavedCcsPath))
+                {
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Rescuing save by packaging directly to '{0}'...", packagePathName));
+                    var package = new ColossalFramework.Packaging.Package(saveName);
+                    package.packageMainAsset = saveName;
+                    var metaData = new SaveGameMetaData();
+                    metaData.mods = GatherModInfoSnapshot();
+                    metaData.assets = GatherAssetInfoSnapshot();
+                    metaData.timeStamp = DateTime.Now;
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null)
+                    {
+                        metaData.cityName = sm.m_metaData.m_CityName;
+                        metaData.environment = sm.m_metaData.m_environment;
+                        if (sm.m_metaData.m_MapThemeMetaData != null)
+                            metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
+                        metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
+                    }
+                    metaData.assetRef = package.AddFileAsset(saveName + "_Data", s_lastSavedCcsPath, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                    package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
+                    if (useCloud)
+                        package.SaveToCloud(packagePathName, false);
+                    else
+                        package.Save(packagePathName, false);
+                    try { File.Delete(s_lastSavedCcsPath); } catch { }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Direct rescue packaging completed successfully! File saved: " + packagePathName);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] RescueSavePackagingIfStalled error: " + ex);
             }
         }
 
@@ -8240,7 +8832,7 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static int SafePatchKianCommons(HarmonyInstance harmony, Type type, string methodName, string transpilerName)
+        internal static int SafePatchKianCommons(HarmonyInstance harmony, Type type, string methodName, string transpilerName)
         {
             try
             {
@@ -8282,17 +8874,57 @@ namespace MoreNetworkCapacityRenew
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
-            MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
-            MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
-            RenewMod.EnsureCoreActive();
-            SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
-            MemoryOptimizer.PrewarmHeap();
-            ArrayGuardian.Initialize();
-            ArrayGuardian.ExpandAllArrays();
-            SafeFlagsAccessor.Initialize();
+            try
+            {
+                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+                MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
+                MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated memory prep error: " + ex);
+            }
+
+            try
+            {
+                RenewMod.EnsureCoreActive();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureCoreActive error: " + ex);
+            }
+
+            try
+            {
+                SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ApplySavePanelPatch error: " + ex);
+            }
+
+            try
+            {
+                MemoryOptimizer.PrewarmHeap();
+                ArrayGuardian.Initialize();
+                ArrayGuardian.ExpandAllArrays();
+                SafeFlagsAccessor.Initialize();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ArrayGuardian error: " + ex);
+            }
+
             DiagnosticLogger.Checkpoint("OnCreated.Start");
             
-            EnsureAllPatchesApplied();
+            try
+            {
+                EnsureAllPatchesApplied();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureAllPatchesApplied error: " + ex);
+            }
         }
 
         public override void OnLevelLoaded(LoadMode mode)

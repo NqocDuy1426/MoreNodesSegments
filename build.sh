@@ -19,7 +19,7 @@ echo "=========================================================="
 
 # 0. Compile and run test suite
 echo "0️⃣ Running Test Suite before build..."
-mcs -r:"$CECIL_DLL" -r:"0Harmony.dll" run_tests.cs -out:run_tests.exe
+mcs -r:"$CECIL_DLL" run_tests.cs -out:run_tests.exe
 MONO_PATH=".:$MONO_PATH" mono run_tests.exe
 echo "✅ Test Suite passed 100%."
 

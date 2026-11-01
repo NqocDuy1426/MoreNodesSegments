@@ -9,14 +9,11 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Revert về bản Close Beta v5.0.15:[/h2]
-- Crash & Compatibility Shield: Neutralized unsafe Core KianCommons reflection loop before HarmonyBootstrap.Enable() to prevent native mono.dll 0xc0000005 access violation.
-- Expanded Stops & Stations (1776052533) PassengerCountLimiter passengerCount buffer to 65,536 elements with simulation tick armor, eliminating recurring IndexOutOfRangeException in ThreadingWrapper on cities > 32K nodes.
-- Normalized TM:PE ExtSegmentEnds & SegmentEnds buffer allocations to 130,048 (CORE_SPLIT_CAPACITY) to eliminate MNC Core length validation errors.
-- Hardened EightyOne 2 Water CustomSerialize with null-safe pulse unit copying and fallback to native serializer.
-- Armored ModsCommon CustomUITextField text selection bounds against ArgumentOutOfRangeException.
-- Preserved 100% native traffic simulation with zero TM:PE hooks.
+[h2]Cập nhật Close Beta v5.0.35:[/h2]
+- [b]Universal Harmony Resilience Engine (Fix Issue #4):[/b] Sửa triệt để lỗi crash [i]TypeLoadException: Could not load type 'Harmony.HarmonyInstance'[/i] khi dùng chung với CitiesHarmony (Harmony 2.x) hoặc 0Harmony 1.2 bằng cơ chế dynamic internal binding không phụ thuộc assembly ngoài.
+- [b]Save Packaging Guard & Direct Rescue (Fix Game Saving):[/b] Khắc phục triệt để lỗi không saving được (save freeze / không tạo file .crp) nhờ cơ chế thread-safe snapshot CustomAsset/Mod metadata và Watchdog tự động cứu hộ đóng gói trực tiếp vào file .crp nếu tiến trình lưu bị đơ.
+- [b]100% Native Performance:[/b] Giữ nguyên độ ổn định tuyệt đối và FPS cao từ nền tảng v5.0.15.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.15 Close Beta: Reverted to stable v5.0.15 baseline (Crash & Compatibility Shield, 65K Stops/Stations, 130K buffer normalization, and 100% native traffic simulation)."
+	"changenote"		"v5.0.35 Close Beta: Universal Harmony Resilience Engine (Eliminate TypeLoadException Issue #4) & Save Packaging Guard/Direct Rescue (Fix Game Saving)."
 }

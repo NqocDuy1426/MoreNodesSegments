@@ -8,12 +8,12 @@ GAME_DIR="$HOME/Library/Application Support/Steam/steamapps/common/Cities_Skylin
 CECIL_DLL="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/gac/Mono.Cecil/0.11.1.0__0738eb9f132ed756/Mono.Cecil.dll"
 
 echo "=========================================================="
-echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.15..."
+echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.35..."
 echo "=========================================================="
 
 # 0. Compile and run test suite
 echo "0️⃣ Running Test Suite..."
-mcs -r:"$CECIL_DLL" -r:"0Harmony.dll" run_tests.cs -out:run_tests.exe
+mcs -r:"$CECIL_DLL" run_tests.cs -out:run_tests.exe
 MONO_PATH=".:$MONO_PATH" mono run_tests.exe
 echo "✅ Test Suite passed 100%."
 
@@ -25,7 +25,6 @@ mcs -sdk:2 -target:library \
     -r:"$GAME_DIR/ICities.dll" \
     -r:"$GAME_DIR/ColossalManaged.dll" \
     -r:"$GAME_DIR/UnityEngine.dll" \
-    -r:"0Harmony.dll" \
     -resource:MoreNetworkCapacity.Core.dll \
     -out:MoreNodesSegmentsBeta.dll \
     Renew.cs
