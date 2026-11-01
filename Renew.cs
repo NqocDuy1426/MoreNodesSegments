@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy";
-        public string Description => "[Close Beta v5.0.38] Instant Direct Save Packaging, LoadSaveStatus Dismissal & Freeze Immunity.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy";
+        public string Description => "[Close Beta v5.0.39] Instant Direct Save Packaging, LoadSaveStatus Auto-Dismissal & Freeze Immunity.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -8605,6 +8605,22 @@ namespace MoreNetworkCapacityRenew
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply EmbedAssetInfo/EmbedModInfo patch error: " + ex);
                 }
+
+                // Patch LoadSaveStatus.Update to auto-clear stuck "Packaging" task if it persists > 3 seconds
+                try
+                {
+                    MethodInfo mUpdate = typeof(LoadSaveStatus).GetMethod("Update", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (mUpdate != null)
+                    {
+                        var preUpdate = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(LoadSaveStatus_Update_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mUpdate, prefix: new HarmonyMethod(preUpdate));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied LoadSaveStatus.Update auto-dismissal safety patch!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply LoadSaveStatus Update patch error: " + ex);
+                }
             }
             catch (Exception ex)
             {
@@ -8624,6 +8640,61 @@ namespace MoreNetworkCapacityRenew
             {
                 SaveSimulationDataSafetyPatch.LogSaveDebug("SavePanel_OnSave_Prefix error: " + ex);
             }
+        }
+
+        private static float s_packagingStuckTimer = 0f;
+
+        public static void LoadSaveStatus_Update_Prefix(LoadSaveStatus __instance)
+        {
+            try
+            {
+                var task = LoadSaveStatus.activeTask;
+                if (task != null && task.name == "Packaging")
+                {
+                    s_packagingStuckTimer += UnityEngine.Time.unscaledDeltaTime;
+                    if (s_packagingStuckTimer > 3f)
+                    {
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: Main-Thread detected stuck 'Packaging' task ({0:F1}s). Rescuing and restoring UI immediately!", s_packagingStuckTimer));
+                        s_packagingStuckTimer = 0f;
+
+                        // Ensure fallback packaging if .ccs is still present
+                        RescueSavePackagingIfStalled();
+
+                        // Force clear activeTask
+                        try { LoadSaveStatus.activeTask = null; } catch { }
+
+                        // Reset m_IsSaving
+                        FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+                        if (fIsSaving != null) { try { fIsSaving.SetValue(null, false); } catch { } }
+
+                        // Dismiss SavePanel & modal stack
+                        try
+                        {
+                            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+                            if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
+                            if (sp != null)
+                            {
+                                FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fPkg != null) fPkg.SetValue(sp, null);
+                                FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fSnap != null) fSnap.SetValue(sp, null);
+                                MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                                if (mComplete != null) mComplete.Invoke(sp, new object[] { false, false });
+                            }
+                        }
+                        catch { }
+
+                        try { ColossalFramework.UI.UIView.PopAllModal(); } catch { }
+                        try { ColossalFramework.UI.UIView.library.Hide("SavePanel"); } catch { }
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: UI restored cleanly from Main Thread! ✓");
+                    }
+                }
+                else
+                {
+                    s_packagingStuckTimer = 0f;
+                }
+            }
+            catch { }
         }
 
         public static bool SaveGame_MoveNext_Prefix(object __instance, ref bool __result)
@@ -8648,6 +8719,27 @@ namespace MoreNetworkCapacityRenew
 
                     FieldInfo fQuit = __instance.GetType().GetField("quitAfterSaving", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     bool quitAfterSaving = (fQuit != null) && (bool)fQuit.GetValue(__instance);
+
+                    FieldInfo fLoc0 = __instance.GetType().GetField("$locvar0", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    object anon4 = (fLoc0 != null) ? fLoc0.GetValue(__instance) : null;
+                    if (anon4 != null)
+                    {
+                        if (string.IsNullOrEmpty(saveName))
+                        {
+                            FieldInfo fName4 = anon4.GetType().GetField("saveName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (fName4 != null) saveName = fName4.GetValue(anon4) as string;
+                        }
+                        if (!useCloud)
+                        {
+                            FieldInfo fCloud4 = anon4.GetType().GetField("useCloud", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (fCloud4 != null) useCloud = (bool)fCloud4.GetValue(anon4);
+                        }
+                        if (!quitAfterSaving)
+                        {
+                            FieldInfo fQuit4 = anon4.GetType().GetField("quitAfterSaving", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (fQuit4 != null) quitAfterSaving = (bool)fQuit4.GetValue(anon4);
+                        }
+                    }
 
                     FieldInfo fLoc1 = __instance.GetType().GetField("$locvar1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     object anon5 = (fLoc1 != null) ? fLoc1.GetValue(__instance) : null;
@@ -8979,7 +9071,42 @@ namespace MoreNetworkCapacityRenew
 
         private static System.Collections.IEnumerator SaveWatchdogCoroutine()
         {
-            yield break;
+            float elapsed = 0f;
+            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+            while (elapsed < 3.5f)
+            {
+                yield return new UnityEngine.WaitForSeconds(0.5f);
+                elapsed += 0.5f;
+                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
+                var activeTask = LoadSaveStatus.activeTask;
+                if (!isSaving && activeTask == null)
+                {
+                    yield break;
+                }
+            }
+
+            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread watchdog detected stuck save ({0:F1}s)! Forcing UI unfreeze...", elapsed));
+            RescueSavePackagingIfStalled();
+            try { LoadSaveStatus.activeTask = null; } catch { }
+            if (fIsSaving != null) { try { fIsSaving.SetValue(null, false); } catch { } }
+            try
+            {
+                SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+                if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
+                if (sp != null)
+                {
+                    FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fPkg != null) fPkg.SetValue(sp, null);
+                    FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fSnap != null) fSnap.SetValue(sp, null);
+                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                    if (mComplete != null) mComplete.Invoke(sp, new object[] { false, false });
+                }
+            }
+            catch { }
+            try { ColossalFramework.UI.UIView.PopAllModal(); } catch { }
+            try { ColossalFramework.UI.UIView.library.Hide("SavePanel"); } catch { }
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread UI rescue completed cleanly! ✓");
         }
 
         private static void SaveWatchdogThreadWorker()
@@ -9046,6 +9173,28 @@ namespace MoreNetworkCapacityRenew
                         UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog UI cleanup error: " + ex);
                     }
                 });
+
+                try
+                {
+                    Singleton<SimulationManager>.instance.AddAction(() =>
+                    {
+                        try
+                        {
+                            ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
+                            {
+                                try
+                                {
+                                    LoadSaveStatus.activeTask = null;
+                                    ColossalFramework.UI.UIView.PopAllModal();
+                                    ColossalFramework.UI.UIView.library.Hide("SavePanel");
+                                }
+                                catch { }
+                            });
+                        }
+                        catch { }
+                    });
+                }
+                catch { }
             }
             catch (Exception ex)
             {
