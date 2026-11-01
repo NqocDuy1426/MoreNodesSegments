@@ -9,15 +9,15 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.0.38:[/h2]
-- [b]Instant Direct Save Packaging & Freeze Immunity:[/b]
-  + Thay thế hoàn toàn coroutine đóng gói save nguyên bản (vanilla SavePanel packaging) bằng quy trình đóng gói trực tiếp siêu tốc (50ms).
-  + Triệt tiêu hoàn toàn điểm treo m_ImagesLock và Task.Wait() blocking trên Main Thread (bỏ qua triệt để AnonStorey5 gây deadlock).
-  + Tự động tắt trạng thái LoadSaveStatus.activeTask (biểu tượng chim xanh quay cuồng "Saving..." biến mất ngay lập tức).
-  + Đảm bảo SavePanel, ConfirmPanel và mọi hộp thoại tự động đóng mượt mà, trả lại quyền điều khiển game ngay sau khi lưu.
+[h2]Cập nhật Close Beta v5.0.40:[/h2]
+- [b]Safe Save Coroutine Replacement & UI Freeze Immunity:[/b]
+  + Thay thế trực tiếp coroutine SaveGame của SavePanel bằng SafeSaveGameCoroutine.
+  + Đóng gói save trực tiếp trên Main Thread song song mà không khóa luồng hay chờ vô hạn Task.Wait().
+  + Tự động dọn dẹp và giải phóng hoàn toàn LoadSaveStatus.activeTask ("Saving"/"Packaging"), m_IsSaving và modal stack.
+  + Triệt tiêu triệt để hiện tượng đứng đơ game và chuột hiển thị biểu tượng loading sau khi lưu.
 - [b]Universal Harmony Resilience Engine (Fix Issue #4):[/b] Tương thích 100% với Harmony 1 & Harmony 2.
 - [b]100% Native Performance:[/b] Giữ nguyên độ ổn định tuyệt đối và FPS cao từ nền tảng v5.0.15.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.38 Close Beta: Instant Direct Save Packaging, LoadSaveStatus activeTask Dismissal & Complete Freeze Immunity."
+	"changenote"		"v5.0.40 Close Beta: Complete Safe Save Coroutine Replacement, Fast Direct Packaging & UI Freeze Immunity."
 }

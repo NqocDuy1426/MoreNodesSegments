@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.39 by NgocDuy";
-        public string Description => "[Close Beta v5.0.39] Instant Direct Save Packaging, LoadSaveStatus Auto-Dismissal & Freeze Immunity.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.40 by NgocDuy";
+        public string Description => "[Close Beta v5.0.40] Safe Save Pipeline Replacement, Fast Direct Packaging & UI Freeze Immunity.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -8523,26 +8523,35 @@ namespace MoreNetworkCapacityRenew
 
     internal static class SavePanelOnSavingCompletePatch
     {
-        private static bool s_isApplied = false;
         private static string s_lastSavedCcsPath = null;
         private static DateTime s_lastSaveTime = DateTime.MinValue;
+        private static float s_savingStuckTimer = 0f;
 
         public static void ApplySavePanelPatch()
         {
-            if (s_isApplied) return;
             try
             {
                 var harmony = HarmonyInstance.Create("MoreNetworkCapacityRenew.SavePanelPatch");
+
+                // 1. Intercept SavePanel.SaveGame(string, bool, bool) to completely replace vanilla coroutine!
+                MethodInfo mSaveGame = typeof(SavePanel).GetMethod("SaveGame", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(bool), typeof(bool) }, null);
+                if (mSaveGame != null)
+                {
+                    var preSaveGame = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(SaveGame_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(mSaveGame, prefix: new HarmonyMethod(preSaveGame));
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.SaveGame safe coroutine replacement patch!");
+                }
+
+                // 2. Intercept SavePanel.OnSavingComplete
                 MethodInfo mTarget = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
                 if (mTarget != null)
                 {
                     var pre = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(Prefix), BindingFlags.Public | BindingFlags.Static);
                     harmony.Patch(mTarget, prefix: new HarmonyMethod(pre));
-                    s_isApplied = true;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSavingComplete safety patch!");
                 }
 
-                // Patch SavePanel.OnSave to sanitize grids BEFORE Snapshot renders
+                // 3. Patch SavePanel.OnSave to sanitize grids BEFORE Snapshot renders
                 try
                 {
                     MethodInfo mOnSave = typeof(SavePanel).GetMethod("OnSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
@@ -8558,7 +8567,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply SavePanel.OnSave patch error: " + ex);
                 }
 
-                // Patch SavePanel.<SaveGame>c__Iterator1::MoveNext to eliminate task Wait() deadlock on Main Thread
+                // 4. Patch SavePanel.<SaveGame>c__Iterator1::MoveNext for additional deadlock immunity
                 try
                 {
                     Type saveGameIterType = typeof(SavePanel).GetNestedType("<SaveGame>c__Iterator1", BindingFlags.NonPublic | BindingFlags.Public);
@@ -8578,7 +8587,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply SaveGame MoveNext patch error: " + ex);
                 }
 
-                // Patch EmbedAssetInfo to prevent Mono collection stall on 25K+ custom assets
+                // 5. Patch EmbedAssetInfo & EmbedModInfo to prevent collection stalls
                 try
                 {
                     Type tBase = typeof(SavePanel).BaseType;
@@ -8606,7 +8615,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply EmbedAssetInfo/EmbedModInfo patch error: " + ex);
                 }
 
-                // Patch LoadSaveStatus.Update to auto-clear stuck "Packaging" task if it persists > 3 seconds
+                // 6. Patch LoadSaveStatus.Update to auto-clear stuck tasks
                 try
                 {
                     MethodInfo mUpdate = typeof(LoadSaveStatus).GetMethod("Update", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -8642,59 +8651,19 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private static float s_packagingStuckTimer = 0f;
-
-        public static void LoadSaveStatus_Update_Prefix(LoadSaveStatus __instance)
+        public static bool SaveGame_Prefix(SavePanel __instance, string saveName, bool useCloud, bool quitAfterSaving, ref System.Collections.IEnumerator __result)
         {
             try
             {
-                var task = LoadSaveStatus.activeTask;
-                if (task != null && task.name == "Packaging")
-                {
-                    s_packagingStuckTimer += UnityEngine.Time.unscaledDeltaTime;
-                    if (s_packagingStuckTimer > 3f)
-                    {
-                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: Main-Thread detected stuck 'Packaging' task ({0:F1}s). Rescuing and restoring UI immediately!", s_packagingStuckTimer));
-                        s_packagingStuckTimer = 0f;
-
-                        // Ensure fallback packaging if .ccs is still present
-                        RescueSavePackagingIfStalled();
-
-                        // Force clear activeTask
-                        try { LoadSaveStatus.activeTask = null; } catch { }
-
-                        // Reset m_IsSaving
-                        FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-                        if (fIsSaving != null) { try { fIsSaving.SetValue(null, false); } catch { } }
-
-                        // Dismiss SavePanel & modal stack
-                        try
-                        {
-                            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-                            if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
-                            if (sp != null)
-                            {
-                                FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (fPkg != null) fPkg.SetValue(sp, null);
-                                FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (fSnap != null) fSnap.SetValue(sp, null);
-                                MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                                if (mComplete != null) mComplete.Invoke(sp, new object[] { false, false });
-                            }
-                        }
-                        catch { }
-
-                        try { ColossalFramework.UI.UIView.PopAllModal(); } catch { }
-                        try { ColossalFramework.UI.UIView.library.Hide("SavePanel"); } catch { }
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: UI restored cleanly from Main Thread! ✓");
-                    }
-                }
-                else
-                {
-                    s_packagingStuckTimer = 0f;
-                }
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SavePanel.SaveGame intercepted: replacing with SafeSaveGameCoroutine ('{0}', cloud={1}, quit={2}) ✓", saveName, useCloud, quitAfterSaving));
+                __result = SafeSaveGameCoroutine(__instance, saveName, useCloud, quitAfterSaving);
+                return false; // Skip vanilla buggy coroutine completely!
             }
-            catch { }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveGame_Prefix error: " + ex);
+                return true; // Fallback to vanilla if prefix fails
+            }
         }
 
         public static bool SaveGame_MoveNext_Prefix(object __instance, ref bool __result)
@@ -8705,189 +8674,11 @@ namespace MoreNetworkCapacityRenew
                 FieldInfo fPC = __instance.GetType().GetField("$PC", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (fPC == null) return true;
                 int pc = Convert.ToInt32(fPC.GetValue(__instance));
-                // PC == 1 is immediately after yield return LoadingManager.instance.SaveLevel(filename)
                 if (pc == 1)
                 {
                     FieldInfo fThis = __instance.GetType().GetField("$this", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     SavePanel sp = (fThis != null) ? fThis.GetValue(__instance) as SavePanel : null;
 
-                    FieldInfo fSaveName = __instance.GetType().GetField("saveName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    string saveName = (fSaveName != null) ? fSaveName.GetValue(__instance) as string : null;
-
-                    FieldInfo fUseCloud = __instance.GetType().GetField("useCloud", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    bool useCloud = (fUseCloud != null) && (bool)fUseCloud.GetValue(__instance);
-
-                    FieldInfo fQuit = __instance.GetType().GetField("quitAfterSaving", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    bool quitAfterSaving = (fQuit != null) && (bool)fQuit.GetValue(__instance);
-
-                    FieldInfo fLoc0 = __instance.GetType().GetField("$locvar0", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    object anon4 = (fLoc0 != null) ? fLoc0.GetValue(__instance) : null;
-                    if (anon4 != null)
-                    {
-                        if (string.IsNullOrEmpty(saveName))
-                        {
-                            FieldInfo fName4 = anon4.GetType().GetField("saveName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (fName4 != null) saveName = fName4.GetValue(anon4) as string;
-                        }
-                        if (!useCloud)
-                        {
-                            FieldInfo fCloud4 = anon4.GetType().GetField("useCloud", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (fCloud4 != null) useCloud = (bool)fCloud4.GetValue(anon4);
-                        }
-                        if (!quitAfterSaving)
-                        {
-                            FieldInfo fQuit4 = anon4.GetType().GetField("quitAfterSaving", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (fQuit4 != null) quitAfterSaving = (bool)fQuit4.GetValue(anon4);
-                        }
-                    }
-
-                    FieldInfo fLoc1 = __instance.GetType().GetField("$locvar1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    object anon5 = (fLoc1 != null) ? fLoc1.GetValue(__instance) : null;
-
-                    string filename = null;
-                    string savePath = null;
-                    if (anon5 != null)
-                    {
-                        FieldInfo fFile = anon5.GetType().GetField("filename", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fFile != null) filename = fFile.GetValue(anon5) as string;
-
-                        FieldInfo fPath = anon5.GetType().GetField("savePath", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fPath != null) savePath = fPath.GetValue(anon5) as string;
-                    }
-
-                    if (string.IsNullOrEmpty(filename))
-                    {
-                        filename = s_lastSavedCcsPath;
-                    }
-
-                    if (string.IsNullOrEmpty(saveName))
-                    {
-                        FieldInfo fLastSave = typeof(SavePanel).GetField("m_LastSaveName", BindingFlags.NonPublic | BindingFlags.Static);
-                        if (fLastSave != null) saveName = fLastSave.GetValue(null) as string;
-                    }
-                    if (string.IsNullOrEmpty(saveName))
-                    {
-                        var sm = Singleton<SimulationManager>.instance;
-                        if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
-                            saveName = sm.m_metaData.m_CityName;
-                        else
-                            saveName = "SavedGame";
-                    }
-
-                    string packagePathName = null;
-                    try
-                    {
-                        MethodInfo mGetSavePath = typeof(SavePanel).GetMethod("GetSavePathName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string), typeof(bool) }, null);
-                        if (mGetSavePath != null) packagePathName = (string)mGetSavePath.Invoke(null, new object[] { saveName, useCloud });
-                    }
-                    catch { }
-
-                    if (string.IsNullOrEmpty(packagePathName))
-                    {
-                        string savesDir = ColossalFramework.IO.DataLocation.saveLocation;
-                        packagePathName = Path.Combine(savesDir, ColossalFramework.IO.PathEscaper.Escape(saveName) + ".crp");
-                    }
-
-                    if (!string.IsNullOrEmpty(filename) && File.Exists(filename))
-                    {
-                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Main-Thread direct packaging to '{0}'...", packagePathName));
-                        var package = new ColossalFramework.Packaging.Package(saveName);
-                        package.packageMainAsset = saveName;
-                        var metaData = new SaveGameMetaData();
-                        metaData.mods = GatherModInfoSnapshot();
-                        metaData.assets = GatherAssetInfoSnapshot();
-                        metaData.timeStamp = DateTime.Now;
-                        var sm = Singleton<SimulationManager>.instance;
-                        if (sm != null && sm.m_metaData != null)
-                        {
-                            metaData.cityName = sm.m_metaData.m_CityName;
-                            metaData.environment = sm.m_metaData.m_environment;
-                            if (sm.m_metaData.m_MapThemeMetaData != null)
-                                metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
-                            metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
-                        }
-
-                        try
-                        {
-                            var dm = Singleton<DistrictManager>.instance;
-                            if (dm != null && dm.m_districts != null && dm.m_districts.m_buffer != null && dm.m_districts.m_buffer.Length > 0)
-                            {
-                                metaData.population = new UIPopulationWrapper(dm.m_districts.m_buffer[0].m_populationData.m_finalCount).result;
-                            }
-                        }
-                        catch { }
-
-                        try
-                        {
-                            var em = Singleton<EconomyManager>.instance;
-                            if (em != null)
-                            {
-                                metaData.cash = new UICurrencyWrapper(em.LastCashAmount).result;
-                            }
-                        }
-                        catch { }
-
-                        if (sp != null)
-                        {
-                            try
-                            {
-                                FieldInfo fSnapSteam = typeof(SavePanel).GetField("m_SnapshotSteamImage", BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (fSnapSteam != null)
-                                {
-                                    var steamImg = fSnapSteam.GetValue(sp) as ColossalFramework.Importers.Image;
-                                    if (steamImg != null)
-                                        metaData.steamPreviewRef = package.AddAsset(saveName + "_SteamPreview", steamImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
-                                }
-                                FieldInfo fSnapImg = typeof(SavePanel).GetField("m_SnapshotImage", BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (fSnapImg != null)
-                                {
-                                    var snapImg = fSnapImg.GetValue(sp) as ColossalFramework.Importers.Image;
-                                    if (snapImg != null)
-                                        metaData.imageRef = package.AddAsset(saveName + "_Snapshot", snapImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
-                                }
-                            }
-                            catch { }
-                        }
-
-                        metaData.assetRef = package.AddFileAsset(saveName + "_Data", filename, ColossalFramework.Packaging.Package.AssetType.Data, false);
-                        package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
-
-                        if (useCloud)
-                            package.SaveToCloud(packagePathName, false);
-                        else
-                            package.Save(packagePathName, false);
-
-                        try { File.Delete(filename); } catch { }
-                        if (!string.IsNullOrEmpty(savePath) && Directory.Exists(savePath))
-                        {
-                            try { ColossalFramework.IO.DirectoryUtils.DeleteDirectory(savePath); } catch { }
-                        }
-
-                        try
-                        {
-                            if (ColossalFramework.PlatformServices.PlatformService.platformType == ColossalFramework.PlatformServices.PlatformType.Unknown)
-                            {
-                                string loc = SavePanel.continueSaveDataLocation;
-                                if (!string.IsNullOrEmpty(loc))
-                                {
-                                    var continueData = new SavePanel.LauncherContinueSaveData();
-                                    continueData.title = saveName;
-                                    if (sm != null && sm.m_metaData != null) continueData.desc = sm.m_metaData.m_CityName;
-                                    continueData.date = DateTime.Now.ToString(ColossalFramework.Globalization.LocaleManager.cultureInfo);
-                                    File.WriteAllText(loc, UnityEngine.JsonUtility.ToJson(continueData));
-                                }
-                            }
-                        }
-                        catch { }
-
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Direct save packaging completed successfully! ✓ File: " + packagePathName);
-                    }
-                    else
-                    {
-                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Simulation data file not found: " + filename);
-                    }
-
-                    // Reset SavePanel tasks to eliminate any stale Task.Wait() on Main Thread
                     if (sp != null)
                     {
                         FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -8896,63 +8687,380 @@ namespace MoreNetworkCapacityRenew
                         if (fSnap != null) fSnap.SetValue(sp, null);
                     }
 
-                    // Immediately dismiss LoadSaveStatus ("Packaging..." / "Saving...") icon
-                    try
-                    {
-                        LoadSaveStatus.activeTask = null;
-                    }
-                    catch { }
+                    RescueSavePackagingIfStalled();
+                    CleanupAndRestoreUI(sp, false, false);
 
-                    // Reset m_IsSaving = false
-                    FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-                    if (fIsSaving != null)
-                    {
-                        try { fIsSaving.SetValue(null, false); } catch { }
-                    }
-
-                    // Notify SavePanel of completion
-                    if (sp != null)
-                    {
-                        try
-                        {
-                            MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                            if (mComplete != null)
-                            {
-                                mComplete.Invoke(sp, new object[] { quitAfterSaving, false });
-                            }
-                        }
-                        catch { }
-                    }
-
-                    // Dismiss any open modal dialog and ensure SavePanel is hidden
-                    try
-                    {
-                        try { LoadSaveStatus.activeTask = null; } catch { }
-                        ColossalFramework.UI.UIView.PopAllModal();
-                        ColossalFramework.UI.UIView.library.Hide("SavePanel");
-                    }
-                    catch { }
-
-                    // Terminate iterator so vanilla MoveNext PC=1 (and its deadlocking packaging task) never executes!
                     fPC.SetValue(__instance, -1);
                     __result = false;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Game saved cleanly and UI completely unblocked! ✓");
-                    return false; // Skip original MoveNext
+                    return false;
                 }
             }
             catch (Exception ex)
             {
-                SaveSimulationDataSafetyPatch.LogSaveDebug("SaveGame_MoveNext_Prefix error: " + ex);
                 UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix error: " + ex);
-                try { LoadSaveStatus.activeTask = null; } catch { }
+            }
+            return true;
+        }
+
+        private static System.Collections.IEnumerator SafeSaveGameCoroutine(SavePanel panel, string saveName, bool useCloud, bool quitAfterSaving)
+        {
+            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeSaveGame: Initiating safe save '{0}' (cloud={1}, quit={2})...", saveName, useCloud, quitAfterSaving));
+
+            try { ColossalFramework.UI.UIView.library.Hide("SavePanel", 1); } catch { }
+
+            if (!Singleton<LoadingManager>.exists || Singleton<LoadingManager>.instance.m_currentlyLoading)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeSaveGame: LoadingManager not ready or currently loading, aborting save.");
+                yield break;
+            }
+
+            SetIsSaving(true);
+
+            string savePath = System.IO.Path.Combine(ColossalFramework.IO.DataLocation.saveLocation, "Temp");
+            if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
+            string filename = ColossalFramework.IO.PathUtils.AddExtension(System.IO.Path.Combine(savePath, Guid.NewGuid().ToString()), ".ccs");
+
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeSaveGame: Calling LoadingManager.SaveLevel(" + filename + ")...");
+            yield return Singleton<LoadingManager>.instance.SaveLevel(filename);
+
+            if (!File.Exists(filename))
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SafeSaveGame: Simulation data file was not found: " + filename);
+                CleanupAndRestoreUI(panel, quitAfterSaving, true);
+                yield break;
+            }
+
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeSaveGame: Simulation data ready! Beginning direct packaging...");
+
+            // Wait up to 1.5 seconds for Snapshot if still in progress, yielding frames
+            if (panel != null)
+            {
+                FieldInfo fSnapTask = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fSnapTask != null)
+                {
+                    var snapTask = fSnapTask.GetValue(panel) as ColossalFramework.Threading.Task;
+                    if (snapTask != null && !snapTask.hasEnded)
+                    {
+                        float waitTimer = 0f;
+                        while (!snapTask.hasEnded && waitTimer < 1.5f)
+                        {
+                            waitTimer += UnityEngine.Time.unscaledDeltaTime;
+                            yield return null;
+                        }
+                    }
+                }
+            }
+
+            string packagePathName = GetSavePathName(saveName, useCloud);
+            bool saveSuccess = false;
+            try
+            {
+                var package = new ColossalFramework.Packaging.Package(saveName);
+                package.packageMainAsset = saveName;
+
+                var metaData = new SaveGameMetaData();
+                metaData.mods = GatherModInfoSnapshot();
+                metaData.assets = GatherAssetInfoSnapshot();
+                metaData.timeStamp = DateTime.Now;
+
+                var sm = Singleton<SimulationManager>.instance;
+                if (sm != null && sm.m_metaData != null)
+                {
+                    metaData.cityName = sm.m_metaData.m_CityName;
+                    metaData.environment = sm.m_metaData.m_environment;
+                    if (sm.m_metaData.m_MapThemeMetaData != null)
+                        metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
+                    metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
+                }
+
                 try
                 {
-                    FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
+                    var dm = Singleton<DistrictManager>.instance;
+                    if (dm != null && dm.m_districts != null && dm.m_districts.m_buffer != null && dm.m_districts.m_buffer.Length > 0)
+                        metaData.population = new UIPopulationWrapper(dm.m_districts.m_buffer[0].m_populationData.m_finalCount).result;
+                }
+                catch { }
+
+                try
+                {
+                    var em = Singleton<EconomyManager>.instance;
+                    if (em != null)
+                        metaData.cash = new UICurrencyWrapper(em.LastCashAmount).result;
+                }
+                catch { }
+
+                if (panel != null)
+                {
+                    try
+                    {
+                        FieldInfo fSnapSteam = typeof(SavePanel).GetField("m_SnapshotSteamImage", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fSnapSteam != null)
+                        {
+                            var steamImg = fSnapSteam.GetValue(panel) as ColossalFramework.Importers.Image;
+                            if (steamImg != null)
+                                metaData.steamPreviewRef = package.AddAsset(saveName + "_SteamPreview", steamImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
+                        }
+                        FieldInfo fSnapImg = typeof(SavePanel).GetField("m_SnapshotImage", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fSnapImg != null)
+                        {
+                            var snapImg = fSnapImg.GetValue(panel) as ColossalFramework.Importers.Image;
+                            if (snapImg != null)
+                                metaData.imageRef = package.AddAsset(saveName + "_Snapshot", snapImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
+                        }
+                    }
+                    catch { }
+                }
+
+                if (ColossalFramework.PlatformServices.PlatformService.platformType == ColossalFramework.PlatformServices.PlatformType.Steam)
+                {
+                    try
+                    {
+                        var continueData = new SavePanel.LauncherContinueSaveData
+                        {
+                            title = saveName,
+                            desc = (sm != null && sm.m_metaData != null) ? sm.m_metaData.m_CityName : string.Empty,
+                            date = DateTime.Now.ToString(ColossalFramework.Globalization.LocaleManager.cultureInfo)
+                        };
+                        File.WriteAllText(SavePanel.continueSaveDataLocation, UnityEngine.JsonUtility.ToJson(continueData));
+                    }
+                    catch { }
+                }
+
+                metaData.assetRef = package.AddFileAsset(saveName + "_Data", filename, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
+
+                if (useCloud)
+                    package.SaveToCloud(packagePathName, false);
+                else
+                    package.Save(packagePathName, false);
+
+                saveSuccess = true;
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeSaveGame: Package saved successfully to: " + packagePathName);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SafeSaveGame packaging exception: " + ex);
+            }
+
+            try { if (File.Exists(filename)) File.Delete(filename); } catch { }
+            try { if (Directory.Exists(savePath)) Directory.Delete(savePath, true); } catch { }
+
+            CleanupAndRestoreUI(panel, quitAfterSaving, !saveSuccess);
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeSaveGame: Complete! UI unblocked cleanly. ✓");
+        }
+
+        private static void SetIsSaving(bool value)
+        {
+            try
+            {
+                FieldInfo f = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+                if (f != null) f.SetValue(null, value);
+            }
+            catch { }
+        }
+
+        private static string GetSavePathName(string saveName, bool useCloud)
+        {
+            string text = ColossalFramework.IO.PathUtils.AddExtension(ColossalFramework.IO.PathEscaper.Escape(saveName), ColossalFramework.Packaging.PackageManager.packageExtension);
+            if (useCloud) return text;
+            return System.IO.Path.Combine(ColossalFramework.IO.DataLocation.saveLocation, text);
+        }
+
+        private static void CleanupAndRestoreUI(SavePanel panel, bool quitAfterSaving, bool errorOnSaving)
+        {
+            try { LoadSaveStatus.activeTask = null; } catch { }
+            try { SetIsSaving(false); } catch { }
+
+            if (panel != null)
+            {
+                try
+                {
+                    FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fPkg != null) fPkg.SetValue(panel, null);
+                    FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fSnap != null) fSnap.SetValue(panel, null);
                 }
                 catch { }
             }
-            return true;
+
+            try { ColossalFramework.UI.UIView.PopAllModal(); } catch { }
+            try { ColossalFramework.UI.UIView.library.Hide("SavePanel"); } catch { }
+
+            if (quitAfterSaving && !errorOnSaving && panel != null)
+            {
+                try
+                {
+                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                    if (mComplete != null) mComplete.Invoke(panel, new object[] { true, false });
+                }
+                catch { }
+            }
+        }
+
+        public static void LoadSaveStatus_Update_Prefix(LoadSaveStatus __instance)
+        {
+            try
+            {
+                var task = LoadSaveStatus.activeTask;
+                if (task != null && (task.name == "Packaging" || task.name == "Saving"))
+                {
+                    s_savingStuckTimer += UnityEngine.Time.unscaledDeltaTime;
+                    if (s_savingStuckTimer > 8f)
+                    {
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: Main-Thread detected stuck '{0}' task ({1:F1}s). Rescuing and restoring UI immediately!", task.name, s_savingStuckTimer));
+                        s_savingStuckTimer = 0f;
+
+                        try { LoadSaveStatus.activeTask = null; } catch { }
+                        SetIsSaving(false);
+
+                        try
+                        {
+                            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+                            if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
+                            CleanupAndRestoreUI(sp, false, false);
+                        }
+                        catch { }
+
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] LoadSaveStatus_Update_Prefix: UI restored cleanly from Main Thread! ✓");
+                    }
+                }
+                else
+                {
+                    s_savingStuckTimer = 0f;
+                }
+            }
+            catch { }
+        }
+
+        public static void OnSaveSimulationCompletedCleanly(string ccsPath)
+        {
+            s_lastSavedCcsPath = ccsPath;
+            s_lastSaveTime = DateTime.UtcNow;
+            StartSaveWatchdog();
+        }
+
+        public static void StartSaveWatchdog()
+        {
+            try
+            {
+                ColossalFramework.Threading.ThreadHelper.taskDistributor.Dispatch(SaveWatchdogThreadWorker);
+                var lm = Singleton<LoadingManager>.instance;
+                if (lm != null) lm.StartCoroutine(SaveWatchdogCoroutine());
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] StartSaveWatchdog error: " + ex);
+            }
+        }
+
+        private static System.Collections.IEnumerator SaveWatchdogCoroutine()
+        {
+            float elapsed = 0f;
+            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+            while (elapsed < 30f)
+            {
+                yield return new UnityEngine.WaitForSeconds(1f);
+                elapsed += 1f;
+                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
+                var activeTask = LoadSaveStatus.activeTask;
+                if (!isSaving && activeTask == null)
+                {
+                    yield break;
+                }
+            }
+
+            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread watchdog detected stuck save ({0:F1}s)! Forcing UI unfreeze...", elapsed));
+            RescueSavePackagingIfStalled();
+            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+            if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
+            CleanupAndRestoreUI(sp, false, false);
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread UI rescue completed cleanly! ✓");
+        }
+
+        private static void SaveWatchdogThreadWorker()
+        {
+            try
+            {
+                float elapsed = 0f;
+                FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+
+                while (elapsed < 30f)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                    elapsed += 1f;
+
+                    bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
+                    if (!isSaving) return;
+                }
+
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Detected long save ({0:F0}s).", elapsed));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdogThreadWorker error: " + ex);
+            }
+        }
+
+        private static void RescueSavePackagingIfStalled()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(s_lastSavedCcsPath) || !File.Exists(s_lastSavedCcsPath))
+                {
+                    return;
+                }
+
+                string saveName = null;
+                FieldInfo fLastSave = typeof(SavePanel).GetField("m_LastSaveName", BindingFlags.NonPublic | BindingFlags.Static);
+                if (fLastSave != null) saveName = fLastSave.GetValue(null) as string;
+                if (string.IsNullOrEmpty(saveName))
+                {
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
+                        saveName = sm.m_metaData.m_CityName;
+                    else
+                        saveName = "SavedGame";
+                }
+
+                bool useCloud = false;
+                FieldInfo fLastCloud = typeof(SavePanel).GetField("m_LastCloudSetting", BindingFlags.NonPublic | BindingFlags.Static);
+                if (fLastCloud != null) useCloud = (bool)fLastCloud.GetValue(null);
+
+                string packagePathName = GetSavePathName(saveName, useCloud);
+
+                if (File.Exists(s_lastSavedCcsPath))
+                {
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Rescuing save by packaging directly to '{0}'...", packagePathName));
+                    var package = new ColossalFramework.Packaging.Package(saveName);
+                    package.packageMainAsset = saveName;
+                    var metaData = new SaveGameMetaData();
+                    metaData.mods = GatherModInfoSnapshot();
+                    metaData.assets = GatherAssetInfoSnapshot();
+                    metaData.timeStamp = DateTime.Now;
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null)
+                    {
+                        metaData.cityName = sm.m_metaData.m_CityName;
+                        metaData.environment = sm.m_metaData.m_environment;
+                        if (sm.m_metaData.m_MapThemeMetaData != null)
+                            metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
+                        metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
+                    }
+                    metaData.assetRef = package.AddFileAsset(saveName + "_Data", s_lastSavedCcsPath, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                    package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
+                    if (useCloud)
+                        package.SaveToCloud(packagePathName, false);
+                    else
+                        package.Save(packagePathName, false);
+                    try { File.Delete(s_lastSavedCcsPath); } catch { }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Direct rescue packaging completed successfully! File saved: " + packagePathName);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] RescueSavePackagingIfStalled error: " + ex);
+            }
         }
 
         public static bool EmbedAssetInfo_Prefix(ref ModInfo[] __result)
@@ -8961,7 +9069,7 @@ namespace MoreNetworkCapacityRenew
             {
                 __result = GatherAssetInfoSnapshot();
                 UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] EmbedAssetInfo: Fast snapshot safely gathered {0} custom assets without Mono iterator stall ✓", __result.Length));
-                return false; // Safely return snapshot without running into Mono iterator deadlocks
+                return false;
             }
             catch (Exception ex)
             {
@@ -9048,240 +9156,11 @@ namespace MoreNetworkCapacityRenew
             return list.ToArray();
         }
 
-        public static void OnSaveSimulationCompletedCleanly(string ccsPath)
-        {
-            s_lastSavedCcsPath = ccsPath;
-            s_lastSaveTime = DateTime.UtcNow;
-            StartSaveWatchdog();
-        }
-
-        public static void StartSaveWatchdog()
-        {
-            try
-            {
-                ColossalFramework.Threading.ThreadHelper.taskDistributor.Dispatch(SaveWatchdogThreadWorker);
-                var lm = Singleton<LoadingManager>.instance;
-                if (lm != null) lm.StartCoroutine(SaveWatchdogCoroutine());
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] StartSaveWatchdog error: " + ex);
-            }
-        }
-
-        private static System.Collections.IEnumerator SaveWatchdogCoroutine()
-        {
-            float elapsed = 0f;
-            FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-            while (elapsed < 3.5f)
-            {
-                yield return new UnityEngine.WaitForSeconds(0.5f);
-                elapsed += 0.5f;
-                bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
-                var activeTask = LoadSaveStatus.activeTask;
-                if (!isSaving && activeTask == null)
-                {
-                    yield break;
-                }
-            }
-
-            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread watchdog detected stuck save ({0:F1}s)! Forcing UI unfreeze...", elapsed));
-            RescueSavePackagingIfStalled();
-            try { LoadSaveStatus.activeTask = null; } catch { }
-            if (fIsSaving != null) { try { fIsSaving.SetValue(null, false); } catch { } }
-            try
-            {
-                SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-                if (sp == null) { try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { } }
-                if (sp != null)
-                {
-                    FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fPkg != null) fPkg.SetValue(sp, null);
-                    FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fSnap != null) fSnap.SetValue(sp, null);
-                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                    if (mComplete != null) mComplete.Invoke(sp, new object[] { false, false });
-                }
-            }
-            catch { }
-            try { ColossalFramework.UI.UIView.PopAllModal(); } catch { }
-            try { ColossalFramework.UI.UIView.library.Hide("SavePanel"); } catch { }
-            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdogCoroutine: Main-thread UI rescue completed cleanly! ✓");
-        }
-
-        private static void SaveWatchdogThreadWorker()
-        {
-            try
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Background thread started monitoring save packaging completion...");
-                float elapsed = 0f;
-                FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-
-                while (elapsed < 4f)
-                {
-                    System.Threading.Thread.Sleep(500);
-                    elapsed += 0.5f;
-
-                    bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
-                    if (!isSaving)
-                    {
-                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Game save completed cleanly by vanilla game in {0:F1}s ✓", elapsed));
-                        return;
-                    }
-                }
-
-                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging ({0:F0}s timeout). Rescuing packaging from background thread...", elapsed));
-
-                RescueSavePackagingIfStalled();
-
-                if (fIsSaving != null)
-                {
-                    try { fIsSaving.SetValue(null, false); } catch { }
-                }
-
-                ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
-                {
-                    try
-                    {
-                        SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-                        if (sp == null)
-                        {
-                            try { sp = ColossalFramework.UI.UIView.library.Get<SavePanel>("SavePanel"); } catch { }
-                        }
-
-                        if (sp != null)
-                        {
-                            FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (fPkg != null) fPkg.SetValue(sp, null);
-                            FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (fSnap != null) fSnap.SetValue(sp, null);
-
-                            MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                            if (mComplete != null)
-                            {
-                                mComplete.Invoke(sp, new object[] { false, false });
-                            }
-                        }
-
-                        try { LoadSaveStatus.activeTask = null; } catch { }
-                        ColossalFramework.UI.UIView.PopAllModal();
-                        ColossalFramework.UI.UIView.library.Hide("SavePanel");
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog UI cleanup error: " + ex);
-                    }
-                });
-
-                try
-                {
-                    Singleton<SimulationManager>.instance.AddAction(() =>
-                    {
-                        try
-                        {
-                            ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
-                            {
-                                try
-                                {
-                                    LoadSaveStatus.activeTask = null;
-                                    ColossalFramework.UI.UIView.PopAllModal();
-                                    ColossalFramework.UI.UIView.library.Hide("SavePanel");
-                                }
-                                catch { }
-                            });
-                        }
-                        catch { }
-                    });
-                }
-                catch { }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdogThreadWorker error: " + ex);
-            }
-        }
-
-        private static void RescueSavePackagingIfStalled()
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(s_lastSavedCcsPath) || !File.Exists(s_lastSavedCcsPath))
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: No orphaned .ccs file found, skipping fallback packaging.");
-                    return;
-                }
-
-                string saveName = null;
-                FieldInfo fLastSave = typeof(SavePanel).GetField("m_LastSaveName", BindingFlags.NonPublic | BindingFlags.Static);
-                if (fLastSave != null) saveName = fLastSave.GetValue(null) as string;
-                if (string.IsNullOrEmpty(saveName))
-                {
-                    var sm = Singleton<SimulationManager>.instance;
-                    if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
-                        saveName = sm.m_metaData.m_CityName;
-                    else
-                        saveName = "SavedGame";
-                }
-
-                bool useCloud = false;
-                FieldInfo fLastCloud = typeof(SavePanel).GetField("m_LastCloudSetting", BindingFlags.NonPublic | BindingFlags.Static);
-                if (fLastCloud != null) useCloud = (bool)fLastCloud.GetValue(null);
-
-                string packagePathName = null;
-                try
-                {
-                    MethodInfo mGetSavePath = typeof(SavePanel).GetMethod("GetSavePathName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string), typeof(bool) }, null);
-                    if (mGetSavePath != null) packagePathName = (string)mGetSavePath.Invoke(null, new object[] { saveName, useCloud });
-                }
-                catch { }
-
-                if (string.IsNullOrEmpty(packagePathName))
-                {
-                    string savesDir = ColossalFramework.IO.DataLocation.saveLocation;
-                    packagePathName = Path.Combine(savesDir, ColossalFramework.IO.PathEscaper.Escape(saveName) + ".crp");
-                }
-
-                if (File.Exists(s_lastSavedCcsPath))
-                {
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Rescuing save by packaging directly to '{0}'...", packagePathName));
-                    var package = new ColossalFramework.Packaging.Package(saveName);
-                    package.packageMainAsset = saveName;
-                    var metaData = new SaveGameMetaData();
-                    metaData.mods = GatherModInfoSnapshot();
-                    metaData.assets = GatherAssetInfoSnapshot();
-                    metaData.timeStamp = DateTime.Now;
-                    var sm = Singleton<SimulationManager>.instance;
-                    if (sm != null && sm.m_metaData != null)
-                    {
-                        metaData.cityName = sm.m_metaData.m_CityName;
-                        metaData.environment = sm.m_metaData.m_environment;
-                        if (sm.m_metaData.m_MapThemeMetaData != null)
-                            metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
-                        metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
-                    }
-                    metaData.assetRef = package.AddFileAsset(saveName + "_Data", s_lastSavedCcsPath, ColossalFramework.Packaging.Package.AssetType.Data, false);
-                    package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
-                    if (useCloud)
-                        package.SaveToCloud(packagePathName, false);
-                    else
-                        package.Save(packagePathName, false);
-                    try { File.Delete(s_lastSavedCcsPath); } catch { }
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Direct rescue packaging completed successfully! File saved: " + packagePathName);
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] RescueSavePackagingIfStalled error: " + ex);
-            }
-        }
-
         public static bool Prefix(SavePanel __instance, bool quitAfterSaving, bool errorOnSaving)
         {
             try
             {
-                FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
-                if (fIsSaving != null) fIsSaving.SetValue(null, false);
+                SetIsSaving(false);
 
                 bool effectiveError = errorOnSaving;
                 if (SaveSimulationDataSafetyPatch.LastSaveSimulationException != null)
@@ -9318,8 +9197,6 @@ namespace MoreNetworkCapacityRenew
                 // If save completed cleanly, let vanilla OnSavingComplete execute.
                 // Vanilla cleanly resets m_IsSaving = false and, if quitAfterSaving is true,
                 // safely dispatches QuitApplication() to the Main Thread via ThreadHelper.dispatcher.Dispatch().
-                // Calling QuitApplication() directly here on the background TaskWorker thread causes
-                // immediate off-thread level unloading and throws NullReferenceException in Unity UI/AdaptiveRoads!
                 return true;
             }
             catch (Exception ex)
@@ -9329,7 +9206,6 @@ namespace MoreNetworkCapacityRenew
             }
         }
     }
-
 
 
     // ============================================================================

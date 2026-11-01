@@ -8,7 +8,7 @@ GAME_DIR="$HOME/Library/Application Support/Steam/steamapps/common/Cities_Skylin
 CECIL_DLL="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/gac/Mono.Cecil/0.11.1.0__0738eb9f132ed756/Mono.Cecil.dll"
 
 echo "=========================================================="
-echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.39..."
+echo "🚀 Building More Nodes/Segments [Close Beta] v5.0.40..."
 echo "=========================================================="
 
 # 0. Compile and run test suite
@@ -42,11 +42,19 @@ cp MoreNetworkCapacity.Core.dll "$SCRIPT_DIR/content_beta/"
 # 3. Deploy to local workshop cache if exists
 BETA_WORKSHOP_DIR="$HOME/Library/Application Support/Steam/steamapps/workshop/content/255710/3829341972"
 if [ -d "$BETA_WORKSHOP_DIR" ]; then
-    echo "📦 Updating local workshop cache ($BETA_WORKSHOP_DIR)..."
+    echo "📦 Updating beta workshop cache ($BETA_WORKSHOP_DIR)..."
     rm -f "$BETA_WORKSHOP_DIR/MoreNodesSegments.dll"
     cp MoreNodesSegmentsBeta.dll "$BETA_WORKSHOP_DIR/"
     cp MoreNetworkCapacity.Core.dll "$BETA_WORKSHOP_DIR/"
     [ -f preview-image.png ] && cp preview-image.png "$BETA_WORKSHOP_DIR/PreviewImage.png"
+fi
+
+PUBLIC_WORKSHOP_DIR="$HOME/Library/Application Support/Steam/steamapps/workshop/content/255710/3818403598"
+if [ -d "$PUBLIC_WORKSHOP_DIR" ]; then
+    echo "📦 Updating public workshop cache ($PUBLIC_WORKSHOP_DIR)..."
+    cp MoreNodesSegmentsBeta.dll "$PUBLIC_WORKSHOP_DIR/MoreNodesSegments.dll"
+    cp MoreNetworkCapacity.Core.dll "$PUBLIC_WORKSHOP_DIR/"
+    [ -f preview-image.png ] && cp preview-image.png "$PUBLIC_WORKSHOP_DIR/PreviewImage.png"
 fi
 
 # 4. Deploy to local Addons/Mods directory if exists
