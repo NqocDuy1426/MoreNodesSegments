@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.37 by NgocDuy";
-        public string Description => "[Close Beta v5.0.37] Reliable Save Packaging Rescue & Grid Cycle Armor.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.38 by NgocDuy";
+        public string Description => "[Close Beta v5.0.38] Instant Direct Save Packaging, LoadSaveStatus Dismissal & Freeze Immunity.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
@@ -8626,57 +8626,246 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static void SaveGame_MoveNext_Prefix(object __instance)
+        public static bool SaveGame_MoveNext_Prefix(object __instance, ref bool __result)
         {
             try
             {
-                if (__instance == null) return;
+                if (__instance == null) return true;
                 FieldInfo fPC = __instance.GetType().GetField("$PC", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fPC == null) return;
+                if (fPC == null) return true;
                 int pc = Convert.ToInt32(fPC.GetValue(__instance));
                 // PC == 1 is immediately after yield return LoadingManager.instance.SaveLevel(filename)
                 if (pc == 1)
                 {
                     FieldInfo fThis = __instance.GetType().GetField("$this", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     SavePanel sp = (fThis != null) ? fThis.GetValue(__instance) as SavePanel : null;
-                    if (sp != null)
+
+                    FieldInfo fSaveName = __instance.GetType().GetField("saveName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    string saveName = (fSaveName != null) ? fSaveName.GetValue(__instance) as string : null;
+
+                    FieldInfo fUseCloud = __instance.GetType().GetField("useCloud", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    bool useCloud = (fUseCloud != null) && (bool)fUseCloud.GetValue(__instance);
+
+                    FieldInfo fQuit = __instance.GetType().GetField("quitAfterSaving", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    bool quitAfterSaving = (fQuit != null) && (bool)fQuit.GetValue(__instance);
+
+                    FieldInfo fLoc1 = __instance.GetType().GetField("$locvar1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    object anon5 = (fLoc1 != null) ? fLoc1.GetValue(__instance) : null;
+
+                    string filename = null;
+                    string savePath = null;
+                    if (anon5 != null)
                     {
-                        FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fSnap != null)
+                        FieldInfo fFile = anon5.GetType().GetField("filename", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fFile != null) filename = fFile.GetValue(anon5) as string;
+
+                        FieldInfo fPath = anon5.GetType().GetField("savePath", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fPath != null) savePath = fPath.GetValue(anon5) as string;
+                    }
+
+                    if (string.IsNullOrEmpty(filename))
+                    {
+                        filename = s_lastSavedCcsPath;
+                    }
+
+                    if (string.IsNullOrEmpty(saveName))
+                    {
+                        FieldInfo fLastSave = typeof(SavePanel).GetField("m_LastSaveName", BindingFlags.NonPublic | BindingFlags.Static);
+                        if (fLastSave != null) saveName = fLastSave.GetValue(null) as string;
+                    }
+                    if (string.IsNullOrEmpty(saveName))
+                    {
+                        var sm = Singleton<SimulationManager>.instance;
+                        if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
+                            saveName = sm.m_metaData.m_CityName;
+                        else
+                            saveName = "SavedGame";
+                    }
+
+                    string packagePathName = null;
+                    try
+                    {
+                        MethodInfo mGetSavePath = typeof(SavePanel).GetMethod("GetSavePathName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string), typeof(bool) }, null);
+                        if (mGetSavePath != null) packagePathName = (string)mGetSavePath.Invoke(null, new object[] { saveName, useCloud });
+                    }
+                    catch { }
+
+                    if (string.IsNullOrEmpty(packagePathName))
+                    {
+                        string savesDir = ColossalFramework.IO.DataLocation.saveLocation;
+                        packagePathName = Path.Combine(savesDir, ColossalFramework.IO.PathEscaper.Escape(saveName) + ".crp");
+                    }
+
+                    if (!string.IsNullOrEmpty(filename) && File.Exists(filename))
+                    {
+                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Main-Thread direct packaging to '{0}'...", packagePathName));
+                        var package = new ColossalFramework.Packaging.Package(saveName);
+                        package.packageMainAsset = saveName;
+                        var metaData = new SaveGameMetaData();
+                        metaData.mods = GatherModInfoSnapshot();
+                        metaData.assets = GatherAssetInfoSnapshot();
+                        metaData.timeStamp = DateTime.Now;
+                        var sm = Singleton<SimulationManager>.instance;
+                        if (sm != null && sm.m_metaData != null)
                         {
-                            ColossalFramework.Threading.Task snapTask = fSnap.GetValue(sp) as ColossalFramework.Threading.Task;
-                            if (snapTask != null && !snapTask.hasEnded)
-                            {
-                                snapTask.WaitForSeconds(1f);
-                                if (!snapTask.hasEnded)
-                                {
-                                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: m_SnapshotImageTask did not complete within 1s. Clearing to prevent Main Thread deadlock.");
-                                    fSnap.SetValue(sp, null);
-                                }
-                            }
+                            metaData.cityName = sm.m_metaData.m_CityName;
+                            metaData.environment = sm.m_metaData.m_environment;
+                            if (sm.m_metaData.m_MapThemeMetaData != null)
+                                metaData.mapThemeRef = sm.m_metaData.m_MapThemeMetaData.mapThemeRef;
+                            metaData.achievementsDisabled = (sm.m_metaData.m_disableAchievements == SimulationMetaData.MetaBool.True);
                         }
 
-                        FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fPkg != null)
+                        try
                         {
-                            ColossalFramework.Threading.Task pkgTask = fPkg.GetValue(sp) as ColossalFramework.Threading.Task;
-                            if (pkgTask != null && !pkgTask.hasEnded)
+                            var dm = Singleton<DistrictManager>.instance;
+                            if (dm != null && dm.m_districts != null && dm.m_districts.m_buffer != null && dm.m_districts.m_buffer.Length > 0)
                             {
-                                pkgTask.WaitForSeconds(1f);
-                                if (!pkgTask.hasEnded)
+                                metaData.population = new UIPopulationWrapper(dm.m_districts.m_buffer[0].m_populationData.m_finalCount).result;
+                            }
+                        }
+                        catch { }
+
+                        try
+                        {
+                            var em = Singleton<EconomyManager>.instance;
+                            if (em != null)
+                            {
+                                metaData.cash = new UICurrencyWrapper(em.LastCashAmount).result;
+                            }
+                        }
+                        catch { }
+
+                        if (sp != null)
+                        {
+                            try
+                            {
+                                FieldInfo fSnapSteam = typeof(SavePanel).GetField("m_SnapshotSteamImage", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fSnapSteam != null)
                                 {
-                                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: m_PackageSaveTask did not complete within 1s. Clearing to prevent Main Thread deadlock.");
-                                    fPkg.SetValue(sp, null);
+                                    var steamImg = fSnapSteam.GetValue(sp) as ColossalFramework.Importers.Image;
+                                    if (steamImg != null)
+                                        metaData.steamPreviewRef = package.AddAsset(saveName + "_SteamPreview", steamImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
+                                }
+                                FieldInfo fSnapImg = typeof(SavePanel).GetField("m_SnapshotImage", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fSnapImg != null)
+                                {
+                                    var snapImg = fSnapImg.GetValue(sp) as ColossalFramework.Importers.Image;
+                                    if (snapImg != null)
+                                        metaData.imageRef = package.AddAsset(saveName + "_Snapshot", snapImg, false, ColossalFramework.Importers.Image.BufferFileFormat.PNG, false, false);
+                                }
+                            }
+                            catch { }
+                        }
+
+                        metaData.assetRef = package.AddFileAsset(saveName + "_Data", filename, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                        package.AddAsset(saveName, metaData, UserAssetType.SaveGameMetaData, false);
+
+                        if (useCloud)
+                            package.SaveToCloud(packagePathName, false);
+                        else
+                            package.Save(packagePathName, false);
+
+                        try { File.Delete(filename); } catch { }
+                        if (!string.IsNullOrEmpty(savePath) && Directory.Exists(savePath))
+                        {
+                            try { ColossalFramework.IO.DirectoryUtils.DeleteDirectory(savePath); } catch { }
+                        }
+
+                        try
+                        {
+                            if (ColossalFramework.PlatformServices.PlatformService.platformType == ColossalFramework.PlatformServices.PlatformType.Unknown)
+                            {
+                                string loc = SavePanel.continueSaveDataLocation;
+                                if (!string.IsNullOrEmpty(loc))
+                                {
+                                    var continueData = new SavePanel.LauncherContinueSaveData();
+                                    continueData.title = saveName;
+                                    if (sm != null && sm.m_metaData != null) continueData.desc = sm.m_metaData.m_CityName;
+                                    continueData.date = DateTime.Now.ToString(ColossalFramework.Globalization.LocaleManager.cultureInfo);
+                                    File.WriteAllText(loc, UnityEngine.JsonUtility.ToJson(continueData));
                                 }
                             }
                         }
+                        catch { }
+
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Direct save packaging completed successfully! ✓ File: " + packagePathName);
                     }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Simulation data file not found: " + filename);
+                    }
+
+                    // Reset SavePanel tasks to eliminate any stale Task.Wait() on Main Thread
+                    if (sp != null)
+                    {
+                        FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fPkg != null) fPkg.SetValue(sp, null);
+                        FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fSnap != null) fSnap.SetValue(sp, null);
+                    }
+
+                    // Immediately dismiss LoadSaveStatus ("Packaging..." / "Saving...") icon
+                    try
+                    {
+                        LoadSaveStatus.activeTask = null;
+                    }
+                    catch { }
+
+                    // Reset m_IsSaving = false
+                    FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+                    if (fIsSaving != null)
+                    {
+                        try { fIsSaving.SetValue(null, false); } catch { }
+                    }
+
+                    // Notify SavePanel of completion
+                    if (sp != null)
+                    {
+                        try
+                        {
+                            MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                            if (mComplete != null)
+                            {
+                                mComplete.Invoke(sp, new object[] { quitAfterSaving, false });
+                            }
+                        }
+                        catch { }
+                    }
+
+                    // Dismiss any open modal dialog and ensure SavePanel is hidden
+                    try
+                    {
+                        try { LoadSaveStatus.activeTask = null; } catch { }
+
+                        var modal = ColossalFramework.UI.UIView.GetModalComponent();
+                        if (modal != null)
+                        {
+                            ColossalFramework.UI.UIView.PopModal();
+                        }
+                        ColossalFramework.UI.UIView.library.Hide("SavePanel");
+                    }
+                    catch { }
+
+                    // Terminate iterator so vanilla MoveNext PC=1 (and its deadlocking packaging task) never executes!
+                    fPC.SetValue(__instance, -1);
+                    __result = false;
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: Game saved cleanly and UI completely unblocked! ✓");
+                    return false; // Skip original MoveNext
                 }
             }
             catch (Exception ex)
             {
                 SaveSimulationDataSafetyPatch.LogSaveDebug("SaveGame_MoveNext_Prefix error: " + ex);
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix error: " + ex);
+                try { LoadSaveStatus.activeTask = null; } catch { }
+                try
+                {
+                    FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
+                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
+                }
+                catch { }
             }
+            return true;
         }
 
         public static bool EmbedAssetInfo_Prefix(ref ModInfo[] __result)
@@ -8851,6 +9040,8 @@ namespace MoreNetworkCapacityRenew
                                 mComplete.Invoke(sp, new object[] { false, false });
                             }
                         }
+
+                        try { LoadSaveStatus.activeTask = null; } catch { }
 
                         var modal = ColossalFramework.UI.UIView.GetModalComponent();
                         if (modal != null)

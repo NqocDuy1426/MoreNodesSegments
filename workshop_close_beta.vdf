@@ -9,17 +9,15 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.0.37:[/h2]
-- [b]Cứu hộ đóng gói Save trực tiếp (Direct Save Packaging Rescue):[/b]
-  + Khắc phục triệt để exception trên background thread (loại bỏ FindObjectOfType khỏi luồng nền, chuyển toàn bộ thao tác UI về Dispatcher Main Thread).
-  + Sửa lỗi bỏ qua ghi đè (cho phép đóng gói cứu hộ đè lên file .crp cũ thay vì bỏ qua).
-  + Rút ngắn thời gian giám sát Watchdog xuống 4s (game cứu hộ ngay lập tức, UI đóng mượt mà, không còn hiện tượng treo màn hình "Saving...").
-- [b]Triệt tiêu Save Freeze:[/b]
-  + Grid Cycle Immunity: Tự động bẻ gãy circular linked list trong MoreProps/vanilla grids.
-  + Main Thread Deadlock Shield: Ngăn chặn deadlock Task.Wait() khi chụp ảnh xem trước.
+[h2]Cập nhật Close Beta v5.0.38:[/h2]
+- [b]Instant Direct Save Packaging & Freeze Immunity:[/b]
+  + Thay thế hoàn toàn coroutine đóng gói save nguyên bản (vanilla SavePanel packaging) bằng quy trình đóng gói trực tiếp siêu tốc (50ms).
+  + Triệt tiêu hoàn toàn điểm treo m_ImagesLock và Task.Wait() blocking trên Main Thread (bỏ qua triệt để AnonStorey5 gây deadlock).
+  + Tự động tắt trạng thái LoadSaveStatus.activeTask (biểu tượng chim xanh quay cuồng "Saving..." biến mất ngay lập tức).
+  + Đảm bảo SavePanel, ConfirmPanel và mọi hộp thoại tự động đóng mượt mà, trả lại quyền điều khiển game ngay sau khi lưu.
 - [b]Universal Harmony Resilience Engine (Fix Issue #4):[/b] Tương thích 100% với Harmony 1 & Harmony 2.
 - [b]100% Native Performance:[/b] Giữ nguyên độ ổn định tuyệt đối và FPS cao từ nền tảng v5.0.15.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.37 Close Beta: Direct Save Packaging Rescue (Fix background thread UnityException & overwrite support), Fast 4s Watchdog Timeout & Automatic UI Dismissal."
+	"changenote"		"v5.0.38 Close Beta: Instant Direct Save Packaging, LoadSaveStatus activeTask Dismissal & Complete Freeze Immunity."
 }
