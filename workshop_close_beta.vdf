@@ -9,15 +9,14 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.0.40:[/h2]
-- [b]Safe Save Coroutine Replacement & UI Freeze Immunity:[/b]
-  + Thay thế trực tiếp coroutine SaveGame của SavePanel bằng SafeSaveGameCoroutine.
-  + Đóng gói save trực tiếp trên Main Thread song song mà không khóa luồng hay chờ vô hạn Task.Wait().
-  + Tự động dọn dẹp và giải phóng hoàn toàn LoadSaveStatus.activeTask ("Saving"/"Packaging"), m_IsSaving và modal stack.
-  + Triệt tiêu triệt để hiện tượng đứng đơ game và chuột hiển thị biểu tượng loading sau khi lưu.
+[h2]Cập nhật Close Beta v5.0.41:[/h2]
+- [b]Pure Vanilla Save Flow (Để Game Gốc Tự Xử Lý 100%):[/b]
+  + Gỡ bỏ hoàn toàn mọi hook can thiệp vào SavePanel, SaveGame coroutine, iterator và watchdog.
+  + Trả lại 100% quy trình đóng gói save, snapshot và giải phóng UI cho engine gốc của Cities: Skylines tự xử lý tự nhiên.
+  + Đảm bảo serialization 64K nodes/segments chạy mượt mà không xung đột tiến trình lưu game.
 - [b]Universal Harmony Resilience Engine (Fix Issue #4):[/b] Tương thích 100% với Harmony 1 & Harmony 2.
 - [b]100% Native Performance:[/b] Giữ nguyên độ ổn định tuyệt đối và FPS cao từ nền tảng v5.0.15.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.40 Close Beta: Complete Safe Save Coroutine Replacement, Fast Direct Packaging & UI Freeze Immunity."
+	"changenote"		"v5.0.41 Close Beta: Pure Vanilla Save Pipeline - 100% Native Save & Packaging Flow."
 }

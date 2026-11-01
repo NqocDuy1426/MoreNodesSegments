@@ -1613,7 +1613,7 @@ class TestSuite
         // ====================================================================
         // TEST GROUP 34: Universal Harmony Resilience Engine & Save Packaging Rescue (v5.0.35)
         // ====================================================================
-        Console.WriteLine("\n--- TEST GROUP 34: Universal Harmony Resilience Engine & Save Packaging Rescue (v5.0.35) ---");
+        Console.WriteLine("\n--- TEST GROUP 34: Universal Harmony Resilience Engine & Pure Vanilla Save Pipeline (v5.0.41) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -1629,23 +1629,18 @@ class TestSuite
             bool hasInternalKian = renewCode.Contains("internal static int SafePatchKianCommons");
             Assert(hasInternalKian, "SafePatchKianCommons is declared internal to prevent Harmony type leakage");
 
-            // 34.3 EmbedAssetInfo & EmbedModInfo thread-safe snapshotting
-            bool hasEmbedPatch = renewCode.Contains("EmbedAssetInfo_Prefix") &&
-                                 renewCode.Contains("EmbedModInfo_Prefix") &&
-                                 renewCode.Contains("GatherAssetInfoSnapshot") &&
-                                 renewCode.Contains("GatherModInfoSnapshot");
-            Assert(hasEmbedPatch, "EmbedAssetInfo and EmbedModInfo thread-safe snapshots eliminate Mono collection stalls and exceptions");
+            // 34.3 Safe Asset & Mod Info Snapshots available for orphaned save rescue
+            bool hasSnapshots = renewCode.Contains("GatherAssetInfoSnapshot") &&
+                                renewCode.Contains("GatherModInfoSnapshot");
+            Assert(hasSnapshots, "GatherAssetInfoSnapshot and GatherModInfoSnapshot available for orphaned save recovery");
 
-            // 34.4 SaveWatchdog and RescueSavePackagingIfStalled
-            bool hasWatchdogRescue = renewCode.Contains("SaveWatchdogCoroutine") &&
-                                     renewCode.Contains("OnSaveSimulationCompletedCleanly") &&
-                                     renewCode.Contains("RescueSavePackagingIfStalled") &&
-                                     renewCode.Contains("Direct rescue packaging completed successfully");
-            Assert(hasWatchdogRescue, "SaveWatchdog monitors packaging and rescues stalled saves by packaging directly to .crp");
+            // 34.4 SaveGame coroutine is 100% native (no SafeSaveGameCoroutine hijack)
+            bool noSaveHijack = !renewCode.Contains("SafeSaveGameCoroutine");
+            Assert(noSaveHijack, "SavePanel.SaveGame is NOT hijacked with custom coroutines (100% native vanilla execution)");
 
-            // 34.5 SaveSimulationData connects cleanly to SaveWatchdog
+            // 34.5 SaveSimulationData connects cleanly to OnSaveSimulationCompletedCleanly
             bool hasCleanSaveHook = renewCode.Contains("SavePanelOnSavingCompletePatch.OnSaveSimulationCompletedCleanly(CurrentSavingFilename);");
-            Assert(hasCleanSaveHook, "SaveSimulationData connects cleanly to SaveWatchdog on successful simulation completion");
+            Assert(hasCleanSaveHook, "SaveSimulationData connects cleanly upon successful simulation completion");
         }
         catch (Exception ex)
         {
@@ -1653,9 +1648,9 @@ class TestSuite
         }
 
         // ====================================================================
-        // TEST GROUP 35: Grid Cycle Immunity & Deadlock-Free Save Packaging (v5.0.36)
+        // TEST GROUP 35: Grid Cycle Immunity & Pure Vanilla Save Flow (v5.0.41)
         // ====================================================================
-        Console.WriteLine("\n--- TEST GROUP 35: Grid Cycle Immunity & Deadlock-Free Save Packaging (v5.0.36) ---");
+        Console.WriteLine("\n--- TEST GROUP 35: Grid Cycle Immunity & Pure Vanilla Save Flow (v5.0.41) ---");
         try
         {
             string renewCode = File.ReadAllText("Renew.cs");
@@ -1667,22 +1662,18 @@ class TestSuite
                                     renewCode.Contains("RescueOrphanedTempSaves");
             Assert(hasGridSanitizer, "GridSanitizerArmor implemented with MoreProps and vanilla grid cycle repair");
 
-            // 35.2 SavePanel OnSave & MoveNext Deadlock Armor
-            bool hasSavePanelArmor = renewCode.Contains("SavePanel_OnSave_Prefix") &&
-                                     renewCode.Contains("SaveGame_MoveNext_Prefix") &&
-                                     renewCode.Contains("m_SnapshotImageTask") &&
-                                     renewCode.Contains("m_PackageSaveTask");
-            Assert(hasSavePanelArmor, "SavePanel MoveNext armored against Task.Wait() deadlock on Main Thread");
+            // 35.2 SavePanel MoveNext left 100% native
+            bool noMoveNextHijack = !renewCode.Contains("SaveGame_MoveNext_Prefix");
+            Assert(noMoveNextHijack, "SavePanel <SaveGame>c__Iterator1 MoveNext left 100% native without iterator hijacking");
 
             // 35.3 MoreProps Grid Cycle Armor in GameLoadingArmor
             bool hasMorePropsArmor = renewCode.Contains("MoreProps_EndRenderingImplPostfix_Prefix") &&
                                      renewCode.Contains("MoreProps_AddToGrid32_Prefix");
             Assert(hasMorePropsArmor, "MoreProps EndRenderingImpl and AddToGrid32 armored against infinite loops");
 
-            // 35.4 Background Thread Save Watchdog via ThreadHelper.taskDistributor
-            bool hasBgWatchdog = renewCode.Contains("ThreadHelper.taskDistributor.Dispatch(SaveWatchdogThreadWorker)") &&
-                                 renewCode.Contains("SaveWatchdogThreadWorker");
-            Assert(hasBgWatchdog, "SaveWatchdog executes on background OS worker thread via ThreadHelper.taskDistributor");
+            // 35.4 Zero invasive background save watchdogs
+            bool noInvasiveWatchdog = !renewCode.Contains("SaveWatchdogThreadWorker") && !renewCode.Contains("SaveWatchdogCoroutine");
+            Assert(noInvasiveWatchdog, "Zero invasive background save watchdogs running (vanilla handles save packaging natively)");
 
             // 35.5 PreSaveSanitization & LevelLoad integration
             bool hasIntegration = renewCode.Contains("GridSanitizerArmor.SanitizeAllGrids(\"PreSaveSanitization\")") &&
