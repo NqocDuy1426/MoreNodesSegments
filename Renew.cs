@@ -8317,6 +8317,210 @@ namespace MoreNetworkCapacityRenew
         }
     }
 
+    // ============================================================================
+    // GRID SANITIZER ARMOR (Cycle & Infinite Loop Immunity)
+    // Prevents freezes in camera snapshot rendering and simulation grid traversals
+    // ============================================================================
+    internal static class GridSanitizerArmor
+    {
+        public static bool s_morePropsGridDirty = true;
+
+        public static void SanitizeAllGrids(string callerContext)
+        {
+            SanitizeMorePropsGrid(callerContext);
+            SanitizeVanillaGrids(callerContext);
+        }
+
+        public static void SanitizeMorePropsGrid(string callerContext)
+        {
+            try
+            {
+                Type epmType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MorePropsBETA" || asm.GetName().Name == "MoreProps")
+                    {
+                        epmType = asm.GetType("MorePropsBETA.ExtendedPropManager") ?? asm.GetType("MoreProps.ExtendedPropManager");
+                        if (epmType != null) break;
+                    }
+                }
+                if (epmType == null) return;
+
+                PropertyInfo pInstance = epmType.GetProperty("Instance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                object instance = pInstance?.GetValue(null, null);
+                if (instance == null) return;
+
+                FieldInfo fGrid = epmType.GetField("m_propGrid32", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                FieldInfo fProps = epmType.GetField("m_props256k", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fGrid == null || fProps == null) return;
+
+                uint[] propGrid = fGrid.GetValue(instance) as uint[];
+                Array props = fProps.GetValue(instance) as Array;
+                if (propGrid == null || props == null) return;
+
+                Type propInstanceType = props.GetType().GetElementType();
+                FieldInfo fNext = propInstanceType.GetField("m_nextGridProp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fNext == null) return;
+
+                int cycleBrokenCount = 0;
+                int maxAllowedChain = 500;
+
+                for (int i = 0; i < propGrid.Length; i++)
+                {
+                    uint head = propGrid[i];
+                    if (head == 0 || head >= (uint)props.Length) continue;
+
+                    uint current = head;
+                    uint prev = 0;
+                    int count = 0;
+
+                    while (current != 0 && current < (uint)props.Length)
+                    {
+                        count++;
+                        if (count > maxAllowedChain)
+                        {
+                            if (prev != 0 && prev < (uint)props.Length)
+                            {
+                                object prevObj = props.GetValue((int)prev);
+                                fNext.SetValue(prevObj, (uint)0);
+                                props.SetValue(prevObj, (int)prev);
+                                cycleBrokenCount++;
+                            }
+                            else
+                            {
+                                propGrid[i] = 0;
+                                cycleBrokenCount++;
+                            }
+                            break;
+                        }
+
+                        prev = current;
+                        object curObj = props.GetValue((int)current);
+                        current = (uint)fNext.GetValue(curObj);
+                        if (current == prev)
+                        {
+                            fNext.SetValue(curObj, (uint)0);
+                            props.SetValue(curObj, (int)prev);
+                            cycleBrokenCount++;
+                            break;
+                        }
+                    }
+                }
+
+                if (cycleBrokenCount > 0)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid!", callerContext, cycleBrokenCount));
+                    SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format("GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid.", callerContext, cycleBrokenCount));
+                }
+            }
+            catch (Exception ex)
+            {
+                SaveSimulationDataSafetyPatch.LogSaveDebug("SanitizeMorePropsGrid error: " + ex);
+            }
+        }
+
+        public static void SanitizeVanillaGrids(string callerContext)
+        {
+            try
+            {
+                var pm = Singleton<PropManager>.instance;
+                if (pm != null && pm.m_propGrid != null && pm.m_props.m_buffer != null)
+                {
+                    int broken = 0;
+                    int len = pm.m_props.m_buffer.Length;
+                    for (int i = 0; i < pm.m_propGrid.Length; i++)
+                    {
+                        ushort head = pm.m_propGrid[i];
+                        if (head == 0 || head >= len) continue;
+                        ushort cur = head;
+                        ushort prev = 0;
+                        int count = 0;
+                        while (cur != 0 && cur < len)
+                        {
+                            count++;
+                            if (count > 500)
+                            {
+                                if (prev != 0 && prev < len) pm.m_props.m_buffer[prev].m_nextGridProp = 0;
+                                else pm.m_propGrid[i] = 0;
+                                broken++;
+                                break;
+                            }
+                            prev = cur;
+                            cur = pm.m_props.m_buffer[cur].m_nextGridProp;
+                            if (cur == prev)
+                            {
+                                pm.m_props.m_buffer[cur].m_nextGridProp = 0;
+                                broken++;
+                                break;
+                            }
+                        }
+                    }
+                    if (broken > 0)
+                    {
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in vanilla prop grid!", callerContext, broken));
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static void RescueOrphanedTempSaves()
+        {
+            try
+            {
+                string savesDir = ColossalFramework.IO.DataLocation.saveLocation;
+                if (string.IsNullOrEmpty(savesDir)) return;
+                string tempDir = System.IO.Path.Combine(savesDir, "Temp");
+                if (!System.IO.Directory.Exists(tempDir)) return;
+
+                string[] ccsFiles = System.IO.Directory.GetFiles(tempDir, "*.ccs");
+                if (ccsFiles == null || ccsFiles.Length == 0) return;
+
+                for (int i = 0; i < ccsFiles.Length; i++)
+                {
+                    string ccs = ccsFiles[i];
+                    try
+                    {
+                        var fi = new System.IO.FileInfo(ccs);
+                        if (fi.Length > 1024 * 1024)
+                        {
+                            string cityName = "RescuedCity";
+                            var sm = Singleton<SimulationManager>.instance;
+                            if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
+                                cityName = sm.m_metaData.m_CityName;
+
+                            string targetCrp = System.IO.Path.Combine(savesDir, cityName + "_Rescued_" + fi.LastWriteTime.ToString("yyyyMMdd_HHmmss") + ".crp");
+                            if (!System.IO.File.Exists(targetCrp))
+                            {
+                                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] GridSanitizerArmor: Found orphaned simulation file {0} ({1:F1} MB). Packaging to {2}...", fi.Name, fi.Length / 1048576f, targetCrp));
+                                var package = new ColossalFramework.Packaging.Package(cityName);
+                                package.packageMainAsset = cityName;
+                                var meta = new SaveGameMetaData();
+                                meta.cityName = cityName;
+                                meta.timeStamp = fi.LastWriteTime;
+                                meta.mods = SavePanelOnSavingCompletePatch.GatherModInfoSnapshot();
+                                meta.assets = SavePanelOnSavingCompletePatch.GatherAssetInfoSnapshot();
+                                meta.assetRef = package.AddFileAsset(cityName + "_Data", ccs, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                                package.AddAsset(cityName, meta, UserAssetType.SaveGameMetaData, false);
+                                package.Save(targetCrp, false);
+                                System.IO.File.Delete(ccs);
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] GridSanitizerArmor: Successfully recovered orphaned save file to: " + targetCrp);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GridSanitizerArmor: Error rescuing " + ccs + ": " + ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GridSanitizerArmor.RescueOrphanedTempSaves error: " + ex);
+            }
+        }
+    }
+
     internal static class SavePanelOnSavingCompletePatch
     {
         private static bool s_isApplied = false;
@@ -8336,6 +8540,42 @@ namespace MoreNetworkCapacityRenew
                     harmony.Patch(mTarget, prefix: new HarmonyMethod(pre));
                     s_isApplied = true;
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSavingComplete safety patch!");
+                }
+
+                // Patch SavePanel.OnSave to sanitize grids BEFORE Snapshot renders
+                try
+                {
+                    MethodInfo mOnSave = typeof(SavePanel).GetMethod("OnSave", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
+                    if (mOnSave != null)
+                    {
+                        var preSave = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(SavePanel_OnSave_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mOnSave, prefix: new HarmonyMethod(preSave));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.OnSave grid sanitization patch!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply SavePanel.OnSave patch error: " + ex);
+                }
+
+                // Patch SavePanel.<SaveGame>c__Iterator1::MoveNext to eliminate task Wait() deadlock on Main Thread
+                try
+                {
+                    Type saveGameIterType = typeof(SavePanel).GetNestedType("<SaveGame>c__Iterator1", BindingFlags.NonPublic | BindingFlags.Public);
+                    if (saveGameIterType != null)
+                    {
+                        MethodInfo mMoveNext = saveGameIterType.GetMethod("MoveNext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (mMoveNext != null)
+                        {
+                            var preMoveNext = typeof(SavePanelOnSavingCompletePatch).GetMethod(nameof(SaveGame_MoveNext_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mMoveNext, prefix: new HarmonyMethod(preMoveNext));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Explicitly applied SavePanel.<SaveGame>c__Iterator1::MoveNext deadlock immunity patch!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Apply SaveGame MoveNext patch error: " + ex);
                 }
 
                 // Patch EmbedAssetInfo to prevent Mono collection stall on 25K+ custom assets
@@ -8369,6 +8609,73 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ApplySavePanelPatch error: " + ex);
+            }
+        }
+
+        public static void SavePanel_OnSave_Prefix(string saveName)
+        {
+            try
+            {
+                SaveSimulationDataSafetyPatch.LogSaveDebug("SavePanel.OnSave initiated: " + saveName + ". Running grid cycle armor...");
+                GridSanitizerArmor.s_morePropsGridDirty = true;
+                GridSanitizerArmor.SanitizeAllGrids("SavePanel.OnSave");
+            }
+            catch (Exception ex)
+            {
+                SaveSimulationDataSafetyPatch.LogSaveDebug("SavePanel_OnSave_Prefix error: " + ex);
+            }
+        }
+
+        public static void SaveGame_MoveNext_Prefix(object __instance)
+        {
+            try
+            {
+                if (__instance == null) return;
+                FieldInfo fPC = __instance.GetType().GetField("$PC", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fPC == null) return;
+                int pc = Convert.ToInt32(fPC.GetValue(__instance));
+                // PC == 1 is immediately after yield return LoadingManager.instance.SaveLevel(filename)
+                if (pc == 1)
+                {
+                    FieldInfo fThis = __instance.GetType().GetField("$this", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    SavePanel sp = (fThis != null) ? fThis.GetValue(__instance) as SavePanel : null;
+                    if (sp != null)
+                    {
+                        FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fSnap != null)
+                        {
+                            ColossalFramework.Threading.Task snapTask = fSnap.GetValue(sp) as ColossalFramework.Threading.Task;
+                            if (snapTask != null && !snapTask.hasEnded)
+                            {
+                                snapTask.WaitForSeconds(1f);
+                                if (!snapTask.hasEnded)
+                                {
+                                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: m_SnapshotImageTask did not complete within 1s. Clearing to prevent Main Thread deadlock.");
+                                    fSnap.SetValue(sp, null);
+                                }
+                            }
+                        }
+
+                        FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fPkg != null)
+                        {
+                            ColossalFramework.Threading.Task pkgTask = fPkg.GetValue(sp) as ColossalFramework.Threading.Task;
+                            if (pkgTask != null && !pkgTask.hasEnded)
+                            {
+                                pkgTask.WaitForSeconds(1f);
+                                if (!pkgTask.hasEnded)
+                                {
+                                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveGame_MoveNext_Prefix: m_PackageSaveTask did not complete within 1s. Clearing to prevent Main Thread deadlock.");
+                                    fPkg.SetValue(sp, null);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                SaveSimulationDataSafetyPatch.LogSaveDebug("SaveGame_MoveNext_Prefix error: " + ex);
             }
         }
 
@@ -8476,11 +8783,9 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                ColossalFramework.Threading.ThreadHelper.taskDistributor.Dispatch(SaveWatchdogThreadWorker);
                 var lm = Singleton<LoadingManager>.instance;
-                if (lm != null)
-                {
-                    lm.StartCoroutine(SaveWatchdogCoroutine());
-                }
+                if (lm != null) lm.StartCoroutine(SaveWatchdogCoroutine());
             }
             catch (Exception ex)
             {
@@ -8490,62 +8795,69 @@ namespace MoreNetworkCapacityRenew
 
         private static System.Collections.IEnumerator SaveWatchdogCoroutine()
         {
-            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Started monitoring game save packaging completion...");
+            yield break;
+        }
+
+        private static void SaveWatchdogThreadWorker()
+        {
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Background thread started monitoring save packaging completion...");
             float elapsed = 0f;
             FieldInfo fIsSaving = typeof(SavePanel).GetField("m_IsSaving", BindingFlags.NonPublic | BindingFlags.Static);
 
-            while (elapsed < 15f)
+            while (elapsed < 12f)
             {
-                yield return new UnityEngine.WaitForSeconds(0.5f);
+                System.Threading.Thread.Sleep(500);
                 elapsed += 0.5f;
 
                 bool isSaving = (fIsSaving != null) && (bool)fIsSaving.GetValue(null);
                 if (!isSaving)
                 {
                     UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SaveWatchdog: Game save completed cleanly by vanilla game in {0:F1}s ✓", elapsed));
-                    yield break;
+                    return;
                 }
             }
 
-            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (15s timeout). Checking save file status and rescuing...");
+            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SaveWatchdog: Detected frozen vanilla save packaging (12s timeout). Rescuing packaging from background thread...");
 
             SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-            if (sp != null)
+            RescueSavePackagingIfStalled(sp);
+
+            if (fIsSaving != null)
+            {
+                try { fIsSaving.SetValue(null, false); } catch { }
+            }
+
+            ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
             {
                 try
                 {
-                    RescueSavePackagingIfStalled(sp);
-
-                    if (fIsSaving != null) fIsSaving.SetValue(null, false);
-
-                    MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
-                    if (mComplete != null)
+                    if (sp != null)
                     {
-                        mComplete.Invoke(sp, new object[] { false, false });
+                        FieldInfo fPkg = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fPkg != null) fPkg.SetValue(sp, null);
+                        FieldInfo fSnap = typeof(SavePanel).GetField("m_SnapshotImageTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fSnap != null) fSnap.SetValue(sp, null);
+
+                        MethodInfo mComplete = typeof(SavePanel).GetMethod("OnSavingComplete", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool), typeof(bool) }, null);
+                        if (mComplete != null)
+                        {
+                            mComplete.Invoke(sp, new object[] { false, false });
+                        }
                     }
 
-                    // Also make sure UIView modal and progress spinners are dismissed safely on Main Thread
-                    ColossalFramework.Threading.ThreadHelper.dispatcher.Dispatch(() =>
+                    var modal = ColossalFramework.UI.UIView.GetModalComponent();
+                    if (modal != null)
                     {
-                        try
-                        {
-                            var modal = ColossalFramework.UI.UIView.GetModalComponent();
-                            if (modal != null)
-                            {
-                                ColossalFramework.UI.UIView.PopModal();
-                            }
-                            ColossalFramework.UI.UIView.library.Hide("SavePanel");
-                        }
-                        catch { }
-                    });
-
+                        ColossalFramework.UI.UIView.PopModal();
+                    }
+                    ColossalFramework.UI.UIView.library.Hide("SavePanel");
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveWatchdog: Successfully rescued game from save freeze! UI restored.");
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog rescue exception: " + ex);
+                    UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveWatchdog UI cleanup error: " + ex);
                 }
-            }
+            });
         }
 
         private static void RescueSavePackagingIfStalled(SavePanel sp)
@@ -8934,6 +9246,8 @@ namespace MoreNetworkCapacityRenew
             
             try
             {
+                GridSanitizerArmor.SanitizeAllGrids("OnLevelLoaded");
+                GridSanitizerArmor.RescueOrphanedTempSaves();
                 RenewMod.EnsureRenderManagerCapacity();
                 InstanceManagerCompatibility.EnsureCompatibility();
                 ArrayGuardian.ExpandAllArrays();
@@ -14942,6 +15256,7 @@ namespace MoreNetworkCapacityRenew
 
         public static void PreSaveSanitization()
         {
+            try { GridSanitizerArmor.SanitizeAllGrids("PreSaveSanitization"); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave GridSanitizer error: " + ex); }
             try { TMPECompatibility.EnsureExpandedSave(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureExpandedSave error: " + ex); }
             try { ThirdPartyCompatibility.EnsureEightyOne2Patched(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureEightyOne2 error: " + ex); }
             try { ThirdPartyCompatibility.EnsureMorePathUnitsPatched(); } catch (Exception ex) { UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PreSave EnsureMorePathUnits error: " + ex); }
@@ -18120,6 +18435,92 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching TransportLinesManager: " + ex);
             }
+
+            // 4. MorePropsBETA ExtendedPropRenderer & ExtendedPropManager
+            try
+            {
+                Type eprType = null;
+                Type epmType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "MorePropsBETA" || asm.GetName().Name == "MoreProps")
+                    {
+                        if (eprType == null) eprType = asm.GetType("MorePropsBETA.ExtendedPropRenderer") ?? asm.GetType("MoreProps.ExtendedPropRenderer");
+                        if (epmType == null) epmType = asm.GetType("MorePropsBETA.ExtendedPropManager") ?? asm.GetType("MoreProps.ExtendedPropManager");
+                        if (eprType != null && epmType != null) break;
+                    }
+                }
+                if (eprType != null)
+                {
+                    MethodInfo endRender = eprType.GetMethod("EndRenderingImplPostfix", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    MethodInfo preRender = typeof(GameLoadingArmor).GetMethod(nameof(MoreProps_EndRenderingImplPostfix_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    if (endRender != null && preRender != null)
+                    {
+                        harmony.Patch(endRender, prefix: new HarmonyMethod(preRender) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched MoreProps ExtendedPropRenderer.EndRenderingImplPostfix with grid cycle immunity.");
+                    }
+                }
+                if (epmType != null)
+                {
+                    MethodInfo addGrid = epmType.GetMethod("AddToGrid32", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo preAdd = typeof(GameLoadingArmor).GetMethod(nameof(MoreProps_AddToGrid32_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    if (addGrid != null && preAdd != null)
+                    {
+                        harmony.Patch(addGrid, prefix: new HarmonyMethod(preAdd) { prioritiy = Harmony.Priority.First });
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched MoreProps ExtendedPropManager.AddToGrid32 with duplicate insertion self-loop guard.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching MoreProps: " + ex);
+            }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static void MoreProps_EndRenderingImplPostfix_Prefix()
+        {
+            try
+            {
+                if (GridSanitizerArmor.s_morePropsGridDirty)
+                {
+                    GridSanitizerArmor.s_morePropsGridDirty = false;
+                    GridSanitizerArmor.SanitizeMorePropsGrid("EndRenderingImplPostfix");
+                }
+            }
+            catch { }
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool MoreProps_AddToGrid32_Prefix(object __instance, uint propID, Vector3 position)
+        {
+            try
+            {
+                GridSanitizerArmor.s_morePropsGridDirty = true;
+                if (__instance != null)
+                {
+                    Type t = __instance.GetType();
+                    FieldInfo fGrid = t.GetField("m_propGrid32", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo mGridX = t.GetMethod("WorldToGridX", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo mGridZ = t.GetMethod("WorldToGridZ", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fGrid != null && mGridX != null && mGridZ != null)
+                    {
+                        uint[] grid = fGrid.GetValue(__instance) as uint[];
+                        int gx = (int)mGridX.Invoke(__instance, new object[] { position.x });
+                        int gz = (int)mGridZ.Invoke(__instance, new object[] { position.z });
+                        if (grid != null && gx >= 0 && gx < 270 && gz >= 0 && gz < 270)
+                        {
+                            int idx = gz * 270 + gx;
+                            if (grid[idx] == propID)
+                            {
+                                return false; // Already head of this cell! Skipping insertion to prevent direct self-loop
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return true;
         }
 
         [HarmonyPriority(Priority.First)]

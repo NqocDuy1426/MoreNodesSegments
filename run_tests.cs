@@ -1653,6 +1653,48 @@ class TestSuite
         }
 
         // ====================================================================
+        // TEST GROUP 35: Grid Cycle Immunity & Deadlock-Free Save Packaging (v5.0.36)
+        // ====================================================================
+        Console.WriteLine("\n--- TEST GROUP 35: Grid Cycle Immunity & Deadlock-Free Save Packaging (v5.0.36) ---");
+        try
+        {
+            string renewCode = File.ReadAllText("Renew.cs");
+
+            // 35.1 GridSanitizerArmor existence and implementation
+            bool hasGridSanitizer = renewCode.Contains("class GridSanitizerArmor") &&
+                                    renewCode.Contains("SanitizeMorePropsGrid") &&
+                                    renewCode.Contains("SanitizeVanillaGrids") &&
+                                    renewCode.Contains("RescueOrphanedTempSaves");
+            Assert(hasGridSanitizer, "GridSanitizerArmor implemented with MoreProps and vanilla grid cycle repair");
+
+            // 35.2 SavePanel OnSave & MoveNext Deadlock Armor
+            bool hasSavePanelArmor = renewCode.Contains("SavePanel_OnSave_Prefix") &&
+                                     renewCode.Contains("SaveGame_MoveNext_Prefix") &&
+                                     renewCode.Contains("m_SnapshotImageTask") &&
+                                     renewCode.Contains("m_PackageSaveTask");
+            Assert(hasSavePanelArmor, "SavePanel MoveNext armored against Task.Wait() deadlock on Main Thread");
+
+            // 35.3 MoreProps Grid Cycle Armor in GameLoadingArmor
+            bool hasMorePropsArmor = renewCode.Contains("MoreProps_EndRenderingImplPostfix_Prefix") &&
+                                     renewCode.Contains("MoreProps_AddToGrid32_Prefix");
+            Assert(hasMorePropsArmor, "MoreProps EndRenderingImpl and AddToGrid32 armored against infinite loops");
+
+            // 35.4 Background Thread Save Watchdog via ThreadHelper.taskDistributor
+            bool hasBgWatchdog = renewCode.Contains("ThreadHelper.taskDistributor.Dispatch(SaveWatchdogThreadWorker)") &&
+                                 renewCode.Contains("SaveWatchdogThreadWorker");
+            Assert(hasBgWatchdog, "SaveWatchdog executes on background OS worker thread via ThreadHelper.taskDistributor");
+
+            // 35.5 PreSaveSanitization & LevelLoad integration
+            bool hasIntegration = renewCode.Contains("GridSanitizerArmor.SanitizeAllGrids(\"PreSaveSanitization\")") &&
+                                  renewCode.Contains("GridSanitizerArmor.SanitizeAllGrids(\"OnLevelLoaded\")");
+            Assert(hasIntegration, "GridSanitizerArmor integrated into PreSaveSanitization and OnLevelLoaded");
+        }
+        catch (Exception ex)
+        {
+            Assert(false, "Test Group 35 exception", ex.ToString());
+        }
+
+        // ====================================================================
         // FINAL SUMMARY
         // ====================================================================
         Console.WriteLine("\n==========================================================");
