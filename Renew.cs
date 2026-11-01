@@ -12906,29 +12906,43 @@ namespace MoreNetworkCapacityRenew
                 }
 
                 // Sync PulseGroups safely
-                if (pulseGroups != null && s_mGetExpElecPulseGroups != null)
+                if (s_mGetExpElecPulseGroups != null)
                 {
-                    Array expGroups = s_mGetExpElecPulseGroups.Invoke(null, null) as Array;
-                    if (expGroups != null)
+                    try
                     {
-                        int gCount = Math.Min(pulseGroups.Length, expGroups.Length);
-                        SafeCopyPulseGroups(expGroups, pulseGroups, gCount);
+                        Array expGroups = s_mGetExpElecPulseGroups.Invoke(null, null) as Array;
+                        if (expGroups != null && pulseGroups != null)
+                        {
+                            int gCount = Math.Min(pulseGroups.Length, expGroups.Length);
+                            SafeCopyPulseGroups(expGroups, pulseGroups, gCount);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EightyOne2 Electricity PulseGroups sync skipped: " + ex.Message);
                     }
                 }
 
                 // Sync PulseUnits safely (bypasses EightyOne2's IndexOutOfRangeException)
-                if (pulseUnits != null && s_mGetExpElecPulseUnits != null)
+                if (s_mGetExpElecPulseUnits != null)
                 {
-                    Array expUnits = s_mGetExpElecPulseUnits.Invoke(null, null) as Array;
-                    if (expUnits != null)
+                    try
                     {
-                        int uCount = Math.Min(pulseUnits.Length, expUnits.Length);
-                        SafeCopyPulseUnits(expUnits, pulseUnits, uCount);
-                        for (int i = uCount; i < pulseUnits.Length; i++)
+                        Array expUnits = s_mGetExpElecPulseUnits.Invoke(null, null) as Array;
+                        if (expUnits != null && pulseUnits != null)
                         {
-                            pulseUnits[i].m_x = 0;
-                            pulseUnits[i].m_z = 0;
+                            int uCount = Math.Min(pulseUnits.Length, expUnits.Length);
+                            SafeCopyPulseUnits(expUnits, pulseUnits, uCount);
+                            for (int i = uCount; i < pulseUnits.Length; i++)
+                            {
+                                pulseUnits[i].m_x = 0;
+                                pulseUnits[i].m_z = 0;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EightyOne2 Electricity PulseUnits sync skipped: " + ex.Message);
                     }
                 }
 
@@ -12971,50 +12985,71 @@ namespace MoreNetworkCapacityRenew
                 }
 
                 // 1. Water PulseUnits
-                if (waterPulseUnits != null && s_mGetExpWaterPulseUnits != null)
+                if (s_mGetExpWaterPulseUnits != null)
                 {
-                    Array expUnits = s_mGetExpWaterPulseUnits.Invoke(null, null) as Array;
-                    if (expUnits != null)
+                    try
                     {
-                        int uCount = Math.Min(waterPulseUnits.Length, expUnits.Length);
-                        SafeCopyPulseUnits(expUnits, waterPulseUnits, uCount);
-                        for (int i = uCount; i < waterPulseUnits.Length; i++)
+                        Array expUnits = s_mGetExpWaterPulseUnits.Invoke(null, null) as Array;
+                        if (expUnits != null && waterPulseUnits != null)
                         {
-                            waterPulseUnits[i].m_x = 0;
-                            waterPulseUnits[i].m_z = 0;
+                            int uCount = Math.Min(waterPulseUnits.Length, expUnits.Length);
+                            SafeCopyPulseUnits(expUnits, waterPulseUnits, uCount);
+                            for (int i = uCount; i < waterPulseUnits.Length; i++)
+                            {
+                                waterPulseUnits[i].m_x = 0;
+                                waterPulseUnits[i].m_z = 0;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EightyOne2 Water PulseUnits sync skipped: " + ex.Message);
                     }
                 }
 
                 // 2. Sewage PulseUnits
-                if (sewagePulseUnits != null && s_mGetExpSewagePulseUnits != null)
+                if (s_mGetExpSewagePulseUnits != null)
                 {
-                    Array expUnits = s_mGetExpSewagePulseUnits.Invoke(null, null) as Array;
-                    if (expUnits != null)
+                    try
                     {
-                        int uCount = Math.Min(sewagePulseUnits.Length, expUnits.Length);
-                        SafeCopyPulseUnits(expUnits, sewagePulseUnits, uCount);
-                        for (int i = uCount; i < sewagePulseUnits.Length; i++)
+                        Array expUnits = s_mGetExpSewagePulseUnits.Invoke(null, null) as Array;
+                        if (expUnits != null && sewagePulseUnits != null)
                         {
-                            sewagePulseUnits[i].m_x = 0;
-                            sewagePulseUnits[i].m_z = 0;
+                            int uCount = Math.Min(sewagePulseUnits.Length, expUnits.Length);
+                            SafeCopyPulseUnits(expUnits, sewagePulseUnits, uCount);
+                            for (int i = uCount; i < sewagePulseUnits.Length; i++)
+                            {
+                                sewagePulseUnits[i].m_x = 0;
+                                sewagePulseUnits[i].m_z = 0;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EightyOne2 Sewage PulseUnits sync skipped: " + ex.Message);
                     }
                 }
 
                 // 3. Heating PulseUnits
-                if (heatingPulseUnits != null && s_mGetExpHeatingPulseUnits != null)
+                if (s_mGetExpHeatingPulseUnits != null)
                 {
-                    Array expUnits = s_mGetExpHeatingPulseUnits.Invoke(null, null) as Array;
-                    if (expUnits != null)
+                    try
                     {
-                        int uCount = Math.Min(heatingPulseUnits.Length, expUnits.Length);
-                        SafeCopyPulseUnits(expUnits, heatingPulseUnits, uCount);
-                        for (int i = uCount; i < heatingPulseUnits.Length; i++)
+                        Array expUnits = s_mGetExpHeatingPulseUnits.Invoke(null, null) as Array;
+                        if (expUnits != null && heatingPulseUnits != null)
                         {
-                            heatingPulseUnits[i].m_x = 0;
-                            heatingPulseUnits[i].m_z = 0;
+                            int uCount = Math.Min(heatingPulseUnits.Length, expUnits.Length);
+                            SafeCopyPulseUnits(expUnits, heatingPulseUnits, uCount);
+                            for (int i = uCount; i < heatingPulseUnits.Length; i++)
+                            {
+                                heatingPulseUnits[i].m_x = 0;
+                                heatingPulseUnits[i].m_z = 0;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EightyOne2 Heating PulseUnits sync skipped: " + ex.Message);
                     }
                 }
 
