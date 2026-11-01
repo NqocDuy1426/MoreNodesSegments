@@ -1439,8 +1439,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.0.41 by NgocDuy";
-        public string Description => "[Close Beta v5.0.41] Pure Vanilla Save Pipeline: 100% native save & packaging with zero intrusive hooks.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.0.43 by NgocDuy";
+        public string Description => "[Close Beta v5.0.43] Save race condition fix: Disabled RescueOrphanedTempSaves to prevent IOException during save operations.";
 #else
         public string Name => "More Nodes/Segments v5.0 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, native TM:PE pathfinding, building simulation armor & Mac stability. Renewed by NgocDuy.";
