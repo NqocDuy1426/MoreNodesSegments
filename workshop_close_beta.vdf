@@ -9,14 +9,17 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.0.41:[/h2]
-- [b]Pure Vanilla Save Flow (Để Game Gốc Tự Xử Lý 100%):[/b]
-  + Gỡ bỏ hoàn toàn mọi hook can thiệp vào SavePanel, SaveGame coroutine, iterator và watchdog.
-  + Trả lại 100% quy trình đóng gói save, snapshot và giải phóng UI cho engine gốc của Cities: Skylines tự xử lý tự nhiên.
-  + Đảm bảo serialization 64K nodes/segments chạy mượt mà không xung đột tiến trình lưu game.
-- [b]Universal Harmony Resilience Engine (Fix Issue #4):[/b] Tương thích 100% với Harmony 1 & Harmony 2.
-- [b]100% Native Performance:[/b] Giữ nguyên độ ổn định tuyệt đối và FPS cao từ nền tảng v5.0.15.
+[h2]Cập nhật Close Beta v5.1:[/h2]
+- [b]100% Native Vehicle Physics & Floating Fix:[/b]
+  + Gỡ bỏ hoàn toàn mọi hook can thiệp vị trí và tốc độ xe (VehicleAICommons, CarAI).
+  + Khắc phục triệt để lỗi xe bay/lơ lửng, trả lại 100% cơ chế vật lý phương tiện nguyên bản của game.
+- [b]100% Native Traffic Simulation:[/b]
+  + Gỡ bỏ toàn bộ can thiệp vào đèn tín hiệu và điều khiển giao thông, để game gốc và TM:PE xử lý hoàn toàn luồng giao thông.
+- [b]Pure Vanilla Save Pipeline & Race Condition Fix:[/b]
+  + Loại bỏ mọi xung đột ghi file tạm trong quá trình lưu, trả lại quy trình đóng gói save cho engine gốc.
+- [b]Kiến trúc Modular Coordinators:[/b]
+  + Hệ thống điều phối sự kiện và quản lý tài nguyên phân tầng (Grid, Memory, Lifecycle, Render, EventBus) tối ưu hiệu năng.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.0.41 Close Beta: Pure Vanilla Save Pipeline - 100% Native Save & Packaging Flow."
+	"changenote"		"v5.1 Close Beta: 100% Native Vehicle Physics & Traffic Simulation, Pure Vanilla Save Flow & Modular Architecture."
 }

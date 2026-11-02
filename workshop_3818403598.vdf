@@ -5,50 +5,32 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.0"
-	"description"		"[h1]✨ WHAT'S NEW IN v5.0 (Rebranded to More Nodes/Segments) ✨[/h1]
+	"title"		"More Nodes/Segments v5.1"
+	"description"		"[h1]✨ WHAT'S NEW IN v5.1 ✨[/h1]
 [list]
-[*] [b]Native Save Freeze Elimination & 25K+ Asset Harmony (v5.0.12 Close Beta):[/b]
+[*] [b]100% Native Vehicle Physics & Floating Vehicle Fix:[/b]
 [list]
-    [*] [b]EmbedAssetInfo Thread-Safe Optimization:[/b] Replaced unshielded Mono collection iterations with thread-safe snapshot scanning for custom assets. Eliminates infinite loop freezes during save packaging on cities with over 25,000 custom assets.
-    [*] [b]SaveWatchdog & Unfreeze Armor:[/b] Active non-intrusive monitoring of the game's native save packaging lifecycle. Safely releases UI spinners and guarantees complete .crp savegame finalization if engine task workers deadlock.
-    [*] [b]100% Native Game Flow:[/b] Full fidelity preservation of the vanilla save routine with zero missing data across 65K networks, 64K MoreProps, and 54K POs.
+    [*] Completely eliminated all vehicle position and speed interception hooks (VehicleAICommons, CarAI).
+    [*] Permanently resolves vehicles floating, hovering, or abnormal vertical displacement. All vehicles now follow 100% authentic base game physics engine calculations.
 [/list]
-[*] [b]Major Release & Official Rebranding:[/b]
+[*] [b]Native Traffic Control & Pure TM:PE Simulation:[/b]
 [list]
-    [*] Rebranded to [b]More Nodes/Segments v5.0[/b]!
-    [*] Consolidated 64K network limit expansion (up to 65,024 nodes and segments) with native Apple Silicon & Intel Mac stability.
+    [*] Removed all intrusive traffic light and vehicle behavior patches. Traffic lights and intersection simulation are handled cleanly by the base game and TM:PE without external interference.
 [/list]
-[*] [b]Thread-Safe Save & Quit Armor (from v4.3.48):[/b]
+[*] [b]Pure Vanilla Save Pipeline & Race Condition Fix:[/b]
 [list]
-    [*] Fixed background-thread [i]QuitApplication()[/i] call during save completion, delegating safely to the Main Thread via [i]ThreadHelper.dispatcher.Dispatch[/i]. Completely eliminates off-thread Unity UI [i]NullReferenceException[/i] in Adaptive Roads and rendering engines.
+    [*] Zero hooks into SavePanel coroutines or save packaging tasks.
+    [*] Resolved file conflict race conditions, ensuring completely smooth, unhindered game saves.
 [/list]
-[*] [b]Water Transport & Ship Navigation Segregation (v5.0.2 Hotfix):[/b]
+[*] [b]Next-Gen Modular Architecture:[/b]
 [list]
-    [*] [b]Clean Route Segregation:[/b] Large ocean ships (cargo and cruise ships) are strictly confined to open-water Ship Paths ([i]Layer.ShipPaths[/i]). Ferry paths, canals, and marina loops are strictly Ferry-only, permanently preventing large ships from entering shallow, narrow ferry routes or getting stuck on tight curves.
-    [*] [b]Harbor & Dock Reconnection:[/b] Harbors now connect exclusively to legitimate Ship Paths with zero false snapping to ferry routes.
-    [*] [b]Zero Traffic Hooks:[/b] 100% native traffic simulation (strictly zero hooks into vehicle AI, pathfinding, or TM:PE traffic rules).
-[/list]
-[*] [b]Impatient Commuters Compatibility (v5.0.1 Hotfix):[/b]
-[list]
-    [*] Added automatic in-memory array expansion (up to 65,536 elements) for [b]Impatient Commuters[/b], completely eliminating simulation thread freeze ([i]IndexOutOfRangeException[/i]) on high-ID public transport stops (> 32,768).
-    [*] Strict zero-hook architecture: does not modify or hook into the mod's code, achieving pure memory buffer harmony.
-[*] [b]Citizen/Path Units & 81 Tiles 2 Harmonization (v5.0.3 Hotfix):[/b]
-[list]
-    [*] [b]Universal Dynamic Buffer Guard:[/b] Pre-allocates 1M CitizenUnits and 524K PathUnits before deserialization and preserves savegame metadata override flags bidirectionally, completely resolving [i]IndexOutOfRangeException[/i] in [i]CitizenManager.Data.Deserialize[/i].
-    [*] [b]81 Tiles 2 Auto-Harmonization:[/b] Deferred early [i]NetManager.instance[/i] access and auto-expanded [i]NetManager.m_tileNodesCount[/i] to 3402, completely removing the 1050 size mismatch error.
-    [*] [b]Level Reload State Sanitizer:[/b] Clears pending TM:PE serialization buffers and runs strategic garbage collection on level unload, eliminating reload blue screens / freezes on cities > 34K nodes.
-    [*] [b]Universal Mod Harmonizer:[/b] Added dynamic memory harmonization for present and future community mods.
-[*] [b]UTF-16 Sanitizer & Orphan Vehicle Cleaner (v5.0.4 Hotfix):[/b]
-[list]
-    [*] [b]Universal UTF-16 Sanitizer Armor:[/b] Automatically repairs corrupted and orphaned UTF-16 surrogate pairs in strings deserialized from savegames ([i]DataSerializer.ReadUniqueString[/i]) and passed to Unity logging ([i]DebugLogHandler.LogFormat[/i]). Completely resolves [i]System.ArgumentException: invalid utf-16 sequence (missing surrogate head)[/i] in [i]PrefabCollection<VehicleInfo>.BindPrefabs[/i] and [i]Loading Screen Mod[/i].
-    [*] [b]Orphan Vehicle Cleaner:[/b] Automatically identifies and safely releases orphaned vehicles and parked vehicles whose custom prefabs were deleted or corrupted ([i]VehicleManager.Data.AfterDeserialize[/i]), permanently eliminating downstream [i]NullReferenceException[/i] in [b]Transport Lines Manager (TLM)[/b] and transit simulation threads.
+    [*] Introduced clean coordinator layers (Grid, Memory, Lifecycle, Render, EventBus) for optimal stability and memory management.
 [/list]
 [/list]
 
 [hr][/hr]
 
-[h1]MORE NODES/SEGMENTS v5.0[/h1]
+[h1]MORE NODES/SEGMENTS v5.1[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 
@@ -58,7 +40,7 @@
 Have you ever hit the infamous [b]'Cannot create more objects of this type'[/b] limit while building your dream metropolis?
 Vanilla Cities: Skylines caps your road and transit networks at ~32,000 nodes and segments.
 
-[b]More Nodes/Segments v5.0[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
+[b]More Nodes/Segments v5.1[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
 
 Unlike unstable legacy experimental versions that caused fatal crashes and corrupted traffic, [b]More Nodes/Segments[/b] is engineered from the ground up for [b]maximum stability, accurate traffic simulation, and zero data loss.[/b]
 
@@ -122,6 +104,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.0.33 - Universal Harmony Resilience & Crash Shield: Eliminated hard dependency on legacy 0Harmony.dll assembly, introducing Universal Dynamic Harmony Binding that is 100% immune to TypeLoadException when running alongside CitiesHarmony / PropControl / Harmony 2.0+; added defensive lifecycle armor to OnCreated to eliminate ModException reload crashes; guaranteed byte-accurate vanilla 32K save auto-preservation fixing TreeManager simulation failures; protected Arial dynamic font atlas and sanitized corrupted strings in LSM."
+	"changenote"		"v5.1 Release: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, Pure Vanilla Save Flow & Modular Architecture."
 }
 
