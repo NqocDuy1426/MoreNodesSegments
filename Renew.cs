@@ -8307,16 +8307,6 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public static bool VehicleAICommons_CalculateSegmentPosition_Prefix(
-            PathUnit.Position position,
-            uint laneId,
-            ref Vector3 pos,
-            ref Vector3 dir,
-            ref float maxSpeed)
-        {
-            // Pure pass-through: TM:PE natively calculates all segment positions.
-            return true;
-        }
 
         public static bool TrafficMeasurementManager_AddTraffic_Prefix(ushort segmentId)
         {
@@ -8588,50 +8578,10 @@ namespace MoreNetworkCapacityRenew
             catch { }
         }
 
-        public static void RestoreVehicleSpeedIfNeeded(
-            ushort vehicleID, 
-            ref Vehicle vehicleData, 
-            PathUnit.Position position, 
-            uint laneID, 
-            PathUnit.Position prevPos, 
-            ref float maxSpeed)
-        {
-            // Natural vehicle speed and following distance preserved. 
-            // Anti-deadlock is handled via IsEnteringBlockedJunctionAllowed and StuckVehicleRecovery.
-        }
 
         // VehicleBehaviorManager.MayChangeSegment is left 100% native to TM:PE to preserve natural traffic yielding, lane arrows, and turn directions.
 
-        public static void CarAI_CalculateSegmentPosition13_Postfix(
-            ushort vehicleID, 
-            ref Vehicle vehicleData, 
-            PathUnit.Position nextPosition, 
-            PathUnit.Position position, 
-            uint laneID, 
-            byte offset, 
-            PathUnit.Position prevPos, 
-            uint prevLaneID, 
-            byte prevOffset, 
-            int index, 
-            ref UnityEngine.Vector3 pos, 
-            ref UnityEngine.Vector3 dir, 
-            ref float maxSpeed)
-        {
-            RestoreVehicleSpeedIfNeeded(vehicleID, ref vehicleData, position, laneID, prevPos, ref maxSpeed);
-        }
 
-        public static void CarAI_CalculateSegmentPosition8_Postfix(
-            ushort vehicleID, 
-            ref Vehicle vehicleData, 
-            PathUnit.Position position, 
-            uint laneID, 
-            byte offset, 
-            ref UnityEngine.Vector3 pos, 
-            ref UnityEngine.Vector3 dir, 
-            ref float maxSpeed)
-        {
-            RestoreVehicleSpeedIfNeeded(vehicleID, ref vehicleData, position, laneID, position, ref maxSpeed);
-        }
 
         public static bool LaneConnectionSubManager_HasNodeConnections_Prefix(object __instance, ushort nodeId, ref bool __result)
         {
