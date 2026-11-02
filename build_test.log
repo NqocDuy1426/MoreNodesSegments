@@ -1,0 +1,3 @@
+Renew.cs(23706,22): warning CS0219: The variable `isInitialized' is assigned but its value is never used
+Renew.cs(23021,40): warning CS0414: The private field `MoreNetworkCapacityRenew.RenderCoordinator.MNC_HARMONY_ID' is assigned but its value is never used
+Compilation succeeded - 2 warning(s)

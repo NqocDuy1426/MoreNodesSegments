@@ -1,0 +1,72 @@
+========================================
+ConfigManager Round-Trip Property Test
+========================================
+
+Original Config:
+  EnableCoordination: False
+  EnableSaveCoordination: True
+  EnableGridCoordination: False
+  EnableRenderCoordination: True
+  EnableDebugLogging: True
+  EnableSelfTest: True
+  SerializationLockTimeoutSeconds: 45
+  GridSanitizationDelayMs: 250
+  OrphanedSaveRecoveryDelaySeconds: 20
+
+Serialized JSON:
+{
+  "EnableCoordination": false,
+  "EnableSaveCoordination": true,
+  "EnableGridCoordination": false,
+  "EnableRenderCoordination": true,
+  "EnableDebugLogging": true,
+  "EnableSelfTest": true,
+  "SerializationLockTimeoutSeconds": 45,
+  "GridSanitizationDelayMs": 250,
+  "OrphanedSaveRecoveryDelaySeconds": 20
+}
+
+Parsed Config:
+  EnableCoordination: False
+  EnableSaveCoordination: True
+  EnableGridCoordination: False
+  EnableRenderCoordination: True
+  EnableDebugLogging: True
+  EnableSelfTest: True
+  SerializationLockTimeoutSeconds: 45
+  GridSanitizationDelayMs: 250
+  OrphanedSaveRecoveryDelaySeconds: 20
+  ✓ EnableCoordination matches
+  ✓ EnableSaveCoordination matches
+  ✓ EnableGridCoordination matches
+  ✓ EnableRenderCoordination matches
+  ✓ EnableDebugLogging matches
+  ✓ EnableSelfTest matches
+  ✓ SerializationLockTimeoutSeconds matches
+  ✓ GridSanitizationDelayMs matches
+  ✓ OrphanedSaveRecoveryDelaySeconds matches
+
+--- Testing with File I/O ---
+Wrote config to test_config.json
+
+Config from file:
+  EnableCoordination: False
+  EnableSaveCoordination: True
+  EnableGridCoordination: False
+  EnableRenderCoordination: True
+  EnableDebugLogging: True
+  EnableSelfTest: True
+  SerializationLockTimeoutSeconds: 45
+  GridSanitizationDelayMs: 250
+  OrphanedSaveRecoveryDelaySeconds: 20
+  ✓ File: EnableCoordination matches
+  ✓ File: SerializationLockTimeoutSeconds matches
+
+Cleaned up test_config.json
+
+========================================
+✓ Round-trip property VERIFIED
+  Parse → Serialize → Parse produces equivalent object
+========================================
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319

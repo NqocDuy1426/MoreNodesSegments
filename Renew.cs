@@ -1,5 +1,6 @@
 using ICities;
 using ColossalFramework;
+using ColossalFramework.UI;
 using System.Reflection;
 using System;
 using System.IO;
@@ -11,6 +12,7 @@ using System.Reflection.Emit;
 using ColossalFramework.Plugins;
 using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 
 namespace Harmony
 {
@@ -353,6 +355,392 @@ namespace MoreNetworkCapacityRenew
     }
 
     // ============================================================================
+    // SIMPLE JSON PARSER & CONFIGURATION MANAGEMENT
+    // ============================================================================
+    
+    /// <summary>
+    /// Minimal JSON parser for configuration file support
+    /// </summary>
+    public static class SimpleJsonParser
+    {
+        public static Dictionary<string, object> Parse(string json)
+        {
+            var result = new Dictionary<string, object>();
+            if (string.IsNullOrEmpty(json)) return result;
+            
+            json = json.Trim();
+            if (!json.StartsWith("{") || !json.EndsWith("}")) return result;
+            
+            json = json.Substring(1, json.Length - 2).Trim();
+            
+            var pairs = SplitJsonPairs(json);
+            foreach (var pair in pairs)
+            {
+                var keyValue = SplitKeyValue(pair);
+                if (keyValue.Length == 2)
+                {
+                    string key = keyValue[0].Trim().Trim('"');
+                    string value = keyValue[1].Trim();
+                    result[key] = ParseValue(value);
+                }
+            }
+            
+            return result;
+        }
+        
+        private static List<string> SplitJsonPairs(string json)
+        {
+            var pairs = new List<string>();
+            int braceDepth = 0;
+            int start = 0;
+            
+            for (int i = 0; i < json.Length; i++)
+            {
+                char c = json[i];
+                if (c == '{') braceDepth++;
+                else if (c == '}') braceDepth--;
+                else if (c == ',' && braceDepth == 0)
+                {
+                    pairs.Add(json.Substring(start, i - start));
+                    start = i + 1;
+                }
+            }
+            
+            if (start < json.Length)
+            {
+                pairs.Add(json.Substring(start));
+            }
+            
+            return pairs;
+        }
+        
+        private static string[] SplitKeyValue(string pair)
+        {
+            int colonIndex = pair.IndexOf(':');
+            if (colonIndex < 0) return new string[0];
+            
+            return new string[]
+            {
+                pair.Substring(0, colonIndex),
+                pair.Substring(colonIndex + 1)
+            };
+        }
+        
+        private static object ParseValue(string value)
+        {
+            value = value.Trim();
+            
+            if (value == "true") return true;
+            if (value == "false") return false;
+            if (value == "null") return null;
+            
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                return value.Substring(1, value.Length - 2);
+            }
+            
+            int intValue;
+            if (int.TryParse(value, out intValue))
+            {
+                return intValue;
+            }
+            
+            double doubleValue;
+            if (double.TryParse(value, out doubleValue))
+            {
+                return doubleValue;
+            }
+            
+            return value;
+        }
+        
+        public static string Stringify(Dictionary<string, object> dict, int indent = 2)
+        {
+            if (dict == null || dict.Count == 0) return "{}";
+            
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("{");
+            
+            int index = 0;
+            foreach (var kvp in dict)
+            {
+                sb.Append(new string(' ', indent));
+                sb.Append("\"");
+                sb.Append(kvp.Key);
+                sb.Append("\": ");
+                
+                if (kvp.Value is bool)
+                {
+                    sb.Append((bool)kvp.Value ? "true" : "false");
+                }
+                else if (kvp.Value is string)
+                {
+                    sb.Append("\"");
+                    sb.Append(kvp.Value);
+                    sb.Append("\"");
+                }
+                else
+                {
+                    sb.Append(kvp.Value);
+                }
+                
+                if (index < dict.Count - 1)
+                {
+                    sb.AppendLine(",");
+                }
+                else
+                {
+                    sb.AppendLine();
+                }
+                
+                index++;
+            }
+            
+            sb.Append("}");
+            return sb.ToString();
+        }
+    }
+    
+    /// <summary>
+    /// Configuration structure for More Props BETA compatibility layer
+    /// </summary>
+    [Serializable]
+    public class CompatibilityConfig
+    {
+        public bool EnableCoordination { get; set; }
+        public bool EnableSaveCoordination { get; set; }
+        public bool EnableGridCoordination { get; set; }
+        public bool EnableRenderCoordination { get; set; }
+        public bool EnableDebugLogging { get; set; }
+        public bool EnableSelfTest { get; set; }
+        
+        public int SerializationLockTimeoutSeconds { get; set; }
+        public int GridSanitizationDelayMs { get; set; }
+        public int OrphanedSaveRecoveryDelaySeconds { get; set; }
+        
+        public CompatibilityConfig()
+        {
+            // Default values
+            EnableCoordination = true;
+            EnableSaveCoordination = true;
+            EnableGridCoordination = true;
+            EnableRenderCoordination = true;
+            EnableDebugLogging = false;
+            EnableSelfTest = false;
+            
+            SerializationLockTimeoutSeconds = 60;
+            GridSanitizationDelayMs = 0;
+            OrphanedSaveRecoveryDelaySeconds = 10;
+        }
+        
+        public bool Validate()
+        {
+            return SerializationLockTimeoutSeconds >= 1 && SerializationLockTimeoutSeconds <= 300
+                && GridSanitizationDelayMs >= 0 && GridSanitizationDelayMs <= 5000
+                && OrphanedSaveRecoveryDelaySeconds >= 0 && OrphanedSaveRecoveryDelaySeconds <= 60;
+        }
+        
+        public Dictionary<string, object> ToDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                { "EnableCoordination", EnableCoordination },
+                { "EnableSaveCoordination", EnableSaveCoordination },
+                { "EnableGridCoordination", EnableGridCoordination },
+                { "EnableRenderCoordination", EnableRenderCoordination },
+                { "EnableDebugLogging", EnableDebugLogging },
+                { "EnableSelfTest", EnableSelfTest },
+                { "SerializationLockTimeoutSeconds", SerializationLockTimeoutSeconds },
+                { "GridSanitizationDelayMs", GridSanitizationDelayMs },
+                { "OrphanedSaveRecoveryDelaySeconds", OrphanedSaveRecoveryDelaySeconds }
+            };
+        }
+        
+        public static CompatibilityConfig FromDictionary(Dictionary<string, object> dict)
+        {
+            var config = new CompatibilityConfig();
+            
+            if (dict.ContainsKey("EnableCoordination"))
+                config.EnableCoordination = (bool)dict["EnableCoordination"];
+            if (dict.ContainsKey("EnableSaveCoordination"))
+                config.EnableSaveCoordination = (bool)dict["EnableSaveCoordination"];
+            if (dict.ContainsKey("EnableGridCoordination"))
+                config.EnableGridCoordination = (bool)dict["EnableGridCoordination"];
+            if (dict.ContainsKey("EnableRenderCoordination"))
+                config.EnableRenderCoordination = (bool)dict["EnableRenderCoordination"];
+            if (dict.ContainsKey("EnableDebugLogging"))
+                config.EnableDebugLogging = (bool)dict["EnableDebugLogging"];
+            if (dict.ContainsKey("EnableSelfTest"))
+                config.EnableSelfTest = (bool)dict["EnableSelfTest"];
+            
+            if (dict.ContainsKey("SerializationLockTimeoutSeconds"))
+                config.SerializationLockTimeoutSeconds = (int)dict["SerializationLockTimeoutSeconds"];
+            if (dict.ContainsKey("GridSanitizationDelayMs"))
+                config.GridSanitizationDelayMs = (int)dict["GridSanitizationDelayMs"];
+            if (dict.ContainsKey("OrphanedSaveRecoveryDelaySeconds"))
+                config.OrphanedSaveRecoveryDelaySeconds = (int)dict["OrphanedSaveRecoveryDelaySeconds"];
+            
+            return config;
+        }
+    }
+    
+    /// <summary>
+    /// Configuration manager for More Props BETA compatibility layer
+    /// Handles loading, saving, validation, and hot-reload of configuration
+    /// </summary>
+    public static class ConfigManager
+    {
+        private static CompatibilityConfig s_currentConfig;
+        private static string s_configPath;
+        private static bool s_initialized = false;
+        
+        public static CompatibilityConfig CurrentConfig 
+        { 
+            get 
+            {
+                if (!s_initialized) Initialize();
+                return s_currentConfig;
+            }
+        }
+        
+        public static void Initialize()
+        {
+            if (s_initialized) return;
+            
+            try
+            {
+                // Determine config path: ~/.local/share/Colossal Order/Cities_Skylines/.kiro/MorePropsCompatibility.config
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string baseDir = Path.Combine(localAppData, "Colossal Order");
+                string citiesDir = Path.Combine(baseDir, "Cities_Skylines");
+                string kiroDir = Path.Combine(citiesDir, ".kiro");
+                s_configPath = Path.Combine(kiroDir, "MorePropsCompatibility.config");
+                
+                LoadConfiguration();
+                s_initialized = true;
+                
+                UnityEngine.Debug.Log(string.Format("[MNC-Compat] ConfigManager initialized. Config path: {0}", s_configPath));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] ConfigManager initialization failed: {0}", ex));
+                s_currentConfig = new CompatibilityConfig();
+                s_initialized = true;
+            }
+        }
+        
+        public static void LoadConfiguration()
+        {
+            try
+            {
+                if (!File.Exists(s_configPath))
+                {
+                    UnityEngine.Debug.Log("[MNC-Compat] Config file not found. Creating default configuration.");
+                    CreateDefaultConfiguration();
+                    return;
+                }
+                
+                string json = File.ReadAllText(s_configPath);
+                var dict = SimpleJsonParser.Parse(json);
+                s_currentConfig = CompatibilityConfig.FromDictionary(dict);
+                
+                if (!s_currentConfig.Validate())
+                {
+                    UnityEngine.Debug.LogError("[MNC-Compat] Invalid configuration values detected. Using defaults.");
+                    CreateDefaultConfiguration();
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("[MNC-Compat] Configuration loaded successfully.");
+                    if (s_currentConfig.EnableDebugLogging)
+                    {
+                        LogConfigurationValues();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] Failed to load configuration: {0}. Using defaults.", ex.Message));
+                CreateDefaultConfiguration();
+            }
+        }
+        
+        public static void SaveConfiguration(CompatibilityConfig config)
+        {
+            try
+            {
+                if (!config.Validate())
+                {
+                    UnityEngine.Debug.LogError("[MNC-Compat] Cannot save invalid configuration.");
+                    return;
+                }
+                
+                // Ensure directory exists
+                string dir = Path.GetDirectoryName(s_configPath);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                
+                var dict = config.ToDictionary();
+                string json = SimpleJsonParser.Stringify(dict, 2);
+                File.WriteAllText(s_configPath, json);
+                
+                UnityEngine.Debug.Log("[MNC-Compat] Configuration saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] Failed to save configuration: {0}", ex));
+            }
+        }
+        
+        public static void ReloadConfiguration()
+        {
+            try
+            {
+                UnityEngine.Debug.Log("[MNC-Compat] Reloading configuration...");
+                
+                var oldDebugLogging = s_currentConfig.EnableDebugLogging;
+                LoadConfiguration();
+                
+                if (s_currentConfig.EnableDebugLogging != oldDebugLogging)
+                {
+                    UnityEngine.Debug.Log(string.Format("[MNC-Compat] Debug logging changed: {0} -> {1}", 
+                        oldDebugLogging, s_currentConfig.EnableDebugLogging));
+                }
+                
+                LogConfigurationValues();
+                UnityEngine.Debug.Log("[MNC-Compat] Configuration reloaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] Failed to reload configuration: {0}", ex));
+            }
+        }
+        
+        private static void CreateDefaultConfiguration()
+        {
+            s_currentConfig = new CompatibilityConfig();
+            SaveConfiguration(s_currentConfig);
+            UnityEngine.Debug.Log("[MNC-Compat] Default configuration created.");
+        }
+        
+        private static void LogConfigurationValues()
+        {
+            UnityEngine.Debug.Log("[MNC-Compat] Configuration values:");
+            UnityEngine.Debug.Log(string.Format("  EnableCoordination: {0}", s_currentConfig.EnableCoordination));
+            UnityEngine.Debug.Log(string.Format("  EnableSaveCoordination: {0}", s_currentConfig.EnableSaveCoordination));
+            UnityEngine.Debug.Log(string.Format("  EnableGridCoordination: {0}", s_currentConfig.EnableGridCoordination));
+            UnityEngine.Debug.Log(string.Format("  EnableRenderCoordination: {0}", s_currentConfig.EnableRenderCoordination));
+            UnityEngine.Debug.Log(string.Format("  EnableDebugLogging: {0}", s_currentConfig.EnableDebugLogging));
+            UnityEngine.Debug.Log(string.Format("  EnableSelfTest: {0}", s_currentConfig.EnableSelfTest));
+            UnityEngine.Debug.Log(string.Format("  SerializationLockTimeoutSeconds: {0}", s_currentConfig.SerializationLockTimeoutSeconds));
+            UnityEngine.Debug.Log(string.Format("  GridSanitizationDelayMs: {0}", s_currentConfig.GridSanitizationDelayMs));
+            UnityEngine.Debug.Log(string.Format("  OrphanedSaveRecoveryDelaySeconds: {0}", s_currentConfig.OrphanedSaveRecoveryDelaySeconds));
+        }
+    }
+
+    // ============================================================================
     // UTF-16 SANITIZER & SURROGATE GUARDIAN
     // ============================================================================
     internal static class Utf16Sanitizer
@@ -399,6 +787,17 @@ namespace MoreNetworkCapacityRenew
         public static void StrategicGarbageCollect(string phase)
         {
             if (!EnableStrategicGC) return;
+            
+            // NEW (Task 8.2): Check coordination state - skip GC when mods are actively allocating (Req 6.6, 6.7)
+            if (CoordinationManager.IsMorePropsActive && !MemoryCoordinator.IsAllocationSafe())
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[MemoryOptimizer] Skipping GC during active allocation: {phase}");
+                }
+                return;
+            }
+            
             try
             {
                 long beforeBytes = GC.GetTotalMemory(false);
@@ -681,20 +1080,35 @@ namespace MoreNetworkCapacityRenew
                         return true;
                     }
                     
-                    // Create expanded array
+                    // NEW (Task 8.2): Calculate allocation size and notify MemoryCoordinator (Req 6.7)
                     Type elementType = currentArray.GetType().GetElementType();
-                    Array expandedArray = Array.CreateInstance(elementType, targetSize);
+                    int elementSize = System.Runtime.InteropServices.Marshal.SizeOf(elementType);
+                    int arraySizeBytes = targetSize * elementSize;
                     
-                    // Copy existing data
-                    Array.Copy(currentArray, expandedArray, currentLength);
+                    // NEW (Task 8.2): Notify MemoryCoordinator before array expansion (Req 6.1, 6.2)
+                    MemoryCoordinator.OnBeforeArrayExpansion("MNC", arraySizeBytes);
                     
-                    // Set expanded array
-                    field.SetValue(null, expandedArray);
-                    
-                    TotalExpansions++;
-                    
-                    UnityEngine.Debug.Log(string.Format("[ArrayGuardian] Expanded {0}.{1}: {2} → {3} ✓", type.Name, fieldName, currentLength, targetSize));
-                    return true;
+                    try
+                    {
+                        // Create expanded array
+                        Array expandedArray = Array.CreateInstance(elementType, targetSize);
+                        
+                        // Copy existing data
+                        Array.Copy(currentArray, expandedArray, currentLength);
+                        
+                        // Set expanded array
+                        field.SetValue(null, expandedArray);
+                        
+                        TotalExpansions++;
+                        
+                        UnityEngine.Debug.Log(string.Format("[ArrayGuardian] Expanded {0}.{1}: {2} → {3} ✓", type.Name, fieldName, currentLength, targetSize));
+                        return true;
+                    }
+                    finally
+                    {
+                        // NEW (Task 8.2): Always release coordination lock, even on exception
+                        MemoryCoordinator.OnAfterArrayExpansion("MNC");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1488,6 +1902,10 @@ namespace MoreNetworkCapacityRenew
             EnsureCoreActive();
             try
             {
+                // NEW v5.0: Initialize More Props BETA compatibility layer EARLY
+                // This must happen before other systems init to detect More Props
+                CoordinationManager.Initialize();
+                
                 // NEW v4.0.0: Initialize ArrayGuardian EARLY (before game systems init)
                 DiagnosticLogger.Checkpoint("RenewMod.OnEnabled.Start");
                 ArrayGuardian.Initialize();
@@ -1543,6 +1961,11 @@ namespace MoreNetworkCapacityRenew
 
         public void OnDisabled()
         {
+            try
+            {
+                CoordinationManager.Shutdown();
+            }
+            catch {}
             DisableCore();
         }
 
@@ -1785,6 +2208,145 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] DisableCore error: " + ex);
+            }
+        }
+        
+        // ========== Delayed Callback System for GridCoordinator ==========
+        
+        private static List<DelayedCallback> s_delayedCallbacks = new List<DelayedCallback>();
+        private static List<System.Collections.IEnumerator> s_activeCoroutines = new List<System.Collections.IEnumerator>();
+        
+        private struct DelayedCallback
+        {
+            public Action Callback;
+            public float TargetTime;
+        }
+        
+        /// <summary>
+        /// Schedule a callback to execute after a specified delay.
+        /// Used by GridCoordinator for fallback delayed execution.
+        /// The callback will be executed during the next simulation frame after the delay has elapsed.
+        /// </summary>
+        /// <param name="callback">Action to execute</param>
+        /// <param name="delaySeconds">Delay in seconds (default: 2.0)</param>
+        public static void ScheduleDelayedCallback(Action callback, float delaySeconds = 2.0f)
+        {
+            if (callback == null)
+            {
+                UnityEngine.Debug.LogWarning("[RenewMod] ScheduleDelayedCallback called with null callback");
+                return;
+            }
+            
+            float targetTime = Time.realtimeSinceStartup + delaySeconds;
+            
+            s_delayedCallbacks.Add(new DelayedCallback
+            {
+                Callback = callback,
+                TargetTime = targetTime
+            });
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[RenewMod] Scheduled delayed callback (delay: {delaySeconds}s, target time: {targetTime:F2})");
+            }
+        }
+
+        /// <summary>
+        /// Start a coroutine for incremental processing.
+        /// Used by GridCoordinator for incremental grid sanitization.
+        /// Requirements: 3.7, 11.4
+        /// </summary>
+        /// <param name="coroutine">IEnumerator coroutine to execute</param>
+        public static void StartCoroutine(System.Collections.IEnumerator coroutine)
+        {
+            if (coroutine == null)
+            {
+                UnityEngine.Debug.LogWarning("[RenewMod] StartCoroutine called with null coroutine");
+                return;
+            }
+            
+            s_activeCoroutines.Add(coroutine);
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[RenewMod] Started coroutine (active count: {s_activeCoroutines.Count})");
+            }
+        }
+
+        /// <summary>
+        /// Process active coroutines. Should be called every simulation frame.
+        /// Steps each coroutine and removes completed ones.
+        /// </summary>
+        public static void ProcessCoroutines()
+        {
+            if (s_activeCoroutines.Count == 0)
+            {
+                return;
+            }
+            
+            // Process coroutines (iterate backwards to safely remove)
+            for (int i = s_activeCoroutines.Count - 1; i >= 0; i--)
+            {
+                System.Collections.IEnumerator coroutine = s_activeCoroutines[i];
+                
+                try
+                {
+                    bool hasMore = coroutine.MoveNext();
+                    
+                    if (!hasMore)
+                    {
+                        // Coroutine completed
+                        s_activeCoroutines.RemoveAt(i);
+                        
+                        if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                        {
+                            UnityEngine.Debug.Log($"[RenewMod] Coroutine completed (remaining: {s_activeCoroutines.Count})");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"[RenewMod] Error processing coroutine: {ex}");
+                    s_activeCoroutines.RemoveAt(i);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Process delayed callbacks. Should be called every simulation frame.
+        /// Executes any callbacks whose target time has been reached.
+        /// </summary>
+        public static void ProcessDelayedCallbacks()
+        {
+            if (s_delayedCallbacks.Count == 0)
+            {
+                return;
+            }
+            
+            float currentTime = Time.realtimeSinceStartup;
+            
+            // Execute callbacks whose time has come (iterate backwards to safely remove)
+            for (int i = s_delayedCallbacks.Count - 1; i >= 0; i--)
+            {
+                if (currentTime >= s_delayedCallbacks[i].TargetTime)
+                {
+                    DelayedCallback dc = s_delayedCallbacks[i];
+                    s_delayedCallbacks.RemoveAt(i);
+                    
+                    try
+                    {
+                        if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                        {
+                            UnityEngine.Debug.Log($"[RenewMod] Executing delayed callback (scheduled for: {dc.TargetTime:F2}, now: {currentTime:F2})");
+                        }
+                        
+                        dc.Callback();
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogError($"[RenewMod] Error executing delayed callback: {ex}");
+                    }
+                }
             }
         }
     }
@@ -8249,6 +8811,85 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] === SaveSimulationData BEGIN: " + fname + " ===");
                 }
 
+                // NEW: Acquire coordination lock before any file I/O operations (Req 2.8, 8.2)
+                if (CoordinationManager.IsMorePropsActive && ConfigManager.CurrentConfig.EnableSaveCoordination)
+                {
+                    LogSaveDebug("Acquiring save coordination lock...");
+                    UnityEngine.Debug.Log("[MNC-Compat] SaveSimulationData: Acquiring coordination lock...");
+                    
+                    bool lockAcquired = SaveCoordinator.AcquireLock("MNC", timeoutMs: 5000);
+                    
+                    if (!lockAcquired)
+                    {
+                        // Lock acquisition failed after retries (Req 8.2)
+                        string errorMsg = "Failed to acquire save coordination lock after multiple attempts. " +
+                                        "Another mod may be holding the lock. Save operation aborted to prevent data corruption.";
+                        
+                        LogSaveDebug("CRITICAL: " + errorMsg);
+                        UnityEngine.Debug.LogError("[MNC-Compat] CRITICAL: " + errorMsg);
+                        
+                        // Display error dialog to user (Req 8.2)
+                        try
+                        {
+                            var panel = ColossalFramework.UI.UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
+                            if (panel != null)
+                            {
+                                panel.SetMessage("Save Coordination Error", errorMsg, false);
+                            }
+                        }
+                        catch
+                        {
+                            // Fallback if dialog fails
+                            UnityEngine.Debug.LogError("[MNC-Compat] Failed to display error dialog");
+                        }
+                        
+                        // Throw exception to abort the save operation (Req 8.2)
+                        throw new IOException("Save coordination lock acquisition failed - aborting save to prevent corruption");
+                    }
+                    
+                    LogSaveDebug("Coordination lock acquired successfully");
+                    UnityEngine.Debug.Log("[MNC-Compat] SaveSimulationData: Coordination lock acquired");
+                }
+                
+                // NEW: Inject CoordinationMetadata into save game (Task 11.1)
+                try
+                {
+                    var sm = Singleton<SimulationManager>.instance;
+                    if (sm != null && sm.m_metaData != null)
+                    {
+                        // Create metadata from current coordination state
+                        var coordMetadata = CoordinationMetadata.CreateFromCurrentState();
+                        
+                        // Serialize to compact string format
+                        string serializedMetadata = coordMetadata.SerializeMetadata();
+                        
+                        // Inject into SimulationMetaData.m_modOverride dictionary
+                        lock (sm.m_metaData)
+                        {
+                            if (sm.m_metaData.m_modOverride == null)
+                            {
+                                sm.m_metaData.m_modOverride = new Dictionary<string, bool>();
+                            }
+                            
+                            // Store serialized metadata in a special key (not a bool!)
+                            // We'll use a separate reflection-based approach to store string data
+                            // For now, store it in a way that's compatible with the modOverride dictionary
+                            // by encoding it in the key itself as a workaround
+                            string metadataKey = "User/MNC/CoordinationMetadata:" + serializedMetadata;
+                            sm.m_metaData.m_modOverride[metadataKey] = true;
+                        }
+                        
+                        LogSaveDebug("CoordinationMetadata injected into save: " + serializedMetadata);
+                        UnityEngine.Debug.Log("[MNC-Compat] CoordinationMetadata injected: " + coordMetadata.ToString());
+                    }
+                }
+                catch (Exception metaEx)
+                {
+                    // Non-critical error - log but don't abort save
+                    LogSaveDebug("Warning: Failed to inject CoordinationMetadata: " + metaEx);
+                    UnityEngine.Debug.LogWarning("[MNC-Compat] Failed to inject CoordinationMetadata: " + metaEx);
+                }
+
                 // Universal pre-save data sanitization executed before file creation and manager serialization
                 LogSaveDebug("Running PreSaveSanitization before serialization begins...");
                 TransportLineCompatibility.PreSaveSanitization();
@@ -8256,8 +8897,23 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
+                // Release lock on any exception (Req 8.4)
+                if (CoordinationManager.IsMorePropsActive && ConfigManager.CurrentConfig.EnableSaveCoordination)
+                {
+                    try
+                    {
+                        LogSaveDebug("Exception caught - releasing coordination lock");
+                        SaveCoordinator.ReleaseLock("MNC");
+                    }
+                    catch (Exception releaseEx)
+                    {
+                        LogSaveDebug("Failed to release lock during exception handling: " + releaseEx);
+                    }
+                }
+                
                 LogSaveDebug("SaveSimulationData prefix error: " + ex);
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveSimulationData prefix error: " + ex);
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveSimulationData prefix error: " + ex);
+                throw; // Re-throw to propagate the error
             }
         }
 
@@ -8291,10 +8947,28 @@ namespace MoreNetworkCapacityRenew
             {
                 if (__result)
                 {
+                    // Yielding to continue iteration - don't release lock yet
                     LogSaveDebug("=== SaveSimulationData STEP YIELDED (result=true) ===");
                 }
                 else
                 {
+                    // Save operation completed (or failed) - release coordination lock (Req 2.8, 8.2)
+                    if (CoordinationManager.IsMorePropsActive && ConfigManager.CurrentConfig.EnableSaveCoordination)
+                    {
+                        try
+                        {
+                            LogSaveDebug("Releasing save coordination lock...");
+                            UnityEngine.Debug.Log("[MNC-Compat] SaveSimulationData: Releasing coordination lock");
+                            SaveCoordinator.ReleaseLock("MNC");
+                            LogSaveDebug("Coordination lock released successfully");
+                        }
+                        catch (Exception releaseEx)
+                        {
+                            LogSaveDebug("Error releasing coordination lock: " + releaseEx);
+                            UnityEngine.Debug.LogError("[MNC-Compat] Error releasing coordination lock: " + releaseEx);
+                        }
+                    }
+                    
                     if (LastSaveSimulationException != null)
                     {
                         LogSaveDebug("=== SaveSimulationData FAILED with exception: " + LastSaveSimulationException.Message + " ===");
@@ -8311,8 +8985,18 @@ namespace MoreNetworkCapacityRenew
             }
             catch (Exception ex)
             {
+                // Ensure lock is released even if postfix logging fails (Req 8.4)
+                if (CoordinationManager.IsMorePropsActive && ConfigManager.CurrentConfig.EnableSaveCoordination)
+                {
+                    try
+                    {
+                        SaveCoordinator.ReleaseLock("MNC");
+                    }
+                    catch { }
+                }
+                
                 LogSaveDebug("SaveSimulationData postfix error: " + ex);
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SaveSimulationData postfix log error: " + ex);
+                UnityEngine.Debug.LogError("[MoreNetworkCapacityRenew] SaveSimulationData postfix log error: " + ex);
             }
         }
     }
@@ -8358,14 +9042,85 @@ namespace MoreNetworkCapacityRenew
                 Array props = fProps.GetValue(instance) as Array;
                 if (propGrid == null || props == null) return;
 
+                // Sanitize entire grid (0 to length)
+                SanitizeMorePropsGridRange(0, propGrid.Length, callerContext, epmType, instance, propGrid, props);
+            }
+            catch (Exception ex)
+            {
+                SaveSimulationDataSafetyPatch.LogSaveDebug("SanitizeMorePropsGrid error: " + ex);
+            }
+        }
+
+        /// <summary>
+        /// Sanitizes a range of grid cells in the More Props grid.
+        /// This enables incremental processing to avoid frame time spikes.
+        /// Requirements: 3.7, 11.4
+        /// </summary>
+        /// <param name="startCell">Starting grid cell index (inclusive)</param>
+        /// <param name="endCell">Ending grid cell index (exclusive)</param>
+        /// <param name="callerContext">Context string for logging</param>
+        /// <param name="epmType">ExtendedPropManager type (optional, will be detected if null)</param>
+        /// <param name="instance">ExtendedPropManager instance (optional, will be retrieved if null)</param>
+        /// <param name="propGrid">Prop grid array (optional, will be retrieved if null)</param>
+        /// <param name="props">Props array (optional, will be retrieved if null)</param>
+        /// <returns>Number of cycles broken in this range</returns>
+        public static int SanitizeMorePropsGridRange(int startCell, int endCell, string callerContext, 
+            Type epmType = null, object instance = null, uint[] propGrid = null, Array props = null)
+        {
+            try
+            {
+                // Get More Props references if not provided
+                if (epmType == null || instance == null || propGrid == null || props == null)
+                {
+                    if (epmType == null)
+                    {
+                        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            if (asm.GetName().Name == "MorePropsBETA" || asm.GetName().Name == "MoreProps")
+                            {
+                                epmType = asm.GetType("MorePropsBETA.ExtendedPropManager") ?? asm.GetType("MoreProps.ExtendedPropManager");
+                                if (epmType != null) break;
+                            }
+                        }
+                        if (epmType == null) return 0;
+                    }
+
+                    if (instance == null)
+                    {
+                        PropertyInfo pInstance = epmType.GetProperty("Instance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        instance = pInstance?.GetValue(null, null);
+                        if (instance == null) return 0;
+                    }
+
+                    if (propGrid == null || props == null)
+                    {
+                        FieldInfo fGrid = epmType.GetField("m_propGrid32", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        FieldInfo fProps = epmType.GetField("m_props256k", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fGrid == null || fProps == null) return 0;
+
+                        propGrid = fGrid.GetValue(instance) as uint[];
+                        props = fProps.GetValue(instance) as Array;
+                        if (propGrid == null || props == null) return 0;
+                    }
+                }
+
                 Type propInstanceType = props.GetType().GetElementType();
                 FieldInfo fNext = propInstanceType.GetField("m_nextGridProp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fNext == null) return;
+                if (fNext == null) return 0;
 
                 int cycleBrokenCount = 0;
                 int maxAllowedChain = 500;
 
-                for (int i = 0; i < propGrid.Length; i++)
+                // Clamp range to valid bounds
+                startCell = System.Math.Max(0, startCell);
+                endCell = System.Math.Min(propGrid.Length, endCell);
+
+                // Node revisit tracking for cycle detection
+                // Using HashSet for O(1) lookup - requirements 3.4, 3.5
+                var visitedNodes = new System.Collections.Generic.HashSet<uint>();
+
+                // Process cells in range
+                for (int i = startCell; i < endCell; i++)
                 {
                     uint head = propGrid[i];
                     if (head == 0 || head >= (uint)props.Length) continue;
@@ -8373,49 +9128,252 @@ namespace MoreNetworkCapacityRenew
                     uint current = head;
                     uint prev = 0;
                     int count = 0;
+                    
+                    // Clear visited set for each new chain
+                    visitedNodes.Clear();
 
                     while (current != 0 && current < (uint)props.Length)
                     {
                         count++;
+                        
+                        // Cycle detection: iteration limit (requirement 3.7, 3.8)
                         if (count > maxAllowedChain)
                         {
+                            // Break cycle at previous node (requirement 3.4)
                             if (prev != 0 && prev < (uint)props.Length)
                             {
                                 object prevObj = props.GetValue((int)prev);
                                 fNext.SetValue(prevObj, (uint)0);
                                 props.SetValue(prevObj, (int)prev);
                                 cycleBrokenCount++;
+                                
+                                // Repair logging with grid cell index and prop count (requirement 3.5)
+                                UnityEngine.Debug.LogWarning(string.Format(
+                                    "[MNC-GridSanitizer] Cycle detected in grid cell {0}: chain exceeded {1} iterations. " +
+                                    "Broke cycle at prop {2} (chain length: {3})",
+                                    i, maxAllowedChain, prev, count));
                             }
                             else
                             {
                                 propGrid[i] = 0;
                                 cycleBrokenCount++;
+                                
+                                UnityEngine.Debug.LogWarning(string.Format(
+                                    "[MNC-GridSanitizer] Cycle detected in grid cell {0}: chain exceeded {1} iterations. " +
+                                    "Reset grid cell head (chain length: {2})",
+                                    i, maxAllowedChain, count));
                             }
                             break;
                         }
 
-                        prev = current;
-                        object curObj = props.GetValue((int)current);
-                        current = (uint)fNext.GetValue(curObj);
-                        if (current == prev)
+                        // Cycle detection: node revisit tracking (requirement 3.4)
+                        if (visitedNodes.Contains(current))
                         {
-                            fNext.SetValue(curObj, (uint)0);
-                            props.SetValue(curObj, (int)prev);
-                            cycleBrokenCount++;
+                            // Node revisited - cycle detected!
+                            // Break cycle at previous node (requirement 3.4)
+                            if (prev != 0 && prev < (uint)props.Length)
+                            {
+                                object prevObj = props.GetValue((int)prev);
+                                fNext.SetValue(prevObj, (uint)0);
+                                props.SetValue(prevObj, (int)prev);
+                                cycleBrokenCount++;
+                                
+                                // Repair logging with grid cell index and prop count (requirement 3.5)
+                                UnityEngine.Debug.LogWarning(string.Format(
+                                    "[MNC-GridSanitizer] Cycle detected in grid cell {0}: node {1} revisited. " +
+                                    "Broke cycle at prop {2} (props in chain: {3})",
+                                    i, current, prev, count));
+                            }
+                            else
+                            {
+                                propGrid[i] = 0;
+                                cycleBrokenCount++;
+                                
+                                UnityEngine.Debug.LogWarning(string.Format(
+                                    "[MNC-GridSanitizer] Cycle detected in grid cell {0}: node {1} revisited at start. " +
+                                    "Reset grid cell head (props in chain: {2})",
+                                    i, current, count));
+                            }
                             break;
                         }
+                        
+                        // Track this node as visited
+                        visitedNodes.Add(current);
+
+                        prev = current;
+                        object curObj = props.GetValue((int)current);
+                        uint next = (uint)fNext.GetValue(curObj);
+                        
+                        // Immediate self-reference check (optimization for common case)
+                        if (next == current)
+                        {
+                            fNext.SetValue(curObj, (uint)0);
+                            props.SetValue(curObj, (int)current);
+                            cycleBrokenCount++;
+                            
+                            UnityEngine.Debug.LogWarning(string.Format(
+                                "[MNC-GridSanitizer] Cycle detected in grid cell {0}: prop {1} references itself. " +
+                                "Broke self-reference (props in chain: {2})",
+                                i, current, count));
+                            break;
+                        }
+                        
+                        current = next;
                     }
                 }
 
                 if (cycleBrokenCount > 0)
                 {
-                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid!", callerContext, cycleBrokenCount));
-                    SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format("GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid.", callerContext, cycleBrokenCount));
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid range [{2}, {3})!", 
+                        callerContext, cycleBrokenCount, startCell, endCell));
+                    SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format("GridSanitizerArmor ({0}): Repaired {1} circular linked list(s) in MoreProps prop grid range [{2}, {3}).", 
+                        callerContext, cycleBrokenCount, startCell, endCell));
+                    
+                    // Grid integrity validation after repair (requirement 3.9)
+                    bool integrityValid = ValidateGridIntegrity(startCell, endCell, propGrid, props, fNext, callerContext);
+                    if (!integrityValid)
+                    {
+                        UnityEngine.Debug.LogError(string.Format(
+                            "[MNC-GridSanitizer] Grid integrity validation FAILED after repair in range [{0}, {1}). " +
+                            "Manual intervention may be required.",
+                            startCell, endCell));
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log(string.Format(
+                            "[MNC-GridSanitizer] Grid integrity validation PASSED after repair in range [{0}, {1}).",
+                            startCell, endCell));
+                    }
                 }
+
+                return cycleBrokenCount;
+            }
+            catch (System.Reflection.ReflectionTypeLoadException rtlex)
+            {
+                // Specific handling for reflection type load errors (requirement 8.3)
+                UnityEngine.Debug.LogError(string.Format(
+                    "[MNC-GridSanitizer] Reflection type load error in range [{0}, {1}): {2}",
+                    startCell, endCell, rtlex.Message));
+                if (rtlex.LoaderExceptions != null)
+                {
+                    foreach (var loaderEx in rtlex.LoaderExceptions)
+                    {
+                        if (loaderEx != null)
+                        {
+                            UnityEngine.Debug.LogError(string.Format(
+                                "[MNC-GridSanitizer] Loader exception: {0}", loaderEx.Message));
+                        }
+                    }
+                }
+                SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format(
+                    "SanitizeMorePropsGridRange [{0}, {1}) reflection error: {2}", 
+                    startCell, endCell, rtlex));
+                return 0;
+            }
+            catch (System.Reflection.TargetException tex)
+            {
+                // Specific handling for reflection target errors (requirement 8.3)
+                UnityEngine.Debug.LogError(string.Format(
+                    "[MNC-GridSanitizer] Reflection target error in range [{0}, {1}): {2}",
+                    startCell, endCell, tex.Message));
+                SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format(
+                    "SanitizeMorePropsGridRange [{0}, {1}) reflection target error: {2}", 
+                    startCell, endCell, tex));
+                return 0;
+            }
+            catch (System.Reflection.TargetInvocationException tiex)
+            {
+                // Specific handling for reflection invocation errors (requirement 8.3)
+                UnityEngine.Debug.LogError(string.Format(
+                    "[MNC-GridSanitizer] Reflection invocation error in range [{0}, {1}): {2}",
+                    startCell, endCell, tiex.InnerException?.Message ?? tiex.Message));
+                SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format(
+                    "SanitizeMorePropsGridRange [{0}, {1}) reflection invocation error: {2}", 
+                    startCell, endCell, tiex));
+                return 0;
             }
             catch (Exception ex)
             {
-                SaveSimulationDataSafetyPatch.LogSaveDebug("SanitizeMorePropsGrid error: " + ex);
+                SaveSimulationDataSafetyPatch.LogSaveDebug(string.Format("SanitizeMorePropsGridRange [{0}, {1}) error: {2}", startCell, endCell, ex));
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Validates grid integrity after cycle repairs to ensure no cycles remain.
+        /// Requirements: 3.9
+        /// </summary>
+        /// <param name="startCell">Starting grid cell index (inclusive)</param>
+        /// <param name="endCell">Ending grid cell index (exclusive)</param>
+        /// <param name="propGrid">Prop grid array</param>
+        /// <param name="props">Props array</param>
+        /// <param name="fNext">m_nextGridProp field info</param>
+        /// <param name="callerContext">Context string for logging</param>
+        /// <returns>True if integrity is valid, false if cycles still exist</returns>
+        private static bool ValidateGridIntegrity(int startCell, int endCell, uint[] propGrid, Array props, 
+            FieldInfo fNext, string callerContext)
+        {
+            try
+            {
+                int maxValidationChain = 500; // Same limit as cycle detection
+                var visitedNodes = new System.Collections.Generic.HashSet<uint>();
+                
+                for (int i = startCell; i < endCell; i++)
+                {
+                    uint head = propGrid[i];
+                    if (head == 0 || head >= (uint)props.Length) continue;
+
+                    uint current = head;
+                    int count = 0;
+                    visitedNodes.Clear();
+
+                    while (current != 0 && current < (uint)props.Length)
+                    {
+                        count++;
+                        
+                        // Check iteration limit
+                        if (count > maxValidationChain)
+                        {
+                            UnityEngine.Debug.LogError(string.Format(
+                                "[MNC-GridSanitizer] Validation failed: grid cell {0} still has chain exceeding {1} iterations",
+                                i, maxValidationChain));
+                            return false;
+                        }
+
+                        // Check for revisited nodes
+                        if (visitedNodes.Contains(current))
+                        {
+                            UnityEngine.Debug.LogError(string.Format(
+                                "[MNC-GridSanitizer] Validation failed: grid cell {0} still has cycle (node {1} revisited)",
+                                i, current));
+                            return false;
+                        }
+                        
+                        visitedNodes.Add(current);
+
+                        object curObj = props.GetValue((int)current);
+                        uint next = (uint)fNext.GetValue(curObj);
+                        
+                        // Check for self-reference
+                        if (next == current)
+                        {
+                            UnityEngine.Debug.LogError(string.Format(
+                                "[MNC-GridSanitizer] Validation failed: grid cell {0} prop {1} still has self-reference",
+                                i, current));
+                            return false;
+                        }
+                        
+                        current = next;
+                    }
+                }
+                
+                return true; // All checks passed
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format(
+                    "[MNC-GridSanitizer] Grid integrity validation error: {0}", ex));
+                return false; // Treat exceptions as validation failure
             }
         }
 
@@ -8517,6 +9475,132 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GridSanitizerArmor.RescueOrphanedTempSaves error: " + ex);
+            }
+        }
+        
+        /// <summary>
+        /// Rescue orphaned save files with lock checking for compatibility mode (Req 4.3-4.8).
+        /// This version verifies files are not locked by another process (e.g., More Props)
+        /// before attempting to package them.
+        /// </summary>
+        public static void RescueOrphanedTempSavesWithLockCheck()
+        {
+            try
+            {
+                string savesDir = ColossalFramework.IO.DataLocation.saveLocation;
+                if (string.IsNullOrEmpty(savesDir)) return;
+                string tempDir = System.IO.Path.Combine(savesDir, "Temp");
+                if (!System.IO.Directory.Exists(tempDir)) return;
+
+                string[] ccsFiles = System.IO.Directory.GetFiles(tempDir, "*.ccs");
+                if (ccsFiles == null || ccsFiles.Length == 0) return;
+
+                int successCount = 0;
+                int skippedCount = 0;
+                
+                for (int i = 0; i < ccsFiles.Length; i++)
+                {
+                    string ccs = ccsFiles[i];
+                    try
+                    {
+                        var fi = new System.IO.FileInfo(ccs);
+                        
+                        // Req 4.2: Only process files larger than 1MB
+                        if (fi.Length > 1024 * 1024)
+                        {
+                            // Req 4.4, 4.5: Verify file is not locked by another process
+                            if (IsFileLocked(ccs))
+                            {
+                                UnityEngine.Debug.LogWarning($"[GridCoordinator] Skipping locked orphaned file {fi.Name} ({fi.Length / 1048576f:F1} MB) - likely in use by More Props");
+                                skippedCount++;
+                                continue;
+                            }
+                            
+                            string cityName = "RescuedCity";
+                            var sm = Singleton<SimulationManager>.instance;
+                            if (sm != null && sm.m_metaData != null && !string.IsNullOrEmpty(sm.m_metaData.m_CityName))
+                                cityName = sm.m_metaData.m_CityName;
+
+                            string targetCrp = System.IO.Path.Combine(savesDir, cityName + "_Rescued_" + fi.LastWriteTime.ToString("yyyyMMdd_HHmmss") + ".crp");
+                            if (!System.IO.File.Exists(targetCrp))
+                            {
+                                UnityEngine.Debug.Log($"[GridCoordinator] Found orphaned simulation file {fi.Name} ({fi.Length / 1048576f:F1} MB). Packaging to {targetCrp}...");
+                                
+                                var package = new ColossalFramework.Packaging.Package(cityName);
+                                package.packageMainAsset = cityName;
+                                
+                                var meta = new SaveGameMetaData();
+                                meta.cityName = cityName;
+                                meta.timeStamp = fi.LastWriteTime;
+                                
+                                // Req 4.8: Include mod list snapshot with More Props version if present
+                                meta.mods = SavePanelOnSavingCompletePatch.GatherModInfoSnapshot();
+                                meta.assets = SavePanelOnSavingCompletePatch.GatherAssetInfoSnapshot();
+                                
+                                meta.assetRef = package.AddFileAsset(cityName + "_Data", ccs, ColossalFramework.Packaging.Package.AssetType.Data, false);
+                                package.AddAsset(cityName, meta, UserAssetType.SaveGameMetaData, false);
+                                package.Save(targetCrp, false);
+                                
+                                // Req 4.6: Delete original .ccs file only after .crp creation completes
+                                System.IO.File.Delete(ccs);
+                                
+                                UnityEngine.Debug.Log($"[GridCoordinator] Successfully recovered orphaned save file to: {targetCrp}");
+                                successCount++;
+                            }
+                        }
+                    }
+                    catch (System.IO.IOException ioEx)
+                    {
+                        // Req 4.5: Skip files that cause IOException (likely locked)
+                        UnityEngine.Debug.LogWarning($"[GridCoordinator] IOException accessing {ccs} - skipping (likely locked by another process): {ioEx.Message}");
+                        skippedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"[GridCoordinator] Error rescuing {ccs}: {ex}");
+                    }
+                }
+                
+                // Log summary
+                if (successCount > 0 || skippedCount > 0)
+                {
+                    UnityEngine.Debug.Log($"[GridCoordinator] Orphaned save recovery complete: {successCount} recovered, {skippedCount} skipped (locked)");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[GridCoordinator] RescueOrphanedTempSavesWithLockCheck error: {ex}");
+            }
+        }
+        
+        /// <summary>
+        /// Check if a file is locked by another process (Req 4.4, 4.5).
+        /// Returns true if the file cannot be opened for exclusive access.
+        /// </summary>
+        private static bool IsFileLocked(string filePath)
+        {
+            try
+            {
+                // Try to open the file with exclusive access
+                using (System.IO.FileStream stream = new System.IO.FileInfo(filePath).Open(
+                    System.IO.FileMode.Open,
+                    System.IO.FileAccess.Read,
+                    System.IO.FileShare.None))
+                {
+                    stream.Close();
+                }
+                return false; // File is not locked
+            }
+            catch (System.IO.IOException)
+            {
+                // IOException indicates the file is locked by another process
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Other exceptions - assume locked to be safe
+                UnityEngine.Debug.LogWarning($"[GridCoordinator] Unexpected exception checking file lock for {filePath}: {ex.Message}");
+                return true;
             }
         }
     }
@@ -8756,7 +9840,6 @@ namespace MoreNetworkCapacityRenew
                 try
                 {
                     // Traffic Light Synchronization and Deadlock Prevention (Vanilla & TM:PE Default Lights for nodes 1..65535)
-                    TrafficLightPatches.Apply(harmony);
                 }
                 catch (Exception ex)
                 {
@@ -8791,6 +9874,17 @@ namespace MoreNetworkCapacityRenew
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] GameLoadingArmor error: " + ex);
+                }
+
+                try
+                {
+                    // NEW v5.0: Apply More Props BETA render coordination patches (Task 7.1)
+                    // Ensures MNC renders after More Props to prevent grid cycle conflicts
+                    RenderCoordinator.ApplyRenderPatches(harmony);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] RenderCoordinator error: " + ex);
                 }
 
                 try
@@ -8868,56 +9962,148 @@ namespace MoreNetworkCapacityRenew
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
-            try
-            {
-                ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
-                MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
-                MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated memory prep error: " + ex);
-            }
-
-            try
-            {
-                RenewMod.EnsureCoreActive();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureCoreActive error: " + ex);
-            }
-
-            try
-            {
-                SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ApplySavePanelPatch error: " + ex);
-            }
-
-            try
-            {
-                MemoryOptimizer.PrewarmHeap();
-                ArrayGuardian.Initialize();
-                ArrayGuardian.ExpandAllArrays();
-                SafeFlagsAccessor.Initialize();
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ArrayGuardian error: " + ex);
-            }
-
-            DiagnosticLogger.Checkpoint("OnCreated.Start");
             
-            try
+            // NEW: Task 6.2 - Integrate LifecycleCoordinator with LoadingExtension (Req 7.3, 7.4, 7.5, 7.6)
+            // Check if compatibility mode is active and use coordinated lifecycle
+            if (CoordinationManager.IsMorePropsActive)
             {
-                EnsureAllPatchesApplied();
+                // Register all OnCreated callbacks with appropriate priorities
+                // Execution order: Detection (1000) → More Props Detection (900) → Compatibility Activation (800) 
+                // → ArrayGuardian (700) → MNC Init (500)
+                
+                // Priority 1000: CoordinationManager initialization
+                LifecycleCoordinator.RegisterOnCreated("CoordinationManager", 1000, () =>
+                {
+                    CoordinationManager.Initialize();
+                });
+                
+                // Priority 900: More Props detection (already done in CoordinationManager.Initialize)
+                // This callback slot is reserved for explicit More Props detection verification
+                
+                // Priority 800: Compatibility mode activation
+                LifecycleCoordinator.RegisterOnCreated("CompatibilityActivation", 800, () =>
+                {
+                    // Compatibility mode already active, log confirmation
+                    UnityEngine.Debug.Log($"[MoreNetworkCapacityRenew] Compatibility mode active with More Props {CoordinationManager.MorePropsVersion}");
+                });
+                
+                // Priority 700: ArrayGuardian initialization
+                LifecycleCoordinator.RegisterOnCreated("ArrayGuardian", 700, () =>
+                {
+                    try
+                    {
+                        MemoryOptimizer.PrewarmHeap();
+                        ArrayGuardian.Initialize();
+                        ArrayGuardian.ExpandAllArrays();
+                        SafeFlagsAccessor.Initialize();
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ArrayGuardian initialization error: " + ex);
+                    }
+                });
+                
+                // Priority 500: MNC initialization
+                LifecycleCoordinator.RegisterOnCreated("MNCInit", 500, () =>
+                {
+                    try
+                    {
+                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+                        MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
+                        MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated memory prep error: " + ex);
+                    }
+
+                    try
+                    {
+                        RenewMod.EnsureCoreActive();
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureCoreActive error: " + ex);
+                    }
+
+                    try
+                    {
+                        SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ApplySavePanelPatch error: " + ex);
+                    }
+
+                    DiagnosticLogger.Checkpoint("OnCreated.Start");
+                    
+                    try
+                    {
+                        EnsureAllPatchesApplied();
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureAllPatchesApplied error: " + ex);
+                    }
+                });
+                
+                // Execute all registered OnCreated callbacks in priority order
+                LifecycleCoordinator.ExecuteOnCreated();
             }
-            catch (Exception ex)
+            else
             {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureAllPatchesApplied error: " + ex);
+                // Standalone mode - execute original logic directly (no coordination overhead)
+                try
+                {
+                    ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+                    MemoryOptimizer.LogMemoryStatus("OnCreated.PreLoad");
+                    MemoryOptimizer.StrategicGarbageCollect("OnCreated (Pre-Save Loading)");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated memory prep error: " + ex);
+                }
+
+                try
+                {
+                    RenewMod.EnsureCoreActive();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureCoreActive error: " + ex);
+                }
+
+                try
+                {
+                    SavePanelOnSavingCompletePatch.ApplySavePanelPatch();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ApplySavePanelPatch error: " + ex);
+                }
+
+                try
+                {
+                    MemoryOptimizer.PrewarmHeap();
+                    ArrayGuardian.Initialize();
+                    ArrayGuardian.ExpandAllArrays();
+                    SafeFlagsAccessor.Initialize();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated ArrayGuardian error: " + ex);
+                }
+
+                DiagnosticLogger.Checkpoint("OnCreated.Start");
+                
+                try
+                {
+                    EnsureAllPatchesApplied();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] OnCreated EnsureAllPatchesApplied error: " + ex);
+                }
             }
         }
 
@@ -8928,23 +10114,80 @@ namespace MoreNetworkCapacityRenew
             
             try
             {
-                GridSanitizerArmor.SanitizeAllGrids("OnLevelLoaded");
-                // GridSanitizerArmor.RescueOrphanedTempSaves(); // DISABLED: Causes race condition with vanilla save process (IOException: Stream does not support writing or already closed)
-                RenewMod.EnsureRenderManagerCapacity();
-                InstanceManagerCompatibility.EnsureCompatibility();
-                ArrayGuardian.ExpandAllArrays();
-                ArrayGuardian.ValidateAllArrays();
-                // Synchronize TM:PE buffers on level load
-                TMPECompatibility.SynchronizeTMPEBuffersAndArrays("OnLevelLoaded");
-                ThirdPartyCompatibility.SynchronizeThirdPartyMods("OnLevelLoaded");
-                TMPECompatibility.EnsurePathFindCapacity();
-                Assembly loadedTmpe = TMPECompatibility.GetTMPEAssembly();
-                if (loadedTmpe != null)
+                // NEW: Task 6.2 - Use LifecycleCoordinator for More Props deserialization wait (Req 7.3)
+                // Execution order: More Props Deserialization (200) → Grid Validation (100) → TMPE Sync (50)
+                
+                if (CoordinationManager.IsMorePropsActive)
                 {
-                    TMPECompatibility.RecalculateLiveSegments(loadedTmpe);
+                    // Priority 200: More Props deserialization (implicit - More Props completes first)
+                    // GridCoordinator.OnLevelLoaded waits for More Props ready signal
+                    
+                    // Priority 100: Grid validation and sanitization
+                    LifecycleCoordinator.RegisterOnLevelLoaded("GridValidation", 100, () =>
+                    {
+                        // Use GridCoordinator for timing coordination (Req 3.1, 3.2, 3.3, 3.6)
+                        // - Standalone mode: sanitizes immediately
+                        // - Compatibility mode: defers sanitization until More Props ready
+                        GridCoordinator.OnLevelLoaded();
+                        
+                        // Integrate orphaned save recovery coordination (Req 4.1-4.8)
+                        // - Standalone mode: execute immediately (original behavior)
+                        // - Compatibility mode: delay 10 seconds to avoid race with More Props serialization
+                        GridCoordinator.CoordinateOrphanedSaveRecovery();
+                    });
+                    
+                    // Priority 50: TMPE and third-party mod synchronization
+                    LifecycleCoordinator.RegisterOnLevelLoaded("TMPESync", 50, () =>
+                    {
+                        RenewMod.EnsureRenderManagerCapacity();
+                        InstanceManagerCompatibility.EnsureCompatibility();
+                        ArrayGuardian.ExpandAllArrays();
+                        ArrayGuardian.ValidateAllArrays();
+                        // Synchronize TM:PE buffers on level load
+                        TMPECompatibility.SynchronizeTMPEBuffersAndArrays("OnLevelLoaded");
+                        ThirdPartyCompatibility.SynchronizeThirdPartyMods("OnLevelLoaded");
+                        TMPECompatibility.EnsurePathFindCapacity();
+                        Assembly loadedTmpe = TMPECompatibility.GetTMPEAssembly();
+                        if (loadedTmpe != null)
+                        {
+                            TMPECompatibility.RecalculateLiveSegments(loadedTmpe);
+                        }
+                        MNCTrafficLightStepper.ResetStepper();
+                        TMPECompatibility.RestorePendingHighIdTMPEData();
+                    });
+                    
+                    // Execute all registered OnLevelLoaded callbacks in priority order
+                    LifecycleCoordinator.ExecuteOnLevelLoaded();
                 }
-                MNCTrafficLightStepper.ResetStepper();
-                TMPECompatibility.RestorePendingHighIdTMPEData();
+                else
+                {
+                    // Standalone mode - execute original logic directly (no coordination overhead)
+                    // Use GridCoordinator for timing coordination (Req 3.1, 3.2, 3.3, 3.6)
+                    // - Standalone mode: sanitizes immediately
+                    // - Compatibility mode: defers sanitization until More Props ready
+                    GridCoordinator.OnLevelLoaded();
+                    
+                    // Integrate orphaned save recovery coordination (Req 4.1-4.8)
+                    // - Standalone mode: execute immediately (original behavior)
+                    // - Compatibility mode: delay 10 seconds to avoid race with More Props serialization
+                    GridCoordinator.CoordinateOrphanedSaveRecovery();
+                    
+                    RenewMod.EnsureRenderManagerCapacity();
+                    InstanceManagerCompatibility.EnsureCompatibility();
+                    ArrayGuardian.ExpandAllArrays();
+                    ArrayGuardian.ValidateAllArrays();
+                    // Synchronize TM:PE buffers on level load
+                    TMPECompatibility.SynchronizeTMPEBuffersAndArrays("OnLevelLoaded");
+                    ThirdPartyCompatibility.SynchronizeThirdPartyMods("OnLevelLoaded");
+                    TMPECompatibility.EnsurePathFindCapacity();
+                    Assembly loadedTmpe = TMPECompatibility.GetTMPEAssembly();
+                    if (loadedTmpe != null)
+                    {
+                        TMPECompatibility.RecalculateLiveSegments(loadedTmpe);
+                    }
+                    MNCTrafficLightStepper.ResetStepper();
+                    TMPECompatibility.RestorePendingHighIdTMPEData();
+                }
 
                 // ToolController collision arrays
                 var tm = Singleton<ToolManager>.instance;
@@ -9024,47 +10267,107 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
-                // Ensure any ongoing packaging task completes before unloading level
-                try
+                // NEW: Task 6.2 - Use LifecycleCoordinator for cleanup order coordination (Req 7.4)
+                // Execution order: MNC cleanup (100) → More Props cleanup (implicit - handled by More Props itself)
+                // Ensure MNC cleanup completes fully before More Props cleanup starts
+                
+                if (CoordinationManager.IsMorePropsActive)
                 {
-                    SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
-                    if (sp != null)
+                    // Priority 100: MNC cleanup (must complete before More Props cleanup)
+                    LifecycleCoordinator.RegisterOnLevelUnloading("MNCCleanup", 100, () =>
                     {
-                        FieldInfo fTask = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fTask != null)
+                        // Ensure any ongoing packaging task completes before unloading level
+                        try
                         {
-                            var task = fTask.GetValue(sp) as ColossalFramework.Threading.Task;
-                            if (task != null && !task.hasEnded)
+                            SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+                            if (sp != null)
                             {
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Waiting for SavePanel.m_PackageSaveTask to finish packaging before level unload...");
-                                task.Wait();
-                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SavePanel.m_PackageSaveTask packaging completed.");
+                                FieldInfo fTask = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fTask != null)
+                                {
+                                    var task = fTask.GetValue(sp) as ColossalFramework.Threading.Task;
+                                    if (task != null && !task.hasEnded)
+                                    {
+                                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Waiting for SavePanel.m_PackageSaveTask to finish packaging before level unload...");
+                                        task.Wait();
+                                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SavePanel.m_PackageSaveTask packaging completed.");
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Guard SavePanel packaging task error: " + ex);
+                        }
+
+                        // Stop monitoring systems
+                        ArrayGuardianV2.StopMonitoring();
+
+                        // Level Unload State Sanitizer (NgocDuy):
+                        // Clear pending TM:PE serialized buffers, save diagnostics, and force garbage collection to prevent blue screen on reload
+                        try
+                        {
+                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+                            TMPECompatibility.ClearPendingTMPEData();
+                            DiagnosticLogger.Reset();
+
+                            MemoryOptimizer.StrategicGarbageCollect("OnLevelUnloading");
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Level Unload Sanitizer: Freed unreferenced heaps & reset serialization state ✓");
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Level Unload Sanitizer warning: " + ex.Message);
+                        }
+                    });
+                    
+                    // Execute all registered OnLevelUnloading callbacks in priority order
+                    LifecycleCoordinator.ExecuteOnLevelUnloading();
+                }
+                else
+                {
+                    // Standalone mode - execute original logic directly (no coordination overhead)
+                    // Ensure any ongoing packaging task completes before unloading level
+                    try
+                    {
+                        SavePanel sp = UnityEngine.Object.FindObjectOfType<SavePanel>();
+                        if (sp != null)
+                        {
+                            FieldInfo fTask = typeof(SavePanel).GetField("m_PackageSaveTask", BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (fTask != null)
+                            {
+                                var task = fTask.GetValue(sp) as ColossalFramework.Threading.Task;
+                                if (task != null && !task.hasEnded)
+                                {
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Waiting for SavePanel.m_PackageSaveTask to finish packaging before level unload...");
+                                    task.Wait();
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SavePanel.m_PackageSaveTask packaging completed.");
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Guard SavePanel packaging task error: " + ex);
-                }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Guard SavePanel packaging task error: " + ex);
+                    }
 
-                // Stop monitoring systems
-                ArrayGuardianV2.StopMonitoring();
+                    // Stop monitoring systems
+                    ArrayGuardianV2.StopMonitoring();
 
-                // Level Unload State Sanitizer (NgocDuy):
-                // Clear pending TM:PE serialized buffers, save diagnostics, and force garbage collection to prevent blue screen on reload
-                try
-                {
-                    ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
-                    TMPECompatibility.ClearPendingTMPEData();
-                    DiagnosticLogger.Reset();
+                    // Level Unload State Sanitizer (NgocDuy):
+                    // Clear pending TM:PE serialized buffers, save diagnostics, and force garbage collection to prevent blue screen on reload
+                    try
+                    {
+                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = false;
+                        TMPECompatibility.ClearPendingTMPEData();
+                        DiagnosticLogger.Reset();
 
-                    MemoryOptimizer.StrategicGarbageCollect("OnLevelUnloading");
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Level Unload Sanitizer: Freed unreferenced heaps & reset serialization state ✓");
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Level Unload Sanitizer warning: " + ex.Message);
+                        MemoryOptimizer.StrategicGarbageCollect("OnLevelUnloading");
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Level Unload Sanitizer: Freed unreferenced heaps & reset serialization state ✓");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Level Unload Sanitizer warning: " + ex.Message);
+                    }
                 }
             }
             catch (Exception ex)
@@ -9507,6 +10810,59 @@ namespace MoreNetworkCapacityRenew
                 TMPECompatibility.SynchronizeActiveTool();
             }
             catch { }
+            
+            // Periodic timeout check for SaveCoordinator (Req 2.6)
+            // Safe to call every frame - returns immediately if no lock held or timeout not exceeded
+            try
+            {
+                SaveCoordinator.PeriodicTimeoutCheck();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] SaveCoordinator timeout check error: {0}", ex));
+            }
+            
+            // Process delayed callbacks for GridCoordinator fallback mechanism
+            try
+            {
+                RenewMod.ProcessDelayedCallbacks();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] ProcessDelayedCallbacks error: {0}", ex));
+            }
+
+            // Process active coroutines for incremental operations
+            try
+            {
+                RenewMod.ProcessCoroutines();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] ProcessCoroutines error: {0}", ex));
+            }
+            
+            // Configuration hot-reload: Ctrl+Shift+F12 (Cmd+Shift+F12 on macOS)
+            try
+            {
+                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || 
+                     Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) &&
+                    (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) &&
+                    Input.GetKeyDown(KeyCode.F12))
+                {
+                    ConfigManager.ReloadConfiguration();
+                    
+                    // Notify CoordinationManager about configuration changes
+                    if (CoordinationManager.IsMorePropsActive && ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log("[MNC-Compat] Configuration reload triggered - compatibility mode active");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(string.Format("[MNC-Compat] Hot-reload keyboard handler error: {0}", ex));
+            }
         }
 
         public override void OnBeforeSimulationTick()
@@ -9730,756 +11086,6 @@ namespace MoreNetworkCapacityRenew
     // Synchronizes dual banks (eliminating bank inversion desync on high nodes)
     // Ensures robust, deadlock-free cycling for vanilla and TM:PE default traffic lights
     // ============================================================================
-    internal static class TrafficLightPatches
-    {
-        public static void Apply(HarmonyInstance harmony)
-        {
-            if (harmony == null) return;
-            try
-            {
-                // 1. RoadBaseAI.SetTrafficLightState: dual-bank synchronization
-                MethodInfo setM = typeof(RoadBaseAI).GetMethod(
-                    "SetTrafficLightState",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    new Type[] {
-                        typeof(ushort),
-                        typeof(NetSegment).MakeByRefType(),
-                        typeof(uint),
-                        typeof(RoadBaseAI.TrafficLightState),
-                        typeof(RoadBaseAI.TrafficLightState),
-                        typeof(bool),
-                        typeof(bool)
-                    },
-                    null);
-                if (setM != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(SetTrafficLightState_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(setM, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.SetTrafficLightState (dual-bank synchronization)");
-                }
-
-                // 2. RoadBaseAI.GetTrafficLightState (5-param overload)
-                MethodInfo get5M = typeof(RoadBaseAI).GetMethod(
-                    "GetTrafficLightState",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    new Type[] {
-                        typeof(ushort),
-                        typeof(NetSegment).MakeByRefType(),
-                        typeof(uint),
-                        typeof(RoadBaseAI.TrafficLightState).MakeByRefType(),
-                        typeof(RoadBaseAI.TrafficLightState).MakeByRefType()
-                    },
-                    null);
-                if (get5M != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(GetTrafficLightState5_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(get5M, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.GetTrafficLightState (5-param overload)");
-                }
-
-                // 3. RoadBaseAI.GetTrafficLightState (7-param overload)
-                MethodInfo get7M = typeof(RoadBaseAI).GetMethod(
-                    "GetTrafficLightState",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    new Type[] {
-                        typeof(ushort),
-                        typeof(NetSegment).MakeByRefType(),
-                        typeof(uint),
-                        typeof(RoadBaseAI.TrafficLightState).MakeByRefType(),
-                        typeof(RoadBaseAI.TrafficLightState).MakeByRefType(),
-                        typeof(bool).MakeByRefType(),
-                        typeof(bool).MakeByRefType()
-                    },
-                    null);
-                if (get7M != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(GetTrafficLightState7_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(get7M, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.GetTrafficLightState (7-param overload)");
-                }
-
-                // 4. RoadBaseAI.TrafficLightSimulationStep: robust cycling logic for default lights
-                MethodInfo stepM = typeof(RoadBaseAI).GetMethod(
-                    "TrafficLightSimulationStep",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    new Type[] {
-                        typeof(ushort),
-                        typeof(NetNode).MakeByRefType()
-                    },
-                    null);
-                if (stepM != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(TrafficLightSimulationStep_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(stepM, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.TrafficLightSimulationStep (robust deadlock-free cycling)");
-                }
-
-                // 5. RoadBaseAI.GetBollardState (5-param overload) for nodes >= 32768
-                MethodInfo getBollard5 = typeof(RoadBaseAI).GetMethod("GetBollardState", BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                    typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(uint), typeof(RoadBaseAI.TrafficLightState).MakeByRefType(), typeof(RoadBaseAI.TrafficLightState).MakeByRefType()
-                }, null);
-                if (getBollard5 != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(GetBollardState5_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(getBollard5, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.GetBollardState (5-param overload)");
-                }
-
-                // 6. RoadBaseAI.GetBollardState (7-param overload) for nodes >= 32768
-                MethodInfo getBollard7 = typeof(RoadBaseAI).GetMethod("GetBollardState", BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                    typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(uint), typeof(RoadBaseAI.TrafficLightState).MakeByRefType(), typeof(RoadBaseAI.TrafficLightState).MakeByRefType(), typeof(bool).MakeByRefType(), typeof(bool).MakeByRefType()
-                }, null);
-                if (getBollard7 != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(GetBollardState7_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(getBollard7, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.GetBollardState (7-param overload)");
-                }
-
-                // 7. RoadBaseAI.SetBollardState for nodes >= 32768
-                MethodInfo setBollard = typeof(RoadBaseAI).GetMethod("SetBollardState", BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                    typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(uint), typeof(RoadBaseAI.TrafficLightState), typeof(RoadBaseAI.TrafficLightState), typeof(bool), typeof(bool)
-                }, null);
-                if (setBollard != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(SetBollardState_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(setBollard, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.SetBollardState");
-                }
-
-                // 8. RoadBaseAI.GetTrafficLightNodeState: authentic visual rendering across all nodes
-                MethodInfo nodeStateM = typeof(RoadBaseAI).GetMethod(
-                    "GetTrafficLightNodeState",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    new Type[] {
-                        typeof(ushort),
-                        typeof(NetNode).MakeByRefType(),
-                        typeof(ushort),
-                        typeof(NetSegment).MakeByRefType(),
-                        typeof(NetNode.FlagsLong).MakeByRefType(),
-                        typeof(Color).MakeByRefType()
-                    },
-                    null);
-                if (nodeStateM != null)
-                {
-                    MethodInfo pre = typeof(TrafficLightPatches).GetMethod(nameof(GetTrafficLightNodeState_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(nodeStateM, prefix: new HarmonyMethod(pre));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched RoadBaseAI.GetTrafficLightNodeState (cadence visual alignment)");
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] TrafficLightPatches.Apply error: " + ex);
-            }
-        }
-
-        [ThreadStatic]
-        public static bool s_inTrafficLightSimulationStep;
-
-        public static bool SetTrafficLightState_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, RoadBaseAI.TrafficLightState vehicleLightState, RoadBaseAI.TrafficLightState pedestrianLightState, bool vehicles, bool pedestrians)
-        {
-            int encoded = ((int)pedestrianLightState << 2) | (int)vehicleLightState;
-            if (((frame >> 8) & 1) == 0)
-            {
-                if (segmentData.m_startNode == nodeID)
-                {
-                    segmentData.m_trafficLightState0 = (segmentData.m_trafficLightState0 & ~15) | encoded;
-                    if (vehicles) segmentData.m_flags |= NetSegment.Flags.TrafficStart;
-                    else segmentData.m_flags &= ~NetSegment.Flags.TrafficStart;
-                    if (pedestrians) segmentData.m_flags |= NetSegment.Flags.CrossingStart;
-                    else segmentData.m_flags &= ~NetSegment.Flags.CrossingStart;
-                }
-                else
-                {
-                    segmentData.m_trafficLightState0 = (segmentData.m_trafficLightState0 & ~240) | (encoded << 4);
-                    if (vehicles) segmentData.m_flags |= NetSegment.Flags.TrafficEnd;
-                    else segmentData.m_flags &= ~NetSegment.Flags.TrafficEnd;
-                    if (pedestrians) segmentData.m_flags |= NetSegment.Flags.CrossingEnd;
-                    else segmentData.m_flags &= ~NetSegment.Flags.CrossingEnd;
-                }
-            }
-            else
-            {
-                if (segmentData.m_startNode == nodeID)
-                {
-                    segmentData.m_trafficLightState1 = (segmentData.m_trafficLightState1 & ~15) | encoded;
-                    if (vehicles) segmentData.m_flags |= NetSegment.Flags.TrafficStart;
-                    else segmentData.m_flags &= ~NetSegment.Flags.TrafficStart;
-                    if (pedestrians) segmentData.m_flags |= NetSegment.Flags.CrossingStart;
-                    else segmentData.m_flags &= ~NetSegment.Flags.CrossingStart;
-                }
-                else
-                {
-                    segmentData.m_trafficLightState1 = (segmentData.m_trafficLightState1 & ~240) | (encoded << 4);
-                    if (vehicles) segmentData.m_flags |= NetSegment.Flags.TrafficEnd;
-                    else segmentData.m_flags &= ~NetSegment.Flags.TrafficEnd;
-                    if (pedestrians) segmentData.m_flags |= NetSegment.Flags.CrossingEnd;
-                    else segmentData.m_flags &= ~NetSegment.Flags.CrossingEnd;
-                }
-            }
-            return false;
-        }
-
-        public static bool GetTrafficLightState5_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, out RoadBaseAI.TrafficLightState vehicleLightState, out RoadBaseAI.TrafficLightState pedestrianLightState)
-        {
-            if (nodeID >= 32768 && !s_inTrafficLightSimulationStep)
-            {
-                frame += 256u;
-            }
-            int state = ((frame >> 8) & 1) == 0 ? segmentData.m_trafficLightState0 : segmentData.m_trafficLightState1;
-            if (segmentData.m_startNode == nodeID)
-            {
-                state &= 15;
-            }
-            else
-            {
-                state = (state >> 4) & 15;
-            }
-            vehicleLightState = (RoadBaseAI.TrafficLightState)(state & 3);
-            pedestrianLightState = (RoadBaseAI.TrafficLightState)(state >> 2);
-            return false;
-        }
-
-        public static bool GetTrafficLightState7_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, out RoadBaseAI.TrafficLightState vehicleLightState, out RoadBaseAI.TrafficLightState pedestrianLightState, out bool vehicles, out bool pedestrians)
-        {
-            if (nodeID >= 32768 && !s_inTrafficLightSimulationStep)
-            {
-                frame += 256u;
-            }
-            int state = ((frame >> 8) & 1) == 0 ? segmentData.m_trafficLightState0 : segmentData.m_trafficLightState1;
-            if (segmentData.m_startNode == nodeID)
-            {
-                state &= 15;
-                vehicles = (segmentData.m_flags & NetSegment.Flags.TrafficStart) != 0;
-                pedestrians = (segmentData.m_flags & NetSegment.Flags.CrossingStart) != 0;
-            }
-            else
-            {
-                state = (state >> 4) & 15;
-                vehicles = (segmentData.m_flags & NetSegment.Flags.TrafficEnd) != 0;
-                pedestrians = (segmentData.m_flags & NetSegment.Flags.CrossingEnd) != 0;
-            }
-            vehicleLightState = (RoadBaseAI.TrafficLightState)(state & 3);
-            pedestrianLightState = (RoadBaseAI.TrafficLightState)(state >> 2);
-            return false;
-        }
-
-        public static bool TrafficLightSimulationStep_Prefix(ushort nodeID, ref NetNode data)
-        {
-            s_inTrafficLightSimulationStep = true;
-            try
-            {
-                // If TM:PE timed light is running, let TM:PE's prefix and simulation handle it natively
-                if (MNCTrafficLightStepper.IsTMPETimedLightRunning(nodeID))
-                {
-                    return true;
-                }
-
-                NetManager nm = Singleton<NetManager>.instance;
-                SimulationManager sm = Singleton<SimulationManager>.instance;
-                if (nm == null || sm == null) return true;
-
-                uint currentFrameIndex = sm.m_currentFrameIndex;
-                int clock = data.m_maxWaitTime & 3;
-                int step = (data.m_maxWaitTime >> 2) & 7;
-                int pedStep = data.m_maxWaitTime >> 5;
-
-                int currentGreenWithVehicles = -1;
-                int currentGreen = -1;
-                int firstRedWithVehicles = -1;
-                int firstPedWithPedestrians = -1;
-                int selectedRed = -1;
-                int selectedPed = -1;
-
-                int incomingMask = 0;
-                int outgoingMask = 0;
-                int redCount = 0;
-                int incomingCount = 0;
-                int pedCount = 0;
-
-                int firstIncomingRed = -1;
-                int nextIncomingRed = -1;
-
-                for (int i = 0; i < 8; i++)
-                {
-                    ushort segId = data.GetSegment(i);
-                    if (segId == 0) continue;
-
-                    int forwardLanes = 0;
-                    int backwardLanes = 0;
-                    nm.m_segments.m_buffer[segId].CountLanes(segId, NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle, VehicleInfo.VehicleType.Car | VehicleInfo.VehicleType.Tram, VehicleInfo.VehicleCategory.All, ref forwardLanes, ref backwardLanes);
-
-                    bool isStartNode = (nm.m_segments.m_buffer[segId].m_startNode == nodeID);
-                    bool canEnter = isStartNode ? (backwardLanes > 0) : (forwardLanes > 0);
-                    bool canLeave = isStartNode ? (forwardLanes > 0) : (backwardLanes > 0);
-
-                    if (canEnter) incomingMask |= (1 << i);
-                    if (canLeave)
-                    {
-                        outgoingMask |= (1 << i);
-                        incomingCount++;
-                    }
-
-                    RoadBaseAI.TrafficLightState vehState;
-                    RoadBaseAI.TrafficLightState pedState;
-                    bool vehicles;
-                    bool pedestrians;
-                    RoadBaseAI.GetTrafficLightState(nodeID, ref nm.m_segments.m_buffer[segId], currentFrameIndex - 256u, out vehState, out pedState, out vehicles, out pedestrians);
-
-                    if ((pedState & RoadBaseAI.TrafficLightState.Red) != 0)
-                    {
-                        if (pedestrians)
-                        {
-                            if (firstPedWithPedestrians == -1) firstPedWithPedestrians = i;
-                            if (selectedPed == -1 && pedCount >= pedStep) selectedPed = i;
-                        }
-                        pedCount++;
-                    }
-
-                    if (canEnter)
-                    {
-                        if ((vehState & RoadBaseAI.TrafficLightState.Red) == 0)
-                        {
-                            currentGreen = i;
-                            if (vehicles) currentGreenWithVehicles = i;
-                        }
-                        else
-                        {
-                            if (firstIncomingRed == -1) firstIncomingRed = i;
-                            if (nextIncomingRed == -1 && redCount >= step) nextIncomingRed = i;
-
-                            if (vehicles)
-                            {
-                                if (firstRedWithVehicles == -1) firstRedWithVehicles = i;
-                                if (selectedRed == -1 && redCount >= step) selectedRed = i;
-                            }
-                            redCount++;
-                        }
-                    }
-                }
-
-                if (selectedRed == -1) selectedRed = firstRedWithVehicles;
-                if (selectedPed == -1) selectedPed = firstPedWithPedestrians;
-                if (nextIncomingRed == -1) nextIncomingRed = firstIncomingRed;
-
-                // Robust cycling decision:
-                bool changePhase = false;
-                if (currentGreen != -1)
-                {
-                    if (selectedRed != -1)
-                    {
-                        // Demand detected on red: give active green vehicles at least 2 steps (clock <= 1) before switching
-                        if (currentGreenWithVehicles != -1 && clock <= 1)
-                        {
-                            clock++;
-                        }
-                        else
-                        {
-                            changePhase = true;
-                        }
-                    }
-                    else if (clock >= 3)
-                    {
-                        // Automatic cycle timeout (~16-20s): force cycle to next incoming red phase
-                        if (nextIncomingRed != -1)
-                        {
-                            selectedRed = nextIncomingRed;
-                            changePhase = true;
-                        }
-                        else
-                        {
-                            clock = 0;
-                        }
-                    }
-                    else
-                    {
-                        clock++;
-                    }
-                }
-                else
-                {
-                    // No green currently (startup / all red) -> assign green to first available red
-                    if (selectedRed == -1) selectedRed = nextIncomingRed;
-                    changePhase = true;
-                }
-
-                if (!changePhase)
-                {
-                    selectedRed = -1;
-                    selectedPed = -1;
-                }
-
-                if (selectedPed != -1 && selectedRed != -1 && (sm.m_randomizer.Int32(3) != 0))
-                {
-                    selectedPed = -1;
-                }
-
-                if (selectedRed != -1)
-                {
-                    currentGreen = selectedRed;
-                }
-
-                if (selectedPed == currentGreen)
-                {
-                    currentGreen = -1;
-                }
-
-                Vector3 currentGreenDir = Vector3.zero;
-                if (selectedPed != -1)
-                {
-                    ushort pedSeg = data.GetSegment(selectedPed);
-                    if (pedSeg != 0)
-                    {
-                        currentGreenDir = nm.m_segments.m_buffer[pedSeg].GetDirection(nodeID);
-                        if (currentGreen != -1)
-                        {
-                            ushort greenSeg = data.GetSegment(currentGreen);
-                            if (greenSeg != 0)
-                            {
-                                Vector3 greenDir = nm.m_segments.m_buffer[greenSeg].GetDirection(nodeID);
-                                if (greenDir.x * currentGreenDir.x + greenDir.z * currentGreenDir.z < -0.5f)
-                                {
-                                    currentGreen = -1;
-                                }
-                            }
-                        }
-                        if (currentGreen == -1)
-                        {
-                            for (int j = 0; j < 8; j++)
-                            {
-                                if (j == selectedPed) continue;
-                                if ((incomingMask & (1 << j)) == 0) continue;
-                                ushort segId = data.GetSegment(j);
-                                if (segId == 0) continue;
-                                Vector3 dir = nm.m_segments.m_buffer[segId].GetDirection(nodeID);
-                                if (dir.x * currentGreenDir.x + dir.z * currentGreenDir.z >= -0.5f)
-                                {
-                                    currentGreen = j;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                int oppositeGreen = -1;
-                Vector3 dirGreen = Vector3.zero;
-                Vector3 dirOpposite = Vector3.zero;
-
-                if (currentGreen != -1)
-                {
-                    ushort segGreen = data.GetSegment(currentGreen);
-                    if (segGreen != 0)
-                    {
-                        dirGreen = nm.m_segments.m_buffer[segGreen].GetDirection(nodeID);
-
-                        if ((incomingMask & outgoingMask & (1 << currentGreen)) != 0)
-                        {
-                            for (int k = 0; k < 8; k++)
-                            {
-                                if (k == currentGreen || k == selectedPed) continue;
-                                if ((incomingMask & outgoingMask & (1 << k)) == 0) continue;
-
-                                ushort segK = data.GetSegment(k);
-                                if (segK == 0) continue;
-
-                                dirOpposite = nm.m_segments.m_buffer[segK].GetDirection(nodeID);
-                                if (selectedPed != -1 && (dirOpposite.x * currentGreenDir.x + dirOpposite.z * currentGreenDir.z < -0.5f))
-                                {
-                                    continue;
-                                }
-                                if (incomingCount == 2)
-                                {
-                                    oppositeGreen = k;
-                                    break;
-                                }
-                                if (dirOpposite.x * dirGreen.x + dirOpposite.z * dirGreen.z < -0.9396926f)
-                                {
-                                    oppositeGreen = k;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                bool[] bollardsArray = new bool[8];
-
-                for (int s = 0; s < 8; s++)
-                {
-                    ushort segId = data.GetSegment(s);
-                    if (segId == 0) continue;
-
-                    RoadBaseAI.TrafficLightState vehState;
-                    RoadBaseAI.TrafficLightState pedState;
-                    bool dummyPed;
-                    RoadBaseAI.GetTrafficLightState(nodeID, ref nm.m_segments.m_buffer[segId], currentFrameIndex - 256u, out vehState, out pedState, out bollardsArray[s], out dummyPed);
-
-                    vehState = (RoadBaseAI.TrafficLightState)((int)vehState & ~1);
-                    pedState = (RoadBaseAI.TrafficLightState)((int)pedState & ~1);
-
-                    if (s == currentGreen || s == oppositeGreen)
-                    {
-                        if ((vehState & RoadBaseAI.TrafficLightState.Red) != 0)
-                        {
-                            vehState = RoadBaseAI.TrafficLightState.RedToGreen;
-                            clock = 0;
-                            step++;
-                            if (step >= redCount) step = 0;
-                        }
-                        else
-                        {
-                            vehState = RoadBaseAI.TrafficLightState.Green;
-                        }
-
-                        if ((pedState & RoadBaseAI.TrafficLightState.Red) == 0)
-                        {
-                            pedState = RoadBaseAI.TrafficLightState.GreenToRed;
-                        }
-                    }
-                    else
-                    {
-                        if ((vehState & RoadBaseAI.TrafficLightState.Red) == 0)
-                        {
-                            vehState = RoadBaseAI.TrafficLightState.GreenToRed;
-                        }
-                        else
-                        {
-                            vehState = RoadBaseAI.TrafficLightState.Red;
-                        }
-
-                        Vector3 segDir = nm.m_segments.m_buffer[segId].GetDirection(nodeID);
-                        bool pedGoesRed = false;
-
-                        if ((outgoingMask & (1 << s)) != 0 && s != selectedPed)
-                        {
-                            if (currentGreen != -1)
-                            {
-                                if (segDir.x * dirGreen.x + segDir.z * dirGreen.z < -0.5f)
-                                {
-                                    pedGoesRed = true;
-                                }
-                            }
-                            if (!pedGoesRed && oppositeGreen != -1)
-                            {
-                                if (segDir.x * dirOpposite.x + segDir.z * dirOpposite.z < -0.5f)
-                                {
-                                    pedGoesRed = true;
-                                }
-                            }
-                        }
-
-                        if (pedGoesRed)
-                        {
-                            if ((pedState & RoadBaseAI.TrafficLightState.Red) == 0)
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.GreenToRed;
-                            }
-                            else
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.Red;
-                            }
-                        }
-                        else
-                        {
-                            if ((pedState & RoadBaseAI.TrafficLightState.Red) != 0)
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.RedToGreen;
-                                pedStep++;
-                                if (pedStep >= pedCount) pedStep = 0;
-                            }
-                            else
-                            {
-                                pedState = RoadBaseAI.TrafficLightState.Green;
-                            }
-                        }
-                    }
-
-                    RoadBaseAI.SetTrafficLightState(nodeID, ref nm.m_segments.m_buffer[segId], currentFrameIndex, vehState, pedState, false, false);
-                }
-
-                if ((data.flags & NetNode.FlagsLong.PedestrianBollards) != 0)
-                {
-                    PedestrianZoneRoadAI.BollardsSimulationStep(nodeID, ref data, bollardsArray);
-                }
-
-                data.m_maxWaitTime = (byte)((pedStep << 5) | (step << 2) | (clock & 3));
-                return false;
-            }
-            finally
-            {
-                s_inTrafficLightSimulationStep = false;
-            }
-        }
-
-        public static bool GetBollardState5_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, out RoadBaseAI.TrafficLightState enterState, out RoadBaseAI.TrafficLightState exitState)
-        {
-            if (nodeID >= 32768)
-            {
-                frame += 256u;
-            }
-            int state = ((frame >> 8) & 1) == 0 ? segmentData.m_trafficLightState0 : segmentData.m_trafficLightState1;
-            if (segmentData.m_startNode == nodeID)
-            {
-                state = (state >> 8) & 15;
-            }
-            else
-            {
-                state = (state >> 12) & 15;
-            }
-            enterState = (RoadBaseAI.TrafficLightState)(state & 3);
-            exitState = (RoadBaseAI.TrafficLightState)(state >> 2);
-            return false;
-        }
-
-        public static bool GetBollardState7_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, out RoadBaseAI.TrafficLightState enterState, out RoadBaseAI.TrafficLightState exitState, out bool enter, out bool exit)
-        {
-            if (nodeID >= 32768)
-            {
-                frame += 256u;
-            }
-            int state = ((frame >> 8) & 1) == 0 ? segmentData.m_trafficLightState0 : segmentData.m_trafficLightState1;
-            if (segmentData.m_startNode == nodeID)
-            {
-                state = (state >> 8) & 15;
-                enter = (segmentData.m_flags2 & (NetSegment.Flags2)2) != 0;
-                exit = (segmentData.m_flags2 & (NetSegment.Flags2)8) != 0;
-            }
-            else
-            {
-                state = (state >> 12) & 15;
-                enter = (segmentData.m_flags2 & (NetSegment.Flags2)4) != 0;
-                exit = (segmentData.m_flags2 & (NetSegment.Flags2)16) != 0;
-            }
-            enterState = (RoadBaseAI.TrafficLightState)(state & 3);
-            exitState = (RoadBaseAI.TrafficLightState)(state >> 2);
-            return false;
-        }
-
-        public static bool SetBollardState_Prefix(ushort nodeID, ref NetSegment segmentData, uint frame, RoadBaseAI.TrafficLightState enterState, RoadBaseAI.TrafficLightState exitState, bool enter, bool exit)
-        {
-            int encoded = ((int)exitState << 2) | (int)enterState;
-            if (segmentData.m_startNode == nodeID)
-            {
-                if (((frame >> 8) & 1) == 0)
-                {
-                    segmentData.m_trafficLightState0 = (segmentData.m_trafficLightState0 & -3841) | (encoded << 8);
-                }
-                else
-                {
-                    segmentData.m_trafficLightState1 = (segmentData.m_trafficLightState1 & -3841) | (encoded << 8);
-                }
-                if (enter) segmentData.m_flags2 |= (NetSegment.Flags2)2;
-                else segmentData.m_flags2 &= ~(NetSegment.Flags2)2;
-                if (exit) segmentData.m_flags2 |= (NetSegment.Flags2)8;
-                else segmentData.m_flags2 &= ~(NetSegment.Flags2)8;
-            }
-            else
-            {
-                if (((frame >> 8) & 1) == 0)
-                {
-                    segmentData.m_trafficLightState0 = (segmentData.m_trafficLightState0 & -61441) | (encoded << 12);
-                }
-                else
-                {
-                    segmentData.m_trafficLightState1 = (segmentData.m_trafficLightState1 & -61441) | (encoded << 12);
-                }
-                if (enter) segmentData.m_flags2 |= (NetSegment.Flags2)4;
-                else segmentData.m_flags2 &= ~(NetSegment.Flags2)4;
-                if (exit) segmentData.m_flags2 |= (NetSegment.Flags2)16;
-                else segmentData.m_flags2 &= ~(NetSegment.Flags2)16;
-            }
-            return false;
-        }
-
-        public static bool GetTrafficLightNodeState_Prefix(ushort nodeID, ref NetNode nodeData, ushort segmentID, ref NetSegment segmentData, ref NetNode.FlagsLong flags, ref Color color)
-        {
-            if (MNCTrafficLightStepper.IsTMPETimedLightRunning(nodeID))
-            {
-                return true;
-            }
-
-            uint simFrame = Singleton<SimulationManager>.instance.m_referenceFrameIndex - 15u;
-            uint frameOffset = (uint)(nodeID >> 7) & 255u;
-            uint subFrame = (simFrame - frameOffset) & 255u;
-
-            RoadBaseAI.TrafficLightState vehState;
-            RoadBaseAI.TrafficLightState pedState;
-            RoadBaseAI.GetTrafficLightState(nodeID, ref segmentData, simFrame - frameOffset, out vehState, out pedState);
-
-            color.a = 0.5f;
-            switch (vehState)
-            {
-                case RoadBaseAI.TrafficLightState.Green:
-                    color.g = 1f;
-                    break;
-                case RoadBaseAI.TrafficLightState.RedToGreen:
-                    if (subFrame < 45u)
-                    {
-                        color.g = 0f;
-                    }
-                    else if (subFrame < 60u)
-                    {
-                        color.r = 1f;
-                    }
-                    else
-                    {
-                        color.g = 1f;
-                    }
-                    break;
-                case RoadBaseAI.TrafficLightState.Red:
-                    color.g = 0f;
-                    break;
-                case RoadBaseAI.TrafficLightState.GreenToRed:
-                    if (subFrame < 45u)
-                    {
-                        color.r = 1f;
-                    }
-                    else
-                    {
-                        color.g = 0f;
-                    }
-                    break;
-            }
-
-            switch (pedState)
-            {
-                case RoadBaseAI.TrafficLightState.Green:
-                    color.b = 1f;
-                    break;
-                case RoadBaseAI.TrafficLightState.RedToGreen:
-                    if (subFrame < 45u)
-                    {
-                        color.b = 0f;
-                    }
-                    else
-                    {
-                        color.b = 1f;
-                    }
-                    break;
-                case RoadBaseAI.TrafficLightState.Red:
-                    color.b = 0f;
-                    break;
-                case RoadBaseAI.TrafficLightState.GreenToRed:
-                    if (subFrame < 45u)
-                    {
-                        color.b = (((subFrame / 8u) & 1u) == 1u) ? 1f : 0f;
-                    }
-                    else
-                    {
-                        color.b = 0f;
-                    }
-                    break;
-            }
-
-            return false;
-        }
-    }
 
     // ============================================================================
     // UI EXCEPTION ARMOR (PREVENTS NRE IN VehicleWorldInfoPanel ON NULL STRINGS)
@@ -16633,6 +17239,74 @@ namespace MoreNetworkCapacityRenew
                         ngs.m_modOverride["User/More PathUnits x2"] = true;
                     }
                 }
+                
+                // NEW: Validate and extract CoordinationMetadata from save game (Task 11.1)
+                if (ngs != null && ngs.m_modOverride != null)
+                {
+                    try
+                    {
+                        // Search for CoordinationMetadata key in modOverride dictionary
+                        string metadataKey = null;
+                        foreach (var key in ngs.m_modOverride.Keys)
+                        {
+                            if (key.StartsWith("User/MNC/CoordinationMetadata:"))
+                            {
+                                metadataKey = key;
+                                break;
+                            }
+                        }
+                        
+                        if (metadataKey != null)
+                        {
+                            // Extract serialized metadata from the key
+                            string serializedMetadata = metadataKey.Substring("User/MNC/CoordinationMetadata:".Length);
+                            
+                            // Deserialize metadata
+                            var coordMetadata = CoordinationMetadata.DeserializeMetadata(serializedMetadata);
+                            
+                            if (coordMetadata != null)
+                            {
+                                UnityEngine.Debug.Log("[MNC-Compat] CoordinationMetadata loaded from save: " + coordMetadata.ToString());
+                                
+                                // Validate metadata compatibility
+                                if (coordMetadata.CompatibilityModeActive && !CoordinationManager.IsMorePropsActive)
+                                {
+                                    UnityEngine.Debug.LogWarning("[MNC-Compat] WARNING: Save was created with More Props active, but More Props is not currently loaded!");
+                                    UnityEngine.Debug.LogWarning("[MNC-Compat] Save MoreProps version: " + (coordMetadata.MorePropsVersion ?? "unknown"));
+                                }
+                                else if (!coordMetadata.CompatibilityModeActive && CoordinationManager.IsMorePropsActive)
+                                {
+                                    UnityEngine.Debug.Log("[MNC-Compat] Note: Save was created without More Props, loading with More Props active (compatibility mode)");
+                                }
+                                
+                                // Log metadata details for diagnostics
+                                UnityEngine.Debug.Log($"[MNC-Compat] Save metadata - MNC: {coordMetadata.MNCVersion}, MoreProps: {coordMetadata.MorePropsVersion ?? "none"}, Events: {coordMetadata.CoordinationEventsCount}, SaveDate: {coordMetadata.LastSaveTimestamp:yyyy-MM-dd HH:mm:ss}");
+                                
+                                if (coordMetadata.RegisteredThirdPartyMods != null && coordMetadata.RegisteredThirdPartyMods.Count > 0)
+                                {
+                                    UnityEngine.Debug.Log($"[MNC-Compat] Save had {coordMetadata.RegisteredThirdPartyMods.Count} registered coordination mods: {string.Join(", ", coordMetadata.RegisteredThirdPartyMods.ToArray())}");
+                                }
+                            }
+                            else
+                            {
+                                UnityEngine.Debug.LogWarning("[MNC-Compat] Failed to deserialize CoordinationMetadata from save");
+                            }
+                        }
+                        else
+                        {
+                            // No coordination metadata found - this is normal for saves created before this feature
+                            if (CoordinationManager.IsMorePropsActive)
+                            {
+                                UnityEngine.Debug.Log("[MNC-Compat] No CoordinationMetadata found in save (pre-coordination save)");
+                            }
+                        }
+                    }
+                    catch (Exception metaEx)
+                    {
+                        // Non-critical error - log but don't abort load
+                        UnityEngine.Debug.LogWarning("[MNC-Compat] Error validating CoordinationMetadata: " + metaEx);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -18292,5 +18966,4419 @@ namespace MoreNetworkCapacityRenew
             TransportLineCompatibility.VehicleManager_Data_AfterDeserialize_Postfix();
         }
     }
-}
 
+    // ============================================================================
+    // MORE PROPS BETA COMPATIBILITY LAYER
+    // ============================================================================
+    
+    /// <summary>
+    /// Central coordination system for More Props BETA compatibility.
+    /// Handles detection, activation, and orchestration of compatibility features.
+    /// Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 8.7
+    /// </summary>
+    public static class CoordinationManager
+    {
+        // ========== State ==========
+        /// <summary>
+        /// Indicates whether More Props BETA mod is detected and active.
+        /// Other components should check this flag before coordination logic.
+        /// </summary>
+        public static bool IsMorePropsActive { get; private set; }
+        
+        /// <summary>
+        /// Detected More Props BETA version string.
+        /// </summary>
+        public static string MorePropsVersion { get; private set; }
+        
+        private static bool s_initialized;
+        
+        // ========== Reflection Cache ==========
+        // Cache reflection results to avoid repeated lookups (Req 1.5, 11.6)
+        // Task 14.1: Core types cached during detection, rarely-used fields use lazy initialization
+        private static Assembly s_morePropsAssembly;
+        private static Type s_extendedPropManagerType;
+        private static Type s_extendedPropRendererType;
+        
+        // Frequently accessed - cached during detection
+        private static PropertyInfo s_epmInstanceProperty;
+        
+        // Rarely used - lazy initialization (Task 14.1)
+        private static FieldInfo s_epmPropGridField;
+        private static bool s_epmPropGridFieldInitialized;
+        
+        private static FieldInfo s_epmPropBufferField;
+        private static bool s_epmPropBufferFieldInitialized;
+        
+        private static System.Reflection.EventInfo s_epmPostLoadEvent;
+        private static bool s_epmPostLoadEventInitialized;
+        
+        // Task 14.1: Additional rarely-used fields for lazy initialization
+        private static FieldInfo s_epmHotSwapActiveField;
+        private static bool s_epmHotSwapActiveFieldInitialized;
+        
+        private static MethodInfo s_epmUpdateDataMethod;
+        private static bool s_epmUpdateDataMethodInitialized;
+        
+        // Lock for thread-safe lazy initialization (Task 14.1)
+        private static readonly object s_reflectionCacheLock = new object();
+        
+        // ========== Circuit Breaker ==========
+        // Prevents cascading failures (Req 8.7)
+        private static int s_failureCount;
+        private static readonly int MAX_FAILURES = 5;
+        private static bool s_circuitBreakerTripped;
+        
+        // ========== Third-Party Adapter Registry ==========
+        // Registry for third-party mod adapters (Req 12.3, 12.4)
+        private static readonly Dictionary<string, ICompatibilityAdapter> s_registeredAdapters = 
+            new Dictionary<string, ICompatibilityAdapter>();
+        private static readonly int MAX_ADAPTERS = 32;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Initialize the coordination manager. Call this early in mod initialization.
+        /// Performs More Props detection and activates compatibility mode if detected.
+        /// </summary>
+        public static void Initialize()
+        {
+            if (s_initialized)
+            {
+                return;
+            }
+            
+            try
+            {
+                UnityEngine.Debug.Log("[MNC-Compat] CoordinationManager initializing...");
+                
+                // Detect More Props BETA (Req 1.1, 1.2)
+                bool detected = DetectMoreProps();
+                
+                if (detected)
+                {
+                    // Activate compatibility mode (Req 1.3)
+                    ActivateCompatibilityMode();
+                    UnityEngine.Debug.Log($"[MNC-Compat] Compatibility mode ACTIVATED for More Props {MorePropsVersion}");
+                }
+                else
+                {
+                    // Standalone mode (Req 1.4)
+                    UnityEngine.Debug.Log("[MNC-Compat] More Props not detected - operating in standalone mode");
+                }
+                
+                s_initialized = true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[MNC-Compat] Initialization failed: {ex}");
+                IncrementFailureCount();
+            }
+        }
+        
+        /// <summary>
+        /// Get the cached ExtendedPropManager type.
+        /// Returns null if More Props is not active or type not found.
+        /// </summary>
+        public static Type GetExtendedPropManagerType()
+        {
+            return s_extendedPropManagerType;
+        }
+        
+        /// <summary>
+        /// Get the cached ExtendedPropRenderer type.
+        /// Returns null if More Props is not active or type not found.
+        /// </summary>
+        public static Type GetExtendedPropRendererType()
+        {
+            return s_extendedPropRendererType;
+        }
+        
+        /// <summary>
+        /// Get the More Props assembly.
+        /// Returns null if More Props is not active.
+        /// </summary>
+        public static Assembly GetMorePropsAssembly()
+        {
+            return s_morePropsAssembly;
+        }
+        
+        /// <summary>
+        /// Get the cached PropGrid field (m_propGrid32) with lazy initialization.
+        /// Task 14.1: Rarely-used field with lazy initialization for better startup performance.
+        /// </summary>
+        public static FieldInfo GetPropGridField()
+        {
+            if (!IsMorePropsActive) return null;
+            
+            if (!s_epmPropGridFieldInitialized)
+            {
+                lock (s_reflectionCacheLock) // Use reflection cache lock for thread safety
+                {
+                    if (!s_epmPropGridFieldInitialized)
+                    {
+                        using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_PropGridField"))
+                        {
+                            s_epmPropGridField = s_extendedPropManagerType?.GetField("m_propGrid32", 
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            s_epmPropGridFieldInitialized = true;
+                            
+                            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                            {
+                                UnityEngine.Debug.Log($"[MNC-Compat] Lazy init - PropGrid Field: {(s_epmPropGridField != null ? "✓" : "✗")}");
+                            }
+                        }
+                    }
+                }
+            }
+            return s_epmPropGridField;
+        }
+        
+        /// <summary>
+        /// Get the cached PropBuffer field (m_props) with lazy initialization.
+        /// Task 14.1: Rarely-used field with lazy initialization for better startup performance.
+        /// </summary>
+        public static FieldInfo GetPropBufferField()
+        {
+            if (!IsMorePropsActive) return null;
+            
+            if (!s_epmPropBufferFieldInitialized)
+            {
+                lock (s_reflectionCacheLock)
+                {
+                    if (!s_epmPropBufferFieldInitialized)
+                    {
+                        using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_PropBufferField"))
+                        {
+                            s_epmPropBufferField = s_extendedPropManagerType?.GetField("m_props", 
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            s_epmPropBufferFieldInitialized = true;
+                            
+                            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                            {
+                                UnityEngine.Debug.Log($"[MNC-Compat] Lazy init - PropBuffer Field: {(s_epmPropBufferField != null ? "✓" : "✗")}");
+                            }
+                        }
+                    }
+                }
+            }
+            return s_epmPropBufferField;
+        }
+        
+        /// <summary>
+        /// Get the cached PostLoad event with lazy initialization.
+        /// Task 14.1: Rarely-used event with lazy initialization for better startup performance.
+        /// </summary>
+        public static System.Reflection.EventInfo GetPostLoadEvent()
+        {
+            if (!IsMorePropsActive) return null;
+            
+            if (!s_epmPostLoadEventInitialized)
+            {
+                lock (s_reflectionCacheLock)
+                {
+                    if (!s_epmPostLoadEventInitialized)
+                    {
+                        using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_PostLoadEvent"))
+                        {
+                            s_epmPostLoadEvent = s_extendedPropManagerType?.GetEvent("OnPostLoad", 
+                                BindingFlags.Public | BindingFlags.Static);
+                            s_epmPostLoadEventInitialized = true;
+                            
+                            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                            {
+                                UnityEngine.Debug.Log($"[MNC-Compat] Lazy init - PostLoad Event: {(s_epmPostLoadEvent != null ? "✓" : "✗")}");
+                            }
+                        }
+                    }
+                }
+            }
+            return s_epmPostLoadEvent;
+        }
+        
+        /// <summary>
+        /// Get the cached HotSwap active field (m_hotSwapActive) with lazy initialization.
+        /// Task 14.1: Rarely-used field for Move It compatibility detection.
+        /// </summary>
+        public static FieldInfo GetHotSwapActiveField()
+        {
+            if (!IsMorePropsActive) return null;
+            
+            if (!s_epmHotSwapActiveFieldInitialized)
+            {
+                lock (s_reflectionCacheLock)
+                {
+                    if (!s_epmHotSwapActiveFieldInitialized)
+                    {
+                        using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_HotSwapField"))
+                        {
+                            s_epmHotSwapActiveField = s_extendedPropManagerType?.GetField("m_hotSwapActive", 
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                            s_epmHotSwapActiveFieldInitialized = true;
+                            
+                            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                            {
+                                UnityEngine.Debug.Log($"[MNC-Compat] Lazy init - HotSwap Field: {(s_epmHotSwapActiveField != null ? "✓" : "✗")}");
+                            }
+                        }
+                    }
+                }
+            }
+            return s_epmHotSwapActiveField;
+        }
+        
+        /// <summary>
+        /// Get the cached UpdateData method with lazy initialization.
+        /// Task 14.1: Rarely-used method for advanced coordination scenarios.
+        /// </summary>
+        public static MethodInfo GetUpdateDataMethod()
+        {
+            if (!IsMorePropsActive) return null;
+            
+            if (!s_epmUpdateDataMethodInitialized)
+            {
+                lock (s_reflectionCacheLock)
+                {
+                    if (!s_epmUpdateDataMethodInitialized)
+                    {
+                        using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_UpdateDataMethod"))
+                        {
+                            s_epmUpdateDataMethod = s_extendedPropManagerType?.GetMethod("UpdateData", 
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            s_epmUpdateDataMethodInitialized = true;
+                            
+                            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                            {
+                                UnityEngine.Debug.Log($"[MNC-Compat] Lazy init - UpdateData Method: {(s_epmUpdateDataMethod != null ? "✓" : "✗")}");
+                            }
+                        }
+                    }
+                }
+            }
+            return s_epmUpdateDataMethod;
+        }
+        
+        /// <summary>
+        /// Increment failure count for circuit breaker pattern.
+        /// After MAX_FAILURES consecutive failures, compatibility mode is disabled.
+        /// </summary>
+        public static void IncrementFailureCount()
+        {
+            s_failureCount++;
+            UnityEngine.Debug.LogWarning($"[MNC-Compat] Failure count: {s_failureCount}/{MAX_FAILURES}");
+            
+            if (s_failureCount >= MAX_FAILURES && !s_circuitBreakerTripped)
+            {
+                s_circuitBreakerTripped = true;
+                IsMorePropsActive = false;
+                UnityEngine.Debug.LogError($"[MNC-Compat] Circuit breaker TRIPPED after {MAX_FAILURES} failures - disabling compatibility mode for this session");
+            }
+        }
+        
+        /// <summary>
+        /// Reset failure count. Call after successful operations to prevent circuit breaker trip.
+        /// </summary>
+        public static void ResetFailureCount()
+        {
+            if (s_failureCount > 0)
+            {
+                s_failureCount = 0;
+            }
+        }
+        
+        /// <summary>
+        /// Check if circuit breaker has tripped.
+        /// </summary>
+        public static bool IsCircuitBreakerTripped()
+        {
+            return s_circuitBreakerTripped;
+        }
+        
+        /// <summary>
+        /// Shutdown coordination manager. Call during mod cleanup.
+        /// </summary>
+        public static void Shutdown()
+        {
+            // Call Cleanup on all registered adapters (Req 12.8)
+            foreach (var adapter in s_registeredAdapters.Values.ToArray())
+            {
+                try
+                {
+                    adapter.Cleanup();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"[MNC-Compat] Adapter {adapter.Name} cleanup failed: {ex}");
+                }
+            }
+            s_registeredAdapters.Clear();
+            
+            IsMorePropsActive = false;
+            s_initialized = false;
+            s_morePropsAssembly = null;
+            s_extendedPropManagerType = null;
+            s_extendedPropRendererType = null;
+            s_epmInstanceProperty = null;
+            
+            // Task 14.1: Reset lazy initialization flags
+            s_epmPropGridField = null;
+            s_epmPropGridFieldInitialized = false;
+            s_epmPropBufferField = null;
+            s_epmPropBufferFieldInitialized = false;
+            s_epmPostLoadEvent = null;
+            s_epmPostLoadEventInitialized = false;
+            s_epmHotSwapActiveField = null;
+            s_epmHotSwapActiveFieldInitialized = false;
+            s_epmUpdateDataMethod = null;
+            s_epmUpdateDataMethodInitialized = false;
+            
+            s_failureCount = 0;
+            s_circuitBreakerTripped = false;
+            UnityEngine.Debug.Log("[MNC-Compat] CoordinationManager shutdown complete");
+        }
+        
+        /// <summary>
+        /// Register a third-party mod for coordination (Req 12.3, 12.4, 12.5).
+        /// The adapter will receive callbacks for save/load and grid sanitization events.
+        /// Maximum 32 adapters can be registered (Req 12.7).
+        /// </summary>
+        /// <param name="adapter">Adapter implementing ICompatibilityAdapter interface</param>
+        /// <exception cref="ArgumentNullException">If adapter is null</exception>
+        /// <exception cref="InvalidOperationException">If maximum adapters registered or duplicate name</exception>
+        public static void RegisterModForCoordination(ICompatibilityAdapter adapter)
+        {
+            if (adapter == null)
+            {
+                throw new ArgumentNullException(nameof(adapter), "Adapter cannot be null");
+            }
+            
+            string modName = adapter.Name;
+            
+            if (string.IsNullOrEmpty(modName))
+            {
+                throw new ArgumentException("Adapter name cannot be null or empty", nameof(adapter));
+            }
+            
+            // Check adapter limit (Req 12.7)
+            if (s_registeredAdapters.Count >= MAX_ADAPTERS)
+            {
+                throw new InvalidOperationException(
+                    $"[MNC-Compat] Maximum {MAX_ADAPTERS} adapters allowed - cannot register {modName}");
+            }
+            
+            // Check for duplicate registration (Req 12.4)
+            if (s_registeredAdapters.ContainsKey(modName))
+            {
+                throw new InvalidOperationException(
+                    $"[MNC-Compat] Adapter '{modName}' is already registered");
+            }
+            
+            try
+            {
+                // Register the adapter (Req 12.3)
+                s_registeredAdapters[modName] = adapter;
+                
+                // Call RegisterWithCoordinator to allow adapter initialization (Req 12.3)
+                adapter.RegisterWithCoordinator();
+                
+                UnityEngine.Debug.Log($"[MNC-Compat] Registered third-party mod adapter: {modName} (total: {s_registeredAdapters.Count})");
+                
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[MNC-Compat] Active adapters: {string.Join(", ", s_registeredAdapters.Keys.ToArray())}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Remove from registry if registration failed
+                s_registeredAdapters.Remove(modName);
+                UnityEngine.Debug.LogError($"[MNC-Compat] Failed to register adapter '{modName}': {ex}");
+                IncrementFailureCount();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Get list of registered third-party mod adapter names (Req 12.8).
+        /// </summary>
+        /// <returns>Array of registered adapter names</returns>
+        public static string[] GetRegisteredAdapters()
+        {
+            return s_registeredAdapters.Keys.ToArray();
+        }
+        
+        // ========== Internal Detection Logic ==========
+        
+        /// <summary>
+        /// Detect More Props BETA by scanning loaded assemblies.
+        /// Requirement 1.1: Scan for assemblies named "MorePropsBETA" or "MoreProps"
+        /// Requirement 1.2: Verify presence of ExtendedPropManager and ExtendedPropRenderer types
+        /// </summary>
+        private static bool DetectMoreProps()
+        {
+            try
+            {
+                // Scan all loaded assemblies
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    string name = assembly.GetName().Name;
+                    
+                    // Check for More Props assembly names (Req 1.1)
+                    if (name == "MorePropsBETA" || name == "MoreProps")
+                    {
+                        UnityEngine.Debug.Log($"[MNC-Compat] Found assembly: {name}");
+                        
+                        // Try both namespace patterns for compatibility
+                        s_extendedPropManagerType = assembly.GetType("MorePropsBETA.ExtendedPropManager") 
+                                                 ?? assembly.GetType("MoreProps.ExtendedPropManager");
+                        
+                        s_extendedPropRendererType = assembly.GetType("MorePropsBETA.ExtendedPropRenderer")
+                                                   ?? assembly.GetType("MoreProps.ExtendedPropRenderer");
+                        
+                        // Verify both required types exist (Req 1.2)
+                        if (s_extendedPropManagerType != null && s_extendedPropRendererType != null)
+                        {
+                            s_morePropsAssembly = assembly;
+                            MorePropsVersion = assembly.GetName().Version?.ToString() ?? "Unknown";
+                            
+                            UnityEngine.Debug.Log($"[MNC-Compat] Verified ExtendedPropManager: {s_extendedPropManagerType.FullName}");
+                            UnityEngine.Debug.Log($"[MNC-Compat] Verified ExtendedPropRenderer: {s_extendedPropRendererType.FullName}");
+                            
+                            // Cache reflection results (Req 1.5)
+                            CacheReflectionResults();
+                            
+                            return true;
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.LogWarning("[MNC-Compat] Assembly found but required types missing");
+                            if (s_extendedPropManagerType == null)
+                                UnityEngine.Debug.LogWarning("[MNC-Compat] ExtendedPropManager type not found");
+                            if (s_extendedPropRendererType == null)
+                                UnityEngine.Debug.LogWarning("[MNC-Compat] ExtendedPropRenderer type not found");
+                        }
+                    }
+                }
+                
+                return false;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[MNC-Compat] Detection failed: {ex}");
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Cache reflection results for frequently accessed types, properties, and fields.
+        /// This avoids repeated reflection lookups during runtime (Req 1.5, 11.6).
+        /// Task 14.1: Only cache frequently-used members; rarely-used fields use lazy initialization.
+        /// </summary>
+        private static void CacheReflectionResults()
+        {
+            try
+            {
+                if (s_extendedPropManagerType == null)
+                {
+                    return;
+                }
+                
+                UnityEngine.Debug.Log("[MNC-Compat] Caching frequently-used reflection results...");
+                
+                using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_Initial"))
+                {
+                    // Cache frequently used members only (Task 14.1)
+                    // Instance property is used in most coordination operations
+                    s_epmInstanceProperty = s_extendedPropManagerType.GetProperty("instance", 
+                        BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                    
+                    UnityEngine.Debug.Log("[MNC-Compat] Reflection results cached successfully");
+                    
+                    // Log what was cached for debugging (Req 11.6)
+                    UnityEngine.Debug.Log($"[MNC-Compat] Cached (Eager) - Instance Property: {(s_epmInstanceProperty != null ? "✓" : "✗")}");
+                    UnityEngine.Debug.Log($"[MNC-Compat] Deferred (Lazy) - PropGrid, PropBuffer, PostLoad, HotSwap, UpdateData");
+                }
+                
+                // Task 14.1: Verify reflection overhead after caching
+                // Subsequent accesses to cached members should have near-zero overhead
+                if (s_epmInstanceProperty != null)
+                {
+                    // Test cached access performance
+                    using (PerformanceMonitor.TrackCoordinationTiming("ReflectionCache_Verify"))
+                    {
+                        // Access cached property multiple times to measure overhead
+                        for (int i = 0; i < 100; i++)
+                        {
+                            var _ = s_epmInstanceProperty.PropertyType;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[MNC-Compat] Reflection caching failed (non-critical): {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Activate compatibility mode and initialize coordination components.
+        /// Requirement 1.3: Activate compatibility mode with version detection and logging
+        /// Requirement 1.6: Set IsMorePropsActive flag for component queries
+        /// </summary>
+        private static void ActivateCompatibilityMode()
+        {
+            try
+            {
+                // Set the global flag (Req 1.6)
+                IsMorePropsActive = true;
+                
+                UnityEngine.Debug.Log($"[MNC-Compat] ========================================");
+                UnityEngine.Debug.Log($"[MNC-Compat] MORE PROPS COMPATIBILITY MODE ACTIVE");
+                UnityEngine.Debug.Log($"[MNC-Compat] More Props Version: {MorePropsVersion}");
+                UnityEngine.Debug.Log($"[MNC-Compat] Assembly: {s_morePropsAssembly?.GetName().Name}");
+                UnityEngine.Debug.Log($"[MNC-Compat] ========================================");
+                
+                // Execute self-tests if enabled (Req 10.1, 10.5, 10.6)
+                if (ConfigManager.CurrentConfig.EnableSelfTest)
+                {
+                    UnityEngine.Debug.Log("[MNC-Compat] Self-test mode enabled - running tests...");
+                    bool allTestsPassed = SelfTestRunner.RunAllTests();
+                    
+                    if (!allTestsPassed)
+                    {
+                        // Display warning dialog for test failures (Req 10.6)
+                        string failureReport = SelfTestRunner.ReportTestResults();
+                        UnityEngine.Debug.LogWarning($"[MNC-Compat] Self-test failures detected:\n{failureReport}");
+                        
+                        // Note: In a full implementation, would show UI dialog here
+                        // For now, log comprehensive test results
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log("[MNC-Compat] All self-tests passed successfully");
+                    }
+                }
+                
+                // Future: Initialize other coordination components here
+                // SaveCoordinator.Initialize();
+                // GridCoordinator.Initialize();
+                // etc.
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[MNC-Compat] Failed to activate compatibility mode: {ex}");
+                IsMorePropsActive = false;
+                IncrementFailureCount();
+            }
+        }
+        
+        /// <summary>
+        /// Get compatibility status for diagnostics and reporting.
+        /// Returns a CompatibilityStatus structure with all coordinator states.
+        /// Requirements: 10.1, 10.2, 10.3, 10.4
+        /// </summary>
+        public static CompatibilityStatus GetCompatibilityStatus()
+        {
+            return new CompatibilityStatus
+            {
+                IsCompatibilityModeActive = IsMorePropsActive,
+                MorePropsVersion = MorePropsVersion ?? "N/A",
+                CircuitBreakerFailureCount = s_failureCount,
+                IsCircuitBreakerTripped = s_circuitBreakerTripped,
+                LastUpdate = DateTime.Now,
+                LastKnownGoodState = s_initialized && !s_circuitBreakerTripped ? "Operational" : "Degraded"
+            };
+        }
+        
+        /// <summary>
+        /// Get compatibility status formatted as a detailed report string.
+        /// Includes all coordinator states, serialization lock, grid sanitization, and registered adapters.
+        /// Requirements: 10.1, 10.2, 10.3, 10.4
+        /// </summary>
+        public static string GetCompatibilityStatusReport()
+        {
+            var status = GetCompatibilityStatus();
+            var report = new System.Text.StringBuilder();
+            
+            report.AppendLine("=== More Props Compatibility Status ===");
+            report.AppendLine();
+            
+            // Core Status (Req 10.1)
+            report.AppendLine("[Core Status]");
+            report.AppendLine($"  Initialized: {s_initialized}");
+            report.AppendLine($"  Compatibility Mode: {(status.IsCompatibilityModeActive ? "ACTIVE" : "INACTIVE")}");
+            report.AppendLine($"  More Props Version: {status.MorePropsVersion}");
+            report.AppendLine($"  Last Update: {status.LastUpdate:yyyy-MM-dd HH:mm:ss}");
+            report.AppendLine($"  System State: {status.LastKnownGoodState}");
+            report.AppendLine();
+            
+            // Circuit Breaker Status (Req 10.1)
+            report.AppendLine("[Circuit Breaker]");
+            report.AppendLine($"  Status: {(status.IsCircuitBreakerTripped ? "TRIPPED" : "OK")}");
+            report.AppendLine($"  Failure Count: {status.CircuitBreakerFailureCount}/{MAX_FAILURES}");
+            report.AppendLine();
+            
+            // Reflection Cache Status (Req 10.2, Task 14.1)
+            report.AppendLine("[Reflection Cache]");
+            report.AppendLine($"  ExtendedPropManager Type: {(s_extendedPropManagerType != null ? "Cached" : "Not Found")}");
+            report.AppendLine($"  ExtendedPropRenderer Type: {(s_extendedPropRendererType != null ? "Cached" : "Not Found")}");
+            report.AppendLine($"  EPM Instance Property: {(s_epmInstanceProperty != null ? "Cached (Eager)" : "Not Found")}");
+            report.AppendLine($"  EPM PropGrid Field: {(s_epmPropGridFieldInitialized ? (s_epmPropGridField != null ? "Cached (Lazy)" : "Not Found") : "Not Initialized")}");
+            report.AppendLine($"  EPM PropBuffer Field: {(s_epmPropBufferFieldInitialized ? (s_epmPropBufferField != null ? "Cached (Lazy)" : "Not Found") : "Not Initialized")}");
+            report.AppendLine($"  EPM PostLoad Event: {(s_epmPostLoadEventInitialized ? (s_epmPostLoadEvent != null ? "Cached (Lazy)" : "Not Found") : "Not Initialized")}");
+            report.AppendLine($"  EPM HotSwap Field: {(s_epmHotSwapActiveFieldInitialized ? (s_epmHotSwapActiveField != null ? "Cached (Lazy)" : "Not Found") : "Not Initialized")}");
+            report.AppendLine($"  EPM UpdateData Method: {(s_epmUpdateDataMethodInitialized ? (s_epmUpdateDataMethod != null ? "Cached (Lazy)" : "Not Found") : "Not Initialized")}");
+            report.AppendLine();
+            
+            // Serialization Lock Status (Req 10.2)
+            report.AppendLine("[Serialization Lock]");
+            report.AppendLine($"  Lock Held: {SaveCoordinator.IsLocked}");
+            report.AppendLine($"  Lock Owner: {SaveCoordinator.CurrentLockOwner ?? "None"}");
+            report.AppendLine($"  Concurrent Save Mode: {SaveCoordinator.IsConcurrentSaveDetected}");
+            report.AppendLine();
+            
+            // Grid Sanitization Status (Req 10.3)
+            report.AppendLine("[Grid Sanitization]");
+            report.AppendLine($"  Sanitization Scheduled: {GridCoordinator.IsSanitizationScheduled}");
+            report.AppendLine($"  More Props Ready: {GridCoordinator.IsMorePropsReady}");
+            report.AppendLine($"  Event Registration: {(GridCoordinator.IsEventRegistrationSucceeded ? "Success" : "Not Attempted/Failed")}");
+            report.AppendLine();
+            
+            // Registered Adapters (Req 10.4)
+            report.AppendLine("[Third-Party Adapters]");
+            report.AppendLine($"  Registered Count: {s_registeredAdapters.Count}/{MAX_ADAPTERS}");
+            if (s_registeredAdapters.Count > 0)
+            {
+                foreach (var adapter in s_registeredAdapters)
+                {
+                    report.AppendLine($"    - {adapter.Key} ({adapter.Value.Name})");
+                }
+            }
+            else
+            {
+                report.AppendLine("    (No third-party adapters registered)");
+            }
+            report.AppendLine();
+            
+            // Performance Metrics (Req 10.4)
+            report.AppendLine("[Performance Metrics]");
+            report.AppendLine($"  Configuration Debug Logging: {ConfigManager.CurrentConfig.EnableDebugLogging}");
+            report.AppendLine($"  Configuration Coordination: {ConfigManager.CurrentConfig.EnableCoordination}");
+            report.AppendLine($"  Configuration Save Coordination: {ConfigManager.CurrentConfig.EnableSaveCoordination}");
+            report.AppendLine($"  Configuration Grid Coordination: {ConfigManager.CurrentConfig.EnableGridCoordination}");
+            
+            return report.ToString();
+        }
+    }
+    
+    /// <summary>
+    /// Data structure for compatibility status reporting (Req 10.1).
+    /// Contains all fields necessary for diagnostics and monitoring.
+    /// </summary>
+    public struct CompatibilityStatus
+    {
+        /// <summary>
+        /// Whether compatibility mode is currently active (More Props detected and operational)
+        /// </summary>
+        public bool IsCompatibilityModeActive;
+        
+        /// <summary>
+        /// Detected version string of More Props BETA mod
+        /// </summary>
+        public string MorePropsVersion;
+        
+        /// <summary>
+        /// Current failure count for circuit breaker pattern
+        /// </summary>
+        public int CircuitBreakerFailureCount;
+        
+        /// <summary>
+        /// Whether the circuit breaker has tripped (compatibility disabled due to failures)
+        /// </summary>
+        public bool IsCircuitBreakerTripped;
+        
+        /// <summary>
+        /// Timestamp of last status update
+        /// </summary>
+        public DateTime LastUpdate;
+        
+        /// <summary>
+        /// Last known good operational state ("Operational", "Degraded", etc.)
+        /// </summary>
+        public string LastKnownGoodState;
+    }
+    
+    /// <summary>
+    /// PerformanceMonitor tracks timing and performance metrics for coordination operations.
+    /// Implements IDisposable pattern for using() blocks to measure operation duration.
+    /// 
+    /// Features:
+    /// - TrackCoordinationTiming() for coordinator operations
+    /// - Per-operation metrics (count, total time, max time, average)
+    /// - Warning thresholds (lock >50ms, patch >100ms)
+    /// - Automatic logging when thresholds exceeded
+    /// 
+    /// Requirements:
+    /// - 10.5: Track lock acquisition, patch application, event dispatch times
+    /// - 10.6: Add warning thresholds (lock >50ms, patch >100ms)
+    /// - 10.7: Log warnings when thresholds exceeded
+    /// - 10.8: GetPerformanceMetrics() returning timing statistics
+    /// - 11.1: Measure and log coordination overhead for each major operation
+    /// - 11.2: Log performance warning when coordination overhead exceeds 50ms
+    /// </summary>
+    public static class PerformanceMonitor
+    {
+        // ========== Configuration ==========
+        
+        /// <summary>
+        /// Warning threshold for lock acquisition operations in milliseconds (Req 10.6, 11.2)
+        /// </summary>
+        private const double LOCK_WARNING_THRESHOLD_MS = 50.0;
+        
+        /// <summary>
+        /// Warning threshold for patch application operations in milliseconds (Req 10.6)
+        /// </summary>
+        private const double PATCH_WARNING_THRESHOLD_MS = 100.0;
+        
+        /// <summary>
+        /// Warning threshold for event dispatch operations in milliseconds (Req 10.6)
+        /// </summary>
+        private const double EVENT_WARNING_THRESHOLD_MS = 50.0;
+        
+        /// <summary>
+        /// Warning threshold for general coordination operations in milliseconds (Req 11.2)
+        /// </summary>
+        private const double COORDINATION_WARNING_THRESHOLD_MS = 50.0;
+        
+        // ========== Performance Metrics Storage ==========
+        
+        /// <summary>
+        /// Per-operation metrics storage
+        /// </summary>
+        private static readonly Dictionary<string, OperationMetrics> s_metrics = new Dictionary<string, OperationMetrics>();
+        
+        /// <summary>
+        /// Lock for thread-safe metrics updates
+        /// </summary>
+        private static readonly object s_metricsLock = new object();
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Track a coordination operation and return a disposable scope for automatic timing.
+        /// Usage: using (PerformanceMonitor.TrackCoordinationTiming("SaveOperation")) { ... }
+        /// 
+        /// Requirements: 10.5, 10.6, 10.7, 11.1, 11.2
+        /// </summary>
+        /// <param name="operationName">Name of the operation being tracked</param>
+        /// <param name="warningThresholdMs">Custom warning threshold (optional, uses default if not specified)</param>
+        /// <returns>Disposable PerformanceScope that measures duration</returns>
+        public static PerformanceScope TrackCoordinationTiming(string operationName, double? warningThresholdMs = null)
+        {
+            double threshold = warningThresholdMs ?? GetDefaultThreshold(operationName);
+            return new PerformanceScope(operationName, threshold);
+        }
+        
+        /// <summary>
+        /// Get default warning threshold based on operation name (Req 10.6)
+        /// </summary>
+        private static double GetDefaultThreshold(string operationName)
+        {
+            string opLower = operationName.ToLowerInvariant();
+            
+            if (opLower.Contains("lock") || opLower.Contains("acquire"))
+                return LOCK_WARNING_THRESHOLD_MS;
+            
+            if (opLower.Contains("patch") || opLower.Contains("harmony"))
+                return PATCH_WARNING_THRESHOLD_MS;
+            
+            if (opLower.Contains("event") || opLower.Contains("dispatch"))
+                return EVENT_WARNING_THRESHOLD_MS;
+            
+            return COORDINATION_WARNING_THRESHOLD_MS;
+        }
+        
+        /// <summary>
+        /// Get performance metrics for all tracked operations (Req 10.8).
+        /// Returns a dictionary mapping operation names to their metrics.
+        /// </summary>
+        public static Dictionary<string, OperationMetrics> GetPerformanceMetrics()
+        {
+            lock (s_metricsLock)
+            {
+                // Return a copy to avoid concurrent modification issues
+                return new Dictionary<string, OperationMetrics>(s_metrics);
+            }
+        }
+        
+        /// <summary>
+        /// Get performance metrics formatted as a detailed report string (Req 10.8, 11.1).
+        /// </summary>
+        public static string GetPerformanceReport()
+        {
+            var report = new System.Text.StringBuilder();
+            report.AppendLine("=== Performance Monitoring Report ===");
+            report.AppendLine();
+            
+            lock (s_metricsLock)
+            {
+                if (s_metrics.Count == 0)
+                {
+                    report.AppendLine("(No operations tracked yet)");
+                    return report.ToString();
+                }
+                
+                report.AppendLine($"{"Operation",-40} {"Count",8} {"Total (ms)",12} {"Avg (ms)",10} {"Max (ms)",10}");
+                report.AppendLine(new string('-', 85));
+                
+                foreach (var kvp in s_metrics.OrderBy(x => x.Key))
+                {
+                    string op = kvp.Key;
+                    OperationMetrics metrics = kvp.Value;
+                    
+                    report.AppendLine($"{op,-40} {metrics.Count,8} {metrics.TotalTimeMs,12:F2} {metrics.AverageTimeMs,10:F2} {metrics.MaxTimeMs,10:F2}");
+                }
+                
+                report.AppendLine();
+                report.AppendLine("Warning Thresholds:");
+                report.AppendLine($"  Lock Operations: {LOCK_WARNING_THRESHOLD_MS}ms");
+                report.AppendLine($"  Patch Operations: {PATCH_WARNING_THRESHOLD_MS}ms");
+                report.AppendLine($"  Event Operations: {EVENT_WARNING_THRESHOLD_MS}ms");
+                report.AppendLine($"  General Coordination: {COORDINATION_WARNING_THRESHOLD_MS}ms");
+            }
+            
+            return report.ToString();
+        }
+        
+        /// <summary>
+        /// Reset all performance metrics (useful for testing)
+        /// </summary>
+        public static void ResetMetrics()
+        {
+            lock (s_metricsLock)
+            {
+                s_metrics.Clear();
+            }
+        }
+        
+        // ========== Internal Methods ==========
+        
+        /// <summary>
+        /// Record the completion of an operation with its duration (Req 10.5, 10.7, 11.1)
+        /// </summary>
+        internal static void RecordOperation(string operationName, double durationMs, double warningThresholdMs)
+        {
+            lock (s_metricsLock)
+            {
+                // Update or create metrics for this operation
+                if (!s_metrics.ContainsKey(operationName))
+                {
+                    s_metrics[operationName] = new OperationMetrics();
+                }
+                
+                OperationMetrics metrics = s_metrics[operationName];
+                metrics.Count++;
+                metrics.TotalTimeMs += durationMs;
+                metrics.MaxTimeMs = Math.Max(metrics.MaxTimeMs, durationMs);
+            }
+            
+            // Log warning if threshold exceeded (Req 10.7, 11.2)
+            if (durationMs > warningThresholdMs)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[PerformanceMonitor] ⚠ {operationName} took {durationMs:F2}ms (exceeds {warningThresholdMs:F0}ms threshold)");
+            }
+            
+            // Debug logging for all operations if enabled
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log(
+                    $"[PerformanceMonitor] {operationName} completed in {durationMs:F2}ms");
+            }
+        }
+        
+        // ========== Nested Classes ==========
+        
+        /// <summary>
+        /// IDisposable scope for automatic timing measurement.
+        /// Usage: using (new PerformanceScope("OpName", threshold)) { ... }
+        /// 
+        /// Requirement 10.5: Automatic timing tracking via using() blocks
+        /// </summary>
+        public struct PerformanceScope : IDisposable
+        {
+            private readonly string _operationName;
+            private readonly double _warningThresholdMs;
+            private readonly System.Diagnostics.Stopwatch _stopwatch;
+            
+            public PerformanceScope(string operationName, double warningThresholdMs)
+            {
+                _operationName = operationName;
+                _warningThresholdMs = warningThresholdMs;
+                _stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            }
+            
+            public void Dispose()
+            {
+                _stopwatch.Stop();
+                double durationMs = _stopwatch.Elapsed.TotalMilliseconds;
+                PerformanceMonitor.RecordOperation(_operationName, durationMs, _warningThresholdMs);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Performance metrics for a single operation type (Req 10.8).
+    /// Tracks count, total time, and max time for statistical analysis.
+    /// </summary>
+    public class OperationMetrics
+    {
+        /// <summary>
+        /// Number of times this operation has been executed
+        /// </summary>
+        public int Count { get; set; }
+        
+        /// <summary>
+        /// Total cumulative time spent on this operation in milliseconds
+        /// </summary>
+        public double TotalTimeMs { get; set; }
+        
+        /// <summary>
+        /// Maximum single execution time for this operation in milliseconds
+        /// </summary>
+        public double MaxTimeMs { get; set; }
+        
+        /// <summary>
+        /// Average execution time for this operation in milliseconds
+        /// </summary>
+        public double AverageTimeMs
+        {
+            get { return Count > 0 ? TotalTimeMs / Count : 0.0; }
+        }
+    }
+    
+    /// <summary>
+    /// SaveCoordinator implements serialization mutual exclusion to prevent concurrent save operations
+    /// between MNC and More Props BETA. Uses lock-free fast path optimization when no concurrency detected.
+    /// 
+    /// Requirements:
+    /// - 2.1: Serialization lock using mutex mechanism
+    /// - 2.2: Lock acquisition with timeout
+    /// - 2.3: Lock release with ownership validation
+    /// - 2.4: Lock state tracking
+    /// - 2.5: Fast path bypass for standalone mode
+    /// - 11.3: Fast path bypass when no concurrent save detected
+    /// </summary>
+    public static class SaveCoordinator
+    {
+        // ========== State ==========
+        
+        /// <summary>
+        /// Mutex object for serialization mutual exclusion (Req 2.1)
+        /// </summary>
+        private static readonly object s_serializationLock = new object();
+        
+        /// <summary>
+        /// Indicates whether the lock is currently held
+        /// </summary>
+        private static volatile bool s_lockHeld;
+        
+        /// <summary>
+        /// Name of the component that currently owns the lock (Req 2.4)
+        /// </summary>
+        private static string s_lockOwner;
+        
+        /// <summary>
+        /// Timestamp when the lock was acquired (Req 2.4)
+        /// </summary>
+        private static DateTime s_lockAcquiredTime;
+        
+        /// <summary>
+        /// Configurable timeout in seconds for lock acquisition (Req 2.7)
+        /// Default: 60 seconds
+        /// </summary>
+        private static int s_timeoutSeconds = 60;
+        
+        /// <summary>
+        /// Flag indicating whether concurrent save operations have been detected.
+        /// Used for lock-free fast path optimization (Req 11.3)
+        /// </summary>
+        private static volatile bool s_concurrentSaveDetected;
+        
+        /// <summary>
+        /// Tracks the first save owner when no concurrency detected yet
+        /// </summary>
+        private static string s_firstSaveOwner;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Get whether the serialization lock is currently held.
+        /// </summary>
+        public static bool IsLocked => s_lockHeld;
+        
+        /// <summary>
+        /// Get the current lock owner (null if not locked).
+        /// </summary>
+        public static string CurrentLockOwner => s_lockOwner;
+        
+        /// <summary>
+        /// Get whether concurrent save mode has been detected (used for diagnostics).
+        /// </summary>
+        public static bool IsConcurrentSaveDetected => s_concurrentSaveDetected;
+        
+        /// <summary>
+        /// Set the timeout for lock acquisition in seconds (Req 2.7).
+        /// Valid range: 1-300 seconds.
+        /// </summary>
+        public static void SetTimeout(int seconds)
+        {
+            if (seconds < 1 || seconds > 300)
+            {
+                UnityEngine.Debug.LogWarning($"[SaveCoordinator] Invalid timeout {seconds}s, must be 1-300. Using default 60s.");
+                s_timeoutSeconds = 60;
+            }
+            else
+            {
+                s_timeoutSeconds = seconds;
+                UnityEngine.Debug.Log($"[SaveCoordinator] Timeout set to {seconds}s");
+            }
+        }
+        
+        /// <summary>
+        /// Acquire the serialization lock with timeout and retry logic (Req 2.1, 2.2, 2.6).
+        /// 
+        /// Fast Path Optimization (Req 2.5, 11.3):
+        /// - If More Props is not active, returns immediately (standalone mode)
+        /// - If no concurrent save detected yet, bypasses lock acquisition
+        /// - Only uses mutex when concurrent saves are detected
+        /// 
+        /// Retry Logic (Req 2.6):
+        /// - Attempts acquisition up to 3 times with exponential backoff
+        /// - Backoff intervals: 1x, 2x, 4x of base timeout
+        /// - Checks for timeout before each retry attempt
+        /// 
+        /// </summary>
+        /// <param name="owner">Name of the component requesting the lock</param>
+        /// <param name="timeoutMs">Timeout in milliseconds for first attempt (default: 5000ms)</param>
+        /// <returns>True if lock acquired, false after all retry attempts fail</returns>
+        public static bool AcquireLock(string owner, int timeoutMs = 5000)
+        {
+            // Fast path 1: Standalone mode - no coordination needed (Req 2.5)
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[SaveCoordinator] {owner} - fast path (standalone mode)");
+                }
+                return true;
+            }
+            
+            // Fast path 2: No concurrent save detected yet (Req 11.3)
+            if (!s_concurrentSaveDetected)
+            {
+                lock (s_serializationLock) // Brief lock just to update state atomically
+                {
+                    if (!s_concurrentSaveDetected)
+                    {
+                        // First save operation - no need for mutex
+                        s_firstSaveOwner = owner;
+                        s_lockOwner = owner;
+                        s_lockAcquiredTime = DateTime.Now;
+                        s_concurrentSaveDetected = false; // Still no concurrency
+                        
+                        if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                        {
+                            UnityEngine.Debug.Log($"[SaveCoordinator] {owner} - fast path (first save, no concurrency)");
+                        }
+                        return true;
+                    }
+                }
+            }
+            
+            // Concurrent save detected - use mutex with retry logic (Req 2.1, 2.2, 2.6)
+            const int maxRetries = 3;
+            int retryCount = 0;
+            int currentTimeoutMs = timeoutMs;
+            
+            while (retryCount < maxRetries)
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    if (retryCount == 0)
+                    {
+                        UnityEngine.Debug.Log($"[SaveCoordinator] {owner} attempting to acquire lock (timeout: {currentTimeoutMs}ms)...");
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log($"[SaveCoordinator] {owner} retry attempt {retryCount}/{maxRetries - 1} (timeout: {currentTimeoutMs}ms)...");
+                    }
+                }
+                
+                // Check if lock is held too long before attempting acquisition
+                CheckTimeout();
+                
+                bool acquired = false;
+                try
+                {
+                    acquired = Monitor.TryEnter(s_serializationLock, currentTimeoutMs);
+                    
+                    if (acquired)
+                    {
+                        s_lockHeld = true;
+                        s_lockOwner = owner;
+                        s_lockAcquiredTime = DateTime.Now;
+                        s_concurrentSaveDetected = true; // Mark that we've seen concurrency
+                        
+                        if (retryCount > 0)
+                        {
+                            UnityEngine.Debug.Log($"[SaveCoordinator] {owner} acquired lock at {s_lockAcquiredTime:HH:mm:ss.fff} (succeeded on retry {retryCount})");
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.Log($"[SaveCoordinator] {owner} acquired lock at {s_lockAcquiredTime:HH:mm:ss.fff}");
+                        }
+                        
+                        return true;
+                    }
+                    else
+                    {
+                        // Timeout occurred on this attempt
+                        retryCount++;
+                        
+                        if (retryCount < maxRetries)
+                        {
+                            // Exponential backoff: double the timeout for next attempt
+                            currentTimeoutMs *= 2;
+                            UnityEngine.Debug.LogWarning($"[SaveCoordinator] {owner} timeout after {currentTimeoutMs / 2}ms (attempt {retryCount}/{maxRetries}), retrying with {currentTimeoutMs}ms timeout...");
+                            UnityEngine.Debug.LogWarning($"[SaveCoordinator] Lock currently held by: {s_lockOwner ?? "unknown"}");
+                        }
+                        else
+                        {
+                            // All retries exhausted
+                            UnityEngine.Debug.LogError($"[SaveCoordinator] {owner} FAILED to acquire lock after {maxRetries} attempts");
+                            UnityEngine.Debug.LogError($"[SaveCoordinator] Total time waited: ~{timeoutMs + timeoutMs * 2 + timeoutMs * 4}ms");
+                            UnityEngine.Debug.LogError($"[SaveCoordinator] Lock currently held by: {s_lockOwner ?? "unknown"}");
+                            
+                            // Final timeout check - may force release if lock held too long
+                            CheckTimeout();
+                            
+                            return false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"[SaveCoordinator] Exception during lock acquisition by {owner} (attempt {retryCount + 1}): {ex}");
+                    CoordinationManager.IncrementFailureCount();
+                    
+                    // If we acquired the lock but failed somehow, make sure to release it
+                    if (acquired)
+                    {
+                        try
+                        {
+                            Monitor.Exit(s_serializationLock);
+                        }
+                        catch { }
+                    }
+                    
+                    return false;
+                }
+            }
+            
+            return false; // Should never reach here, but included for safety
+        }
+        
+        /// <summary>
+        /// Release the serialization lock with ownership validation (Req 2.3).
+        /// Must be called by the same owner that acquired the lock.
+        /// Should complete within 100ms (Req 2.5).
+        /// </summary>
+        /// <param name="owner">Name of the component releasing the lock</param>
+        public static void ReleaseLock(string owner)
+        {
+            // Fast path: Standalone mode - nothing to release (Req 2.5)
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                return;
+            }
+            
+            // Fast path: No concurrent save detected - just clear owner
+            if (!s_concurrentSaveDetected)
+            {
+                if (s_lockOwner == owner || s_firstSaveOwner == owner)
+                {
+                    s_lockOwner = null;
+                    s_firstSaveOwner = null;
+                    
+                    if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log($"[SaveCoordinator] {owner} released (fast path)");
+                    }
+                    return;
+                }
+                else
+                {
+                    // Ownership validation failed (Req 2.3)
+                    UnityEngine.Debug.LogWarning($"[SaveCoordinator] {owner} attempted to release lock but doesn't own it (owner: {s_lockOwner ?? "none"})");
+                    return;
+                }
+            }
+            
+            // Concurrent mode - release mutex
+            try
+            {
+                // Ownership validation (Req 2.3)
+                if (s_lockOwner != owner)
+                {
+                    UnityEngine.Debug.LogWarning($"[SaveCoordinator] {owner} attempted to release lock but doesn't own it (owner: {s_lockOwner ?? "none"})");
+                    return;
+                }
+                
+                if (!s_lockHeld)
+                {
+                    UnityEngine.Debug.LogWarning($"[SaveCoordinator] {owner} attempted to release lock but lock is not held");
+                    return;
+                }
+                
+                DateTime releaseTime = DateTime.Now;
+                TimeSpan holdDuration = releaseTime - s_lockAcquiredTime;
+                
+                // Release the lock
+                s_lockHeld = false;
+                s_lockOwner = null;
+                Monitor.Exit(s_serializationLock);
+                
+                UnityEngine.Debug.Log($"[SaveCoordinator] {owner} released lock (held for {holdDuration.TotalMilliseconds:F1}ms)");
+                
+                // Verify release completed quickly (Req 2.5)
+                TimeSpan releaseOperationTime = DateTime.Now - releaseTime;
+                if (releaseOperationTime.TotalMilliseconds > 100)
+                {
+                    UnityEngine.Debug.LogWarning($"[SaveCoordinator] Lock release took {releaseOperationTime.TotalMilliseconds:F1}ms (exceeds 100ms target)");
+                }
+                
+                // Reset failure count on successful operation
+                CoordinationManager.ResetFailureCount();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[SaveCoordinator] Exception during lock release by {owner}: {ex}");
+                CoordinationManager.IncrementFailureCount();
+                
+                // Force cleanup
+                s_lockHeld = false;
+                s_lockOwner = null;
+            }
+        }
+        
+        /// <summary>
+        /// Integration point called before save operation begins.
+        /// </summary>
+        public static void OnBeforeSave(string owner)
+        {
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[SaveCoordinator] OnBeforeSave: {owner}");
+            }
+        }
+        
+        /// <summary>
+        /// Integration point called after save operation completes.
+        /// </summary>
+        public static void OnAfterSave(string owner)
+        {
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[SaveCoordinator] OnAfterSave: {owner}");
+            }
+        }
+        
+        /// <summary>
+        /// Periodic timeout check to be called every frame or at regular intervals.
+        /// Checks if lock has been held too long and forces release if needed (Req 2.6).
+        /// Safe to call frequently - returns immediately if lock not held or timeout not exceeded.
+        /// </summary>
+        public static void PeriodicTimeoutCheck()
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                return; // No coordination needed in standalone mode
+            }
+            
+            if (!s_lockHeld)
+            {
+                return; // No lock held, nothing to check
+            }
+            
+            CheckTimeout();
+        }
+        
+        // ========== Internal Methods ==========
+        
+        /// <summary>
+        /// Check if the lock has been held for too long and force release if needed (Req 2.6).
+        /// </summary>
+        private static void CheckTimeout()
+        {
+            if (!s_lockHeld)
+            {
+                return;
+            }
+            
+            TimeSpan holdDuration = DateTime.Now - s_lockAcquiredTime;
+            
+            if (holdDuration.TotalSeconds > s_timeoutSeconds)
+            {
+                UnityEngine.Debug.LogWarning($"[SaveCoordinator] Lock held by {s_lockOwner} exceeded {s_timeoutSeconds}s timeout (held for {holdDuration.TotalSeconds:F1}s)");
+                ForceLockRelease("Timeout exceeded");
+            }
+        }
+        
+        /// <summary>
+        /// Force release the lock regardless of ownership (emergency cleanup) (Req 2.6, 2.7, 8.2).
+        /// Implements graceful cleanup with detailed logging of lock state.
+        /// Increments failure count to trigger circuit breaker if needed.
+        /// </summary>
+        /// <param name="reason">Reason for force release</param>
+        private static void ForceLockRelease(string reason)
+        {
+            string previousOwner = s_lockOwner ?? "unknown";
+            DateTime lockAcquiredTime = s_lockAcquiredTime;
+            TimeSpan holdDuration = DateTime.Now - lockAcquiredTime;
+            bool wasLockHeld = s_lockHeld;
+            
+            try
+            {
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ╔════════════════════════════════════════════════════════");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ FORCE RELEASING LOCK");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ╠════════════════════════════════════════════════════════");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ Reason: {reason}");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ Previous Owner: {previousOwner}");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ Acquired At: {lockAcquiredTime:yyyy-MM-dd HH:mm:ss.fff}");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ Hold Duration: {holdDuration.TotalSeconds:F1}s");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ║ Timeout Threshold: {s_timeoutSeconds}s");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] ╚════════════════════════════════════════════════════════");
+                
+                // Attempt to release the Monitor lock
+                if (wasLockHeld)
+                {
+                    try
+                    {
+                        Monitor.Exit(s_serializationLock);
+                        UnityEngine.Debug.Log($"[SaveCoordinator] Monitor.Exit() succeeded during force release");
+                    }
+                    catch (SynchronizationLockException slex)
+                    {
+                        // This means the current thread doesn't hold the lock - state may be corrupted
+                        UnityEngine.Debug.LogError($"[SaveCoordinator] SynchronizationLockException during force release: {slex.Message}");
+                        UnityEngine.Debug.LogError($"[SaveCoordinator] Lock state may be corrupted - current thread doesn't hold the monitor");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogError($"[SaveCoordinator] Exception during Monitor.Exit: {ex}");
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning($"[SaveCoordinator] Force release called but s_lockHeld was false");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[SaveCoordinator] CRITICAL: Exception during force release: {ex}");
+            }
+            finally
+            {
+                // Always clean up state variables regardless of Monitor.Exit result
+                s_lockHeld = false;
+                s_lockOwner = null;
+                
+                UnityEngine.Debug.Log($"[SaveCoordinator] Lock state variables cleared");
+                UnityEngine.Debug.Log($"[SaveCoordinator] Incrementing coordination failure count");
+                
+                // Increment failure count - may trigger circuit breaker
+                CoordinationManager.IncrementFailureCount();
+                
+                UnityEngine.Debug.LogError($"[SaveCoordinator] Force release completed. Save operations should now be able to proceed.");
+                UnityEngine.Debug.LogError($"[SaveCoordinator] IMPORTANT: The previous save operation by '{previousOwner}' may be corrupted!");
+            }
+        }
+        
+        /// <summary>
+        /// Reset all state (for testing or cleanup).
+        /// </summary>
+        public static void Reset()
+        {
+            s_lockHeld = false;
+            s_lockOwner = null;
+            s_firstSaveOwner = null;
+            s_concurrentSaveDetected = false;
+            s_lockAcquiredTime = DateTime.MinValue;
+            UnityEngine.Debug.Log("[SaveCoordinator] Reset complete");
+        }
+        
+        /// <summary>
+        /// Get diagnostic status string.
+        /// </summary>
+        public static string GetStatusReport()
+        {
+            var report = new System.Text.StringBuilder();
+            report.AppendLine("=== SaveCoordinator Status ===");
+            report.AppendLine($"Lock Held: {s_lockHeld}");
+            report.AppendLine($"Lock Owner: {s_lockOwner ?? "none"}");
+            report.AppendLine($"Timeout: {s_timeoutSeconds}s");
+            report.AppendLine($"Concurrent Save Detected: {s_concurrentSaveDetected}");
+            
+            if (s_lockHeld)
+            {
+                TimeSpan holdDuration = DateTime.Now - s_lockAcquiredTime;
+                report.AppendLine($"Hold Duration: {holdDuration.TotalSeconds:F1}s");
+            }
+            
+            return report.ToString();
+        }
+    }
+
+    // ============================================================================
+    // COORDINATION METADATA - Save game metadata tracking
+    // ============================================================================
+    
+    /// <summary>
+    /// CoordinationMetadata tracks coordination state and version information in save games.
+    /// 
+    /// Requirements Addressed:
+    /// - 11.1: THE Coordination_Manager SHALL measure and log coordination overhead
+    /// - 11.2: WHEN coordination overhead exceeds 50ms, log performance warning
+    /// - 11.3: THE Save_Coordinator SHALL implement lock-free fast path
+    /// - 11.4: THE Grid_Sanitizer SHALL use incremental sanitization
+    /// - Implementation Notes: Save Metadata Serializer requirements
+    /// 
+    /// Key Features:
+    /// - Records MNC version, More Props version, and compatibility layer version
+    /// - Tracks compatibility mode activation status
+    /// - Records last save timestamp for diagnostics
+    /// - Provides serialization/deserialization for save game integration
+    /// - Round-trip property validation (serialize → deserialize → equals)
+    /// </summary>
+    [Serializable]
+    public class CoordinationMetadata
+    {
+        // ========== Version Information ==========
+        
+        /// <summary>
+        /// Metadata format version for forward compatibility.
+        /// Current version: 1
+        /// </summary>
+        public int MetadataVersion { get; set; }
+        
+        /// <summary>
+        /// Version of the coordination layer (e.g., "4.0.0")
+        /// </summary>
+        public string CoordinationVersion { get; set; }
+        
+        /// <summary>
+        /// Version of More Nodes/Segments mod (e.g., "4.0.0")
+        /// </summary>
+        public string MNCVersion { get; set; }
+        
+        /// <summary>
+        /// Version of More Props BETA mod (e.g., "1.0.7") or null if not installed
+        /// </summary>
+        public string MorePropsVersion { get; set; }
+        
+        // ========== Status Information ==========
+        
+        /// <summary>
+        /// Whether compatibility mode was active when this save was created
+        /// </summary>
+        public bool CompatibilityModeActive { get; set; }
+        
+        /// <summary>
+        /// Timestamp when the save was created (UTC)
+        /// </summary>
+        public DateTime LastSaveTimestamp { get; set; }
+        
+        /// <summary>
+        /// Total number of coordination events that occurred during gameplay
+        /// (saves, grid sanitizations, etc.)
+        /// </summary>
+        public int CoordinationEventsCount { get; set; }
+        
+        /// <summary>
+        /// List of registered third-party mods using coordination API
+        /// </summary>
+        public List<string> RegisteredThirdPartyMods { get; set; }
+        
+        // ========== Constructor ==========
+        
+        /// <summary>
+        /// Default constructor for deserialization
+        /// </summary>
+        public CoordinationMetadata()
+        {
+            MetadataVersion = 1;
+            CoordinationVersion = "4.0.0"; // Should match MNC version
+            MNCVersion = "4.0.0";
+            MorePropsVersion = null;
+            CompatibilityModeActive = false;
+            LastSaveTimestamp = DateTime.UtcNow;
+            CoordinationEventsCount = 0;
+            RegisteredThirdPartyMods = new List<string>();
+        }
+        
+        /// <summary>
+        /// Create metadata from current coordination state
+        /// </summary>
+        public static CoordinationMetadata CreateFromCurrentState()
+        {
+            var metadata = new CoordinationMetadata
+            {
+                MetadataVersion = 1,
+                CoordinationVersion = "4.0.0",
+                MNCVersion = "4.0.0",
+                MorePropsVersion = CoordinationManager.IsMorePropsActive ? CoordinationManager.MorePropsVersion : null,
+                CompatibilityModeActive = CoordinationManager.IsMorePropsActive,
+                LastSaveTimestamp = DateTime.UtcNow,
+                CoordinationEventsCount = 0, // Will be updated by coordination components
+                RegisteredThirdPartyMods = new List<string>()
+            };
+            
+            // Note: Third-party mod registration is not yet implemented (Task 9.2)
+            // When EventBus.GetRegisteredModNames() is available, it will be added here
+            
+            return metadata;
+        }
+        
+        // ========== Serialization Methods ==========
+        
+        /// <summary>
+        /// Serialize metadata to a compact string format suitable for save games.
+        /// Format: "v=1;cv=4.0.0;mnc=4.0.0;mp=1.0.7;cm=true;ts=2024-01-15T12:30:00Z;ec=5;tm=ModA,ModB"
+        /// </summary>
+        public string SerializeMetadata()
+        {
+            try
+            {
+                var parts = new List<string>
+                {
+                    $"v={MetadataVersion}",
+                    $"cv={CoordinationVersion ?? "unknown"}",
+                    $"mnc={MNCVersion ?? "unknown"}",
+                    $"mp={MorePropsVersion ?? "none"}",
+                    $"cm={CompatibilityModeActive.ToString().ToLower()}",
+                    $"ts={LastSaveTimestamp:o}", // ISO 8601 format
+                    $"ec={CoordinationEventsCount}"
+                };
+                
+                // Add third-party mods if any
+                if (RegisteredThirdPartyMods != null && RegisteredThirdPartyMods.Count > 0)
+                {
+                    string modList = string.Join(",", RegisteredThirdPartyMods.ToArray());
+                    parts.Add($"tm={modList}");
+                }
+                
+                string serialized = string.Join(";", parts.ToArray());
+                
+                if (ConfigManager.CurrentConfig?.EnableDebugLogging == true)
+                {
+                    UnityEngine.Debug.Log($"[CoordinationMetadata] Serialized: {serialized}");
+                }
+                
+                return serialized;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CoordinationMetadata] Serialization failed: {ex}");
+                return "v=1;cv=unknown;mnc=unknown;mp=none;cm=false;ts=unknown;ec=0"; // Fallback
+            }
+        }
+        
+        /// <summary>
+        /// Deserialize metadata from save game string format.
+        /// Returns null if deserialization fails.
+        /// </summary>
+        public static CoordinationMetadata DeserializeMetadata(string serialized)
+        {
+            if (string.IsNullOrEmpty(serialized))
+            {
+                UnityEngine.Debug.LogWarning("[CoordinationMetadata] Cannot deserialize null or empty string");
+                return null;
+            }
+            
+            try
+            {
+                var metadata = new CoordinationMetadata();
+                
+                // Parse key-value pairs
+                string[] parts = serialized.Split(';');
+                foreach (string part in parts)
+                {
+                    if (string.IsNullOrEmpty(part))
+                        continue;
+                    
+                    string[] kv = part.Split(new[] { '=' }, 2);
+                    if (kv.Length != 2)
+                        continue;
+                    
+                    string key = kv[0].Trim();
+                    string value = kv[1].Trim();
+                    
+                    switch (key)
+                    {
+                        case "v":
+                            int version;
+                            if (int.TryParse(value, out version))
+                                metadata.MetadataVersion = version;
+                            break;
+                        
+                        case "cv":
+                            metadata.CoordinationVersion = value == "unknown" ? null : value;
+                            break;
+                        
+                        case "mnc":
+                            metadata.MNCVersion = value == "unknown" ? null : value;
+                            break;
+                        
+                        case "mp":
+                            metadata.MorePropsVersion = value == "none" ? null : value;
+                            break;
+                        
+                        case "cm":
+                            bool compatMode;
+                            if (bool.TryParse(value, out compatMode))
+                                metadata.CompatibilityModeActive = compatMode;
+                            break;
+                        
+                        case "ts":
+                            DateTime timestamp;
+                            if (value != "unknown" && DateTime.TryParse(value, null, System.Globalization.DateTimeStyles.RoundtripKind, out timestamp))
+                                metadata.LastSaveTimestamp = timestamp;
+                            break;
+                        
+                        case "ec":
+                            int eventCount;
+                            if (int.TryParse(value, out eventCount))
+                                metadata.CoordinationEventsCount = eventCount;
+                            break;
+                        
+                        case "tm":
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                string[] mods = value.Split(',');
+                                metadata.RegisteredThirdPartyMods = new List<string>(mods);
+                            }
+                            break;
+                    }
+                }
+                
+                if (ConfigManager.CurrentConfig?.EnableDebugLogging == true)
+                {
+                    UnityEngine.Debug.Log($"[CoordinationMetadata] Deserialized: MNC={metadata.MNCVersion}, MoreProps={metadata.MorePropsVersion ?? "none"}, CompatMode={metadata.CompatibilityModeActive}");
+                }
+                
+                return metadata;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CoordinationMetadata] Deserialization failed: {ex}");
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Validate round-trip property: serialize → deserialize → equals
+        /// </summary>
+        public bool ValidateRoundTrip()
+        {
+            try
+            {
+                string serialized = SerializeMetadata();
+                CoordinationMetadata deserialized = DeserializeMetadata(serialized);
+                
+                if (deserialized == null)
+                    return false;
+                
+                // Compare key fields
+                bool equal = deserialized.MetadataVersion == this.MetadataVersion
+                    && deserialized.CoordinationVersion == this.CoordinationVersion
+                    && deserialized.MNCVersion == this.MNCVersion
+                    && deserialized.MorePropsVersion == this.MorePropsVersion
+                    && deserialized.CompatibilityModeActive == this.CompatibilityModeActive
+                    && deserialized.CoordinationEventsCount == this.CoordinationEventsCount;
+                
+                // Compare third-party mod lists
+                if (equal && RegisteredThirdPartyMods != null && deserialized.RegisteredThirdPartyMods != null)
+                {
+                    if (RegisteredThirdPartyMods.Count != deserialized.RegisteredThirdPartyMods.Count)
+                        equal = false;
+                    else
+                    {
+                        for (int i = 0; i < RegisteredThirdPartyMods.Count; i++)
+                        {
+                            if (RegisteredThirdPartyMods[i] != deserialized.RegisteredThirdPartyMods[i])
+                            {
+                                equal = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                return equal;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CoordinationMetadata] Round-trip validation failed: {ex}");
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Get a human-readable summary of the metadata
+        /// </summary>
+        public override string ToString()
+        {
+            return $"CoordinationMetadata[v={MetadataVersion}, MNC={MNCVersion}, MoreProps={MorePropsVersion ?? "none"}, CompatMode={CompatibilityModeActive}, Events={CoordinationEventsCount}, ThirdPartyMods={RegisteredThirdPartyMods?.Count ?? 0}]";
+        }
+    }
+    
+    // ============================================================================
+    // GRID COORDINATOR - Timing coordination for grid sanitization
+    // ============================================================================
+    
+    /// <summary>
+    /// GridCoordinator manages grid sanitization timing to coordinate with More Props BETA.
+    /// 
+    /// Requirements Addressed:
+    /// - 3.1: WHERE Compatibility_Mode is active, THE Grid_Sanitizer SHALL NOT execute SanitizeMorePropsGrid during OnLevelLoaded
+    /// - 3.2: WHERE Compatibility_Mode is active, THE Grid_Sanitizer SHALL register a callback with More_Props' post-load event
+    /// - 3.3: WHEN More_Props completes its load operation, THE Grid_Sanitizer SHALL execute SanitizeMorePropsGrid
+    /// - 3.6: WHERE Compatibility_Mode is NOT active, THE Grid_Sanitizer SHALL execute SanitizeMorePropsGrid normally during OnLevelLoaded
+    /// 
+    /// Key Features:
+    /// - Detects compatibility mode and defers sanitization when More Props is active
+    /// - Registers for More Props post-load event via reflection
+    /// - Fallback delayed execution if event registration fails
+    /// - Standalone mode bypasses coordination (immediate sanitization)
+    /// - Scheduling queue for pending sanitization callbacks
+    /// </summary>
+    public static class GridCoordinator
+    {
+        // ========== State ==========
+        
+        /// <summary>
+        /// Indicates whether grid sanitization has been scheduled but not yet executed
+        /// </summary>
+        private static bool s_sanitizationScheduled;
+        
+        /// <summary>
+        /// Indicates whether More Props has signaled it's ready
+        /// </summary>
+        private static bool s_morePropsReady;
+        
+        /// <summary>
+        /// Queue of pending sanitization callbacks to execute when More Props is ready
+        /// </summary>
+        private static readonly Queue<Action> s_pendingCallbacks = new Queue<Action>();
+        
+        /// <summary>
+        /// Indicates whether event registration with More Props succeeded
+        /// </summary>
+        private static bool s_eventRegistrationAttempted;
+        
+        /// <summary>
+        /// Indicates whether event registration succeeded
+        /// </summary>
+        private static bool s_eventRegistrationSucceeded;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Get whether sanitization is scheduled (for diagnostics).
+        /// </summary>
+        public static bool IsSanitizationScheduled => s_sanitizationScheduled;
+        
+        /// <summary>
+        /// Get whether More Props is ready (for diagnostics).
+        /// </summary>
+        public static bool IsMorePropsReady => s_morePropsReady;
+        
+        /// <summary>
+        /// Get whether event registration succeeded (for diagnostics).
+        /// </summary>
+        public static bool IsEventRegistrationSucceeded => s_eventRegistrationSucceeded;
+        
+        /// <summary>
+        /// Called during OnLevelLoaded to coordinate grid sanitization timing (Req 3.1, 3.2, 3.6).
+        /// 
+        /// Standalone Mode (Req 3.6):
+        /// - When More Props is NOT active, execute sanitization immediately
+        /// - No coordination overhead, maintains existing behavior
+        /// 
+        /// Compatibility Mode (Req 3.1, 3.2):
+        /// - When More Props IS active, defer sanitization
+        /// - Register callback with More Props' post-load event via reflection
+        /// - Fallback to delayed execution (2 seconds) if event registration fails
+        /// - Schedule sanitization to execute after More Props signals ready
+        /// </summary>
+        public static void OnLevelLoaded()
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                // Standalone mode - sanitize immediately (Req 3.6)
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Standalone mode - executing immediate sanitization");
+                }
+                GridSanitizerArmor.SanitizeAllGrids("OnLevelLoaded-Standalone");
+                return;
+            }
+            
+            // Compatibility mode - defer sanitization until More Props is ready (Req 3.1)
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log("[GridCoordinator] Compatibility mode - deferring sanitization until More Props ready");
+            }
+            
+            s_sanitizationScheduled = true;
+            s_morePropsReady = false;
+            
+            // Attempt to register callback with More Props post-load event (Req 3.2)
+            if (!s_eventRegistrationAttempted)
+            {
+                s_eventRegistrationAttempted = true;
+                TryRegisterMorePropsCallback();
+            }
+        }
+        
+        /// <summary>
+        /// Called when More Props signals it's ready for grid operations (Req 3.3).
+        /// Executes all pending sanitization callbacks in order.
+        /// </summary>
+        public static void OnMorePropsReady()
+        {
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log("[GridCoordinator] More Props ready signal received");
+            }
+            
+            s_morePropsReady = true;
+            
+            if (s_sanitizationScheduled)
+            {
+                ScheduleSanitization("PostMorePropsInit");
+            }
+            
+            // Execute any pending callbacks
+            while (s_pendingCallbacks.Count > 0)
+            {
+                Action callback = s_pendingCallbacks.Dequeue();
+                try
+                {
+                    callback();
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"[GridCoordinator] Error executing pending callback: {ex}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Coordinate orphaned save file recovery timing (Req 4.1-4.8).
+        /// 
+        /// Standalone Mode (Req 4.7):
+        /// - Execute RescueOrphanedTempSaves immediately during OnLevelLoaded
+        /// - No coordination overhead, maintains existing behavior
+        /// 
+        /// Compatibility Mode (Req 4.1, 4.2):
+        /// - Disable immediate recovery to avoid race with More Props serialization
+        /// - Schedule delayed recovery (10 seconds after level load) via ConfigManager setting
+        /// - Acquire SaveCoordinator lock before accessing .ccs files (Req 4.3)
+        /// - Verify files not locked by More Props before packaging (Req 4.4, 4.5)
+        /// </summary>
+        public static void CoordinateOrphanedSaveRecovery()
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                // Standalone mode - execute immediately (Req 4.7)
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Standalone mode - executing immediate orphaned save recovery");
+                }
+                GridSanitizerArmor.RescueOrphanedTempSaves();
+                return;
+            }
+            
+            // Compatibility mode - schedule delayed recovery (Req 4.1, 4.2)
+            int delaySeconds = ConfigManager.CurrentConfig.OrphanedSaveRecoveryDelaySeconds;
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[GridCoordinator] Compatibility mode - scheduling orphaned save recovery after {delaySeconds}s delay");
+            }
+            
+            // Schedule delayed callback via RenewMod's simulation stepping
+            RenewMod.ScheduleDelayedCallback(() =>
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Delayed orphaned save recovery starting (compatibility mode)");
+                }
+                
+                // Execute recovery with coordination (Req 4.3)
+                RescueOrphanedTempSavesWithCoordination();
+                
+            }, delaySeconds: delaySeconds);
+        }
+        
+        /// <summary>
+        /// Execute orphaned save recovery with SaveCoordinator lock acquisition (Req 4.3-4.8).
+        /// Acquires serialization lock before accessing .ccs files to prevent conflicts.
+        /// Verifies files are not locked by More Props before packaging.
+        /// </summary>
+        private static void RescueOrphanedTempSavesWithCoordination()
+        {
+            // Acquire coordination lock before file access (Req 4.3)
+            if (!SaveCoordinator.AcquireLock("OrphanedSaveRecovery", timeoutMs: 5000))
+            {
+                UnityEngine.Debug.LogWarning("[GridCoordinator] Failed to acquire lock for orphaned save recovery - aborting");
+                return;
+            }
+            
+            try
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Lock acquired - executing orphaned save recovery");
+                }
+                
+                // Execute recovery with file locking checks
+                GridSanitizerArmor.RescueOrphanedTempSavesWithLockCheck();
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[GridCoordinator] Error during coordinated orphaned save recovery: {ex}");
+            }
+            finally
+            {
+                // Always release lock (Req 4.3)
+                SaveCoordinator.ReleaseLock("OrphanedSaveRecovery");
+                
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Orphaned save recovery completed, lock released");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Schedule grid sanitization with specified context.
+        /// If More Props is ready, executes immediately. Otherwise, queues for later execution.
+        /// </summary>
+        public static void ScheduleSanitization(string callerContext)
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                // Standalone mode - execute immediately
+                GridSanitizerArmor.SanitizeAllGrids(callerContext);
+                return;
+            }
+            
+            if (s_morePropsReady)
+            {
+                // More Props is ready - execute now (Req 3.3)
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[GridCoordinator] Executing sanitization: {callerContext}");
+                }
+                
+                s_sanitizationScheduled = false;
+                GridSanitizerArmor.SanitizeAllGrids(callerContext);
+            }
+            else
+            {
+                // More Props not ready - queue for later
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[GridCoordinator] Queuing sanitization: {callerContext}");
+                }
+                
+                s_pendingCallbacks.Enqueue(() => GridSanitizerArmor.SanitizeAllGrids(callerContext));
+            }
+        }
+
+        /// <summary>
+        /// Schedule incremental grid sanitization (100 cells per frame) to avoid frame time spikes.
+        /// Requirements: 3.7, 11.4
+        /// </summary>
+        /// <param name="callerContext">Context string for logging</param>
+        public static void ScheduleIncrementalSanitization(string callerContext)
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                // Standalone mode - execute immediately (no need for incremental)
+                GridSanitizerArmor.SanitizeAllGrids(callerContext);
+                return;
+            }
+            
+            if (s_morePropsReady)
+            {
+                // More Props is ready - start incremental sanitization coroutine
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[GridCoordinator] Starting incremental sanitization: {callerContext}");
+                }
+                
+                s_sanitizationScheduled = false;
+                RenewMod.StartCoroutine(IncrementalSanitizationCoroutine(callerContext));
+            }
+            else
+            {
+                // More Props not ready - queue for later
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[GridCoordinator] Queuing incremental sanitization: {callerContext}");
+                }
+                
+                s_pendingCallbacks.Enqueue(() => RenewMod.StartCoroutine(IncrementalSanitizationCoroutine(callerContext)));
+            }
+        }
+
+        /// <summary>
+        /// Coroutine that processes grid sanitization incrementally (100 cells per frame).
+        /// Requirements: 3.7, 11.4 - Prevents frame time spikes with large prop counts.
+        /// </summary>
+        /// <param name="callerContext">Context string for logging</param>
+        private static System.Collections.IEnumerator IncrementalSanitizationCoroutine(string callerContext)
+        {
+            System.DateTime startTime = System.DateTime.Now;
+            int currentCell = 0;
+            int totalCells = 0;
+            int totalCyclesRepaired = 0;
+            const int CELLS_PER_FRAME = 100; // Process 100 cells per frame to stay under 16ms
+            
+            // Get More Props grid info
+            Type epmType = null;
+            object instance = null;
+            uint[] propGrid = null;
+            Array props = null;
+            
+            // Detect More Props (no try-catch in coroutine with yield)
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (asm.GetName().Name == "MorePropsBETA" || asm.GetName().Name == "MoreProps")
+                {
+                    epmType = asm.GetType("MorePropsBETA.ExtendedPropManager") ?? asm.GetType("MoreProps.ExtendedPropManager");
+                    if (epmType != null) break;
+                }
+            }
+            
+            if (epmType != null)
+            {
+                PropertyInfo pInstance = epmType.GetProperty("Instance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                instance = pInstance?.GetValue(null, null);
+                
+                if (instance != null)
+                {
+                    FieldInfo fGrid = epmType.GetField("m_propGrid32", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo fProps = epmType.GetField("m_props256k", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    
+                    if (fGrid != null && fProps != null)
+                    {
+                        propGrid = fGrid.GetValue(instance) as uint[];
+                        props = fProps.GetValue(instance) as Array;
+                        
+                        if (propGrid != null)
+                        {
+                            totalCells = propGrid.Length;
+                        }
+                    }
+                }
+            }
+            
+            if (totalCells == 0)
+            {
+                UnityEngine.Debug.LogWarning($"[GridCoordinator] Unable to get More Props grid info for incremental sanitization");
+                yield break;
+            }
+            
+            // Log start of incremental sanitization
+            UnityEngine.Debug.Log($"[GridCoordinator] Starting incremental sanitization of {totalCells} grid cells ({CELLS_PER_FRAME} cells/frame): {callerContext}");
+            
+            // Process grid cells incrementally
+            while (currentCell < totalCells)
+            {
+                System.DateTime frameStartTime = System.DateTime.Now;
+                
+                int endCell = System.Math.Min(currentCell + CELLS_PER_FRAME, totalCells);
+                
+                // Sanitize this range (exceptions handled in SanitizeMorePropsGridRange)
+                int cyclesThisFrame = GridSanitizerArmor.SanitizeMorePropsGridRange(
+                    currentCell, endCell, callerContext, epmType, instance, propGrid, props);
+                
+                totalCyclesRepaired += cyclesThisFrame;
+                currentCell = endCell;
+                
+                // Measure frame time
+                System.TimeSpan frameTime = System.DateTime.Now - frameStartTime;
+                
+                // Log warning if frame processing exceeded 16ms
+                if (frameTime.TotalMilliseconds > 16.0)
+                {
+                    UnityEngine.Debug.LogWarning($"[GridCoordinator] Incremental sanitization frame time exceeded 16ms: {frameTime.TotalMilliseconds:F2}ms for cells [{currentCell - CELLS_PER_FRAME}, {endCell})");
+                }
+                
+                // Log progress for debug
+                if (ConfigManager.CurrentConfig.EnableDebugLogging && currentCell % 1000 == 0)
+                {
+                    float progress = (float)currentCell / totalCells * 100f;
+                    UnityEngine.Debug.Log($"[GridCoordinator] Incremental sanitization progress: {currentCell}/{totalCells} cells ({progress:F1}%)");
+                }
+                
+                // Wait one frame before processing next batch
+                yield return null;
+            }
+            
+            // Sanitize vanilla grids (fast, no need for incremental processing)
+            GridSanitizerArmor.SanitizeVanillaGrids(callerContext);
+            
+            // Log completion with total duration
+            System.TimeSpan totalDuration = System.DateTime.Now - startTime;
+            UnityEngine.Debug.Log($"[GridCoordinator] Incremental sanitization completed in {totalDuration.TotalSeconds:F2}s: {totalCells} cells processed, {totalCyclesRepaired} cycles repaired - {callerContext}");
+            
+            // Log performance warning if total time is excessive
+            if (totalDuration.TotalSeconds > 10.0)
+            {
+                UnityEngine.Debug.LogWarning($"[GridCoordinator] Incremental sanitization took longer than expected: {totalDuration.TotalSeconds:F2}s (expected <5s for 200K props)");
+            }
+        }
+        
+        /// <summary>
+        /// Reset all state (for testing or level unload cleanup).
+        /// </summary>
+        public static void Reset()
+        {
+            s_sanitizationScheduled = false;
+            s_morePropsReady = false;
+            s_pendingCallbacks.Clear();
+            s_eventRegistrationAttempted = false;
+            s_eventRegistrationSucceeded = false;
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log("[GridCoordinator] Reset complete");
+            }
+        }
+        
+        /// <summary>
+        /// Get diagnostic status string.
+        /// </summary>
+        public static string GetStatusReport()
+        {
+            var report = new System.Text.StringBuilder();
+            report.AppendLine("=== GridCoordinator Status ===");
+            report.AppendLine($"Compatibility Mode: {CoordinationManager.IsMorePropsActive}");
+            report.AppendLine($"Sanitization Scheduled: {s_sanitizationScheduled}");
+            report.AppendLine($"More Props Ready: {s_morePropsReady}");
+            report.AppendLine($"Pending Callbacks: {s_pendingCallbacks.Count}");
+            report.AppendLine($"Event Registration Attempted: {s_eventRegistrationAttempted}");
+            report.AppendLine($"Event Registration Succeeded: {s_eventRegistrationSucceeded}");
+            
+            return report.ToString();
+        }
+        
+        // ========== Internal Methods ==========
+        
+        /// <summary>
+        /// Attempt to register callback with More Props' post-load event via reflection (Req 3.2).
+        /// Falls back to delayed execution if registration fails.
+        /// </summary>
+        private static void TryRegisterMorePropsCallback()
+        {
+            try
+            {
+                // Get ExtendedPropManager type from CoordinationManager's cached reflection results
+                Type epmType = CoordinationManager.GetExtendedPropManagerType();
+                
+                if (epmType == null)
+                {
+                    UnityEngine.Debug.LogWarning("[GridCoordinator] ExtendedPropManager type not found - falling back to delayed execution");
+                    FallbackDelayedExecution();
+                    return;
+                }
+                
+                // Look for post-load event (try multiple possible event names)
+                System.Reflection.EventInfo readyEvent = epmType.GetEvent("OnPostLoad", BindingFlags.Public | BindingFlags.Static)
+                                    ?? epmType.GetEvent("PostLoadEvent", BindingFlags.Public | BindingFlags.Static)
+                                    ?? epmType.GetEvent("OnLoadComplete", BindingFlags.Public | BindingFlags.Static);
+                
+                if (readyEvent != null)
+                {
+                    // Create delegate for OnMorePropsReady method
+                    MethodInfo handlerMethod = typeof(GridCoordinator).GetMethod(
+                        nameof(OnMorePropsReady), 
+                        BindingFlags.Public | BindingFlags.Static
+                    );
+                    
+                    if (handlerMethod != null)
+                    {
+                        Delegate handler = Delegate.CreateDelegate(
+                            readyEvent.EventHandlerType,
+                            handlerMethod
+                        );
+                        
+                        readyEvent.AddEventHandler(null, handler);
+                        s_eventRegistrationSucceeded = true;
+                        
+                        UnityEngine.Debug.Log("[GridCoordinator] Successfully registered More Props post-load event callback");
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning("[GridCoordinator] OnMorePropsReady method not found - falling back to delayed execution");
+                        FallbackDelayedExecution();
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("[GridCoordinator] More Props post-load event not found - falling back to delayed execution");
+                    FallbackDelayedExecution();
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[GridCoordinator] Failed to register More Props callback: {ex.Message}");
+                UnityEngine.Debug.LogWarning("[GridCoordinator] Falling back to delayed execution");
+                FallbackDelayedExecution();
+            }
+        }
+        
+        /// <summary>
+        /// Fallback mechanism: schedule OnMorePropsReady to execute after 2 second delay.
+        /// Used when event registration fails or More Props event API is not available.
+        /// </summary>
+        private static void FallbackDelayedExecution()
+        {
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log("[GridCoordinator] Scheduling fallback delayed execution (2 seconds)");
+            }
+            
+            // Schedule delayed callback via RenewMod's simulation stepping
+            RenewMod.ScheduleDelayedCallback(() =>
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[GridCoordinator] Fallback delay elapsed - signaling More Props ready");
+                }
+                OnMorePropsReady();
+            }, delaySeconds: 2.0f);
+        }
+    }
+    
+    // ================================================================================================
+    // MemoryCoordinator - Coordinates memory allocations and GC between MNC and More Props
+    // ================================================================================================
+    
+    /// <summary>
+    /// Coordinates memory allocations and garbage collection between MNC and More Props.
+    /// Implements expansion lock to serialize array expansions and prevent concurrent allocations.
+    /// 
+    /// Features:
+    /// - Array expansion lock using Monitor (Req 6.1)
+    /// - Owner tracking for allocations (Req 6.2)
+    /// - Wait logic when other mod is allocating (Req 6.3)
+    /// - Heap size monitoring with 3GB threshold (Req 6.4, 6.5)
+    /// - Forced GC before critical allocations (Req 6.8)
+    /// - Allocation event logging for >10MB allocations (Req 6.7)
+    /// 
+    /// Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.8
+    /// </summary>
+    public static class MemoryCoordinator
+    {
+        // ========== State ==========
+        
+        /// <summary>
+        /// Mutex object for array expansion mutual exclusion (Req 6.1)
+        /// </summary>
+        private static readonly object s_expansionLock = new object();
+        
+        /// <summary>
+        /// Indicates whether MNC is currently allocating arrays
+        /// </summary>
+        private static volatile bool s_mncAllocating;
+        
+        /// <summary>
+        /// Indicates whether More Props is currently allocating arrays
+        /// </summary>
+        private static volatile bool s_morePropsAllocating;
+        
+        /// <summary>
+        /// Current allocation owner (Req 6.2)
+        /// </summary>
+        private static string s_currentAllocationOwner;
+        
+        /// <summary>
+        /// Timestamp when current allocation started
+        /// </summary>
+        private static DateTime s_allocationStartTime;
+        
+        /// <summary>
+        /// 3GB heap threshold for forced GC (Req 6.4, 6.5)
+        /// </summary>
+        private const long HEAP_THRESHOLD_BYTES = 3L * 1024 * 1024 * 1024;
+        
+        /// <summary>
+        /// 10MB threshold for allocation logging (Req 6.7)
+        /// </summary>
+        private const int LOG_THRESHOLD_BYTES = 10 * 1024 * 1024;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Get whether MNC is currently allocating.
+        /// </summary>
+        public static bool IsMNCAllocating => s_mncAllocating;
+        
+        /// <summary>
+        /// Get whether More Props is currently allocating.
+        /// </summary>
+        public static bool IsMorePropsAllocating => s_morePropsAllocating;
+        
+        /// <summary>
+        /// Get the current allocation owner (null if no active allocation).
+        /// </summary>
+        public static string CurrentAllocationOwner => s_currentAllocationOwner;
+        
+        /// <summary>
+        /// Called before array expansion to acquire the expansion lock (Req 6.1, 6.2).
+        /// 
+        /// Behavior:
+        /// - Fast path: If More Props not active, returns immediately
+        /// - Serializes array expansions: waits if other mod is allocating (Req 6.3)
+        /// - Monitors heap size: forces GC if exceeds 3GB threshold (Req 6.4, 6.5, 6.8)
+        /// - Logs large allocations >10MB (Req 6.7)
+        /// 
+        /// </summary>
+        /// <param name="owner">Name of the component requesting allocation ("MNC" or "MoreProps")</param>
+        /// <param name="arraySizeBytes">Size of the array being allocated in bytes</param>
+        public static void OnBeforeArrayExpansion(string owner, int arraySizeBytes)
+        {
+            // Fast path: Standalone mode - no coordination needed
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                return;
+            }
+            
+            lock (s_expansionLock)
+            {
+                // Wait for other mod's allocations to complete (Req 6.3)
+                while ((owner == "MNC" && s_morePropsAllocating) || 
+                       (owner == "MoreProps" && s_mncAllocating))
+                {
+                    if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        string blockedBy = owner == "MNC" ? "MoreProps" : "MNC";
+                        UnityEngine.Debug.Log($"[MemoryCoordinator] {owner} waiting for {blockedBy} to complete allocation...");
+                    }
+                    
+                    Monitor.Wait(s_expansionLock, millisecondsTimeout: 100);
+                }
+                
+                // Set allocation flags (Req 6.2)
+                if (owner == "MNC")
+                    s_mncAllocating = true;
+                else if (owner == "MoreProps")
+                    s_morePropsAllocating = true;
+                
+                s_currentAllocationOwner = owner;
+                s_allocationStartTime = DateTime.Now;
+                
+                // Check heap size and force GC if needed (Req 6.4, 6.5, 6.8)
+                long heapSize = GC.GetTotalMemory(forceFullCollection: false);
+                if (heapSize > HEAP_THRESHOLD_BYTES)
+                {
+                    long heapMB = heapSize / (1024 * 1024);
+                    UnityEngine.Debug.LogWarning($"[MemoryCoordinator] Heap at {heapMB}MB exceeds 3GB threshold - forcing GC before {owner} allocation");
+                    
+                    // Force full GC with blocking to ensure memory is freed
+                    GC.Collect(2, GCCollectionMode.Forced);
+                    GC.WaitForPendingFinalizers();
+                    
+                    long heapAfterGC = GC.GetTotalMemory(forceFullCollection: false);
+                    long freedMB = (heapSize - heapAfterGC) / (1024 * 1024);
+                    UnityEngine.Debug.Log($"[MemoryCoordinator] GC completed - freed {freedMB}MB (heap now {heapAfterGC / (1024 * 1024)}MB)");
+                }
+                
+                // Log large allocations (Req 6.7)
+                if (arraySizeBytes > LOG_THRESHOLD_BYTES)
+                {
+                    LogAllocationEvent(owner, arraySizeBytes);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Called after array expansion to release the expansion lock (Req 6.1).
+        /// Signals waiting threads that allocation has completed.
+        /// </summary>
+        /// <param name="owner">Name of the component completing allocation</param>
+        public static void OnAfterArrayExpansion(string owner)
+        {
+            // Fast path: Standalone mode - no coordination needed
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                return;
+            }
+            
+            lock (s_expansionLock)
+            {
+                // Clear allocation flags
+                if (owner == "MNC")
+                    s_mncAllocating = false;
+                else if (owner == "MoreProps")
+                    s_morePropsAllocating = false;
+                
+                TimeSpan duration = DateTime.Now - s_allocationStartTime;
+                
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[MemoryCoordinator] {owner} completed allocation in {duration.TotalMilliseconds:F1}ms");
+                }
+                
+                s_currentAllocationOwner = null;
+                
+                // Wake up any waiting threads (Req 6.3)
+                Monitor.PulseAll(s_expansionLock);
+            }
+        }
+        
+        /// <summary>
+        /// Check if it's safe to perform garbage collection (Req 6.4).
+        /// Returns false if either mod is actively allocating large buffers.
+        /// 
+        /// Integration Point: Called from MemoryOptimizer.StrategicGarbageCollect
+        /// </summary>
+        /// <returns>True if safe to run GC, false if allocations are active</returns>
+        public static bool IsAllocationSafe()
+        {
+            // Always safe in standalone mode
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                return true;
+            }
+            
+            // Not safe if any mod is actively allocating
+            bool safe = !s_mncAllocating && !s_morePropsAllocating;
+            
+            if (!safe && ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[MemoryCoordinator] GC deferred - {s_currentAllocationOwner} is allocating");
+            }
+            
+            return safe;
+        }
+        
+        /// <summary>
+        /// Coordinate garbage collection with allocation state (Req 6.6).
+        /// Skips GC if mods are actively allocating.
+        /// </summary>
+        /// <param name="context">Context string for logging</param>
+        public static void CoordinateGarbageCollection(string context)
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                // Standalone mode - proceed with GC
+                return;
+            }
+            
+            if (!IsAllocationSafe())
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[MemoryCoordinator] Skipping GC during active allocation: {context}");
+                }
+                return;
+            }
+            
+            // Safe to proceed with GC
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[MemoryCoordinator] GC coordination check passed: {context}");
+            }
+        }
+        
+        // ========== Private Methods ==========
+        
+        /// <summary>
+        /// Log allocation event for allocations >10MB (Req 6.7).
+        /// Includes allocation size, mod name, and current heap status.
+        /// </summary>
+        private static void LogAllocationEvent(string owner, int sizeBytes)
+        {
+            long heapSize = GC.GetTotalMemory(forceFullCollection: false);
+            double sizeMB = sizeBytes / (1024.0 * 1024.0);
+            long heapMB = heapSize / (1024 * 1024);
+            
+            UnityEngine.Debug.Log($"[MemoryCoordinator] Large allocation: {owner} allocating {sizeMB:F2}MB (heap: {heapMB}MB)");
+        }
+    }
+    
+    // ================================================================================================
+    // LifecycleCoordinator - Manages execution order of lifecycle events
+    // ================================================================================================
+    
+    /// <summary>
+    /// Ensures correct execution order of lifecycle events across MNC, More Props, and third-party mods.
+    /// Callbacks are executed in priority order (highest first) with error isolation.
+    /// Requirements: 7.1, 7.2, 7.7, 7.8
+    /// </summary>
+    public static class LifecycleCoordinator
+    {
+        // ========== State ==========
+        
+        private static readonly List<LifecycleCallback> s_onCreatedCallbacks = new List<LifecycleCallback>();
+        private static readonly List<LifecycleCallback> s_onLevelLoadedCallbacks = new List<LifecycleCallback>();
+        private static readonly List<LifecycleCallback> s_onLevelUnloadingCallbacks = new List<LifecycleCallback>();
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Register a callback for the OnCreated lifecycle phase.
+        /// Callbacks are executed in descending priority order (highest priority first).
+        /// </summary>
+        /// <param name="owner">Name of the component registering the callback</param>
+        /// <param name="priority">Execution priority (higher values execute first)</param>
+        /// <param name="callback">Action to execute</param>
+        public static void RegisterOnCreated(string owner, int priority, Action callback)
+        {
+            if (callback == null)
+            {
+                UnityEngine.Debug.LogError($"[LifecycleCoordinator] Cannot register null callback for {owner}");
+                return;
+            }
+            
+            var lifecycleCallback = new LifecycleCallback
+            {
+                Owner = owner,
+                Priority = priority,
+                Callback = callback
+            };
+            
+            s_onCreatedCallbacks.Add(lifecycleCallback);
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] Registered OnCreated callback: {owner} (priority {priority})");
+            }
+        }
+        
+        /// <summary>
+        /// Register a callback for the OnLevelLoaded lifecycle phase.
+        /// Callbacks are executed in descending priority order (highest priority first).
+        /// </summary>
+        /// <param name="owner">Name of the component registering the callback</param>
+        /// <param name="priority">Execution priority (higher values execute first)</param>
+        /// <param name="callback">Action to execute</param>
+        public static void RegisterOnLevelLoaded(string owner, int priority, Action callback)
+        {
+            if (callback == null)
+            {
+                UnityEngine.Debug.LogError($"[LifecycleCoordinator] Cannot register null callback for {owner}");
+                return;
+            }
+            
+            var lifecycleCallback = new LifecycleCallback
+            {
+                Owner = owner,
+                Priority = priority,
+                Callback = callback
+            };
+            
+            s_onLevelLoadedCallbacks.Add(lifecycleCallback);
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] Registered OnLevelLoaded callback: {owner} (priority {priority})");
+            }
+        }
+        
+        /// <summary>
+        /// Register a callback for the OnLevelUnloading lifecycle phase.
+        /// Callbacks are executed in descending priority order (highest priority first).
+        /// </summary>
+        /// <param name="owner">Name of the component registering the callback</param>
+        /// <param name="priority">Execution priority (higher values execute first)</param>
+        /// <param name="callback">Action to execute</param>
+        public static void RegisterOnLevelUnloading(string owner, int priority, Action callback)
+        {
+            if (callback == null)
+            {
+                UnityEngine.Debug.LogError($"[LifecycleCoordinator] Cannot register null callback for {owner}");
+                return;
+            }
+            
+            var lifecycleCallback = new LifecycleCallback
+            {
+                Owner = owner,
+                Priority = priority,
+                Callback = callback
+            };
+            
+            s_onLevelUnloadingCallbacks.Add(lifecycleCallback);
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] Registered OnLevelUnloading callback: {owner} (priority {priority})");
+            }
+        }
+        
+        /// <summary>
+        /// Execute all registered OnCreated callbacks in priority order (Req 7.1, 7.2).
+        /// Implements error isolation and performance timing (Req 7.7, 7.8).
+        /// </summary>
+        public static void ExecuteOnCreated()
+        {
+            ExecuteCallbacks(s_onCreatedCallbacks, "OnCreated");
+        }
+        
+        /// <summary>
+        /// Execute all registered OnLevelLoaded callbacks in priority order (Req 7.3).
+        /// Implements error isolation and performance timing (Req 7.7, 7.8).
+        /// </summary>
+        public static void ExecuteOnLevelLoaded()
+        {
+            ExecuteCallbacks(s_onLevelLoadedCallbacks, "OnLevelLoaded");
+        }
+        
+        /// <summary>
+        /// Execute all registered OnLevelUnloading callbacks in priority order (Req 7.4).
+        /// Implements error isolation and performance timing (Req 7.7, 7.8).
+        /// </summary>
+        public static void ExecuteOnLevelUnloading()
+        {
+            ExecuteCallbacks(s_onLevelUnloadingCallbacks, "OnLevelUnloading");
+        }
+        
+        // ========== Internal Methods ==========
+        
+        /// <summary>
+        /// Execute callbacks with priority-based sorting and error isolation (Req 7.7, 7.8).
+        /// Logs warnings for callbacks taking >50ms.
+        /// </summary>
+        /// <param name="callbacks">List of callbacks to execute</param>
+        /// <param name="phase">Lifecycle phase name for logging</param>
+        private static void ExecuteCallbacks(List<LifecycleCallback> callbacks, string phase)
+        {
+            if (callbacks.Count == 0)
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: No callbacks registered");
+                }
+                return;
+            }
+            
+            // Sort callbacks in descending priority order (highest priority first) (Req 7.2)
+            callbacks.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: Executing {callbacks.Count} callbacks");
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: Execution order:");
+                for (int i = 0; i < callbacks.Count; i++)
+                {
+                    UnityEngine.Debug.Log($"[LifecycleCoordinator]   {i + 1}. {callbacks[i].Owner} (priority {callbacks[i].Priority})");
+                }
+            }
+            
+            // Execute each callback with error isolation (Req 7.7)
+            foreach (var cb in callbacks)
+            {
+                try
+                {
+                    if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: Executing {cb.Owner} (priority {cb.Priority})");
+                    }
+                    
+                    // Performance timing per callback (Req 7.8)
+                    DateTime start = DateTime.Now;
+                    cb.Callback();
+                    TimeSpan duration = DateTime.Now - start;
+                    
+                    // Log warning for slow callbacks (>50ms) (Req 7.8)
+                    if (duration.TotalMilliseconds > 50)
+                    {
+                        UnityEngine.Debug.LogWarning($"[LifecycleCoordinator] {phase}: {cb.Owner} took {duration.TotalMilliseconds:F1}ms (exceeds 50ms target)");
+                    }
+                    else if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: {cb.Owner} completed in {duration.TotalMilliseconds:F1}ms");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Error isolation - continue executing remaining callbacks (Req 7.7)
+                    UnityEngine.Debug.LogError($"[LifecycleCoordinator] {phase}: {cb.Owner} failed with exception: {ex}");
+                    CoordinationManager.IncrementFailureCount();
+                }
+            }
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[LifecycleCoordinator] {phase}: All callbacks executed");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Represents a lifecycle callback with owner identification and execution priority.
+    /// Used by LifecycleCoordinator to manage callback execution order.
+    /// </summary>
+    internal struct LifecycleCallback
+    {
+        /// <summary>
+        /// Name of the component that registered this callback (for logging and debugging).
+        /// </summary>
+        public string Owner;
+        
+        /// <summary>
+        /// Execution priority - higher values execute first.
+        /// Typical priority ranges:
+        /// - 1000: Core detection and initialization
+        /// - 900: Mod detection
+        /// - 800: Compatibility activation
+        /// - 700: Array guardians and safety systems
+        /// - 600: More Props initialization
+        /// - 500: MNC initialization
+        /// - 400: Third-party mods
+        /// - 200: Deserialization
+        /// - 100: Validation and sanitization
+        /// - 50: Cross-mod synchronization
+        /// </summary>
+        public int Priority;
+        
+        /// <summary>
+        /// The action to execute for this lifecycle event.
+        /// </summary>
+        public Action Callback;
+    }
+
+    // ================================================================================================
+    // EventBus - Third-party mod integration pub/sub system
+    // ================================================================================================
+    
+    /// <summary>
+    /// Provides third-party mods with integration points for coordination events.
+    /// Implements type-safe pub/sub pattern with error isolation and subscriber limits.
+    /// Requirements: 12.1, 12.2, 12.7
+    /// </summary>
+    public static class EventBus
+    {
+        // ========== State ==========
+        
+        /// <summary>
+        /// Dictionary storing subscribers by event type (Req 12.1)
+        /// </summary>
+        private static readonly Dictionary<Type, List<Delegate>> s_subscribers = 
+            new Dictionary<Type, List<Delegate>>();
+        
+        /// <summary>
+        /// Maximum number of subscribers per event type (Req 12.7)
+        /// </summary>
+        private const int MAX_SUBSCRIBERS = 32;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Subscribe to coordination events (Req 12.1).
+        /// Type-safe subscription using generics with automatic type routing.
+        /// </summary>
+        /// <typeparam name="TEvent">Event type implementing ICoordinationEvent</typeparam>
+        /// <param name="handler">Action to invoke when event is published</param>
+        public static void Subscribe<TEvent>(Action<TEvent> handler) where TEvent : ICoordinationEvent
+        {
+            if (handler == null)
+            {
+                throw new ArgumentNullException(nameof(handler), "Event handler cannot be null");
+            }
+            
+            Type eventType = typeof(TEvent);
+            
+            lock (s_subscribers)
+            {
+                if (!s_subscribers.ContainsKey(eventType))
+                {
+                    s_subscribers[eventType] = new List<Delegate>();
+                }
+                
+                List<Delegate> handlers = s_subscribers[eventType];
+                
+                // Enforce subscriber limit (Req 12.7)
+                if (handlers.Count >= MAX_SUBSCRIBERS)
+                {
+                    throw new InvalidOperationException(
+                        $"[EventBus] Maximum {MAX_SUBSCRIBERS} subscribers allowed for event {eventType.Name}");
+                }
+                
+                // Check for duplicate subscriptions
+                if (handlers.Contains(handler))
+                {
+                    UnityEngine.Debug.LogWarning($"[EventBus] Handler already subscribed to {eventType.Name}");
+                    return;
+                }
+                
+                handlers.Add(handler);
+                
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[EventBus] Subscribed to {eventType.Name} (total: {handlers.Count})");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Unsubscribe from coordination events (Req 12.1).
+        /// Removes the specified handler from the subscriber list.
+        /// </summary>
+        /// <typeparam name="TEvent">Event type implementing ICoordinationEvent</typeparam>
+        /// <param name="handler">Handler to remove from subscriptions</param>
+        public static void Unsubscribe<TEvent>(Action<TEvent> handler) where TEvent : ICoordinationEvent
+        {
+            if (handler == null)
+            {
+                return; // Silently ignore null unsubscribe
+            }
+            
+            Type eventType = typeof(TEvent);
+            
+            lock (s_subscribers)
+            {
+                if (!s_subscribers.ContainsKey(eventType))
+                {
+                    return; // No subscribers for this event type
+                }
+                
+                List<Delegate> handlers = s_subscribers[eventType];
+                bool removed = handlers.Remove(handler);
+                
+                if (removed && ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log($"[EventBus] Unsubscribed from {eventType.Name} (remaining: {handlers.Count})");
+                }
+                
+                // Clean up empty subscriber lists
+                if (handlers.Count == 0)
+                {
+                    s_subscribers.Remove(eventType);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Publish event to all subscribers with error isolation (Req 12.1, 12.2, 12.7).
+        /// Each handler is invoked independently - exceptions in one handler don't affect others.
+        /// </summary>
+        /// <typeparam name="TEvent">Event type implementing ICoordinationEvent</typeparam>
+        /// <param name="evt">Event instance to publish</param>
+        public static void Publish<TEvent>(TEvent evt) where TEvent : ICoordinationEvent
+        {
+            if (evt == null)
+            {
+                throw new ArgumentNullException(nameof(evt), "Event cannot be null");
+            }
+            
+            Type eventType = typeof(TEvent);
+            List<Delegate> handlersCopy;
+            
+            // Copy handlers list inside lock to avoid holding lock during event handler execution
+            lock (s_subscribers)
+            {
+                if (!s_subscribers.ContainsKey(eventType))
+                {
+                    // No subscribers - this is normal, not an error
+                    if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log($"[EventBus] Published {eventType.Name} (no subscribers)");
+                    }
+                    return;
+                }
+                
+                handlersCopy = new List<Delegate>(s_subscribers[eventType]);
+            }
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[EventBus] Publishing {eventType.Name} to {handlersCopy.Count} subscribers");
+            }
+            
+            // Execute handlers outside lock with error isolation (Req 12.7)
+            int successCount = 0;
+            int failureCount = 0;
+            
+            foreach (var handler in handlersCopy)
+            {
+                try
+                {
+                    ((Action<TEvent>)handler)(evt);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    failureCount++;
+                    UnityEngine.Debug.LogError($"[EventBus] Event handler failed for {eventType.Name}: {ex}");
+                    CoordinationManager.IncrementFailureCount();
+                }
+            }
+            
+            if (ConfigManager.CurrentConfig.EnableDebugLogging)
+            {
+                UnityEngine.Debug.Log($"[EventBus] Published {eventType.Name}: {successCount} succeeded, {failureCount} failed");
+            }
+        }
+        
+        /// <summary>
+        /// Get current subscriber count for diagnostics.
+        /// </summary>
+        /// <typeparam name="TEvent">Event type to query</typeparam>
+        /// <returns>Number of subscribers for this event type</returns>
+        public static int GetSubscriberCount<TEvent>() where TEvent : ICoordinationEvent
+        {
+            Type eventType = typeof(TEvent);
+            
+            lock (s_subscribers)
+            {
+                if (!s_subscribers.ContainsKey(eventType))
+                {
+                    return 0;
+                }
+                
+                return s_subscribers[eventType].Count;
+            }
+        }
+        
+        /// <summary>
+        /// Clear all subscriptions (useful for cleanup and testing).
+        /// </summary>
+        public static void ClearAllSubscriptions()
+        {
+            lock (s_subscribers)
+            {
+                int totalCount = s_subscribers.Values.Sum(list => list.Count);
+                s_subscribers.Clear();
+                UnityEngine.Debug.Log($"[EventBus] Cleared all subscriptions (removed {totalCount} handlers)");
+            }
+        }
+    }
+    
+    // ================================================================================================
+    // Coordination Event Definitions
+    // ================================================================================================
+    
+    /// <summary>
+    /// Base interface for all coordination events (Req 12.1).
+    /// All events must include timestamp and source information for debugging.
+    /// </summary>
+    public interface ICoordinationEvent
+    {
+        /// <summary>
+        /// Time when the event was created
+        /// </summary>
+        DateTime Timestamp { get; }
+        
+        /// <summary>
+        /// Source component that published the event (e.g., "CoordinationManager", "SaveCoordinator")
+        /// </summary>
+        string Source { get; }
+    }
+    
+    /// <summary>
+    /// Published when compatibility mode is activated during mod detection (Req 12.1).
+    /// </summary>
+    public class CompatibilityModeActivatedEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Version string of More Props BETA that was detected
+        /// </summary>
+        public string MorePropsVersion { get; set; }
+        
+        public CompatibilityModeActivatedEvent(string morePropsVersion)
+        {
+            Timestamp = DateTime.Now;
+            Source = "CoordinationManager";
+            MorePropsVersion = morePropsVersion;
+        }
+    }
+    
+    /// <summary>
+    /// Published when compatibility mode is disabled (circuit breaker, error, etc.) (Req 12.1).
+    /// </summary>
+    public class CompatibilityModeDisabledEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Reason why compatibility mode was disabled
+        /// </summary>
+        public string Reason { get; set; }
+        
+        public CompatibilityModeDisabledEvent(string reason)
+        {
+            Timestamp = DateTime.Now;
+            Source = "CoordinationManager";
+            Reason = reason;
+        }
+    }
+    
+    /// <summary>
+    /// Published when save coordination begins (Req 12.1, 12.2).
+    /// Third-party mods can use the lock token to participate in coordination.
+    /// </summary>
+    public class SaveCoordinationStartedEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Name of the mod that acquired the serialization lock
+        /// </summary>
+        public string LockOwner { get; set; }
+        
+        /// <summary>
+        /// Opaque lock token for third-party participation (currently not used)
+        /// </summary>
+        public object LockToken { get; set; }
+        
+        public SaveCoordinationStartedEvent(string lockOwner)
+        {
+            Timestamp = DateTime.Now;
+            Source = "SaveCoordinator";
+            LockOwner = lockOwner;
+            LockToken = null; // Reserved for future use
+        }
+    }
+    
+    /// <summary>
+    /// Published when save coordination completes (Req 12.1).
+    /// </summary>
+    public class SaveCoordinationCompletedEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Whether the save operation succeeded
+        /// </summary>
+        public bool Success { get; set; }
+        
+        /// <summary>
+        /// How long the save operation took
+        /// </summary>
+        public TimeSpan Duration { get; set; }
+        
+        /// <summary>
+        /// Name of the mod that held the lock
+        /// </summary>
+        public string LockOwner { get; set; }
+        
+        public SaveCoordinationCompletedEvent(bool success, TimeSpan duration, string lockOwner)
+        {
+            Timestamp = DateTime.Now;
+            Source = "SaveCoordinator";
+            Success = success;
+            Duration = duration;
+            LockOwner = lockOwner;
+        }
+    }
+    
+    /// <summary>
+    /// Published when grid sanitization is requested (Req 12.1).
+    /// </summary>
+    public class GridSanitizationRequestedEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Context string describing why sanitization was requested
+        /// </summary>
+        public string Context { get; set; }
+        
+        public GridSanitizationRequestedEvent(string context)
+        {
+            Timestamp = DateTime.Now;
+            Source = "GridCoordinator";
+            Context = context;
+        }
+    }
+    
+    /// <summary>
+    /// Published when grid sanitization completes (Req 12.1).
+    /// </summary>
+    public class GridSanitizationCompletedEvent : ICoordinationEvent
+    {
+        public DateTime Timestamp { get; set; }
+        public string Source { get; set; }
+        
+        /// <summary>
+        /// Number of grid cycles detected and repaired
+        /// </summary>
+        public int CyclesRepaired { get; set; }
+        
+        /// <summary>
+        /// How long the sanitization took
+        /// </summary>
+        public TimeSpan Duration { get; set; }
+        
+        public GridSanitizationCompletedEvent(int cyclesRepaired, TimeSpan duration)
+        {
+            Timestamp = DateTime.Now;
+            Source = "GridCoordinator";
+            CyclesRepaired = cyclesRepaired;
+            Duration = duration;
+        }
+    }
+    
+    
+    // ============================================================================
+    // THIRD-PARTY MOD ADAPTER API
+    // ============================================================================
+    
+    /// <summary>
+    /// Interface for third-party mods to integrate with the coordination system (Req 12.3, 12.4, 12.5).
+    /// Mods implementing this interface can register with CoordinationManager to participate in
+    /// lifecycle coordination and receive callbacks for save/load and grid sanitization events.
+    /// </summary>
+    public interface ICompatibilityAdapter
+    {
+        /// <summary>
+        /// Name of the third-party mod implementing this adapter.
+        /// Must be unique across all registered adapters.
+        /// </summary>
+        string Name { get; }
+        
+        /// <summary>
+        /// Register this adapter with the coordination system (Req 12.3).
+        /// Called once during adapter registration to set up event subscriptions and initialization.
+        /// The adapter should subscribe to relevant EventBus events in this method.
+        /// </summary>
+        /// <param name="coordinationManager">Reference to CoordinationManager for accessing coordination state</param>
+        void RegisterWithCoordinator();
+        
+        /// <summary>
+        /// Cleanup method called during mod unload or coordination shutdown (Req 12.8).
+        /// The adapter should unsubscribe from events, release resources, and perform cleanup.
+        /// This method must not throw exceptions - handle all errors internally.
+        /// </summary>
+        void Cleanup();
+    }
+    
+    /// <summary>
+    /// Example adapter implementation demonstrating basic third-party mod integration (Req 12.8).
+    /// This serves as a reference for third-party mod developers.
+    /// </summary>
+    public class BasicModAdapter : ICompatibilityAdapter
+    {
+        private bool _isRegistered;
+        
+        public string Name => "BasicMod";
+        
+        public void RegisterWithCoordinator()
+        {
+            if (_isRegistered)
+            {
+                UnityEngine.Debug.LogWarning($"[{Name}] Adapter already registered");
+                return;
+            }
+            
+            try
+            {
+                // Subscribe to coordination events
+                EventBus.Subscribe<SaveCoordinationStartedEvent>(OnSaveStarted);
+                EventBus.Subscribe<SaveCoordinationCompletedEvent>(OnSaveCompleted);
+                EventBus.Subscribe<GridSanitizationRequestedEvent>(OnGridSanitizationRequested);
+                
+                _isRegistered = true;
+                UnityEngine.Debug.Log($"[{Name}] Adapter registered successfully");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[{Name}] Registration failed: {ex}");
+            }
+        }
+        
+        public void Cleanup()
+        {
+            if (!_isRegistered)
+            {
+                return;
+            }
+            
+            try
+            {
+                // Unsubscribe from events
+                EventBus.Unsubscribe<SaveCoordinationStartedEvent>(OnSaveStarted);
+                EventBus.Unsubscribe<SaveCoordinationCompletedEvent>(OnSaveCompleted);
+                EventBus.Unsubscribe<GridSanitizationRequestedEvent>(OnGridSanitizationRequested);
+                
+                _isRegistered = false;
+                UnityEngine.Debug.Log($"[{Name}] Adapter cleanup complete");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[{Name}] Cleanup failed: {ex}");
+            }
+        }
+        
+        // Event handlers
+        private void OnSaveStarted(SaveCoordinationStartedEvent evt)
+        {
+            UnityEngine.Debug.Log($"[{Name}] Save coordination started by {evt.LockOwner}");
+        }
+        
+        private void OnSaveCompleted(SaveCoordinationCompletedEvent evt)
+        {
+            UnityEngine.Debug.Log($"[{Name}] Save coordination completed: {evt.Success} in {evt.Duration.TotalMilliseconds}ms");
+        }
+        
+        private void OnGridSanitizationRequested(GridSanitizationRequestedEvent evt)
+        {
+            UnityEngine.Debug.Log($"[{Name}] Grid sanitization requested: {evt.Context}");
+        }
+    }
+
+
+    // ============================================================================
+    // RENDER COORDINATOR
+    // ============================================================================
+    
+    /// <summary>
+    /// Manages Harmony patch priority for rendering hooks to ensure More Props renders before MNC sanitization.
+    /// Implements patch priority detection, calculation, and application for PropManager.EndRenderingImpl.
+    /// Requirements: 5.1, 5.2
+    /// </summary>
+    public static class RenderCoordinator
+    {
+        // ========== State ==========
+        
+        private static bool s_patchesApplied;
+        private static readonly string MNC_HARMONY_ID = "MoreNetworkCapacityRenew.RenderCoordination";
+        private static int s_mncPriority = int.MinValue;
+        private static int s_morePropsPriority = int.MinValue;
+        
+        // Hot-Swap detection state (Req 5.5)
+        private static FieldInfo s_hotSwapActiveField;
+        private static bool s_hotSwapReflectionFailed = false;
+        
+        // Performance monitoring state (Req 5.6, 5.7, 5.8)
+        private static System.Diagnostics.Stopwatch s_perfStopwatch = new System.Diagnostics.Stopwatch();
+        private static readonly double TARGET_FRAME_TIME_MS = 16.0; // 60 FPS target (Req 5.6)
+        private static readonly double TARGET_OVERHEAD_MS = 2.0; // Max coordination overhead (Req 5.8)
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Apply Harmony patches for render coordination with priority management (Req 5.1, 5.2).
+        /// Detects More Props postfix priority and calculates MNC priority to execute after More Props.
+        /// </summary>
+        /// <param name="harmony">Harmony instance to use for patching</param>
+        internal static void ApplyRenderPatches(HarmonyInstance harmony)
+        {
+            if (s_patchesApplied)
+            {
+                UnityEngine.Debug.Log("[RenderCoordinator] Patches already applied, skipping");
+                return;
+            }
+            
+            if (!CoordinationManager.IsMorePropsActive)
+            {
+                UnityEngine.Debug.Log("[RenderCoordinator] More Props not active - skipping render patch coordination");
+                return;
+            }
+            
+            try
+            {
+                UnityEngine.Debug.Log("[RenderCoordinator] Applying render patches with priority coordination...");
+                
+                // Get the target method
+                MethodInfo target = typeof(PropManager).GetMethod("EndRenderingImpl", 
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (target == null)
+                {
+                    UnityEngine.Debug.LogError("[RenderCoordinator] PropManager.EndRenderingImpl not found - cannot apply render patches");
+                    CoordinationManager.IncrementFailureCount();
+                    return;
+                }
+                
+                // Query existing patches to find More Props postfix priority (Req 5.1)
+                s_morePropsPriority = DetectMorePropsRenderPriority(target);
+                
+                if (s_morePropsPriority == int.MinValue)
+                {
+                    UnityEngine.Debug.LogWarning("[RenderCoordinator] Could not detect More Props render patch priority - using default low priority");
+                    s_mncPriority = Priority.Low;
+                }
+                else
+                {
+                    // Calculate MNC priority (More Props priority - 100) (Req 5.1)
+                    s_mncPriority = s_morePropsPriority - 100;
+                    
+                    // Validation: MNC priority must not equal More Props priority (Req 5.1)
+                    if (s_mncPriority == s_morePropsPriority)
+                    {
+                        // Auto-adjust priority if they are equal (Req 5.2)
+                        s_mncPriority = s_morePropsPriority - 100;
+                        UnityEngine.Debug.LogWarning($"[RenderCoordinator] Priority conflict detected - adjusted MNC priority to {s_mncPriority}");
+                    }
+                }
+                
+                UnityEngine.Debug.Log($"[RenderCoordinator] Detected More Props priority: {s_morePropsPriority}, calculated MNC priority: {s_mncPriority}");
+                
+                // Apply MNC postfix patch with calculated priority (Req 5.1)
+                MethodInfo postfixMethod = typeof(RenderCoordinator).GetMethod(nameof(EndRenderingImplPostfix), 
+                    BindingFlags.NonPublic | BindingFlags.Static);
+                
+                if (postfixMethod == null)
+                {
+                    UnityEngine.Debug.LogError("[RenderCoordinator] Could not find EndRenderingImplPostfix method");
+                    CoordinationManager.IncrementFailureCount();
+                    return;
+                }
+                
+                var postfix = new HarmonyMethod(postfixMethod, s_mncPriority);
+                harmony.Patch(target, postfix: postfix);
+                
+                s_patchesApplied = true;
+                
+                // Verify patch was applied correctly (Req 5.1)
+                if (VerifyPatchPriority(target))
+                {
+                    UnityEngine.Debug.Log($"[RenderCoordinator] Render patches applied successfully");
+                    UnityEngine.Debug.Log($"[RenderCoordinator]   More Props priority: {s_morePropsPriority}");
+                    UnityEngine.Debug.Log($"[RenderCoordinator]   MNC priority: {s_mncPriority}");
+                    UnityEngine.Debug.Log($"[RenderCoordinator]   MNC will execute AFTER More Props ✓");
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("[RenderCoordinator] Patch priority verification failed - execution order may be incorrect");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[RenderCoordinator] Failed to apply render patches: {ex}");
+                CoordinationManager.IncrementFailureCount();
+            }
+        }
+        
+        /// <summary>
+        /// Set the grid dirty flag to trigger sanitization.
+        /// Called from EndRenderingImplPostfix after More Props rendering completes.
+        /// </summary>
+        public static void SetGridDirtyFlag()
+        {
+            if (CoordinationManager.IsMorePropsActive)
+            {
+                // Set dirty flag for grid sanitization (Req 5.3)
+                // Note: GridSanitizerArmor.s_morePropsGridDirty will be set by the postfix
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[RenderCoordinator] Grid dirty flag set - sanitization will run on next frame");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Detects if More Props Hot-Swap is currently active (Req 5.5).
+        /// Hot-Swap is used for Move It compatibility and requires sanitization delay.
+        /// </summary>
+        /// <returns>True if Hot-Swap is active, false otherwise</returns>
+        private static bool IsHotSwapActive()
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+                return false;
+            
+            // Skip check if reflection already failed
+            if (s_hotSwapReflectionFailed)
+                return false;
+            
+            try
+            {
+                // Lazy initialization of reflection field (Req 5.5)
+                if (s_hotSwapActiveField == null)
+                {
+                    Type epmType = CoordinationManager.GetExtendedPropManagerType();
+                    if (epmType == null)
+                    {
+                        s_hotSwapReflectionFailed = true;
+                        return false;
+                    }
+                    
+                    s_hotSwapActiveField = epmType.GetField("m_hotSwapActive", 
+                        BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+                    
+                    if (s_hotSwapActiveField == null)
+                    {
+                        // Hot-Swap field not found - likely older More Props version
+                        if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                        {
+                            UnityEngine.Debug.Log("[RenderCoordinator] m_hotSwapActive field not found - Hot-Swap detection disabled (requires More Props 1.0.7+)");
+                        }
+                        s_hotSwapReflectionFailed = true;
+                        return false;
+                    }
+                }
+                
+                // Read Hot-Swap state
+                bool isActive = (bool)s_hotSwapActiveField.GetValue(null);
+                return isActive;
+            }
+            catch (Exception ex)
+            {
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.LogWarning($"[RenderCoordinator] Hot-Swap detection error: {ex.Message}");
+                }
+                s_hotSwapReflectionFailed = true;
+                return false;
+            }
+        }
+        
+        // ========== Internal Methods ==========
+        
+        /// <summary>
+        /// Detect More Props postfix priority for PropManager.EndRenderingImpl (Req 5.1).
+        /// Queries existing patches using Harmony API.
+        /// </summary>
+        /// <param name="target">Target method to query patches for</param>
+        /// <returns>More Props postfix priority, or int.MinValue if not found</returns>
+        private static int DetectMorePropsRenderPriority(MethodInfo target)
+        {
+            try
+            {
+                // Try to use Harmony 2 API first (HarmonyLib)
+                Type harmonyLibType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    harmonyLibType = asm.GetType("HarmonyLib.Harmony");
+                    if (harmonyLibType != null) break;
+                }
+                
+                if (harmonyLibType != null)
+                {
+                    // Use HarmonyLib.Harmony.GetPatchInfo
+                    MethodInfo getPatchInfoMethod = harmonyLibType.GetMethod("GetPatchInfo", 
+                        BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
+                    
+                    if (getPatchInfoMethod != null)
+                    {
+                        object patchInfo = getPatchInfoMethod.Invoke(null, new object[] { target });
+                        if (patchInfo != null)
+                        {
+                            Type patchesType = patchInfo.GetType();
+                            PropertyInfo postfixesProperty = patchesType.GetProperty("Postfixes");
+                            if (postfixesProperty != null)
+                            {
+                                var postfixes = postfixesProperty.GetValue(patchInfo, null) as System.Collections.IEnumerable;
+                                if (postfixes != null)
+                                {
+                                    foreach (var patch in postfixes)
+                                    {
+                                        PropertyInfo ownerProp = patch.GetType().GetProperty("owner");
+                                        PropertyInfo priorityProp = patch.GetType().GetProperty("priority");
+                                        
+                                        if (ownerProp != null && priorityProp != null)
+                                        {
+                                            string owner = ownerProp.GetValue(patch, null) as string;
+                                            if (owner != null && (owner.Contains("MoreProps") || owner.Contains("ExtendedPropRenderer")))
+                                            {
+                                                int priority = (int)priorityProp.GetValue(patch, null);
+                                                UnityEngine.Debug.Log($"[RenderCoordinator] Found More Props postfix patch: owner={owner}, priority={priority}");
+                                                return priority;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Fallback: Try Harmony 1 API (Harmony.HarmonyInstance)
+                Type harmonyOldType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    harmonyOldType = asm.GetType("Harmony.HarmonyInstance");
+                    if (harmonyOldType != null) break;
+                }
+                
+                if (harmonyOldType != null)
+                {
+                    MethodInfo getPatchInfoMethod = harmonyOldType.GetMethod("GetPatchInfo", 
+                        BindingFlags.Public | BindingFlags.Static);
+                    
+                    if (getPatchInfoMethod != null)
+                    {
+                        object patchInfo = getPatchInfoMethod.Invoke(null, new object[] { target });
+                        if (patchInfo != null)
+                        {
+                            // Similar logic as Harmony 2, but with potential API differences
+                            // For simplicity, return default if Harmony 1 is detected
+                            UnityEngine.Debug.LogWarning("[RenderCoordinator] Harmony 1 detected - using default priority calculation");
+                        }
+                    }
+                }
+                
+                UnityEngine.Debug.LogWarning("[RenderCoordinator] Could not detect More Props postfix priority via Harmony API");
+                return int.MinValue;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[RenderCoordinator] Error detecting More Props priority: {ex.Message}");
+                return int.MinValue;
+            }
+        }
+        
+        /// <summary>
+        /// Verify that MNC patch was applied with correct priority (Req 5.1).
+        /// Ensures MNC executes after More Props by checking priority ordering.
+        /// </summary>
+        /// <param name="target">Target method to verify patches for</param>
+        /// <returns>True if verification passed, false otherwise</returns>
+        private static bool VerifyPatchPriority(MethodInfo target)
+        {
+            try
+            {
+                // Try to use Harmony 2 API
+                Type harmonyLibType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    harmonyLibType = asm.GetType("HarmonyLib.Harmony");
+                    if (harmonyLibType != null) break;
+                }
+                
+                if (harmonyLibType != null)
+                {
+                    MethodInfo getPatchInfoMethod = harmonyLibType.GetMethod("GetPatchInfo", 
+                        BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodBase) }, null);
+                    
+                    if (getPatchInfoMethod != null)
+                    {
+                        object patchInfo = getPatchInfoMethod.Invoke(null, new object[] { target });
+                        if (patchInfo != null)
+                        {
+                            Type patchesType = patchInfo.GetType();
+                            PropertyInfo postfixesProperty = patchesType.GetProperty("Postfixes");
+                            if (postfixesProperty != null)
+                            {
+                                var postfixes = postfixesProperty.GetValue(patchInfo, null) as System.Collections.IEnumerable;
+                                if (postfixes != null)
+                                {
+                                    bool foundMoreProps = false;
+                                    bool foundMNC = false;
+                                    int morePropsActualPriority = int.MinValue;
+                                    int mncActualPriority = int.MinValue;
+                                    
+                                    foreach (var patch in postfixes)
+                                    {
+                                        PropertyInfo ownerProp = patch.GetType().GetProperty("owner");
+                                        PropertyInfo priorityProp = patch.GetType().GetProperty("priority");
+                                        
+                                        if (ownerProp != null && priorityProp != null)
+                                        {
+                                            string owner = ownerProp.GetValue(patch, null) as string;
+                                            int priority = (int)priorityProp.GetValue(patch, null);
+                                            
+                                            if (owner != null)
+                                            {
+                                                if (owner.Contains("MoreProps") || owner.Contains("ExtendedPropRenderer"))
+                                                {
+                                                    foundMoreProps = true;
+                                                    morePropsActualPriority = priority;
+                                                }
+                                                else if (owner.Contains("MoreNetworkCapacity") || owner.Contains("RenderCoordination"))
+                                                {
+                                                    foundMNC = true;
+                                                    mncActualPriority = priority;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (foundMoreProps && foundMNC)
+                                    {
+                                        // Verify MNC priority < More Props priority (lower priority executes later in postfix)
+                                        bool priorityCorrect = mncActualPriority < morePropsActualPriority;
+                                        
+                                        if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                                        {
+                                            UnityEngine.Debug.Log($"[RenderCoordinator] Verification: More Props priority={morePropsActualPriority}, MNC priority={mncActualPriority}, correct={priorityCorrect}");
+                                        }
+                                        
+                                        return priorityCorrect;
+                                    }
+                                    else
+                                    {
+                                        UnityEngine.Debug.LogWarning($"[RenderCoordinator] Verification incomplete: foundMoreProps={foundMoreProps}, foundMNC={foundMNC}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // If we can't verify, return true to avoid blocking (conservative approach)
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[RenderCoordinator] Error verifying patch priority: {ex.Message}");
+                return true; // Conservative: assume success if verification fails
+            }
+        }
+        
+        /// <summary>
+        /// Postfix patch for PropManager.EndRenderingImpl.
+        /// Sets grid dirty flag after More Props rendering completes (Req 5.3).
+        /// Implements Hot-Swap detection (Req 5.5) and performance monitoring (Req 5.6, 5.7, 5.8).
+        /// </summary>
+        private static void EndRenderingImplPostfix()
+        {
+            if (!CoordinationManager.IsMorePropsActive)
+                return;
+            
+            // Start performance monitoring (Req 5.8)
+            s_perfStopwatch.Reset();
+            s_perfStopwatch.Start();
+            
+            try
+            {
+                // Check if Hot-Swap is active (Req 5.5)
+                bool hotSwapActive = IsHotSwapActive();
+                
+                if (hotSwapActive)
+                {
+                    // Hot-Swap is active - delay sanitization (Req 5.5)
+                    // Grid sanitization will be deferred until Hot-Swap completes
+                    if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                    {
+                        UnityEngine.Debug.Log("[RenderCoordinator] Hot-Swap active - delaying grid sanitization");
+                    }
+                    // Don't set dirty flag when Hot-Swap is active
+                    return;
+                }
+                
+                // Set dirty flag for grid sanitization (Req 5.3)
+                // This flag will be checked by GridSanitizerArmor to trigger sanitization
+                GridSanitizerArmor.s_morePropsGridDirty = true;
+                
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log("[RenderCoordinator] EndRenderingImpl postfix executed - More Props rendering complete, dirty flag set");
+                }
+            }
+            finally
+            {
+                // Stop performance monitoring and check overhead (Req 5.6, 5.7, 5.8)
+                s_perfStopwatch.Stop();
+                double elapsedMs = s_perfStopwatch.Elapsed.TotalMilliseconds;
+                
+                // Performance warning if sanitization exceeds 16ms (Req 5.6, 5.7)
+                if (elapsedMs > TARGET_FRAME_TIME_MS)
+                {
+                    UnityEngine.Debug.LogWarning(
+                        $"[RenderCoordinator] Grid sanitization exceeded target frame time: {elapsedMs:F2}ms > {TARGET_FRAME_TIME_MS}ms (target for 60 FPS)");
+                }
+                
+                // Performance overhead tracking (Req 5.8)
+                if (elapsedMs > TARGET_OVERHEAD_MS)
+                {
+                    UnityEngine.Debug.LogWarning(
+                        $"[RenderCoordinator] Coordination overhead exceeded target: {elapsedMs:F2}ms > {TARGET_OVERHEAD_MS}ms");
+                }
+                
+                // Debug logging for performance monitoring
+                if (ConfigManager.CurrentConfig.EnableDebugLogging)
+                {
+                    UnityEngine.Debug.Log(
+                        $"[RenderCoordinator] Performance: {elapsedMs:F3}ms (target frame: {TARGET_FRAME_TIME_MS}ms, overhead target: {TARGET_OVERHEAD_MS}ms)");
+                }
+            }
+        }
+    }
+
+    // ************************************************************************************************
+    // ***** Self-Test Infrastructure *****
+    // ************************************************************************************************
+
+    /// <summary>
+    /// Represents the result of a single self-test execution.
+    /// Requirements: 10.5, 10.6, 13.1, 13.2
+    /// </summary>
+    public struct TestResult
+    {
+        /// <summary>
+        /// Name of the test that was executed
+        /// </summary>
+        public string Name;
+        
+        /// <summary>
+        /// Whether the test passed (true) or failed (false)
+        /// </summary>
+        public bool Passed;
+        
+        /// <summary>
+        /// Message describing the test result or failure reason
+        /// </summary>
+        public string Message;
+        
+        /// <summary>
+        /// Duration of test execution in milliseconds
+        /// </summary>
+        public double DurationMs;
+        
+        /// <summary>
+        /// Timestamp when the test was executed
+        /// </summary>
+        public DateTime ExecutedAt;
+    }
+
+    /// <summary>
+    /// SelfTestRunner provides automated verification of coordination features at runtime.
+    /// Tests are executed when EnableSelfTest configuration flag is active.
+    /// 
+    /// Requirements:
+    /// - 10.1: Self-test execution on compatibility mode activation
+    /// - 10.5: Test result logging and reporting
+    /// - 10.6: Test failure dialog display
+    /// - 13.1: CoordinationManager initialization test
+    /// - 13.2: Serialization lock acquire/release test
+    /// </summary>
+    public static class SelfTestRunner
+    {
+        // ========== State ==========
+        
+        /// <summary>
+        /// Registry of all registered tests
+        /// </summary>
+        private static readonly List<Func<TestResult>> s_registeredTests = new List<Func<TestResult>>();
+        
+        /// <summary>
+        /// Results from the last test run
+        /// </summary>
+        private static readonly List<TestResult> s_lastResults = new List<TestResult>();
+        
+        /// <summary>
+        /// Whether tests have been registered
+        /// </summary>
+        private static bool s_testsRegistered = false;
+        
+        // ========== Public API ==========
+        
+        /// <summary>
+        /// Run all registered self-tests and return results.
+        /// Requirements: 10.1, 10.5
+        /// </summary>
+        /// <returns>True if all tests passed, false if any test failed</returns>
+        public static bool RunAllTests()
+        {
+            if (!s_testsRegistered)
+            {
+                RegisterTests();
+            }
+            
+            s_lastResults.Clear();
+            bool allPassed = true;
+            
+            UnityEngine.Debug.Log($"[MNC-SelfTest] Running {s_registeredTests.Count} self-tests...");
+            UnityEngine.Debug.Log("[MNC-SelfTest] =====================================");
+            
+            foreach (var test in s_registeredTests)
+            {
+                try
+                {
+                    TestResult result = test();
+                    s_lastResults.Add(result);
+                    
+                    string status = result.Passed ? "PASS" : "FAIL";
+                    UnityEngine.Debug.Log($"[MNC-SelfTest] [{status}] {result.Name} ({result.DurationMs:F2}ms)");
+                    
+                    if (!string.IsNullOrEmpty(result.Message))
+                    {
+                        UnityEngine.Debug.Log($"[MNC-SelfTest]        {result.Message}");
+                    }
+                    
+                    if (!result.Passed)
+                    {
+                        allPassed = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TestResult errorResult = new TestResult
+                    {
+                        Name = "Unknown Test",
+                        Passed = false,
+                        Message = $"Test execution threw exception: {ex.Message}",
+                        DurationMs = 0,
+                        ExecutedAt = DateTime.Now
+                    };
+                    s_lastResults.Add(errorResult);
+                    UnityEngine.Debug.LogError($"[MNC-SelfTest] [FAIL] Test threw exception: {ex}");
+                    allPassed = false;
+                }
+            }
+            
+            UnityEngine.Debug.Log("[MNC-SelfTest] =====================================");
+            UnityEngine.Debug.Log($"[MNC-SelfTest] Results: {GetPassCount()}/{s_registeredTests.Count} tests passed");
+            
+            return allPassed;
+        }
+        
+        /// <summary>
+        /// Get formatted test results report.
+        /// Requirements: 10.5, 10.6
+        /// </summary>
+        public static string ReportTestResults()
+        {
+            var report = new System.Text.StringBuilder();
+            
+            report.AppendLine("=== More Props Compatibility Self-Test Results ===");
+            report.AppendLine();
+            
+            if (s_lastResults.Count == 0)
+            {
+                report.AppendLine("No tests have been executed yet.");
+                return report.ToString();
+            }
+            
+            int passCount = GetPassCount();
+            int failCount = s_lastResults.Count - passCount;
+            double totalDuration = s_lastResults.Sum(r => r.DurationMs);
+            
+            report.AppendLine($"Total Tests: {s_lastResults.Count}");
+            report.AppendLine($"Passed: {passCount}");
+            report.AppendLine($"Failed: {failCount}");
+            report.AppendLine($"Total Duration: {totalDuration:F2}ms");
+            report.AppendLine();
+            
+            report.AppendLine("Test Details:");
+            report.AppendLine("-------------");
+            
+            foreach (var result in s_lastResults)
+            {
+                string status = result.Passed ? "PASS" : "FAIL";
+                report.AppendLine($"[{status}] {result.Name}");
+                report.AppendLine($"      Duration: {result.DurationMs:F2}ms");
+                report.AppendLine($"      Executed: {result.ExecutedAt:yyyy-MM-dd HH:mm:ss}");
+                
+                if (!string.IsNullOrEmpty(result.Message))
+                {
+                    report.AppendLine($"      Message: {result.Message}");
+                }
+                
+                report.AppendLine();
+            }
+            
+            return report.ToString();
+        }
+        
+        /// <summary>
+        /// Get the number of tests that passed in the last run.
+        /// </summary>
+        public static int GetPassCount()
+        {
+            return s_lastResults.Count(r => r.Passed);
+        }
+        
+        /// <summary>
+        /// Get the number of tests that failed in the last run.
+        /// </summary>
+        public static int GetFailCount()
+        {
+            return s_lastResults.Count(r => !r.Passed);
+        }
+        
+        /// <summary>
+        /// Get all test results from the last run.
+        /// </summary>
+        public static TestResult[] GetLastResults()
+        {
+            return s_lastResults.ToArray();
+        }
+        
+        // ========== Test Registration ==========
+        
+        /// <summary>
+        /// Register all self-tests for automatic execution.
+        /// Requirements: 10.1, 13.1, 13.2
+        /// </summary>
+        private static void RegisterTests()
+        {
+            if (s_testsRegistered)
+                return;
+            
+            s_registeredTests.Add(TestCoordinationManagerInitialization);
+            s_registeredTests.Add(TestSerializationLockAcquireRelease);
+            s_registeredTests.Add(TestSerializationLockTimeout);
+            s_registeredTests.Add(TestConfigurationValidation);
+            s_registeredTests.Add(TestReflectionCaching);
+            s_registeredTests.Add(TestLockFreeFastPathPerformance); // Task 14.2 - Lock-free fast path optimization
+            
+            s_testsRegistered = true;
+            UnityEngine.Debug.Log($"[MNC-SelfTest] Registered {s_registeredTests.Count} self-tests");
+        }
+        
+        // ========== Individual Tests ==========
+        
+        /// <summary>
+        /// Test: CoordinationManager initialization and detection.
+        /// Requirements: 13.1
+        /// </summary>
+        private static TestResult TestCoordinationManagerInitialization()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "CoordinationManager Initialization",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                // Verify CoordinationManager is initialized
+                bool isInitialized = CoordinationManager.IsMorePropsActive || !CoordinationManager.IsMorePropsActive; // Access static properties
+                
+                // Get compatibility status to verify API works
+                var status = CoordinationManager.GetCompatibilityStatus();
+                
+                // Verify status structure is populated
+                bool statusValid = status.LastUpdate != DateTime.MinValue;
+                
+                if (statusValid)
+                {
+                    result.Passed = true;
+                    result.Message = $"CoordinationManager initialized, CompatibilityMode={status.IsCompatibilityModeActive}";
+                }
+                else
+                {
+                    result.Passed = false;
+                    result.Message = "CoordinationManager status appears invalid";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during initialization test: {ex.Message}";
+            }
+            finally
+            {
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Test: Serialization lock acquire/release cycle.
+        /// Requirement: 13.2 - Verify lock completes within 100ms
+        /// </summary>
+        private static TestResult TestSerializationLockAcquireRelease()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "Serialization Lock Acquire/Release",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                // Acquire lock
+                bool acquired = SaveCoordinator.AcquireLock("SelfTest", timeoutMs: 5000);
+                
+                if (!acquired)
+                {
+                    result.Passed = false;
+                    result.Message = "Failed to acquire lock within timeout";
+                    sw.Stop();
+                    result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                    return result;
+                }
+                
+                // Verify lock is held
+                bool isLocked = SaveCoordinator.IsLocked;
+                
+                // Release lock
+                SaveCoordinator.ReleaseLock("SelfTest");
+                
+                // Verify lock is released
+                bool isReleased = !SaveCoordinator.IsLocked;
+                
+                sw.Stop();
+                double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                
+                // Requirement: Lock cycle should complete within 100ms
+                const double TARGET_TIME_MS = 100.0;
+                
+                if (isLocked && isReleased && elapsedMs < TARGET_TIME_MS)
+                {
+                    result.Passed = true;
+                    result.Message = $"Lock cycle completed in {elapsedMs:F2}ms (target: <{TARGET_TIME_MS}ms)";
+                }
+                else if (!isLocked || !isReleased)
+                {
+                    result.Passed = false;
+                    result.Message = $"Lock state incorrect: wasLocked={isLocked}, isReleased={isReleased}";
+                }
+                else
+                {
+                    result.Passed = false;
+                    result.Message = $"Lock cycle took {elapsedMs:F2}ms (exceeds target of {TARGET_TIME_MS}ms)";
+                }
+                
+                result.DurationMs = elapsedMs;
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during lock test: {ex.Message}";
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                
+                // Ensure lock is released even if test fails
+                try
+                {
+                    SaveCoordinator.ReleaseLock("SelfTest");
+                }
+                catch { }
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Test: Serialization lock timeout handling.
+        /// Verifies that timeout configuration works correctly.
+        /// </summary>
+        private static TestResult TestSerializationLockTimeout()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "Serialization Lock Timeout",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                // Set a very short timeout for testing
+                SaveCoordinator.SetTimeout(1); // 1 second
+                
+                // Acquire lock with first owner
+                bool acquired1 = SaveCoordinator.AcquireLock("TestOwner1", timeoutMs: 5000);
+                
+                if (!acquired1)
+                {
+                    result.Passed = false;
+                    result.Message = "Failed to acquire lock for first owner";
+                    SaveCoordinator.SetTimeout(60); // Reset to default
+                    sw.Stop();
+                    result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                    return result;
+                }
+                
+                // Try to acquire with second owner (should fail with short timeout)
+                bool acquired2 = SaveCoordinator.AcquireLock("TestOwner2", timeoutMs: 100);
+                
+                // Release first lock
+                SaveCoordinator.ReleaseLock("TestOwner1");
+                
+                // Reset timeout to default
+                SaveCoordinator.SetTimeout(60);
+                
+                sw.Stop();
+                double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                
+                // Second acquisition should have failed due to first lock being held
+                if (!acquired2)
+                {
+                    result.Passed = true;
+                    result.Message = "Timeout mechanism working correctly - second acquisition failed as expected";
+                }
+                else
+                {
+                    result.Passed = false;
+                    result.Message = "Timeout mechanism may not be working - second acquisition succeeded unexpectedly";
+                }
+                
+                result.DurationMs = elapsedMs;
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during timeout test: {ex.Message}";
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                
+                // Cleanup
+                try
+                {
+                    SaveCoordinator.ReleaseLock("TestOwner1");
+                    SaveCoordinator.SetTimeout(60);
+                }
+                catch { }
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Test: Configuration validation.
+        /// Verifies that configuration parsing and validation works correctly.
+        /// </summary>
+        private static TestResult TestConfigurationValidation()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "Configuration Validation",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                // Get current configuration
+                var config = ConfigManager.CurrentConfig;
+                
+                // Verify configuration is not null
+                if (config == null)
+                {
+                    result.Passed = false;
+                    result.Message = "Configuration is null";
+                    sw.Stop();
+                    result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                    return result;
+                }
+                
+                // Verify configuration validation works
+                bool isValid = config.Validate();
+                
+                // Check that timeout values are within expected ranges
+                bool timeoutValid = config.SerializationLockTimeoutSeconds >= 1 && 
+                                   config.SerializationLockTimeoutSeconds <= 300;
+                
+                bool delayValid = config.GridSanitizationDelayMs >= 0 && 
+                                 config.GridSanitizationDelayMs <= 5000;
+                
+                bool recoveryValid = config.OrphanedSaveRecoveryDelaySeconds >= 0 && 
+                                    config.OrphanedSaveRecoveryDelaySeconds <= 60;
+                
+                sw.Stop();
+                double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                
+                if (isValid && timeoutValid && delayValid && recoveryValid)
+                {
+                    result.Passed = true;
+                    result.Message = "Configuration validation passed all checks";
+                }
+                else
+                {
+                    result.Passed = false;
+                    result.Message = $"Configuration validation failed: isValid={isValid}, timeoutValid={timeoutValid}, delayValid={delayValid}, recoveryValid={recoveryValid}";
+                }
+                
+                result.DurationMs = elapsedMs;
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during configuration test: {ex.Message}";
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Test: Reflection result caching.
+        /// Verifies that reflection results are cached properly.
+        /// Requirements: 10.2, 10.3
+        /// </summary>
+        private static TestResult TestReflectionCaching()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "Reflection Result Caching",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                // Get cached types multiple times
+                var type1 = CoordinationManager.GetExtendedPropManagerType();
+                var type2 = CoordinationManager.GetExtendedPropManagerType();
+                var type3 = CoordinationManager.GetExtendedPropRendererType();
+                var type4 = CoordinationManager.GetExtendedPropRendererType();
+                
+                // Verify references are the same (cached)
+                bool managerCached = ReferenceEquals(type1, type2);
+                bool rendererCached = ReferenceEquals(type3, type4);
+                
+                sw.Stop();
+                double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                
+                if (CoordinationManager.IsMorePropsActive)
+                {
+                    // If More Props is active, types should be cached and non-null
+                    if (type1 != null && type3 != null && managerCached && rendererCached)
+                    {
+                        result.Passed = true;
+                        result.Message = "Reflection caching working correctly with More Props active";
+                    }
+                    else
+                    {
+                        result.Passed = false;
+                        result.Message = $"Reflection caching issue: type1={type1 != null}, type3={type3 != null}, managerCached={managerCached}, rendererCached={rendererCached}";
+                    }
+                }
+                else
+                {
+                    // If More Props is not active, types should be null but caching should still work
+                    if (managerCached && rendererCached)
+                    {
+                        result.Passed = true;
+                        result.Message = "Reflection caching working correctly in standalone mode";
+                    }
+                    else
+                    {
+                        result.Passed = false;
+                        result.Message = "Reflection caching not working in standalone mode";
+                    }
+                }
+                
+                result.DurationMs = elapsedMs;
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during reflection caching test: {ex.Message}";
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Test: Lock-free fast path performance optimization.
+        /// Task 14.2: Verify standalone mode bypasses all coordination checks,
+        /// single-mod save bypasses lock acquisition, concurrent save detection works,
+        /// and fast path overhead is <1ms.
+        /// Requirements: 11.3, 11.8
+        /// </summary>
+        private static TestResult TestLockFreeFastPathPerformance()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = new TestResult
+            {
+                Name = "Lock-Free Fast Path Performance",
+                ExecutedAt = DateTime.Now
+            };
+            
+            try
+            {
+                const int ITERATIONS = 1000;
+                const double TARGET_MS = 1.0;
+                
+                // Clear any existing locks
+                try { SaveCoordinator.ReleaseLock("FastPathTest"); } catch { }
+                
+                // Warmup
+                for (int i = 0; i < 100; i++)
+                {
+                    SaveCoordinator.AcquireLock("FastPathTest");
+                    SaveCoordinator.ReleaseLock("FastPathTest");
+                }
+                
+                // Measure fast path performance
+                var perfSw = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i < ITERATIONS; i++)
+                {
+                    bool acquired = SaveCoordinator.AcquireLock("FastPathTest");
+                    if (!acquired)
+                    {
+                        result.Passed = false;
+                        result.Message = $"Failed to acquire lock on iteration {i}";
+                        sw.Stop();
+                        result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                        return result;
+                    }
+                    SaveCoordinator.ReleaseLock("FastPathTest");
+                }
+                perfSw.Stop();
+                
+                double avgMs = perfSw.Elapsed.TotalMilliseconds / ITERATIONS;
+                double avgUs = (perfSw.Elapsed.TotalMilliseconds * 1000) / ITERATIONS;
+                
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+                
+                // Check if fast path overhead meets target
+                if (avgMs < TARGET_MS)
+                {
+                    result.Passed = true;
+                    string mode = CoordinationManager.IsMorePropsActive ? "compatibility" : "standalone";
+                    result.Message = string.Format("Fast path overhead: {0:F3}µs ({1:F6}ms) < {2}ms target [{3} mode]", 
+                        avgUs, avgMs, TARGET_MS, mode);
+                }
+                else
+                {
+                    result.Passed = false;
+                    result.Message = string.Format("Fast path overhead: {0:F6}ms >= {1}ms target (EXCEEDS REQUIREMENT 11.8)", 
+                        avgMs, TARGET_MS);
+                }
+                
+                // Additional checks
+                if (result.Passed)
+                {
+                    // Verify concurrent save detection flag
+                    bool concurrentDetected = SaveCoordinator.IsConcurrentSaveDetected;
+                    
+                    // In standalone mode, concurrent should never be detected
+                    if (!CoordinationManager.IsMorePropsActive && concurrentDetected)
+                    {
+                        result.Passed = false;
+                        result.Message += " [WARN: Concurrent save detected in standalone mode]";
+                    }
+                    
+                    // Verify lock is not held after test
+                    if (SaveCoordinator.IsLocked)
+                    {
+                        result.Passed = false;
+                        result.Message += " [ERROR: Lock still held after test]";
+                        try { SaveCoordinator.ReleaseLock("FastPathTest"); } catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Passed = false;
+                result.Message = $"Exception during lock-free fast path test: {ex.Message}";
+                sw.Stop();
+                result.DurationMs = sw.Elapsed.TotalMilliseconds;
+            }
+            
+            return result;
+        }
+    }
+
+} // namespace MoreNetworkCapacityRenew

@@ -1,0 +1,213 @@
+===========================================
+  PerformanceMonitor Test Suite
+===========================================
+
+Test 1: Basic timing tracking
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319
+cant resolve internal call to "UnityEngine.DebugLogHandler::Internal_Log" (tested without signature also)
+
+Your mono runtime and class libraries are out of sync.
+The out of sync library is: /Users/nqocduy/CS_MoreNetworkCapacity_Renew/UnityEngine.dll
+
+When you update one from git you need to update, compile and install
+the other too.
+Do not report this as a bug unless you're sure you have updated correctly:
+you probably have a broken mono install.
+If you see other errors or faults after this message they are probably related
+and you need to fix your mono install first.
+cant resolve internal call to "UnityEngine.DebugLogHandler::Internal_Log" (tested without signature also)
+  ❌ FAILED:  assembly:<unknown assembly> type:<unknown type> member:(null)
+
+Test 2: Multiple operations tracking
+  ❌ FAILED:  assembly:<unknown assembly> type:<unknown type> member:(null)
+
+Test 3: Warning threshold triggering
+  Triggering slow operation (expecting warning log)...
+  ❌ FAILED:  assembly:<unknown assembly> type:<unknown type> member:(null)
+
+Test 4: GetPerformanceMetrics accuracy
+  ❌ FAILED:  assembly:<unknown assembly> type:<unknown type> member:(null)
+
+Test 5: Performance report generation
+  ❌ FAILED:  assembly:<unknown assembly> type:<unknown type> member:(null)
+
+Test 6: Thread safety
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Unhandled Exception:
+System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+[ERROR] FATAL UNHANDLED EXCEPTION: System.MissingMethodException:  assembly:<unknown assembly> type:<unknown type> member:(null)
+  at (wrapper managed-to-native) UnityEngine.DebugLogHandler.Internal_Log(UnityEngine.LogType,string,UnityEngine.Object)
+  at UnityEngine.DebugLogHandler.LogFormat (UnityEngine.LogType logType, UnityEngine.Object context, System.String format, System.Object[] args) [0x0000a] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Logger.Log (UnityEngine.LogType logType, System.Object message) [0x00028] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at UnityEngine.Debug.LogError (System.Object message) [0x00006] in <f0b308b6eb5b493ca98b4f48222d98c8>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.Initialize () [0x00079] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.ConfigManager.get_CurrentConfig () [0x0000a] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor.RecordOperation (System.String operationName, System.Double durationMs, System.Double warningThresholdMs) [0x00095] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at MoreNetworkCapacityRenew.PerformanceMonitor+PerformanceScope.Dispose () [0x0001f] in <8883ce962ce842ccb5fc611190e9558a>:0 
+  at PerformanceMonitorTests.<Test6_ThreadSafety>m__0 () [0x00026] in <cf43a3de862b4f2c9a242e08ce1ddf9e>:0 
+  at System.Threading.ThreadHelper.ThreadStart_Context (System.Object state) [0x00014] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <bab7d1a00376483b944db50cdc31e41d>:0 
+  at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <bab7d1a00376483b944db50cdc31e41d>:0 
+
+Your mono runtime and class libraries are out of sync.
+The out of sync library is: /Users/nqocduy/CS_MoreNetworkCapacity_Renew/UnityEngine.dll
+
+When you update one from git you need to update, compile and install
+the other too.
+Do not report this as a bug unless you're sure you have updated correctly:
+you probably have a broken mono install.
+If you see other errors or faults after this message they are probably related
+and you need to fix your mono install first.

@@ -1,0 +1,57 @@
+========================================
+ConfigManager Test Suite
+========================================
+
+--- Testing SimpleJsonParser ---
+✓ Parse: Contains EnableCoordination key
+✓ Parse: EnableCoordination is true
+✓ Parse: EnableDebugLogging is false
+✓ Parse: Integer value 60
+✓ Parse: Integer value 100
+✓ Stringify: Boolean true
+✓ Stringify: Integer 60
+
+--- Testing Config Round-Trip Property ---
+✓ Round-trip: EnableCoordination
+✓ Round-trip: EnableSaveCoordination
+✓ Round-trip: EnableGridCoordination
+✓ Round-trip: EnableRenderCoordination
+✓ Round-trip: EnableDebugLogging
+✓ Round-trip: EnableSelfTest
+✓ Round-trip: SerializationLockTimeoutSeconds
+✓ Round-trip: GridSanitizationDelayMs
+✓ Round-trip: OrphanedSaveRecoveryDelaySeconds
+✓ Full round-trip: EnableCoordination
+✓ Full round-trip: SerializationLockTimeoutSeconds
+
+--- Testing Config Validation ---
+✓ Validation: Default config is valid
+✓ Validation: Timeout 0 is invalid
+✓ Validation: Timeout 301 is invalid
+✓ Validation: Negative delay is invalid
+✓ Validation: Delay 6000ms is invalid
+✓ Validation: Timeout 1 is valid
+✓ Validation: Timeout 300 is valid
+
+--- Testing Config Defaults ---
+✓ Default: EnableCoordination is true
+✓ Default: EnableSaveCoordination is true
+✓ Default: EnableGridCoordination is true
+✓ Default: EnableRenderCoordination is true
+✓ Default: EnableDebugLogging is false
+✓ Default: EnableSelfTest is false
+✓ Default: SerializationLockTimeoutSeconds is 60
+✓ Default: GridSanitizationDelayMs is 0
+✓ Default: OrphanedSaveRecoveryDelaySeconds is 10
+
+--- Testing Config File Operations ---
+✓ File round-trip: EnableDebugLogging matches
+✓ File round-trip: Timeout matches
+✓ Pretty print: Contains newlines
+✓ Pretty print: Contains indentation
+========================================
+Tests Passed: 38
+Tests Failed: 0
+========================================
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319

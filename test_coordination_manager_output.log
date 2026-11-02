@@ -1,0 +1,26 @@
+=== CoordinationManager Tests ===
+
+Test 1: Assembly scanning for MorePropsBETA/MoreProps
+  ✓ No More Props assembly (expected in standalone mode)
+
+Test 2: Type verification pattern
+  ✓ Types not found (expected in standalone mode)
+
+Test 3: Reflection caching pattern
+  ✓ PropertyInfo cached: Length
+  ✓ Reflection caching pattern validated
+
+Test 4: Circuit breaker pattern
+  ✓ Circuit breaker tripped at failure 5
+  ✓ Circuit breaker pattern validated
+
+Test 5: Version detection pattern
+  ✓ Version detection pattern validated (standalone mode)
+
+=================================
+Tests Passed: 5
+Tests Failed: 0
+Total: 5
+✅ ALL TESTS PASSED!
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319

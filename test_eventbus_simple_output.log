@@ -1,0 +1,36 @@
+EventBus Simple Test Suite
+==========================================
+
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319
+cant resolve internal call to "UnityEngine.DebugLogHandler::Internal_Log" (tested without signature also)
+
+Your mono runtime and class libraries are out of sync.
+The out of sync library is: /Users/nqocduy/CS_MoreNetworkCapacity_Renew/UnityEngine.dll
+
+When you update one from git you need to update, compile and install
+the other too.
+Do not report this as a bug unless you're sure you have updated correctly:
+you probably have a broken mono install.
+If you see other errors or faults after this message they are probably related
+and you need to fix your mono install first.
+cant resolve internal call to "UnityEngine.DebugLogHandler::Internal_Log" (tested without signature also)
+❌ TestBasicSubscribePublish:  assembly:<unknown assembly> type:<unknown type> member:(null)
+❌ TestUnsubscribe:  assembly:<unknown assembly> type:<unknown type> member:(null)
+❌ TestMultipleHandlers:  assembly:<unknown assembly> type:<unknown type> member:(null)
+❌ TestErrorIsolation:  assembly:<unknown assembly> type:<unknown type> member:(null)
+✅ TestEventDataIntegrity
+
+==========================================
+PASSED: 1, FAILED: 4
+❌ Some tests failed
+
+Your mono runtime and class libraries are out of sync.
+The out of sync library is: /Users/nqocduy/CS_MoreNetworkCapacity_Renew/UnityEngine.dll
+
+When you update one from git you need to update, compile and install
+the other too.
+Do not report this as a bug unless you're sure you have updated correctly:
+you probably have a broken mono install.
+If you see other errors or faults after this message they are probably related
+and you need to fix your mono install first.
