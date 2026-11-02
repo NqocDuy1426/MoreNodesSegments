@@ -26,6 +26,12 @@
 [list]
     [*] Introduced clean coordinator layers (Grid, Memory, Lifecycle, Render, EventBus) for optimal stability and memory management.
 [/list]
+[*] [b]Deep More Props BETA Compatibility & Coordination:[/b]
+[list]
+    [*] Full coordination architecture with [b]More Props BETA[/b] (ExtendedPropManager, up to 64K props).
+    [*] Automatic cycle repair ([i]GridSanitizerArmor[/i]) in prop spatial grids, permanently preventing infinite loops and game stalls during load and save.
+    [*] Synchronized Memory, Render, and Save coordination guaranteeing safe persistence.
+[/list]
 [/list]
 
 [hr][/hr]
@@ -84,6 +90,7 @@ Tested and fully compatible with the standard modern modding ecosystem:
 [*] [b]Advanced Vehicle Options[/b]
 [*] [b]More CitizenUnits & More PathUnits[/b] (Universal Dynamic Buffer Guard)
 [*] [b]Universal Mod Harmonizer[/b] (Zero-conflict compatibility for community mods)
+[*] [b]More Props BETA / More Props[/b] (Full Coordination & Grid Cycle Armor)
 [*] [b]Impatient Commuters[/b] (Auto-expanded to 65K stop nodes)
 [/list]
 
@@ -104,6 +111,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.1 Release: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, Pure Vanilla Save Flow & Modular Architecture."
+	"changenote"		"v5.1 Release: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, More Props BETA Compatibility & Vanilla Save Flow."
 }
 

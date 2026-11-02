@@ -1854,10 +1854,10 @@ namespace MoreNetworkCapacityRenew
     {
 #if CLOSE_BETA
         public string Name => "More Nodes/Segments [Close Beta] v5.1 by NgocDuy";
-        public string Description => "[Close Beta v5.1] 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, Pure Vanilla Save Flow & Modular Architecture.";
+        public string Description => "[Close Beta v5.1] 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, More Props BETA Compatibility, Pure Vanilla Save Flow & Modular Architecture.";
 #else
         public string Name => "More Nodes/Segments v5.1 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, 100% native vehicle physics, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()

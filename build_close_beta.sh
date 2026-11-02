@@ -16,7 +16,7 @@ echo "=========================================================="
 # mcs -r:"$CECIL_DLL" run_tests.cs -out:run_tests.exe
 # MONO_PATH=".:$MONO_PATH" mono run_tests.exe
 # echo "✅ Test Suite passed 100%."
-echo "0️⃣ Skipping test suite for quick hotfix build..."
+echo "0️⃣ Skipping test suite for quick build..."
 
 # 1. Compile MoreNodesSegmentsBeta.dll
 echo "1️⃣ Compiling MoreNodesSegmentsBeta.dll..."

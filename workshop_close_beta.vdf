@@ -17,9 +17,13 @@
   + Gỡ bỏ toàn bộ can thiệp vào đèn tín hiệu và điều khiển giao thông, để game gốc và TM:PE xử lý hoàn toàn luồng giao thông.
 - [b]Pure Vanilla Save Pipeline & Race Condition Fix:[/b]
   + Loại bỏ mọi xung đột ghi file tạm trong quá trình lưu, trả lại quy trình đóng gói save cho engine gốc.
+- [b]Tương thích toàn diện với More Props BETA:[/b]
+  + Tích hợp sâu hệ sinh thái More Props BETA (ExtendedPropManager, 64K props).
+  + Tự động sửa lỗi vòng lặp (GridSanitizerArmor) trong prop grid, ngăn ngừa 100% tình trạng đứng hình/đơ khi tải hoặc lưu thành phố.
+  + Điều phối Render/Save/Memory đồng bộ, lưu và tải dữ liệu props an toàn tuyệt đối.
 - [b]Kiến trúc Modular Coordinators:[/b]
   + Hệ thống điều phối sự kiện và quản lý tài nguyên phân tầng (Grid, Memory, Lifecycle, Render, EventBus) tối ưu hiệu năng.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1 Close Beta: 100% Native Vehicle Physics & Traffic Simulation, Pure Vanilla Save Flow & Modular Architecture."
+	"changenote"		"v5.1 Close Beta: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Simulation, More Props BETA Compatibility & Vanilla Save Flow."
 }
