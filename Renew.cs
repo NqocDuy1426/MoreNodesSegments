@@ -1853,11 +1853,11 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.1 by NgocDuy";
-        public string Description => "[Close Beta v5.1.1] Passenger Aircraft Pathfinding & Gate Departure Fix, 100% Native Vehicle Physics & TM:PE Traffic Simulation, More Props BETA Compatibility & Modular Architecture.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.2 by NgocDuy";
+        public string Description => "[Close Beta v5.1.2] High Simulation Performance Armor, IPT3 Disk Log Silencer, Vehicle StackTrace Elimination, Passenger Aircraft Fix & TM:PE 100% Native Physics.";
 #else
-        public string Name => "More Nodes/Segments v5.1.1 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with high simulation FPS, passenger aircraft fix, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Name => "More Nodes/Segments v5.1.2 by NgocDuy";
+        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, performance armor against mod log spam, passenger aircraft fix, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()
@@ -9828,6 +9828,16 @@ namespace MoreNetworkCapacityRenew
 
                 try
                 {
+                    // Vehicle Performance Armor (v5.1.2: suppresses expensive Environment.StackTrace generation in Building.RemoveOwnVehicle/RemoveGuestVehicle)
+                    VehiclePerformanceArmor.Apply(harmony);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] VehiclePerformanceArmor error: " + ex);
+                }
+
+                try
+                {
                     // Game Loading Armor (guards against corrupt saves: negative triggerCount, missing radio station, broken TLM vehicles)
                     GameLoadingArmor.Apply(harmony);
                 }
@@ -15049,6 +15059,18 @@ namespace MoreNetworkCapacityRenew
                                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ImprovedPublicTransport CachedTransportLineData.Init with safety prefix.");
                             }
                         }
+
+                        Type utilsType = asm.GetType("ImprovedPublicTransport.Util.Utils");
+                        if (utilsType != null)
+                        {
+                            MethodInfo logM = utilsType.GetMethod("Log", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object) }, null);
+                            if (logM != null)
+                            {
+                                MethodInfo preLog = typeof(TransportLineCompatibility).GetMethod(nameof(IPT_Utils_Log_Prefix), BindingFlags.Public | BindingFlags.Static);
+                                harmony.Patch(logM, prefix: new HarmonyMethod(preLog));
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched ImprovedPublicTransport.Util.Utils.Log to suppress simulation log spam.");
+                            }
+                        }
                     }
                 }
 
@@ -17748,6 +17770,19 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static bool IPT_Utils_Log_Prefix(object message)
+        {
+            if (message != null)
+            {
+                string s = message.ToString();
+                if (s.StartsWith("CanLeaveStopPatch:") || s.StartsWith("SimulationStepPatch:") || s.StartsWith("IPT: CanLeavePatch"))
+                {
+                    return false; // Suppress high-frequency per-frame public transport debug logging
+                }
+            }
+            return true;
+        }
+
 
         public static bool TransportLineAI_CheckNodeProblems_Prefix(ushort nodeID, ref NetNode data)
         {
@@ -19085,6 +19120,121 @@ namespace MoreNetworkCapacityRenew
             }
             catch { }
             return 0;
+        }
+    }
+
+    // ============================================================================
+    // VEHICLE PERFORMANCE ARMOR (v5.1.2)
+    // Eliminates expensive Environment.StackTrace generation when vehicles are unlinked
+    // from buildings, saving CPU milliseconds on every simulation frame.
+    // ============================================================================
+    internal static class VehiclePerformanceArmor
+    {
+        private static bool s_applied = false;
+
+        public static void Apply(HarmonyInstance harmony)
+        {
+            if (s_applied || harmony == null) return;
+            try
+            {
+                // 1. Building.RemoveOwnVehicle
+                MethodInfo rovMethod = typeof(Building).GetMethod("RemoveOwnVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+                if (rovMethod != null)
+                {
+                    MethodInfo pre = typeof(VehiclePerformanceArmor).GetMethod(nameof(Building_RemoveOwnVehicle_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(rovMethod, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched Building.RemoveOwnVehicle with performance armor.");
+                }
+
+                // 2. Building.RemoveGuestVehicle
+                MethodInfo rgvMethod = typeof(Building).GetMethod("RemoveGuestVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+                if (rgvMethod != null)
+                {
+                    MethodInfo pre = typeof(VehiclePerformanceArmor).GetMethod(nameof(Building_RemoveGuestVehicle_Prefix), BindingFlags.Public | BindingFlags.Static);
+                    harmony.Patch(rgvMethod, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched Building.RemoveGuestVehicle with performance armor.");
+                }
+
+                s_applied = true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] VehiclePerformanceArmor.Apply error: " + ex);
+            }
+        }
+
+        public static bool Building_RemoveOwnVehicle_Prefix(ref Building __instance, ushort vehicleID, ref Vehicle data)
+        {
+            try
+            {
+                VehicleManager vm = Singleton<VehicleManager>.instance;
+                if (vm == null) return true;
+
+                ushort current = __instance.m_ownVehicles;
+                ushort prev = 0;
+                int loop = 0;
+
+                while (current != 0)
+                {
+                    if (current == vehicleID)
+                    {
+                        if (prev != 0)
+                        {
+                            vm.m_vehicles.m_buffer[prev].m_nextOwnVehicle = data.m_nextOwnVehicle;
+                        }
+                        else
+                        {
+                            __instance.m_ownVehicles = data.m_nextOwnVehicle;
+                        }
+                        data.m_nextOwnVehicle = 0;
+                        return false;
+                    }
+                    prev = current;
+                    current = vm.m_vehicles.m_buffer[current].m_nextOwnVehicle;
+                    if (++loop > 16384) break;
+                }
+                data.m_nextOwnVehicle = 0;
+                return false;
+            }
+            catch { }
+            return true;
+        }
+
+        public static bool Building_RemoveGuestVehicle_Prefix(ref Building __instance, ushort vehicleID, ref Vehicle data)
+        {
+            try
+            {
+                VehicleManager vm = Singleton<VehicleManager>.instance;
+                if (vm == null) return true;
+
+                ushort current = __instance.m_guestVehicles;
+                ushort prev = 0;
+                int loop = 0;
+
+                while (current != 0)
+                {
+                    if (current == vehicleID)
+                    {
+                        if (prev != 0)
+                        {
+                            vm.m_vehicles.m_buffer[prev].m_nextGuestVehicle = data.m_nextGuestVehicle;
+                        }
+                        else
+                        {
+                            __instance.m_guestVehicles = data.m_nextGuestVehicle;
+                        }
+                        data.m_nextGuestVehicle = 0;
+                        return false;
+                    }
+                    prev = current;
+                    current = vm.m_vehicles.m_buffer[current].m_nextGuestVehicle;
+                    if (++loop > 16384) break;
+                }
+                data.m_nextGuestVehicle = 0;
+                return false;
+            }
+            catch { }
+            return true;
         }
     }
 
