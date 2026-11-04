@@ -9,7 +9,14 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1:[/h2]
+[h2]Cập nhật Close Beta v5.1.1:[/h2]
+- [b]Khắc phục triệt để sự cố Máy bay Hành khách (Passenger Aircraft Fix):[/b]
+  + [b]Mở rộng bán kính tìm đường (PathFind Search Radius):[/b] Tự động fallback tìm kiếm làn đường máy bay trong bán kính 64m - 256m (thay vì 16m cố định của game gốc), khắc phục tình trạng máy bay hành khách despawn/biến mất ngay khi hạ cánh hoặc không tìm được gate.
+  + [b]Chống kẹt cổng đỗ (Gate Departure Protection):[/b] Tự động chuyển trạng thái khứ hồi (GoingBack) và đón khách quay về Outside Connection khi tới cổng sân bay, ngăn chặn 100% tình trạng máy bay bị kẹt chờ vô hạn (WaitingTarget) rồi biến mất sau 200 ticks.
+  + [b]Tương thích đường bay ngược chiều (Reverse Flight Connection Resolver):[/b] Cập nhật TransportLine.GetNextStop nhận diện cả phân đoạn bay 2 chiều hoặc phân đoạn kết nối sân bay vẽ ngược.
+  + [b]Bọc thép an toàn bộ nhớ (Buffer Safety Armor):[/b] Ngăn ngừa hoàn toàn lỗi IndexOutOfRangeException / NullReferenceException khi máy bay truy cập Building/Node buffer mở rộng.
+
+[h2]Kế thừa từ v5.1:[/h2]
 - [b]100% Native Vehicle Physics & Floating Fix:[/b]
   + Gỡ bỏ hoàn toàn mọi hook can thiệp vị trí và tốc độ xe (VehicleAICommons, CarAI).
   + Khắc phục triệt để lỗi xe bay/lơ lửng, trả lại 100% cơ chế vật lý phương tiện nguyên bản của game.
@@ -25,5 +32,5 @@
   + Hệ thống điều phối sự kiện và quản lý tài nguyên phân tầng (Grid, Memory, Lifecycle, Render, EventBus) tối ưu hiệu năng.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1 Close Beta: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Simulation, More Props BETA Compatibility & Vanilla Save Flow."
+	"changenote"		"v5.1.1 Close Beta: Passenger aircraft pathfinding & gate departure fix, extended search radius fallback, 100% native physics & TM:PE compatibility."
 }
