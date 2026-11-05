@@ -5,8 +5,34 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.1"
-	"description"		"[h1]✨ WHAT'S NEW IN v5.1 ✨[/h1]
+	"title"		"More Nodes/Segments v5.1.2"
+	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.2 🚀[/h1]
+[list]
+[*] [b]High Simulation FPS & Disk I/O Armor:[/b]
+[list]
+    [*] Silenced high-frequency debug log spam from Improved Public Transport 3 (CanLeaveStopPatch), stopping thousands of synchronous disk writes per minute that locked the main thread in large cities.
+[/list]
+[*] [b]Vehicle CPU Performance Armor:[/b]
+[list]
+    [*] Re-architected vehicle unhook handling in Building.RemoveOwnVehicle & Building.RemoveGuestVehicle, permanently eliminating expensive native Environment.StackTrace freezes during vehicle rerouting and depot returns.
+[/list]
+[*] [b]Passenger Aircraft Pathfinding & Gate Departure Fix:[/b]
+[list]
+    [*] Expanded runway-to-gate search radius fallback (from vanilla 16m up to 256m), completely fixing passenger planes despawning immediately upon touchdown.
+    [*] Automatic gate turnaround protection: switches aircraft state to return to outside connections without getting stuck waiting at gates for 200 ticks.
+    [*] Reverse flight connection resolver in TransportLine.GetNextStop.
+[/list]
+[*] [b]Deep More Props BETA Compatibility & Coordination:[/b]
+[list]
+    [*] Full coordination architecture with [b]More Props BETA[/b] (ExtendedPropManager, up to 256K props).
+    [*] Automatic cycle repair ([i]GridSanitizerArmor[/i]) in prop spatial grids, permanently preventing infinite loops and game stalls during load and save.
+    [*] Synchronized Memory, Render, and Save coordination guaranteeing safe persistence.
+[/list]
+[/list]
+
+[hr][/hr]
+
+[h1]✨ WHAT'S NEW IN v5.1 ✨[/h1]
 [list]
 [*] [b]100% Native Vehicle Physics & Floating Vehicle Fix:[/b]
 [list]
@@ -26,17 +52,11 @@
 [list]
     [*] Introduced clean coordinator layers (Grid, Memory, Lifecycle, Render, EventBus) for optimal stability and memory management.
 [/list]
-[*] [b]Deep More Props BETA Compatibility & Coordination:[/b]
-[list]
-    [*] Full coordination architecture with [b]More Props BETA[/b] (ExtendedPropManager, up to 64K props).
-    [*] Automatic cycle repair ([i]GridSanitizerArmor[/i]) in prop spatial grids, permanently preventing infinite loops and game stalls during load and save.
-    [*] Synchronized Memory, Render, and Save coordination guaranteeing safe persistence.
-[/list]
 [/list]
 
 [hr][/hr]
 
-[h1]MORE NODES/SEGMENTS v5.1[/h1]
+[h1]MORE NODES/SEGMENTS v5.1.2[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 
@@ -46,7 +66,7 @@
 Have you ever hit the infamous [b]'Cannot create more objects of this type'[/b] limit while building your dream metropolis?
 Vanilla Cities: Skylines caps your road and transit networks at ~32,000 nodes and segments.
 
-[b]More Nodes/Segments v5.1[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
+[b]More Nodes/Segments v5.1.2[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
 
 Unlike unstable legacy experimental versions that caused fatal crashes and corrupted traffic, [b]More Nodes/Segments[/b] is engineered from the ground up for [b]maximum stability, accurate traffic simulation, and zero data loss.[/b]
 
@@ -111,6 +131,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.1 Release: 100% Native Vehicle Physics & Floating Fix, Pure TM:PE Traffic Simulation, More Props BETA Compatibility & Vanilla Save Flow."
+	"changenote"		"v5.1.2 Official Release: High Simulation Performance Armor, IPT3 disk log suppression, Vehicle StackTrace CPU lag elimination, full sync with More Props BETA v1.0.9-BETA & Passenger Aircraft Pathfinding Fix."
 }
 
