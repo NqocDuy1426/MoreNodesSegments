@@ -9,32 +9,26 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.2:[/h2]
+[h2]Cập nhật Close Beta v5.1.3:[/h2]
+- [b]Bọc thép toàn diện phương tiện công cộng (Universal Public Transport Armor):[/b]
+  + [b]Tàu hoả chở khách & chở hàng, Metro, Monorail:[/b] Mở rộng bán kính tìm đường theo tầng (64m -> 128m -> 256m trong TrainAI.StartPathFind), chấm dứt 100% tình trạng tàu tự biến mất (despawn) tại các ga phức hợp nhiều đường ray ngầm, ga ray trên cao hoặc ga nhiều ke ga (modular stations).
+  + [b]Khắc phục lỗi đến ga & kẹt quay đầu tàu liên tỉnh:[/b] Sửa lỗi xung đột buffer Node vs Building trong PassengerTrainAI.ArriveAtTarget và StartPathFind; tàu liên tỉnh từ Outside Connection đến ga sẽ tìm đúng ke ga và tự động lấy lộ trình quay về ngoài bản đồ, không còn bị kẹt vô hạn ở WaitingTarget rồi biến mất.
+  + [b]Khắc phục lỗi tuyến xe bus & xe buýt điện (Bus & Trolleybus):[/b] Fallback tìm đường nâng cao khi chuyển đổi trạm dừng từ lề đường vào bến xe/ga trung chuyển, khắc phục lỗi mất tuyến hoặc xe bus biến mất khi vào vịnh dừng.
+  + [b]Tàu điện mặt đất (Tram) & Cáp treo:[/b] Tự động fallback bán kính 64m - 256m trong TramBaseAI.StartPathFind, chống kẹt tại các vòng lặp quay đầu hoặc điểm giao cắt ray.
+  + [b]Phà (Ferry) & Tàu thuỷ khách (Passenger Ship):[/b] Mở rộng bán kính tìm đường trên mặt nước (128m -> 512m trong ShipAI và FerryAI), khắc phục tình trạng tàu/phà không rời được cầu cảng hoặc kẹt phao luồng.
+  + [b]Bộ phân giải trạm dừng kế tiếp vạn năng (Universal Next Stop Resolver):[/b] Nâng cấp TransportLine.GetNextStop nhận diện cả phân đoạn 2 chiều, phân đoạn vẽ ngược chiều và liên kết Outside Connection cho mọi loại hình phương tiện.
+
+[h2]Kế thừa từ Close Beta v5.1.2 & v5.1:[/h2]
 - [b]Tối ưu hoá hiệu năng mô phỏng đỉnh cao (Simulation FPS Performance Armor):[/b]
   + [b]Triệt tiêu Log Spam ổ cứng từ IPT3:[/b] Chặn đứng hơn 4.200 log/phút từ Improved Public Transport 3 (CanLeaveStopPatch) ghi tràn file log Player.log, giải phóng nghẽn cổ chai I/O ổ đĩa và giật lag luồng chính Unity.
-  + [b]Loại bỏ triệt để nghẽn CPU StackTrace phương tiện (Vehicle Performance Armor):[/b] Thay thế quy trình unhook xe trùng lặp trong Building.RemoveOwnVehicle và Building.RemoveGuestVehicle, loại bỏ hoàn toàn việc sinh native Environment.StackTrace (tiết kiệm hàng trăm ms CPU mỗi frame trên các thành phố lớn 500K+ dân).
-  + [b]Đồng bộ hoá toàn diện với More Props BETA v1.0.8-BETA:[/b] Tương thích tuyệt đối với renderer mở rộng và culling của More Props.
-
-[h2]Kế thừa từ Close Beta v5.1.1 & v5.1:[/h2]
+  + [b]Loại bỏ triệt để nghẽn CPU StackTrace phương tiện (Vehicle Performance Armor):[/b] Thay thế quy trình unhook xe trùng lặp trong Building.RemoveOwnVehicle và Building.RemoveGuestVehicle, loại bỏ hoàn toàn việc sinh native Environment.StackTrace.
 - [b]Khắc phục triệt để sự cố Máy bay Hành khách (Passenger Aircraft Fix):[/b]
-  + [b]Mở rộng bán kính tìm đường (PathFind Search Radius):[/b] Tự động fallback tìm kiếm làn đường máy bay trong bán kính 64m - 256m (thay vì 16m cố định của game gốc), khắc phục tình trạng máy bay hành khách despawn/biến mất ngay khi hạ cánh hoặc không tìm được gate.
-  + [b]Chống kẹt cổng đỗ (Gate Departure Protection):[/b] Tự động chuyển trạng thái khứ hồi (GoingBack) và đón khách quay về Outside Connection khi tới cổng sân bay, ngăn chặn 100% tình trạng máy bay bị kẹt chờ vô hạn (WaitingTarget) rồi biến mất sau 200 ticks.
-  + [b]Tương thích đường bay ngược chiều (Reverse Flight Connection Resolver):[/b] Cập nhật TransportLine.GetNextStop nhận diện cả phân đoạn bay 2 chiều hoặc phân đoạn kết nối sân bay vẽ ngược.
-  + [b]Bọc thép an toàn bộ nhớ (Buffer Safety Armor):[/b] Ngăn ngừa hoàn toàn lỗi IndexOutOfRangeException / NullReferenceException khi máy bay truy cập Building/Node buffer mở rộng.
-- [b]100% Native Vehicle Physics & Floating Fix:[/b]
-  + Gỡ bỏ hoàn toàn mọi hook can thiệp vị trí và tốc độ xe (VehicleAICommons, CarAI).
-  + Khắc phục triệt để lỗi xe bay/lơ lửng, trả lại 100% cơ chế vật lý phương tiện nguyên bản của game.
-- [b]100% Native Traffic Simulation:[/b]
-  + Gỡ bỏ toàn bộ can thiệp vào đèn tín hiệu và điều khiển giao thông, để game gốc và TM:PE xử lý hoàn toàn luồng giao thông.
-- [b]Pure Vanilla Save Pipeline & Race Condition Fix:[/b]
-  + Loại bỏ mọi xung đột ghi file tạm trong quá trình lưu, trả lại quy trình đóng gói save cho engine gốc.
-- [b]Tương thích toàn diện với More Props BETA:[/b]
-  + Tích hợp sâu hệ sinh thái More Props BETA (ExtendedPropManager, 64K props).
-  + Tự động sửa lỗi vòng lặp (GridSanitizerArmor) trong prop grid, ngăn ngừa 100% tình trạng đứng hình/đơ khi tải hoặc lưu thành phố.
-  + Điều phối Render/Save/Memory đồng bộ, lưu và tải dữ liệu props an toàn tuyệt đối.
-- [b]Kiến trúc Modular Coordinators:[/b]
-  + Hệ thống điều phối sự kiện và quản lý tài nguyên phân tầng (Grid, Memory, Lifecycle, Render, EventBus) tối ưu hiệu năng.
+  + Mở rộng bán kính tìm đường 64m - 256m và chống kẹt cổng đỗ sân bay.
+- [b]100% Native Vehicle Physics & Floating Fix.[/b]
+- [b]100% Native Traffic Simulation (TM:PE).[/b]
+- [b]Pure Vanilla Save Pipeline & Race Condition Fix.[/b]
+- [b]Tương thích toàn diện với More Props BETA & Grid Cycle Armor.[/b]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.2 Close Beta: High Simulation Performance Armor, IPT3 disk log silencer, Vehicle StackTrace CPU lag elimination, full sync with More Props BETA v1.0.8-BETA & Passenger Aircraft Fix."
+	"changenote"		"v5.1.3 Close Beta: Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses), Terminal & Station Stop Resolver, IPT3 Disk Log Silencer & Vehicle StackTrace Elimination."
 }

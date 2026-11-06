@@ -5,58 +5,31 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.1.2"
-	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.2 🚀[/h1]
+	"title"		"More Nodes/Segments v5.1.3"
+	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.3 🚀[/h1]
 [list]
-[*] [b]High Simulation FPS & Disk I/O Armor:[/b]
+[*] [b]Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses):[/b]
 [list]
-    [*] Silenced high-frequency debug log spam from Improved Public Transport 3 (CanLeaveStopPatch), stopping thousands of synchronous disk writes per minute that locked the main thread in large cities.
+    [*] [b]Passenger & Cargo Trains, Metro, Monorail:[/b] Multi-tier progressive pathfind search radius (64m -> 128m -> 256m in TrainAI.StartPathFind), ending instant train despawns at multi-track terminals, sunken tracks, and modular stations.
+    [*] [b]Train Station Arrival & Deadlock Armor:[/b] Fixed PassengerTrainAI.ArriveAtTarget & StartPathFind buffer mismatches; intercity trains now correctly route to station platform nodes and return to outside connections without vanishing or stalling in WaitingTarget.
+    [*] [b]Bus & Trolleybus Station Bay Fix:[/b] Multi-tier fallback radius for buses entering station bays and roadside-to-terminal stop transfers.
+    [*] [b]Trams & Light Rail:[/b] Extended search fallback (64m -> 256m in TramBaseAI.StartPathFind) preventing tram despawns on custom loops and complex turnarounds.
+    [*] [b]Ferries & Passenger Ships:[/b] Progressive water pathfinding fallback (128m -> 512m in ShipAI and FerryAI), eliminating pier departure deadlocks and ship lockups.
+    [*] [b]Universal Next Stop Resolver:[/b] Re-engineered TransportLine.GetNextStop to recognize bidirectional/reverse transport segments and outside connections across all transit types.
 [/list]
-[*] [b]Vehicle CPU Performance Armor:[/b]
+[*] [b]Inherited from v5.1.2 & v5.1:[/b]
 [list]
-    [*] Re-architected vehicle unhook handling in Building.RemoveOwnVehicle & Building.RemoveGuestVehicle, permanently eliminating expensive native Environment.StackTrace freezes during vehicle rerouting and depot returns.
-[/list]
-[*] [b]Passenger Aircraft Pathfinding & Gate Departure Fix:[/b]
-[list]
-    [*] Expanded runway-to-gate search radius fallback (from vanilla 16m up to 256m), completely fixing passenger planes despawning immediately upon touchdown.
-    [*] Automatic gate turnaround protection: switches aircraft state to return to outside connections without getting stuck waiting at gates for 200 ticks.
-    [*] Reverse flight connection resolver in TransportLine.GetNextStop.
-[/list]
-[*] [b]Deep More Props BETA Compatibility & Coordination:[/b]
-[list]
-    [*] Full coordination architecture with [b]More Props BETA[/b] (ExtendedPropManager, up to 256K props).
-    [*] Automatic cycle repair ([i]GridSanitizerArmor[/i]) in prop spatial grids, permanently preventing infinite loops and game stalls during load and save.
-    [*] Synchronized Memory, Render, and Save coordination guaranteeing safe persistence.
+    [*] High Simulation FPS: silenced IPT3 debug log spam.
+    [*] Vehicle Performance Armor: eliminated Environment.StackTrace overhead during vehicle unhooks.
+    [*] Passenger Aircraft Fix: 256m runway-to-gate fallback & gate turnaround armor.
+    [*] 100% Native Vehicle Physics & TM:PE simulation.
+    [*] Full More Props BETA synchronization and spatial grid cycle repair.
 [/list]
 [/list]
 
 [hr][/hr]
 
-[h1]✨ WHAT'S NEW IN v5.1 ✨[/h1]
-[list]
-[*] [b]100% Native Vehicle Physics & Floating Vehicle Fix:[/b]
-[list]
-    [*] Completely eliminated all vehicle position and speed interception hooks (VehicleAICommons, CarAI).
-    [*] Permanently resolves vehicles floating, hovering, or abnormal vertical displacement. All vehicles now follow 100% authentic base game physics engine calculations.
-[/list]
-[*] [b]Native Traffic Control & Pure TM:PE Simulation:[/b]
-[list]
-    [*] Removed all intrusive traffic light and vehicle behavior patches. Traffic lights and intersection simulation are handled cleanly by the base game and TM:PE without external interference.
-[/list]
-[*] [b]Pure Vanilla Save Pipeline & Race Condition Fix:[/b]
-[list]
-    [*] Zero hooks into SavePanel coroutines or save packaging tasks.
-    [*] Resolved file conflict race conditions, ensuring completely smooth, unhindered game saves.
-[/list]
-[*] [b]Next-Gen Modular Architecture:[/b]
-[list]
-    [*] Introduced clean coordinator layers (Grid, Memory, Lifecycle, Render, EventBus) for optimal stability and memory management.
-[/list]
-[/list]
-
-[hr][/hr]
-
-[h1]MORE NODES/SEGMENTS v5.1.2[/h1]
+[h1]MORE NODES/SEGMENTS v5.1.3[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 
@@ -131,6 +104,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.1.2 Official Release: High Simulation Performance Armor, IPT3 disk log suppression, Vehicle StackTrace CPU lag elimination, full sync with More Props BETA v1.0.9-BETA & Passenger Aircraft Pathfinding Fix."
+	"changenote"		"v5.1.3 Official Release: Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses), Terminal & Station Stop Resolver, IPT3 Disk Log Silencer & Vehicle StackTrace Elimination."
 }
 

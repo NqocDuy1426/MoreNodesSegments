@@ -1853,11 +1853,11 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.2 by NgocDuy";
-        public string Description => "[Close Beta v5.1.2] High Simulation Performance Armor, IPT3 Disk Log Silencer, Vehicle StackTrace Elimination, Passenger Aircraft Fix & TM:PE 100% Native Physics.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.3 by NgocDuy";
+        public string Description => "[Close Beta v5.1.3] Universal Public Transport Reliability (Trains, Metro, Trams, Ferries, Buses, Ships, Aviation), High Simulation FPS & TM:PE 100% Native Physics.";
 #else
-        public string Name => "More Nodes/Segments v5.1.2 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, performance armor against mod log spam, passenger aircraft fix, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Name => "More Nodes/Segments v5.1.3 by NgocDuy";
+        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, Universal Public Transport Armor (Trains, Metro, Trams, Ferries, Buses, Aviation), 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()
@@ -9828,6 +9828,16 @@ namespace MoreNetworkCapacityRenew
 
                 try
                 {
+                    // Universal Public Transport Armor (v5.1.3: Trains, Metro, Trams, Ferries, Buses, Ships, Monorail)
+                    UniversalPublicTransportArmor.Apply(harmony);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] UniversalPublicTransportArmor error: " + ex);
+                }
+
+                try
+                {
                     // Vehicle Performance Armor (v5.1.2: suppresses expensive Environment.StackTrace generation in Building.RemoveOwnVehicle/RemoveGuestVehicle)
                     VehiclePerformanceArmor.Apply(harmony);
                 }
@@ -17503,40 +17513,10 @@ namespace MoreNetworkCapacityRenew
             {
                 try
                 {
-                    NetManager nm = Singleton<NetManager>.instance;
-                    if (nm != null && stop < nm.m_nodes.m_buffer.Length)
+                    ushort resolved = UniversalPublicTransportArmor.ResolveNextTransitStop(stop);
+                    if (resolved != 0)
                     {
-                        // 1. If m_startNode == stop wasn't matched, check if any connected segment has m_endNode == stop
-                        // (essential for reverse flight connections, taxiways, and bidirectional single-track nodes)
-                        for (int i = 0; i < 8; i++)
-                        {
-                            ushort seg = nm.m_nodes.m_buffer[stop].GetSegment(i);
-                            if (seg != 0 && seg < nm.m_segments.m_buffer.Length)
-                            {
-                                if (nm.m_segments.m_buffer[seg].m_endNode == stop)
-                                {
-                                    ushort other = nm.m_segments.m_buffer[seg].m_startNode;
-                                    if (other != 0 && other != stop && other < nm.m_nodes.m_buffer.Length)
-                                    {
-                                        __result = other;
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 2. If this is an airplane stop node (e.g. airport gate stand) with no onward transit stop,
-                        // resolve the flight path outside connection stop node so passenger planes can depart!
-                        NetInfo nodeInfo = nm.m_nodes.m_buffer[stop].Info;
-                        if (nodeInfo != null && nodeInfo.m_class != null && nodeInfo.m_class.m_subService == ItemClass.SubService.PublicTransportPlane)
-                        {
-                            ushort outsideNode = AviationTransportCompatibility.FindAirplaneOutsideConnectionNode(0);
-                            if (outsideNode != 0)
-                            {
-                                __result = outsideNode;
-                                return;
-                            }
-                        }
+                        __result = resolved;
                     }
                 }
                 catch { }
@@ -19115,6 +19095,1188 @@ namespace MoreNetworkCapacityRenew
                                 if (node != 0) return node;
                             }
                         }
+                    }
+                }
+            }
+            catch { }
+            return 0;
+        }
+    }
+
+    // ============================================================================
+    // UNIVERSAL PUBLIC TRANSPORT ARMOR (v5.1.3)
+    // Eliminates despawning, pathfinding failures, and station deadlocks across
+    // ALL public transport modes: Trains, Metro, Monorail, Trams, Ferries, Ships, Buses.
+    // ============================================================================
+    internal static class UniversalPublicTransportArmor
+    {
+        private static bool s_applied = false;
+
+        public static void Apply(HarmonyInstance harmony)
+        {
+            if (s_applied || harmony == null) return;
+            try
+            {
+                // 1. TrainAI.StartPathFind (Trains, Metro, Monorail progressive pathfind fallback)
+                PatchMethod(harmony, typeof(TrainAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(TrainAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                // 2. PassengerTrainAI.ArriveAtTarget (Terminal turnarounds, stop resolution & buffer safety)
+                PatchMethod(harmony, typeof(PassengerTrainAI), "ArriveAtTarget",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerTrainAI_ArriveAtTarget_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 3. PassengerTrainAI.StartPathFind (Buffer index safety & intercity station node resolution)
+                PatchMethod(harmony, typeof(PassengerTrainAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerTrainAI_StartPathFind_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 4. TramBaseAI.StartPathFind (Trams progressive search radius fallback)
+                PatchMethod(harmony, typeof(TramBaseAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(TramBaseAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                // 5. ShipAI.StartPathFind (Passenger & Cargo Ships progressive search radius fallback)
+                PatchMethod(harmony, typeof(ShipAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(ShipAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                // 6. PassengerShipAI.ArriveAtTarget (Ship pier departure & buffer safety)
+                PatchMethod(harmony, typeof(PassengerShipAI), "ArriveAtTarget",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerShipAI_ArriveAtTarget_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 7. PassengerShipAI.StartPathFind (Ship buffer safety guard)
+                PatchMethod(harmony, typeof(PassengerShipAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerShipAI_StartPathFind_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 8. FerryAI.StartPathFind (Ferry progressive search radius fallback)
+                PatchMethod(harmony, typeof(FerryAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(FerryAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                // 9. PassengerFerryAI.ArriveAtTarget (Ferry dock departure & stop resolution)
+                PatchMethod(harmony, typeof(PassengerFerryAI), "ArriveAtTarget",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerFerryAI_ArriveAtTarget_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 10. BusAI.StartPathFind (Buses & Trolleybuses station bay progressive fallback)
+                PatchMethod(harmony, typeof(BusAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(BusAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                // 11. BusAI.ArriveAtTarget (Terminal & station stop resolution armor)
+                PatchMethod(harmony, typeof(BusAI), "ArriveAtTarget",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(BusAI_ArriveAtTarget_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                // 12. PassengerHelicopterAI.StartPathFind & PassengerBlimpAI.StartPathFind (Tours & air transit)
+                PatchMethod(harmony, typeof(PassengerHelicopterAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) },
+                    postfix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(HelicopterAI_StartPathFind_Postfix), BindingFlags.Public | BindingFlags.Static));
+
+                PatchMethod(harmony, typeof(PassengerBlimpAI), "StartPathFind",
+                    new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() },
+                    prefix: typeof(UniversalPublicTransportArmor).GetMethod(nameof(PassengerBlimpAI_StartPathFind_Prefix), BindingFlags.Public | BindingFlags.Static));
+
+                s_applied = true;
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] UniversalPublicTransportArmor successfully applied across all transit vehicle types.");
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] UniversalPublicTransportArmor.Apply error: " + ex);
+            }
+        }
+
+        private static void PatchMethod(HarmonyInstance harmony, Type targetType, string methodName, Type[] paramTypes, MethodInfo prefix = null, MethodInfo postfix = null)
+        {
+            try
+            {
+                if (targetType == null) return;
+                MethodInfo m = targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, paramTypes, null);
+                if (m != null)
+                {
+                    HarmonyMethod hPre = (prefix != null) ? new HarmonyMethod(prefix) { prioritiy = Harmony.Priority.First } : null;
+                    HarmonyMethod hPost = (postfix != null) ? new HarmonyMethod(postfix) : null;
+                    harmony.Patch(m, prefix: hPre, postfix: hPost);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Failed to patch {0}.{1}: {2}", targetType?.Name, methodName, ex.Message));
+            }
+        }
+
+        public static void TrainAI_StartPathFind_Postfix(TrainAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                bool isMetro = (info.m_vehicleType == VehicleInfo.VehicleType.Metro);
+                bool allowUnderground = isMetro || ((vehicleData.m_flags & Vehicle.Flags.Underground) != 0);
+
+                ItemClass.Service netService = (__instance.m_transportInfo != null) ? __instance.m_transportInfo.m_netService : ItemClass.Service.PublicTransport;
+                ItemClass.Service secService = (__instance.m_transportInfo != null) ? __instance.m_transportInfo.m_secondaryNetService : ItemClass.Service.None;
+
+                float[] radii = new float[] { 64f, 128f, 256f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        netService,
+                        secService,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        VehicleInfo.VehicleType.None,
+                        allowUnderground,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        netService,
+                        secService,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        VehicleInfo.VehicleType.None,
+                        allowUnderground,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TrainAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static bool PassengerTrainAI_StartPathFind_Prefix(PassengerTrainAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                NetManager nm = Singleton<NetManager>.instance;
+                bool goingBack = (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0;
+
+                if (goingBack)
+                {
+                    ushort source = vehicleData.m_sourceBuilding;
+                    if (bm != null && (source == 0 || source >= bm.m_buildings.m_buffer.Length || bm.m_buildings.m_buffer[source].m_flags == 0))
+                    {
+                        ushort ocNode = FindTrainOutsideConnectionNode(0);
+                        if (ocNode != 0)
+                        {
+                            vehicleData.m_targetBuilding = ocNode;
+                            vehicleData.m_flags &= ~Vehicle.Flags.GoingBack;
+                        }
+                    }
+                }
+                else if ((vehicleData.m_flags & Vehicle.Flags.DummyTraffic) == 0)
+                {
+                    if (vehicleData.m_transportLine == 0 && bm != null && vehicleData.m_targetBuilding < bm.m_buildings.m_buffer.Length)
+                    {
+                        if (bm.m_buildings.m_buffer[vehicleData.m_targetBuilding].m_flags != 0)
+                        {
+                            ushort stationNetNode = bm.m_buildings.m_buffer[vehicleData.m_targetBuilding].m_netNode;
+                            if (stationNetNode != 0 && stationNetNode < nm.m_nodes.m_buffer.Length && (nm.m_nodes.m_buffer[stationNetNode].m_flags & NetNode.Flags.Created) != 0)
+                            {
+                                vehicleData.m_targetBuilding = stationNetNode;
+                            }
+                        }
+                    }
+
+                    if (nm != null && (vehicleData.m_targetBuilding >= nm.m_nodes.m_buffer.Length || (nm.m_nodes.m_buffer[vehicleData.m_targetBuilding].m_flags & NetNode.Flags.Created) == 0))
+                    {
+                        __result = false;
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PassengerTrainAI_StartPathFind_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static bool PassengerTrainAI_ArriveAtTarget_Prefix(PassengerTrainAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                if (bm == null) return true;
+
+                bool goingBack = (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0;
+
+                if (goingBack)
+                {
+                    ushort target = vehicleData.m_targetBuilding;
+                    if (target == 0 || target >= bm.m_buildings.m_buffer.Length || bm.m_buildings.m_buffer[target].m_flags == 0)
+                    {
+                        Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+                        __result = true;
+                        return false;
+                    }
+                    BuildingInfo bInfo = bm.m_buildings.m_buffer[target].Info;
+                    if (bInfo == null || bInfo.m_buildingAI is OutsideConnectionAI)
+                    {
+                        Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+                        __result = true;
+                        return false;
+                    }
+                }
+                else
+                {
+                    ushort stop = vehicleData.m_targetBuilding;
+                    if (stop != 0)
+                    {
+                        ushort nextStop = TransportLine.GetNextStop(stop);
+                        if (nextStop == 0)
+                        {
+                            ushort fallback = ResolveNextTransitStop(stop);
+                            if (fallback != 0)
+                            {
+                                vehicleData.m_targetBuilding = fallback;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PassengerTrainAI_ArriveAtTarget_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static void TramBaseAI_StartPathFind_Postfix(TramBaseAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                float[] radii = new float[] { 64f, 128f, 256f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] TramBaseAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static void ShipAI_StartPathFind_Postfix(ShipAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                float[] radii = new float[] { 128f, 256f, 512f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ShipAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static bool PassengerShipAI_StartPathFind_Prefix(PassengerShipAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                NetManager nm = Singleton<NetManager>.instance;
+                bool goingBack = (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0;
+
+                if (goingBack)
+                {
+                    ushort source = vehicleData.m_sourceBuilding;
+                    if (bm != null && (source == 0 || source >= bm.m_buildings.m_buffer.Length || bm.m_buildings.m_buffer[source].m_flags == 0))
+                    {
+                        ushort ocNode = FindShipOutsideConnectionNode(0);
+                        if (ocNode != 0)
+                        {
+                            vehicleData.m_targetBuilding = ocNode;
+                            vehicleData.m_flags &= ~Vehicle.Flags.GoingBack;
+                        }
+                    }
+                }
+                else if ((vehicleData.m_flags & Vehicle.Flags.DummyTraffic) == 0)
+                {
+                    if (vehicleData.m_transportLine == 0 && bm != null && vehicleData.m_targetBuilding < bm.m_buildings.m_buffer.Length)
+                    {
+                        if (bm.m_buildings.m_buffer[vehicleData.m_targetBuilding].m_flags != 0)
+                        {
+                            ushort harborNode = bm.m_buildings.m_buffer[vehicleData.m_targetBuilding].m_netNode;
+                            if (harborNode != 0 && harborNode < nm.m_nodes.m_buffer.Length && (nm.m_nodes.m_buffer[harborNode].m_flags & NetNode.Flags.Created) != 0)
+                            {
+                                vehicleData.m_targetBuilding = harborNode;
+                            }
+                        }
+                    }
+
+                    if (nm != null && (vehicleData.m_targetBuilding >= nm.m_nodes.m_buffer.Length || (nm.m_nodes.m_buffer[vehicleData.m_targetBuilding].m_flags & NetNode.Flags.Created) == 0))
+                    {
+                        __result = false;
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PassengerShipAI_StartPathFind_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static bool PassengerShipAI_ArriveAtTarget_Prefix(PassengerShipAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                if (bm == null) return true;
+
+                bool goingBack = (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0;
+
+                if (goingBack)
+                {
+                    ushort target = vehicleData.m_targetBuilding;
+                    if (target == 0 || target >= bm.m_buildings.m_buffer.Length || bm.m_buildings.m_buffer[target].m_flags == 0)
+                    {
+                        Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+                        __result = true;
+                        return false;
+                    }
+                    BuildingInfo bInfo = bm.m_buildings.m_buffer[target].Info;
+                    if (bInfo == null || bInfo.m_buildingAI is OutsideConnectionAI)
+                    {
+                        Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+                        __result = true;
+                        return false;
+                    }
+                }
+                else
+                {
+                    ushort stop = vehicleData.m_targetBuilding;
+                    if (stop != 0)
+                    {
+                        ushort nextStop = TransportLine.GetNextStop(stop);
+                        if (nextStop == 0)
+                        {
+                            ushort fallback = ResolveNextTransitStop(stop);
+                            if (fallback != 0)
+                            {
+                                vehicleData.m_targetBuilding = fallback;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PassengerShipAI_ArriveAtTarget_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static void FerryAI_StartPathFind_Postfix(FerryAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                float[] radii = new float[] { 128f, 256f, 512f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] FerryAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static bool PassengerFerryAI_ArriveAtTarget_Prefix(PassengerFerryAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                ushort stop = vehicleData.m_targetBuilding;
+                if (stop != 0)
+                {
+                    ushort nextStop = TransportLine.GetNextStop(stop);
+                    if (nextStop == 0)
+                    {
+                        ushort fallback = ResolveNextTransitStop(stop);
+                        if (fallback != 0)
+                        {
+                            vehicleData.m_targetBuilding = fallback;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] PassengerFerryAI_ArriveAtTarget_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static void BusAI_StartPathFind_Postfix(BusAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                float[] radii = new float[] { 64f, 128f, 256f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        ItemClass.Service.Road,
+                        NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        ItemClass.Service.Road,
+                        NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        undergroundTarget,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] BusAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static bool BusAI_ArriveAtTarget_Prefix(BusAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                ushort stop = vehicleData.m_targetBuilding;
+                if (stop != 0)
+                {
+                    ushort nextStop = TransportLine.GetNextStop(stop);
+                    if (nextStop == 0)
+                    {
+                        ushort fallback = ResolveNextTransitStop(stop);
+                        if (fallback != 0)
+                        {
+                            vehicleData.m_targetBuilding = fallback;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] BusAI_ArriveAtTarget_Prefix error: " + ex);
+            }
+            return true;
+        }
+
+        public static void HelicopterAI_StartPathFind_Postfix(PassengerHelicopterAI __instance, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget, ref bool __result)
+        {
+            if (__result) return;
+            if (__instance == null || __instance.m_info == null) return;
+
+            try
+            {
+                VehicleInfo info = __instance.m_info;
+                float[] radii = new float[] { 64f, 128f, 256f };
+                PathUnit.Position pathPosA, pathPosB, pathPosC, pathPosD;
+                float distA, distB, distC, distD;
+
+                bool foundStart = false;
+                pathPosA = default(PathUnit.Position);
+                pathPosB = default(PathUnit.Position);
+                distA = 0f; distB = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        startPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosA,
+                        out pathPosB,
+                        out distA,
+                        out distB))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+
+                if (!foundStart) return;
+
+                bool foundEnd = false;
+                pathPosC = default(PathUnit.Position);
+                pathPosD = default(PathUnit.Position);
+                distC = 0f; distD = 0f;
+
+                for (int i = 0; i < radii.Length; i++)
+                {
+                    if (PathManager.FindPathPosition(
+                        endPos,
+                        ItemClass.Service.PublicTransport,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        false,
+                        false,
+                        radii[i],
+                        false,
+                        false,
+                        out pathPosC,
+                        out pathPosD,
+                        out distC,
+                        out distD))
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                }
+
+                if (!foundEnd) return;
+
+                if (!startBothWays || distB < 10f) pathPosB = default(PathUnit.Position);
+                if (!endBothWays || distD < 10f) pathPosD = default(PathUnit.Position);
+
+                SimulationManager sim = Singleton<SimulationManager>.instance;
+                PathManager pm = Singleton<PathManager>.instance;
+                if (sim != null && pm != null)
+                {
+                    uint pathID;
+                    if (pm.CreatePath(
+                        out pathID,
+                        ref sim.m_randomizer,
+                        sim.m_currentBuildIndex,
+                        pathPosA,
+                        pathPosB,
+                        pathPosC,
+                        pathPosD,
+                        NetInfo.LaneType.Vehicle,
+                        info.m_vehicleType,
+                        info.vehicleCategory,
+                        20000f))
+                    {
+                        if (vehicleData.m_path != 0)
+                        {
+                            pm.ReleasePath(vehicleData.m_path);
+                        }
+                        vehicleData.m_path = pathID;
+                        vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                        __result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] HelicopterAI_StartPathFind_Postfix error: " + ex);
+            }
+        }
+
+        public static bool PassengerBlimpAI_StartPathFind_Prefix(PassengerBlimpAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        {
+            try
+            {
+                NetManager nm = Singleton<NetManager>.instance;
+                if (nm != null)
+                {
+                    ushort target = vehicleData.m_targetBuilding;
+                    if (target >= nm.m_nodes.m_buffer.Length || (nm.m_nodes.m_buffer[target].m_flags & NetNode.Flags.Created) == 0)
+                    {
+                        __result = false;
+                        return false;
+                    }
+                }
+            }
+            catch { }
+            return true;
+        }
+
+        public static ushort FindTrainOutsideConnectionNode(ushort preferredBuilding)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                if (bm == null) return 0;
+
+                if (preferredBuilding != 0 && preferredBuilding < bm.m_buildings.m_buffer.Length)
+                {
+                    BuildingInfo bInfo = bm.m_buildings.m_buffer[preferredBuilding].Info;
+                    if (bInfo != null && bInfo.m_buildingAI is OutsideConnectionAI && bInfo.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
+                    {
+                        ushort node = bm.m_buildings.m_buffer[preferredBuilding].m_netNode;
+                        if (node != 0) return node;
+                    }
+                }
+
+                FastList<ushort> list = bm.GetOutsideConnections();
+                if (list != null && list.m_buffer != null)
+                {
+                    for (int i = 0; i < list.m_size; i++)
+                    {
+                        ushort bid = list.m_buffer[i];
+                        if (bid != 0 && bid < bm.m_buildings.m_buffer.Length)
+                        {
+                            BuildingInfo bInfo = bm.m_buildings.m_buffer[bid].Info;
+                            if (bInfo != null && bInfo.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
+                            {
+                                ushort node = bm.m_buildings.m_buffer[bid].m_netNode;
+                                if (node != 0) return node;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return 0;
+        }
+
+        public static ushort FindShipOutsideConnectionNode(ushort preferredBuilding)
+        {
+            try
+            {
+                BuildingManager bm = Singleton<BuildingManager>.instance;
+                if (bm == null) return 0;
+
+                if (preferredBuilding != 0 && preferredBuilding < bm.m_buildings.m_buffer.Length)
+                {
+                    BuildingInfo bInfo = bm.m_buildings.m_buffer[preferredBuilding].Info;
+                    if (bInfo != null && bInfo.m_buildingAI is OutsideConnectionAI && bInfo.m_class.m_subService == ItemClass.SubService.PublicTransportShip)
+                    {
+                        ushort node = bm.m_buildings.m_buffer[preferredBuilding].m_netNode;
+                        if (node != 0) return node;
+                    }
+                }
+
+                FastList<ushort> list = bm.GetOutsideConnections();
+                if (list != null && list.m_buffer != null)
+                {
+                    for (int i = 0; i < list.m_size; i++)
+                    {
+                        ushort bid = list.m_buffer[i];
+                        if (bid != 0 && bid < bm.m_buildings.m_buffer.Length)
+                        {
+                            BuildingInfo bInfo = bm.m_buildings.m_buffer[bid].Info;
+                            if (bInfo != null && bInfo.m_class.m_subService == ItemClass.SubService.PublicTransportShip)
+                            {
+                                ushort node = bm.m_buildings.m_buffer[bid].m_netNode;
+                                if (node != 0) return node;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return 0;
+        }
+
+        public static ushort ResolveNextTransitStop(ushort stop)
+        {
+            try
+            {
+                NetManager nm = Singleton<NetManager>.instance;
+                if (nm == null || stop == 0 || stop >= nm.m_nodes.m_buffer.Length) return 0;
+
+                // 1. Check connected segments for TransportLine segments (both forward and reverse)
+                for (int i = 0; i < 8; i++)
+                {
+                    ushort seg = nm.m_nodes.m_buffer[stop].GetSegment(i);
+                    if (seg != 0 && seg < nm.m_segments.m_buffer.Length)
+                    {
+                        NetInfo segInfo = nm.m_segments.m_buffer[seg].Info;
+                        if (segInfo != null && segInfo.m_netAI is TransportLineAI)
+                        {
+                            if (nm.m_segments.m_buffer[seg].m_startNode == stop)
+                            {
+                                ushort next = nm.m_segments.m_buffer[seg].m_endNode;
+                                if (next != 0 && next != stop && next < nm.m_nodes.m_buffer.Length) return next;
+                            }
+                            else if (nm.m_segments.m_buffer[seg].m_endNode == stop)
+                            {
+                                ushort prev = nm.m_segments.m_buffer[seg].m_startNode;
+                                if (prev != 0 && prev != stop && prev < nm.m_nodes.m_buffer.Length) return prev;
+                            }
+                        }
+                    }
+                }
+
+                // 2. Fallback: check any connected segment with m_endNode == stop
+                for (int i = 0; i < 8; i++)
+                {
+                    ushort seg = nm.m_nodes.m_buffer[stop].GetSegment(i);
+                    if (seg != 0 && seg < nm.m_segments.m_buffer.Length)
+                    {
+                        if (nm.m_segments.m_buffer[seg].m_endNode == stop)
+                        {
+                            ushort other = nm.m_segments.m_buffer[seg].m_startNode;
+                            if (other != 0 && other != stop && other < nm.m_nodes.m_buffer.Length) return other;
+                        }
+                    }
+                }
+
+                // 3. SubService specific outside connection resolution
+                NetInfo nodeInfo = nm.m_nodes.m_buffer[stop].Info;
+                if (nodeInfo != null && nodeInfo.m_class != null)
+                {
+                    if (nodeInfo.m_class.m_subService == ItemClass.SubService.PublicTransportTrain)
+                    {
+                        return FindTrainOutsideConnectionNode(0);
+                    }
+                    if (nodeInfo.m_class.m_subService == ItemClass.SubService.PublicTransportShip)
+                    {
+                        return FindShipOutsideConnectionNode(0);
+                    }
+                    if (nodeInfo.m_class.m_subService == ItemClass.SubService.PublicTransportPlane)
+                    {
+                        return AviationTransportCompatibility.FindAirplaneOutsideConnectionNode(0);
                     }
                 }
             }
