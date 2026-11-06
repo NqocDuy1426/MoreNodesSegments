@@ -1853,10 +1853,10 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.3 by NgocDuy";
-        public string Description => "[Close Beta v5.1.3] Universal Public Transport Reliability (Trains, Metro, Trams, Ferries, Buses, Ships, Aviation), High Simulation FPS & TM:PE 100% Native Physics.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.4 by NgocDuy";
+        public string Description => "[Close Beta v5.1.4] Road Vehicle Smooth Physics (Eliminated live grid scrubbing & stuttering), TLM 64K Citizen Entry Armor, Universal Public Transport Reliability.";
 #else
-        public string Name => "More Nodes/Segments v5.1.3 by NgocDuy";
+        public string Name => "More Nodes/Segments v5.1.4 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, Universal Public Transport Armor (Trains, Metro, Trams, Ferries, Buses, Aviation), 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
@@ -10993,71 +10993,6 @@ namespace MoreNetworkCapacityRenew
                 }
                 catch { }
             }
-
-            // 5. Sweep and recover confused ("Hoang mang") or deadlocked vehicles (64 vehicles per frame)
-            try
-            {
-                var vm = Singleton<VehicleManager>.instance;
-                if (vm != null && vm.m_vehicles != null && vm.m_vehicles.m_buffer != null)
-                {
-                    int vStart = (int)frame256 * 64;
-                    int vEnd = Math.Min(vStart + 64, vm.m_vehicles.m_buffer.Length);
-                    for (int v = vStart; v < vEnd; v++)
-                    {
-                        var flags = vm.m_vehicles.m_buffer[v].m_flags;
-                        if ((flags & (Vehicle.Flags.Created | Vehicle.Flags.Spawned)) == (Vehicle.Flags.Created | Vehicle.Flags.Spawned) &&
-                            (flags & (Vehicle.Flags.WaitingPath | Vehicle.Flags.Parking | Vehicle.Flags.WaitingLoading)) == 0)
-                        {
-                            ushort lead = vm.m_vehicles.m_buffer[v].m_leadingVehicle;
-                            var info = vm.m_vehicles.m_buffer[v].Info;
-                            bool isTrailerAI = (info != null && (info.m_vehicleAI is CarTrailerAI || info.m_vehicleAI is TrolleybusTrailerAI));
-
-                            // 1. Release orphaned trailer immediately (lost its tractor/cab)
-                            if (isTrailerAI && (lead == 0 || (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0))
-                            {
-                                vm.ReleaseVehicle((ushort)v);
-                                continue;
-                            }
-
-                            // 2. Release vehicle whose leader is dead
-                            if (lead != 0 && (vm.m_vehicles.m_buffer[lead].m_flags & Vehicle.Flags.Created) == 0)
-                            {
-                                vm.ReleaseVehicle((ushort)v);
-                                continue;
-                            }
-
-                            // 3. Normal stuck / confused vehicle detection (with full chain release!)
-                            if (vm.m_vehicles.m_buffer[v].m_blockCounter >= 180 ||
-                                (vm.m_vehicles.m_buffer[v].m_targetBuilding == 0 && vm.m_vehicles.m_buffer[v].m_blockCounter >= 100))
-                            {
-                                ushort head = (ushort)v;
-                                int loopGuard = 0;
-                                while (vm.m_vehicles.m_buffer[head].m_leadingVehicle != 0 && loopGuard++ < 32)
-                                {
-                                    head = vm.m_vehicles.m_buffer[head].m_leadingVehicle;
-                                }
-
-                                ushort cur = head;
-                                int chainGuard = 0;
-                                while (cur != 0 && chainGuard++ < 32)
-                                {
-                                    ushort next = vm.m_vehicles.m_buffer[cur].m_trailingVehicle;
-                                    vm.ReleaseVehicle(cur);
-                                    cur = next;
-                                }
-                                vm.ReleaseVehicle((ushort)v);
-                            }
-                        }
-                    }
-
-                    // Periodic live vehicle grid & TM:PE ghost scrub every 256 frames (~4-8s)
-                    if (frame256 == 0)
-                    {
-                        RenewLoading.SanitizeVehicleGrid();
-                    }
-                }
-            }
-            catch { }
         }
     }
 
@@ -16969,20 +16904,20 @@ namespace MoreNetworkCapacityRenew
             catch {}
         }
 
-        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicleID)
+        public static void VehicleManager_ReleaseVehicleImplementation_Postfix(ushort vehicle)
         {
             try
             {
                 VehicleManager vm = Singleton<VehicleManager>.instance;
                 if (vm == null || vm.m_vehicles == null || vm.m_vehicles.m_buffer == null) return;
-                if (vehicleID == 0 || vehicleID >= vm.m_vehicles.m_buffer.Length) return;
+                if (vehicle == 0 || vehicle >= vm.m_vehicles.m_buffer.Length) return;
 
                 // Move physical collision segment 100,000m away so collision raycasts / distance checks never register an invisible block
-                vm.m_vehicles.m_buffer[vehicleID].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
-                vm.m_vehicles.m_buffer[vehicleID].m_nextGridVehicle = 0;
+                vm.m_vehicles.m_buffer[vehicle].m_segment = new ColossalFramework.Math.Segment3(new UnityEngine.Vector3(100000f, 100000f, 100000f), new UnityEngine.Vector3(100000f, 100000f, 100000f));
+                vm.m_vehicles.m_buffer[vehicle].m_nextGridVehicle = 0;
 
                 // Clear any TM:PE junction reservation or segment end locks held by this vehicle
-                TMPECompatibility.NotifyVehicleReleased(vehicleID);
+                TMPECompatibility.NotifyVehicleReleased(vehicle);
             }
             catch { }
         }
@@ -20442,14 +20377,16 @@ namespace MoreNetworkCapacityRenew
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] GameLoadingArmor: Error patching RadioPanel: " + ex);
             }
 
-            // 3. TransportLinesManager.Overrides.TransportLineOverrides.RemoveVehicle (prevents NullReferenceException on vehicles with missing prefabs)
+            // 3. TransportLinesManager Overrides & 64K Stop Node Armor
             try
             {
+                Assembly tlmAsm = null;
                 Type tlmOverrides = null;
                 foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     if (asm.GetName().Name == "TransportLinesManager")
                     {
+                        tlmAsm = asm;
                         tlmOverrides = asm.GetType("TransportLinesManager.Overrides.TransportLineOverrides");
                         break;
                     }
@@ -20462,6 +20399,20 @@ namespace MoreNetworkCapacityRenew
                     {
                         harmony.Patch(removeVeh, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TransportLinesManager.Overrides.TransportLineOverrides.RemoveVehicle with null vehicle guard.");
+                    }
+                }
+                if (tlmAsm != null)
+                {
+                    Type tlmStatuses = tlmAsm.GetType("TransportLinesManager.Data.Managers.TLMTransportLineStatusesManager");
+                    if (tlmStatuses != null)
+                    {
+                        MethodInfo addToStop = tlmStatuses.GetMethod("AddToStop", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+                        MethodInfo preStop = typeof(GameLoadingArmor).GetMethod(nameof(TLM_AddToStop_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        if (addToStop != null && preStop != null)
+                        {
+                            harmony.Patch(addToStop, prefix: new HarmonyMethod(preStop) { prioritiy = Harmony.Priority.First });
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TransportLinesManager.Data.Managers.TLMTransportLineStatusesManager.AddToStop with 64K stop node armor.");
+                        }
                     }
                 }
             }
@@ -20590,6 +20541,20 @@ namespace MoreNetworkCapacityRenew
             {
                 return false;
             }
+            return true;
+        }
+
+        [HarmonyPriority(Priority.First)]
+        public static bool TLM_AddToStop_Prefix(ushort __0)
+        {
+            try
+            {
+                if (__0 == 0 || __0 >= 32768)
+                {
+                    return false;
+                }
+            }
+            catch { }
             return true;
         }
     }
