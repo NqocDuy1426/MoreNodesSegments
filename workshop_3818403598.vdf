@@ -5,10 +5,16 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.1.3"
-	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.3 🚀[/h1]
+	"title"		"More Nodes/Segments v5.1.4"
+	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.4 🚀[/h1]
 [list]
-[*] [b]Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses):[/b]
+[*] [b]Triệt tiêu hoàn toàn xe cà giật trên đường bộ (Road Vehicle Smooth Physics):[/b]
+    Loại bỏ chu kỳ quét 585.000 ô lưới và reset queue xe dẫn đầu của TM:PE mỗi 256 frame trong luồng mô phỏng thời gian thực, chấm dứt hoàn toàn hiện tượng xe giật cục, phanh gấp và nghẽn CPU định kỳ. Quy trình làm sạch chỉ chạy khi nạp (AfterDeserialize) và lưu (PreSaveSanitization) đảm bảo an toàn tuyệt đối 100%.
+[*] [b]Bọc thép trạm dừng 64K cho TransportLinesManager (TLM 64K Stop Node Armor):[/b]
+    Khắc phục triệt để hơn 4.000 lỗi ngoại lệ mảng quá giới hạn (IndexOutOfRangeException) trong TLM khi công dân bước lên phương tiện tại các trạm dừng có Node ID >= 32.768.
+[*] [b]Sửa lỗi tham số VehicleManager.ReleaseVehicleImplementation:[/b]
+    Sửa đúng tên tham số 'vehicle', đảm bảo thu hồi phương tiện sạch sẽ không để lại footprint vật lý tàng hình cản đường.
+[*] [b]Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses, Aviation):[/b]
 [list]
     [*] [b]Passenger & Cargo Trains, Metro, Monorail:[/b] Multi-tier progressive pathfind search radius (64m -> 128m -> 256m in TrainAI.StartPathFind), ending instant train despawns at multi-track terminals, sunken tracks, and modular stations.
     [*] [b]Train Station Arrival & Deadlock Armor:[/b] Fixed PassengerTrainAI.ArriveAtTarget & StartPathFind buffer mismatches; intercity trains now correctly route to station platform nodes and return to outside connections without vanishing or stalling in WaitingTarget.
@@ -16,12 +22,12 @@
     [*] [b]Trams & Light Rail:[/b] Extended search fallback (64m -> 256m in TramBaseAI.StartPathFind) preventing tram despawns on custom loops and complex turnarounds.
     [*] [b]Ferries & Passenger Ships:[/b] Progressive water pathfinding fallback (128m -> 512m in ShipAI and FerryAI), eliminating pier departure deadlocks and ship lockups.
     [*] [b]Universal Next Stop Resolver:[/b] Re-engineered TransportLine.GetNextStop to recognize bidirectional/reverse transport segments and outside connections across all transit types.
+    [*] [b]Passenger Aircraft Fix:[/b] 256m runway-to-gate fallback & gate turnaround armor.
 [/list]
 [*] [b]Inherited from v5.1.2 & v5.1:[/b]
 [list]
     [*] High Simulation FPS: silenced IPT3 debug log spam.
     [*] Vehicle Performance Armor: eliminated Environment.StackTrace overhead during vehicle unhooks.
-    [*] Passenger Aircraft Fix: 256m runway-to-gate fallback & gate turnaround armor.
     [*] 100% Native Vehicle Physics & TM:PE simulation.
     [*] Full More Props BETA synchronization and spatial grid cycle repair.
 [/list]
@@ -29,7 +35,7 @@
 
 [hr][/hr]
 
-[h1]MORE NODES/SEGMENTS v5.1.3[/h1]
+[h1]MORE NODES/SEGMENTS v5.1.4[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 
@@ -39,7 +45,7 @@
 Have you ever hit the infamous [b]'Cannot create more objects of this type'[/b] limit while building your dream metropolis?
 Vanilla Cities: Skylines caps your road and transit networks at ~32,000 nodes and segments.
 
-[b]More Nodes/Segments v5.1.2[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
+[b]More Nodes/Segments v5.1.4[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
 
 Unlike unstable legacy experimental versions that caused fatal crashes and corrupted traffic, [b]More Nodes/Segments[/b] is engineered from the ground up for [b]maximum stability, accurate traffic simulation, and zero data loss.[/b]
 
@@ -104,6 +110,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.1.3 Official Release: Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses), Terminal & Station Stop Resolver, IPT3 Disk Log Silencer & Vehicle StackTrace Elimination."
+	"changenote"		"v5.1.4 Official Release: Road Vehicle Smooth Physics (eliminated live grid scrubbing & stuttering), TLM 64K Citizen Entry Armor, Universal Public Transport Reliability."
 }
 
