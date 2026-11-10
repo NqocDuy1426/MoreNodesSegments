@@ -205,12 +205,7 @@ namespace Harmony
             }
         }
 
-        public void Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null)
-        {
-            Patch(original, prefix, postfix, transpiler, null);
-        }
-
-        public void Patch(MethodBase original, HarmonyMethod prefix, HarmonyMethod postfix, HarmonyMethod transpiler, HarmonyMethod finalizer)
+        public void Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null, HarmonyMethod finalizer = null)
         {
             if (original == null) return;
             EnsureEngine();
@@ -1853,11 +1848,11 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.4 by NgocDuy";
-        public string Description => "[Close Beta v5.1.4] Road Vehicle Smooth Physics (Eliminated live grid scrubbing & stuttering), TLM 64K Citizen Entry Armor, Universal Public Transport Reliability.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.5 by NgocDuy";
+        public string Description => "[Close Beta v5.1.5] Simulation Thread Immunity (EightyOne2 & Vanilla Electricity/Water DivideByZeroException Shield), Universal Public Transport Armor Parameter Fix.";
 #else
-        public string Name => "More Nodes/Segments v5.1.4 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, Universal Public Transport Armor (Trains, Metro, Trams, Ferries, Buses, Aviation), 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Name => "More Nodes/Segments v5.1.5 by NgocDuy";
+        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, Simulation Thread Immunity (EightyOne2 & Vanilla Electricity/Water DivideByZeroException Shield), Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()
@@ -9893,6 +9888,8 @@ namespace MoreNetworkCapacityRenew
                 patchApplied = true;
                 DiagnosticLogger.Checkpoint("EnsureAllPatchesApplied.Complete");
 
+                try { ThirdPartyCompatibility.ApplyVanillaSimulationShield(harmony); } catch {}
+                try { ThirdPartyCompatibility.EnsureEightyOne2Patched(); } catch {}
                 try { TMPECompatibility.SynchronizeTMPEBuffersAndArrays("EnsureAllPatchesApplied"); } catch {}
                 try { ThirdPartyCompatibility.SynchronizeThirdPartyMods("EnsureAllPatchesApplied"); } catch {}
                 try { RenewMod.EnsureRenderManagerCapacity(); } catch {}
@@ -11607,7 +11604,9 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 PatchToolController(harmony);
+                ApplyVanillaSimulationShield(harmony);
                 PatchThirdPartyMods(harmony);
+                EnsureEightyOne2Patched();
                 SynchronizeThirdPartyMods("Apply");
 
                 if (!_domainHooked)
@@ -11701,6 +11700,7 @@ namespace MoreNetworkCapacityRenew
                 EnsureTransferManagerBuffers(context);
                 EnsureImpatientCommutersBuffers(context);
                 SynchronizeMorePathUnits(context);
+                EnsureEightyOne2Patched();
                 Harmonize81Tiles();
                 UniversalModHarmonizer.HarmonizeActiveMods(context);
             }
@@ -12758,16 +12758,146 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Hook NetManager.Awake error: " + ex);
                 }
 
+                // 7. Armor EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl (DivideByZeroException Shield)
+                try
+                {
+                    Type expElec = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedElectricityManager");
+                    if (expElec != null)
+                    {
+                        MethodInfo mSimElec = null;
+                        foreach (var m in expElec.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                        {
+                            if (m.Name == "SimulationStepImpl") { mSimElec = m; break; }
+                        }
+                        if (mSimElec != null)
+                        {
+                            MethodInfo trans = typeof(ThirdPartyCompatibility).GetMethod(nameof(TranspileSafeDivision), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(SimulationStepImpl_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mSimElec, transpiler: new HarmonyMethod(trans), finalizer: new HarmonyMethod(fin));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl with SafeDivUn transpiler + finalizer!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor EightyOne2 ExpandedElectricityManager error: " + ex);
+                }
+
+                // 8. Armor EightyOne2.Patches.ExpandedWaterManager.SimulationStepImpl (DivideByZeroException Shield)
+                try
+                {
+                    Type expWater = eightyOneAsm.GetType("EightyOne2.Patches.ExpandedWaterManager");
+                    if (expWater != null)
+                    {
+                        MethodInfo mSimWater = null;
+                        foreach (var m in expWater.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                        {
+                            if (m.Name == "SimulationStepImpl") { mSimWater = m; break; }
+                        }
+                        if (mSimWater != null)
+                        {
+                            MethodInfo trans = typeof(ThirdPartyCompatibility).GetMethod(nameof(TranspileSafeDivision), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(SimulationStepImpl_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mSimWater, transpiler: new HarmonyMethod(trans), finalizer: new HarmonyMethod(fin));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored EightyOne2.Patches.ExpandedWaterManager.SimulationStepImpl with SafeDivUn transpiler + finalizer!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor EightyOne2 ExpandedWaterManager error: " + ex);
+                }
+
                 if (patchedCount > 0)
                 {
                     _eightyOne2Patched = true;
-                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization safety patches!", patchedCount));
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Successfully applied {0} EightyOne2 serialization and simulation safety patches!", patchedCount));
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] PatchEightyOne2 error: " + ex);
             }
+        }
+
+        private static bool _vanillaSimulationShieldPatched = false;
+        public static void ApplyVanillaSimulationShield(HarmonyInstance harmony)
+        {
+            if (_vanillaSimulationShieldPatched || harmony == null) return;
+            try
+            {
+                MethodInfo trans = typeof(ThirdPartyCompatibility).GetMethod(nameof(TranspileSafeDivision), BindingFlags.Public | BindingFlags.Static);
+                MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(SimulationStepImpl_Finalizer), BindingFlags.Public | BindingFlags.Static);
+
+                // 1. Vanilla ElectricityManager.SimulationStepImpl
+                try
+                {
+                    MethodInfo mElec = typeof(ElectricityManager).GetMethod("SimulationStepImpl", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                    if (mElec != null)
+                    {
+                        harmony.Patch(mElec, transpiler: new HarmonyMethod(trans), finalizer: new HarmonyMethod(fin));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla ElectricityManager.SimulationStepImpl with SafeDivUn transpiler + finalizer!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor vanilla ElectricityManager error: " + ex);
+                }
+
+                // 2. Vanilla WaterManager.SimulationStepImpl
+                try
+                {
+                    MethodInfo mWater = typeof(WaterManager).GetMethod("SimulationStepImpl", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                    if (mWater != null)
+                    {
+                        harmony.Patch(mWater, transpiler: new HarmonyMethod(trans), finalizer: new HarmonyMethod(fin));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla WaterManager.SimulationStepImpl with SafeDivUn transpiler + finalizer!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor vanilla WaterManager error: " + ex);
+                }
+
+                _vanillaSimulationShieldPatched = true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] ApplyVanillaSimulationShield error: " + ex);
+            }
+        }
+
+        public static ulong SafeDivUn(ulong a, ulong b)
+        {
+            return b == 0UL ? 0UL : a / b;
+        }
+
+        public static IEnumerable<CodeInstruction> TranspileSafeDivision(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo mSafe = typeof(ThirdPartyCompatibility).GetMethod(nameof(SafeDivUn), BindingFlags.Public | BindingFlags.Static);
+            foreach (var inst in instructions)
+            {
+                if (inst.opcode == OpCodes.Div_Un)
+                {
+                    inst.opcode = OpCodes.Call;
+                    inst.operand = mSafe;
+                }
+                yield return inst;
+            }
+        }
+
+        public static Exception SimulationStepImpl_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                if (__exception is DivideByZeroException || (__exception.InnerException != null && __exception.InnerException is DivideByZeroException))
+                {
+                    return null;
+                }
+            }
+            return __exception;
         }
 
         public static void Harmonize81Tiles()
@@ -17685,8 +17815,9 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static bool IPT_Utils_Log_Prefix(object message)
+        public static bool IPT_Utils_Log_Prefix(object o)
         {
+            object message = o;
             if (message != null)
             {
                 string s = message.ToString();
@@ -18911,8 +19042,9 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static bool PassengerPlaneAI_ArriveAtTarget_Prefix(PassengerPlaneAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        public static bool PassengerPlaneAI_ArriveAtTarget_Prefix(PassengerPlaneAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
+            ref Vehicle vehicleData = ref data;
             try
             {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -19312,8 +19444,9 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public static bool PassengerTrainAI_ArriveAtTarget_Prefix(PassengerTrainAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        public static bool PassengerTrainAI_ArriveAtTarget_Prefix(PassengerTrainAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
+            ref Vehicle vehicleData = ref data;
             try
             {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -19629,8 +19762,9 @@ namespace MoreNetworkCapacityRenew
             return true;
         }
 
-        public static bool PassengerShipAI_ArriveAtTarget_Prefix(PassengerShipAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        public static bool PassengerShipAI_ArriveAtTarget_Prefix(PassengerShipAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
+            ref Vehicle vehicleData = ref data;
             try
             {
                 BuildingManager bm = Singleton<BuildingManager>.instance;
@@ -19788,8 +19922,9 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static bool PassengerFerryAI_ArriveAtTarget_Prefix(PassengerFerryAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        public static bool PassengerFerryAI_ArriveAtTarget_Prefix(PassengerFerryAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
+            ref Vehicle vehicleData = ref data;
             try
             {
                 ushort stop = vehicleData.m_targetBuilding;
@@ -19922,8 +20057,9 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        public static bool BusAI_ArriveAtTarget_Prefix(BusAI __instance, ushort vehicleID, ref Vehicle vehicleData, ref bool __result)
+        public static bool BusAI_ArriveAtTarget_Prefix(BusAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
+            ref Vehicle vehicleData = ref data;
             try
             {
                 ushort stop = vehicleData.m_targetBuilding;
@@ -20477,8 +20613,9 @@ namespace MoreNetworkCapacityRenew
         }
 
         [HarmonyPriority(Priority.First)]
-        public static bool MoreProps_AddToGrid32_Prefix(object __instance, uint propID, Vector3 position)
+        public static bool MoreProps_AddToGrid32_Prefix(object __instance, uint extendedId, Vector3 position)
         {
+            uint propID = extendedId;
             try
             {
                 GridSanitizerArmor.s_morePropsGridDirty = true;

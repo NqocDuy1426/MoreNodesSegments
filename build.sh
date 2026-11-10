@@ -14,7 +14,7 @@ MOD_DIR="$HOME/Library/Application Support/Colossal Order/Cities_Skylines/Addons
 OLD_MOD_DIR="$HOME/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/MoreNetworkCapacityRenew"
 
 echo "=========================================================="
-echo "🚀 Building $MOD_NAME (More Nodes/Segments v5.1.4 by NgocDuy)..."
+echo "🚀 Building $MOD_NAME (More Nodes/Segments v5.1.5 by NgocDuy)..."
 echo "=========================================================="
 
 # 0. Compile and run test suite (DISABLED FOR QUICK FIX)
