@@ -8,34 +8,34 @@
 	"title"		"More Nodes/Segments v5.1.5"
 	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.5 (HOTFIX) 🚀[/h1]
 [list]
-[*] [b]Triệt tiêu vĩnh viễn lỗi DivideByZeroException trong EightyOne2 & Vanilla Simulation (Simulation Thread Immunity):[/b]
-    Khắc phục triệt để lỗi crash luồng mô phỏng (SimulationThread) khi tính toán phân phối điện và nước/thoát nước/sưởi:
+[*] [b]Permanently Eliminates DivideByZeroException in EightyOne2 & Vanilla Simulation (Simulation Thread Immunity):[/b]
+    Completely resolves simulation thread crashes during power, water, sewage, and heating distribution calculations:
     [code]System.DivideByZeroException: Division by zero
 at EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl[/code]
-    Trên các thành phố quy mô lớn (64K nodes/segments) kết hợp tính năng 'Electric Roads' của 81 Tiles 2, các nhóm xung điện (pulse groups) liên tục sáp nhập khiến điện tích gốc (origCharge) tụt về 0. Lệnh chia số nguyên CIL [b]div.un[/b] gây ra ngoại lệ chia cho 0 làm treo toàn bộ luồng mô phỏng.
-    [b]Cơ chế bảo vệ 2 lớp của v5.1.5:[/b]
+    On large-scale cities (64K nodes/segments) using 81 Tiles 2's 'Electric Roads' feature, rapid merging of pulse groups can deplete the original charge (origCharge) to 0. The CIL integer division instruction [b]div.un[/b] then triggers a fatal division-by-zero exception, halting the entire simulation thread.
+    [b]v5.1.5 Dual-Layer Defense Architecture:[/b]
     [list]
-    [*] [i]Lớp 1 (CIL Transpiler):[/i] Thay thế toàn bộ mã máy [b]div.un[/b] trong [i]ExpandedElectricityManager.SimulationStepImpl[/i], [i]ExpandedWaterManager.SimulationStepImpl[/i], [i]ElectricityManager.SimulationStepImpl[/i] và [i]WaterManager.SimulationStepImpl[/i] bằng hàm an toàn [b]SafeDivUn(a, b) => b == 0 ? 0 : a / b[/b] ở tốc độ CPU nguyên bản không độ trễ.
-    [*] [i]Lớp 2 (Harmony Finalizer):[/i] Đóng gói bộ chắn ngoại lệ bắt và khử hoàn toàn mọi [b]DivideByZeroException[/b] nếu có, đảm bảo SimulationThread không bao giờ bị dừng giữa chừng.
+    [*] [i]Layer 1 (CIL Transpiler):[/i] Replaces all [b]div.un[/b] machine instructions in [i]ExpandedElectricityManager.SimulationStepImpl[/i], [i]ExpandedWaterManager.SimulationStepImpl[/i], [i]ElectricityManager.SimulationStepImpl[/i], and [i]WaterManager.SimulationStepImpl[/i] with the safe helper [b]SafeDivUn(a, b) => b == 0 ? 0 : a / b[/b] running at native CPU speed with zero overhead.
+    [*] [i]Layer 2 (Harmony Finalizer):[/i] Wraps simulation methods in an exception barrier that intercepts and suppresses any residual [b]DivideByZeroException[/b], guaranteeing the SimulationThread never freezes.
     [/list]
-[*] [b]Sửa lỗi tham số Universal Public Transport Armor (Zero TargetInvocationException):[/b]
-    Chuẩn hóa tên tham số [b]data[/b] cho toàn bộ các phương thức [i]ArriveAtTarget[/i] ([i]PassengerTrainAI, PassengerShipAI, PassengerFerryAI, BusAI, PassengerPlaneAI[/i]), loại bỏ 100% lỗi nạp Harmony trong log Player.log, giúp hệ thống phương tiện công cộng vận hành mượt mà chính xác.
-[*] [b]Khắc phục tham số More Props & Improved Public Transport:[/b]
-    Chuẩn hóa tham số [b]extendedId[/b] cho [i]MoreProps.ExtendedPropManager.AddToGrid32[/i] và [b]o[/b] cho [i]IPT3 Utils.Log[/i].
-[*] [b]Kích hoạt bảo vệ tức thì ngay khi mở game (Instant Startup Shield):[/b]
-    Đưa cơ chế bọc thép mô phỏng và liên kết 81 Tiles 2 lên giai đoạn khởi động ([i]EnsureAllPatchesApplied[/i]) và nạp màn chơi ([i]OnLevelLoaded[/i]), bảo vệ thành phố xuyên suốt từ giây đầu tiên.
+[*] [b]Universal Public Transport Armor Parameter Alignment (Zero TargetInvocationException):[/b]
+    Normalized the [b]data[/b] parameter name across all [i]ArriveAtTarget[/i] methods ([i]PassengerTrainAI, PassengerShipAI, PassengerFerryAI, BusAI, PassengerPlaneAI[/i]), eliminating 100% of Harmony injection errors in Player.log for rock-solid transit simulation.
+[*] [b]More Props & Improved Public Transport Parameter Fixes:[/b]
+    Standardized the [b]extendedId[/b] parameter for [i]MoreProps.ExtendedPropManager.AddToGrid32[/i] and [b]o[/b] for [i]IPT3 Utils.Log[/i].
+[*] [b]Instant Startup & Load Shield:[/b]
+    Elevated simulation armoring and 81 Tiles 2 synchronization to mod initialization ([i]EnsureAllPatchesApplied[/i]) and level loading ([i]OnLevelLoaded[/i]), protecting your city from the very first frame.
 [/list]
 
 [hr][/hr]
 
 [h1]🚀 WHAT'S NEW IN v5.1.4 🚀[/h1]
 [list]
-[*] [b]Triệt tiêu hoàn toàn xe cà giật trên đường bộ (Road Vehicle Smooth Physics):[/b]
-    Loại bỏ chu kỳ quét 585.000 ô lưới và reset queue xe dẫn đầu của TM:PE mỗi 256 frame trong luồng mô phỏng thời gian thực, chấm dứt hoàn toàn hiện tượng xe giật cục, phanh gấp và nghẽn CPU định kỳ.
-[*] [b]Bọc thép trạm dừng 64K cho TransportLinesManager (TLM 64K Stop Node Armor):[/b]
-    Khắc phục triệt để hơn 4.000 lỗi ngoại lệ mảng quá giới hạn (IndexOutOfRangeException) trong TLM khi công dân bước lên phương tiện tại các trạm dừng có Node ID >= 32.768.
+[*] [b]Road Vehicle Smooth Physics (Eliminates Stuttering & Micro-Freezes):[/b]
+    Removed TM:PE's recurring 585,000-cell grid scan and lead vehicle queue reset every 256 frames in the real-time simulation thread, permanently eliminating vehicle stuttering, sudden phantom braking, and periodic CPU spikes.
+[*] [b]64K Stop Node Armor for TransportLinesManager (TLM):[/b]
+    Completely eliminates over 4,000 [i]IndexOutOfRangeException[/i] array errors in TLM when citizens board vehicles at transit stops with Node IDs >= 32,768.
 [*] [b]Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses, Aviation):[/b]
-    Bán kính tìm kiếm đường đa tầng (64m -> 128m -> 256m) cho toàn bộ các loại phương tiện công cộng, chống biến mất tàu xe tại ga ngầm, nhà ga modular và bến cảng.
+    Multi-tier search radius (64m -> 128m -> 256m) across all public transit vehicle types, preventing despawning vehicles at underground terminals, modular stations, and harbors.
 [/list]
 
 [hr][/hr]
@@ -123,4 +123,3 @@ Source code is fully open-source and actively maintained on GitHub:
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
 	"changenote"		"v5.1.5 Hotfix: Simulation Thread DivideByZeroException Shield (EightyOne2 & Vanilla Electricity/Water), Transit AI Parameter Alignment (Zero TargetInvocationException), MoreProps & IPT parameter fixes."
 }
-
