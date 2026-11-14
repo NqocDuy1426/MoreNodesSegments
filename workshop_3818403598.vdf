@@ -5,42 +5,34 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.1.5"
-	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.5 (HOTFIX) 🚀[/h1]
+	"title"		"More Nodes/Segments v5.1.7"
+	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.7 (MAJOR STABILITY UPDATE) 🚀[/h1]
 [list]
-[*] [b]Permanently Eliminates DivideByZeroException in EightyOne2 & Vanilla Simulation (Simulation Thread Immunity):[/b]
-    Completely resolves simulation thread crashes during power, water, sewage, and heating distribution calculations:
-    [code]System.DivideByZeroException: Division by zero
-at EightyOne2.Patches.ExpandedElectricityManager.SimulationStepImpl[/code]
-    On large-scale cities (64K nodes/segments) using 81 Tiles 2's 'Electric Roads' feature, rapid merging of pulse groups can deplete the original charge (origCharge) to 0. The CIL integer division instruction [b]div.un[/b] then triggers a fatal division-by-zero exception, halting the entire simulation thread.
-    [b]v5.1.5 Dual-Layer Defense Architecture:[/b]
-    [list]
-    [*] [i]Layer 1 (CIL Transpiler):[/i] Replaces all [b]div.un[/b] machine instructions in [i]ExpandedElectricityManager.SimulationStepImpl[/i], [i]ExpandedWaterManager.SimulationStepImpl[/i], [i]ElectricityManager.SimulationStepImpl[/i], and [i]WaterManager.SimulationStepImpl[/i] with the safe helper [b]SafeDivUn(a, b) => b == 0 ? 0 : a / b[/b] running at native CPU speed with zero overhead.
-    [*] [i]Layer 2 (Harmony Finalizer):[/i] Wraps simulation methods in an exception barrier that intercepts and suppresses any residual [b]DivideByZeroException[/b], guaranteeing the SimulationThread never freezes.
-    [/list]
-[*] [b]Universal Public Transport Armor Parameter Alignment (Zero TargetInvocationException):[/b]
-    Normalized the [b]data[/b] parameter name across all [i]ArriveAtTarget[/i] methods ([i]PassengerTrainAI, PassengerShipAI, PassengerFerryAI, BusAI, PassengerPlaneAI[/i]), eliminating 100% of Harmony injection errors in Player.log for rock-solid transit simulation.
-[*] [b]More Props & Improved Public Transport Parameter Fixes:[/b]
-    Standardized the [b]extendedId[/b] parameter for [i]MoreProps.ExtendedPropManager.AddToGrid32[/i] and [b]o[/b] for [i]IPT3 Utils.Log[/i].
-[*] [b]Instant Startup & Load Shield:[/b]
-    Elevated simulation armoring and 81 Tiles 2 synchronization to mod initialization ([i]EnsureAllPatchesApplied[/i]) and level loading ([i]OnLevelLoaded[/i]), protecting your city from the very first frame.
+[*] [b]NetGrid Cycle Immunity (NetGridSanitizer):[/b]
+    Completely eliminates infinite circular linked-list loops inside [i]NetManager.m_nodeGrid[/i] and [i]m_segmentGrid[/i] (72,900 spatial cells). Resolves over 600+ recurring [code]Invalid list detected![/code] errors per play session across [i]NetManager.RayCast[/i], [i]EndRenderingImpl[/i], and [i]CalculateGroupData[/i].
+[*] [b]Full Restoration of TM:PE Node & Lane Selection Tool:[/b]
+    With the spatial grid cycles sanitized, mouse raycasting for TM:PE junction selection, lane connector tools, and speed limit markers works flawlessly and instantly without stutter or lag.
+[*] [b]Bus Stop & Transport Line Placement Fix:[/b]
+    Fixes the issue where bus stops and transit lines could not be placed or connected properly on certain road segments due to broken spatial grid references.
+[*] [b]Duplicate Insertion Self-Loop Shield:[/b]
+    Defensive guards in [i]NetManager.InitializeNode[/i] and [i]InitializeSegment[/i] preventing self-referential linked list loops during dynamic road construction and network upgrades.
+[*] [b]TransportLine Stop Loop Sanitizer:[/b]
+    Auto-detects and repairs infinite stop reference loops in public transport lines on save load.
 [/list]
 
 [hr][/hr]
 
-[h1]🚀 WHAT'S NEW IN v5.1.4 🚀[/h1]
+[h1]🚀 PREVIOUS UPDATES (v5.1.4 - v5.1.5) 🚀[/h1]
 [list]
-[*] [b]Road Vehicle Smooth Physics (Eliminates Stuttering & Micro-Freezes):[/b]
-    Removed TM:PE's recurring 585,000-cell grid scan and lead vehicle queue reset every 256 frames in the real-time simulation thread, permanently eliminating vehicle stuttering, sudden phantom braking, and periodic CPU spikes.
-[*] [b]64K Stop Node Armor for TransportLinesManager (TLM):[/b]
-    Completely eliminates over 4,000 [i]IndexOutOfRangeException[/i] array errors in TLM when citizens board vehicles at transit stops with Node IDs >= 32,768.
-[*] [b]Universal Public Transport Armor (Trains, Metro, Monorail, Trams, Ferries, Ships, Buses, Aviation):[/b]
-    Multi-tier search radius (64m -> 128m -> 256m) across all public transit vehicle types, preventing despawning vehicles at underground terminals, modular stations, and harbors.
+[*] [b]Simulation Thread Immunity (EightyOne2 Electricity Shield):[/b] Permanently eliminates [i]DivideByZeroException[/i] during power distribution in large 81-tile cities via CIL transpiler [b]SafeDivUn[/b] & Harmony exception barrier.
+[*] [b]Universal Public Transport Armor:[/b] Multi-tier search radius (64m -> 128m -> 256m) and normalized [b]data[/b] parameter across all transit vehicle types, preventing despawn at underground terminals.
+[*] [b]Road Vehicle Smooth Physics:[/b] Removed TM:PE's recurring 585K-cell grid scan, eliminating micro-stutters and periodic CPU spikes.
+[*] [b]64K Stop Node Armor for TLM:[/b] Eliminates [i]IndexOutOfRangeException[/i] when citizens board vehicles at transit stops with Node IDs >= 32,768.
 [/list]
 
 [hr][/hr]
 
-[h1]MORE NODES/SEGMENTS v5.1.5[/h1]
+[h1]MORE NODES/SEGMENTS v5.1.7[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 

@@ -1848,11 +1848,11 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.5 by NgocDuy";
-        public string Description => "[Close Beta v5.1.5] Simulation Thread Immunity (EightyOne2 & Vanilla Electricity/Water DivideByZeroException Shield), Universal Public Transport Armor Parameter Fix.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.7 by NgocDuy";
+        public string Description => "[Close Beta v5.1.7] Fixed NetManager m_nodeGrid/m_segmentGrid cycles (restoring TM:PE node manipulation & TransportTool bus stop placement), TransportLine stop loop sanitizer.";
 #else
-        public string Name => "More Nodes/Segments v5.1.5 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, Simulation Thread Immunity (EightyOne2 & Vanilla Electricity/Water DivideByZeroException Shield), Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Name => "More Nodes/Segments v5.1.7 by NgocDuy";
+        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()
@@ -8956,8 +8956,118 @@ namespace MoreNetworkCapacityRenew
 
         public static void SanitizeAllGrids(string callerContext)
         {
+            SanitizeNetGrids(callerContext);
             SanitizeMorePropsGrid(callerContext);
             SanitizeVanillaGrids(callerContext);
+        }
+
+        public static void SanitizeNetGrids(string callerContext)
+        {
+            try
+            {
+                NetManager nm = Singleton<NetManager>.instance;
+                if (nm == null || nm.m_nodeGrid == null || nm.m_segmentGrid == null ||
+                    nm.m_nodes == null || nm.m_nodes.m_buffer == null ||
+                    nm.m_segments == null || nm.m_segments.m_buffer == null)
+                {
+                    return;
+                }
+
+                int brokenNodes = 0;
+                int nodeLen = nm.m_nodes.m_buffer.Length;
+                HashSet<ushort> visited = new HashSet<ushort>();
+
+                for (int i = 0; i < nm.m_nodeGrid.Length; i++)
+                {
+                    ushort head = nm.m_nodeGrid[i];
+                    if (head == 0 || head >= nodeLen) continue;
+
+                    visited.Clear();
+                    ushort cur = head;
+                    ushort prev = 0;
+                    int count = 0;
+
+                    while (cur != 0 && cur < nodeLen)
+                    {
+                        count++;
+                        if (count > 200 || !visited.Add(cur))
+                        {
+                            if (prev != 0 && prev < nodeLen)
+                            {
+                                nm.m_nodes.m_buffer[prev].m_nextGridNode = 0;
+                            }
+                            else
+                            {
+                                nm.m_nodeGrid[i] = 0;
+                            }
+                            brokenNodes++;
+                            break;
+                        }
+
+                        ushort next = nm.m_nodes.m_buffer[cur].m_nextGridNode;
+                        if (next == cur)
+                        {
+                            nm.m_nodes.m_buffer[cur].m_nextGridNode = 0;
+                            brokenNodes++;
+                            break;
+                        }
+                        prev = cur;
+                        cur = next;
+                    }
+                }
+
+                int brokenSegments = 0;
+                int segLen = nm.m_segments.m_buffer.Length;
+
+                for (int i = 0; i < nm.m_segmentGrid.Length; i++)
+                {
+                    ushort head = nm.m_segmentGrid[i];
+                    if (head == 0 || head >= segLen) continue;
+
+                    visited.Clear();
+                    ushort cur = head;
+                    ushort prev = 0;
+                    int count = 0;
+
+                    while (cur != 0 && cur < segLen)
+                    {
+                        count++;
+                        if (count > 200 || !visited.Add(cur))
+                        {
+                            if (prev != 0 && prev < segLen)
+                            {
+                                nm.m_segments.m_buffer[prev].m_nextGridSegment = 0;
+                            }
+                            else
+                            {
+                                nm.m_segmentGrid[i] = 0;
+                            }
+                            brokenSegments++;
+                            break;
+                        }
+
+                        ushort next = nm.m_segments.m_buffer[cur].m_nextGridSegment;
+                        if (next == cur)
+                        {
+                            nm.m_segments.m_buffer[cur].m_nextGridSegment = 0;
+                            brokenSegments++;
+                            break;
+                        }
+                        prev = cur;
+                        cur = next;
+                    }
+                }
+
+                if (brokenNodes > 0 || brokenSegments > 0)
+                {
+                    UnityEngine.Debug.LogWarning(string.Format("[MoreNodesSegments] GridSanitizerArmor ({0}): Repaired {1} circular node grid cycle(s) and {2} segment grid cycle(s)!",
+                        callerContext, brokenNodes, brokenSegments));
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNodesSegments] SanitizeNetGrids error: " + ex);
+            }
         }
 
         public static void SanitizeMorePropsGrid(string callerContext)
@@ -15106,14 +15216,13 @@ namespace MoreNetworkCapacityRenew
                 // Do NOT patch PrefabCollection<T>.Serialize directly with Harmony because Mono generic sharing causes
                 // cross-type trampoline collision where PrefabCollection<NetInfo>.m_encodedArray is null during BuildingManager serialization.
 
-                // 4. Patch TransportLine.GetNextStop
+                // 4. Patch TransportLine.GetNextStop (Prefix only for bounds safety; NO postfix to avoid infinite loop)
                 MethodInfo getNextStop = typeof(TransportLine).GetMethod("GetNextStop", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(ushort) }, null);
                 if (getNextStop != null)
                 {
                     MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(TransportLine_GetNextStop_Prefix), BindingFlags.Public | BindingFlags.Static);
-                    MethodInfo post = typeof(TransportLineCompatibility).GetMethod(nameof(TransportLine_GetNextStop_Postfix), BindingFlags.Public | BindingFlags.Static);
-                    harmony.Patch(getNextStop, prefix: new HarmonyMethod(pre), postfix: new HarmonyMethod(post));
-                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TransportLine.GetNextStop with bounds check and reverse segment resolver.");
+                    harmony.Patch(getNextStop, prefix: new HarmonyMethod(pre));
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched TransportLine.GetNextStop with bounds check (Prefix only).");
                 }
 
                 // 5. Patch ImprovedPublicTransport CachedTransportLineData.Init with prefix safety
@@ -15849,6 +15958,49 @@ namespace MoreNetworkCapacityRenew
                             {
                                 tm.m_lines.m_buffer[i].m_stops = 0;
                             }
+                            else if (tm.m_lines.m_buffer[i].m_stops != 0)
+                            {
+                                // Stop loop cycle detection: ensure the line does not loop infinitely on stops/segments
+                                NetManager nm = Singleton<NetManager>.instance;
+                                if (nm != null && nm.m_nodes != null && nm.m_nodes.m_buffer != null && nm.m_segments != null && nm.m_segments.m_buffer != null)
+                                {
+                                    int nodeBufLen = nm.m_nodes.m_buffer.Length;
+                                    int segBufLen = nm.m_segments.m_buffer.Length;
+                                    ushort firstStop = tm.m_lines.m_buffer[i].m_stops;
+                                    ushort curStop = firstStop;
+                                    HashSet<ushort> visitedStops = new HashSet<ushort>();
+                                    int stopCount = 0;
+                                    bool hasStopLoop = false;
+                                    while (curStop != 0 && curStop < nodeBufLen)
+                                    {
+                                        stopCount++;
+                                        if (!visitedStops.Add(curStop) || stopCount > 500)
+                                        {
+                                            hasStopLoop = true;
+                                            break;
+                                        }
+                                        ushort nextStop = 0;
+                                        for (int s = 0; s < 8; s++)
+                                        {
+                                            ushort seg = nm.m_nodes.m_buffer[curStop].GetSegment(s);
+                                            if (seg != 0 && seg < segBufLen && nm.m_segments.m_buffer[seg].m_startNode == curStop)
+                                            {
+                                                nextStop = nm.m_segments.m_buffer[seg].m_endNode;
+                                                break;
+                                            }
+                                        }
+                                        if (nextStop == firstStop) break; // Completed normal loop
+                                        curStop = nextStop;
+                                    }
+                                    if (hasStopLoop)
+                                    {
+                                        tm.m_lines.m_buffer[i].m_stops = 0;
+                                        tm.m_lines.m_buffer[i].m_totalLength = 0f;
+                                        sanitized++;
+                                        UnityEngine.Debug.LogWarning(string.Format("[MoreNodesSegments] Sanitized corrupted stop loop in TransportLine {0}", i));
+                                    }
+                                }
+                            }
                             if (tm.m_lines.m_buffer[i].m_ticketPrice > 50000)
                             {
                                 tm.m_lines.m_buffer[i].m_ticketPrice = 0;
@@ -16285,6 +16437,8 @@ namespace MoreNetworkCapacityRenew
                     }
                 }
                 UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Sanitized TransportManager lines in AfterDeserialize: Cleaned {0} invalid line entries.", cleaned));
+                try { GridSanitizerArmor.SanitizeNetGrids("AfterDeserialize"); } catch { }
+                try { SanitizeTransportLines(); } catch { }
             }
             catch (Exception ex)
             {
@@ -17527,6 +17681,25 @@ namespace MoreNetworkCapacityRenew
                             }
                         }
                     }
+
+                    // Cycle guard: If segment is already the head of the target grid cell, do NOT prepend it again!
+                    if (__instance.m_segmentGrid != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    {
+                        ushort sNode = data.m_startNode;
+                        ushort eNode = data.m_endNode;
+                        if (sNode < __instance.m_nodes.m_buffer.Length && eNode < __instance.m_nodes.m_buffer.Length)
+                        {
+                            Vector3 v = (__instance.m_nodes.m_buffer[sNode].m_position + __instance.m_nodes.m_buffer[eNode].m_position) * 0.5f;
+                            int gx = UnityEngine.Mathf.Clamp((int)(v.x / 64f + 135f), 0, 269);
+                            int gz = UnityEngine.Mathf.Clamp((int)(v.z / 64f + 135f), 0, 269);
+                            int gIdx = gz * 270 + gx;
+                            if (__instance.m_segmentGrid[gIdx] == segment)
+                            {
+                                data.m_nextGridSegment = 0;
+                                return false; // Prevent circular self-loop
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -17553,6 +17726,19 @@ namespace MoreNetworkCapacityRenew
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
                         }
                     }
+
+                    // Cycle guard: If node is already the head of the target grid cell, do NOT prepend it again!
+                    if (__instance.m_nodeGrid != null)
+                    {
+                        int gx = UnityEngine.Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
+                        int gz = UnityEngine.Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
+                        int gIdx = gz * 270 + gx;
+                        if (__instance.m_nodeGrid[gIdx] == node)
+                        {
+                            data.m_nextGridNode = 0;
+                            return false; // Prevent circular self-loop
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -17574,18 +17760,8 @@ namespace MoreNetworkCapacityRenew
 
         public static void TransportLine_GetNextStop_Postfix(ushort stop, ref ushort __result)
         {
-            if (__result == 0 && stop != 0 && stop < MNCConstants.CORE_NET_CAPACITY)
-            {
-                try
-                {
-                    ushort resolved = UniversalPublicTransportArmor.ResolveNextTransitStop(stop);
-                    if (resolved != 0)
-                    {
-                        __result = resolved;
-                    }
-                }
-                catch { }
-            }
+            // Intentionally disabled: TransportLine.GetNextStop must return 0 at the end of a line or temp line,
+            // otherwise TransportTool.UpdateMeshData / line iterators loop infinitely (generating >24M mesh triangles).
         }
 
         public static bool IPT_Init_Prefix()

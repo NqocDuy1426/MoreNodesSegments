@@ -9,6 +9,24 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
+[h2]Cập nhật Close Beta v5.1.7:[/h2]
+- [b]Khắc phục triệt để lỗi kẹt vòng lặp ma trên lưới Node/Segment (NetGrid Cycle Immunity):[/b]
+  + Tích hợp bộ dọn dẹp `NetGridSanitizer`: Tự động quét và hóa giải các chu trình liên kết tròn (Circular Linked List) trong `m_nodeGrid` và `m_segmentGrid` của `NetManager` ngay khi tải save và trước khi lưu save.
+  + Giải quyết dứt điểm hơn 600+ lỗi `Invalid list detected!` trên mỗi phiên chơi, trả lại khả năng tương tác mượt mà tuyệt đối khi click chọn nút giao/làn đường trong TM:PE (`NetManager.RayCast`) và di chuyển góc nhìn (`EndRenderingImpl`).
+- [b]Khôi phục hoàn toàn tính năng thêm tuyến và trạm Bus (TransportTool Stop Placement):[/b]
+  + Chặn đứng tình trạng `TransportTool.GetLineCount` bị kẹt duyệt ô lưới không gian khi rê chuột đặt trạm.
+  + Tự động kiểm tra và khử trùng các tuyến giao thông công cộng (`TransportLine`) có chuỗi trạm dừng lặp vòng kín bất thường, loại bỏ triệt để lỗi hủy dựng hình khung tạm `EnsureTempLine`.
+  + Bổ sung lá chắn chống chèn trùng lặp (Duplicate Insertion Self-Loop Guard) trong `NetManager.InitializeNode` và `NetManager.InitializeSegment`.
+
+[h2]Cập nhật Close Beta v5.1.6:[/h2]
+- [b]Khắc phục triệt để lỗi không thể tạo tuyến xe buýt & phục hồi lượng khách giao thông công cộng:[/b]
+  + Gỡ bỏ hoàn toàn `TransportLine_GetNextStop_Postfix` khỏi hàm cốt lõi `TransportLine.GetNextStop`. Trả lại hành vi nguyên bản: trạm cuối của tuyến giao thông công cộng luôn kết thúc bằng `0`.
+  + Loại bỏ vòng lặp vô tận gây tràn đỉnh hình học (Mesh.vertices is too large > 65000, 24 triệu tam giác) trong `TransportTool.UpdateMeshData`, cho phép người chơi tạo mới và thêm điểm dừng xe buýt bình thường.
+  + Sửa hoàn toàn luồng tìm đường (Pathfind) của hành khách và lịch trình xe, giúp lượng khách giao thông công cộng phục hồi ổn định.
+
+[h2]Cập nhật Close Beta v5.1.5:[/h2]
+- [b]Triệt tiêu vĩnh viễn lỗi DivideByZeroException trong EightyOne2 & Vanilla Simulation[/b]
+
 [h2]Cập nhật Close Beta v5.1.4:[/h2]
 - [b]Triệt tiêu hoàn toàn hiện tượng xe cà giật trên đường bộ (Road Vehicle Smooth Physics):[/b]
   + Loại bỏ quy trình quét và khử trùng vehicle grid ngầm định kỳ mỗi 256 frame trong luồng mô phỏng. Quy trình cũ liên tục reset ExtSegmentEnd.firstVehicleId trong TM:PE khiến hàng xe mất dấu xe dẫn đầu, tạo chu kỳ tăng tốc - phanh gấp - giật cục.
@@ -31,5 +49,5 @@
 - Tương thích toàn diện với More Props BETA & Grid Cycle Armor.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.4 Close Beta: Road Vehicle Smooth Physics (eliminated live grid scrubbing & stuttering), TLM 64K Citizen Entry Armor, Universal Public Transport Reliability."
+	"changenote"		"v5.1.7 Close Beta: NetGrid Cycle Immunity (fixed TM:PE node manipulation & TransportTool bus stop placement), TransportLine stop loop sanitizer, InitializeNode/Segment duplicate insertion self-loop guard."
 }
