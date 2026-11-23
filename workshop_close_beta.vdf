@@ -9,6 +9,23 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
+[h2]Cập nhật Close Beta v5.1.8:[/h2]
+- [b]Khắc phục toàn diện lỗi ArrayGuardian thất bại khi mở rộng mảng TM:PE Flags (0 success, 3 failures):[/b]
+  + Sửa lỗi ngoại lệ `ArgumentException` trong `Marshal.SizeOf` đối với các kiểu mảng có phần tử `Nullable<LaneArrows>` và `Nullable<ExtVehicleType>[]` (jagged array).
+  + Bổ sung cơ chế tự động khởi tạo trước mảng (pre-allocation) nếu TM:PE chưa kịp cấp phát mảng tại thời điểm OnCreated/OnEnabled.
+- [b]Lá chắn KianCommons kTags Armor & hóa giải TypeInitializationException:[/b]
+  + Đánh chặn và xử lý an toàn lỗi phản xạ `ReflectionHelpers.GetFieldValue("kTags")` trên lớp generic `DynamicFlags<NetInfo>`, triệt tiêu dứt điểm lỗi `NetInfo.kTags not found` làm sập hàm khởi tạo tĩnh `NetUtil..cctor` và `NetUI`.
+  + Tự động đồng bộ các bộ đệm tĩnh `nodeBuffer_`, `segmentBuffer_`, `laneBuffer_` trong KianCommons với bộ đệm thực tế 65K của NetManager.
+  + Vá an toàn các hàm kiểm tra giới hạn `NetUtil.IsNodeValid/IsSegmentValid/AssertSegmentValid/IsLaneValid`.
+  + Vô hiệu hóa triệt để vòng lặp phản xạ không an toàn trong Core gây lỗi bộ nhớ Mono (`mono.dll 0xC0000005 Access Violation`).
+- [b]Sửa lỗi lệch lát cắt mô phỏng Điện & Nước (Simulation Slice Pattern Mismatch 65K):[/b]
+  + Tự động mở rộng dải phân mảnh mô phỏng 128 lát cắt của `WaterManager.SimulationStepImpl` và `ElectricityManager.SimulationStepImpl` (cả Vanilla và EightyOne2) từ 32.768 lên toàn vẹn 65.024 nodes.
+  + Giải quyết dứt điểm hiện tượng gián đoạn / đứng mô phỏng khi kéo và nối ống nước vượt ngưỡng 32.768 nodes.
+- [b]Bọc thép vòng lặp TransportLine 65K (TransportLine.SimulationStep):[/b]
+  + Mở rộng toàn bộ 4 điểm giới hạn nhánh duyệt trạm dừng trong `TransportLine.SimulationStep` lên 65.024 nodes, khắc phục lỗi Core không thể khớp mẫu (shifted loop occurrences) và ngăn chặn ngoại lệ `NullReferenceException`.
+- [b]Bỏ che chắn ngoại lệ Safe Log Armor (Unmuted Exception Logging):[/b]
+  + Cho phép `DebugLogHandler.LogException` ghi lại nguyên bản mọi thông báo ngoại lệ vào `output_log.txt` trên luồng mô phỏng, chấm dứt tình trạng giấu lỗi ngầm.
+
 [h2]Cập nhật Close Beta v5.1.7:[/h2]
 - [b]Khắc phục triệt để lỗi kẹt vòng lặp ma trên lưới Node/Segment (NetGrid Cycle Immunity):[/b]
   + Tích hợp bộ dọn dẹp `NetGridSanitizer`: Tự động quét và hóa giải các chu trình liên kết tròn (Circular Linked List) trong `m_nodeGrid` và `m_segmentGrid` của `NetManager` ngay khi tải save và trước khi lưu save.
@@ -49,5 +66,5 @@
 - Tương thích toàn diện với More Props BETA & Grid Cycle Armor.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.7 Close Beta: NetGrid Cycle Immunity (fixed TM:PE node manipulation & TransportTool bus stop placement), TransportLine stop loop sanitizer, InitializeNode/Segment duplicate insertion self-loop guard."
+	"changenote"		"v5.1.8 Close Beta: Fix ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bounds, unmuted exception logging."
 }

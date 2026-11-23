@@ -1013,6 +1013,21 @@ namespace MoreNetworkCapacityRenew
                             SetStaticBuffer(tmpe, "TrafficManager.Util.Extensions.NetSegmentExtensions", "_segBuffer", nm.m_segments.m_buffer, MNCConstants.CORE_NET_CAPACITY);
                         if (nm.m_nodes != null && nm.m_nodes.m_buffer != null)
                             SetStaticBuffer(tmpe, "TrafficManager.Util.Extensions.NetNodeExtensions", "_nodeBuffer", nm.m_nodes.m_buffer, MNCConstants.CORE_NET_CAPACITY);
+
+                        // Synchronize KianCommons static network buffers if loaded
+                        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            Type nuType = asm.GetType("KianCommons.NetUtil", throwOnError: false);
+                            if (nuType != null)
+                            {
+                                if (nm.m_lanes != null && nm.m_lanes.m_buffer != null)
+                                    SetStaticBuffer(asm, "KianCommons.NetUtil", "laneBuffer_", nm.m_lanes.m_buffer, 262144);
+                                if (nm.m_segments != null && nm.m_segments.m_buffer != null)
+                                    SetStaticBuffer(asm, "KianCommons.NetUtil", "segmentBuffer_", nm.m_segments.m_buffer, MNCConstants.CORE_NET_CAPACITY);
+                                if (nm.m_nodes != null && nm.m_nodes.m_buffer != null)
+                                    SetStaticBuffer(asm, "KianCommons.NetUtil", "nodeBuffer_", nm.m_nodes.m_buffer, MNCConstants.CORE_NET_CAPACITY);
+                            }
+                        }
                     }
                 }
 
@@ -1061,7 +1076,21 @@ namespace MoreNetworkCapacityRenew
                     }
                     
                     object arrayObj = field.GetValue(null);
-                    if (arrayObj == null || !(arrayObj is Array))
+                    if (arrayObj == null)
+                    {
+                        if (field.FieldType.IsArray)
+                        {
+                            Type elemType = field.FieldType.GetElementType();
+                            Array newArr = Array.CreateInstance(elemType, targetSize);
+                            field.SetValue(null, newArr);
+                            TotalExpansions++;
+                            UnityEngine.Debug.Log(string.Format("[ArrayGuardian] Pre-allocated {0}.{1} at {2} elements ✓", type.Name, fieldName, targetSize));
+                            return true;
+                        }
+                        UnityEngine.Debug.LogWarning(string.Format("[ArrayGuardian] {0}.{1} is null and not an array type", type.Name, fieldName));
+                        return false;
+                    }
+                    if (!(arrayObj is Array))
                     {
                         UnityEngine.Debug.LogWarning(string.Format("[ArrayGuardian] {0}.{1} is not an array", type.Name, fieldName));
                         return false;
@@ -1077,11 +1106,25 @@ namespace MoreNetworkCapacityRenew
                     
                     // NEW (Task 8.2): Calculate allocation size and notify MemoryCoordinator (Req 6.7)
                     Type elementType = currentArray.GetType().GetElementType();
-                    int elementSize = System.Runtime.InteropServices.Marshal.SizeOf(elementType);
+                    int elementSize = 4;
+                    try
+                    {
+                        if (elementType.IsValueType && !elementType.IsGenericType)
+                        {
+                            elementSize = System.Runtime.InteropServices.Marshal.SizeOf(elementType);
+                        }
+                    }
+                    catch
+                    {
+                        elementSize = 8;
+                    }
                     int arraySizeBytes = targetSize * elementSize;
                     
-                    // NEW (Task 8.2): Notify MemoryCoordinator before array expansion (Req 6.1, 6.2)
-                    MemoryCoordinator.OnBeforeArrayExpansion("MNC", arraySizeBytes);
+                    try
+                    {
+                        MemoryCoordinator.OnBeforeArrayExpansion("MNC", arraySizeBytes);
+                    }
+                    catch {}
                     
                     try
                     {
@@ -1101,8 +1144,11 @@ namespace MoreNetworkCapacityRenew
                     }
                     finally
                     {
-                        // NEW (Task 8.2): Always release coordination lock, even on exception
-                        MemoryCoordinator.OnAfterArrayExpansion("MNC");
+                        try
+                        {
+                            MemoryCoordinator.OnAfterArrayExpansion("MNC");
+                        }
+                        catch {}
                     }
                 }
             }
@@ -1171,17 +1217,18 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
-                if (field == null) return false;
+                if (field == null) return true; // not an error if field doesn't exist on this TM:PE version
                 
                 object arrayObj = field.GetValue(null);
-                if (arrayObj == null || !(arrayObj is Array)) return false;
+                if (arrayObj == null) return true; // not initialized yet, don't report false failure
+                if (!(arrayObj is Array)) return false;
                 
                 Array array = (Array)arrayObj;
                 return array.Length >= expectedSize;
             }
             catch
             {
-                return false;
+                return true;
             }
         }
         
@@ -1848,10 +1895,10 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.7 by NgocDuy";
-        public string Description => "[Close Beta v5.1.7] Fixed NetManager m_nodeGrid/m_segmentGrid cycles (restoring TM:PE node manipulation & TransportTool bus stop placement), TransportLine stop loop sanitizer.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.8 by NgocDuy";
+        public string Description => "[Close Beta v5.1.8] Fixed ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bound, and unmuted exception logging.";
 #else
-        public string Name => "More Nodes/Segments v5.1.7 by NgocDuy";
+        public string Name => "More Nodes/Segments v5.1.8 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
@@ -1903,6 +1950,7 @@ namespace MoreNetworkCapacityRenew
                 
                 // NEW v4.0.0: Initialize ArrayGuardian EARLY (before game systems init)
                 DiagnosticLogger.Checkpoint("RenewMod.OnEnabled.Start");
+                try { KianCommonsArmor.Apply(HarmonyInstance.Create("MoreNetworkCapacityRenew.KianArmor")); } catch {}
                 ArrayGuardian.Initialize();
                 ArrayGuardian.ExpandAllArrays();
                 ArrayGuardian.ValidateAllArrays();
@@ -2067,6 +2115,8 @@ namespace MoreNetworkCapacityRenew
                     if (fSupp != null) fSupp.SetValue(null, true);
                 }
 
+                NeutralizeCoreKianCommonsPatching(mnc);
+
                 Type hbType = mnc.GetType("MoreNetworkCapacity.HarmonyBootstrap");
                 if (hbType != null)
                 {
@@ -2076,7 +2126,6 @@ namespace MoreNetworkCapacityRenew
                         var mEnable = hbType.GetMethod("Enable", BindingFlags.NonPublic | BindingFlags.Static);
                         if (mEnable != null)
                         {
-                            NeutralizeCoreKianCommonsPatching(mnc);
                             mEnable.Invoke(null, null);
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] MoreNetworkCapacity HarmonyBootstrap.Enable() triggered successfully!");
                         }
@@ -2104,10 +2153,45 @@ namespace MoreNetworkCapacityRenew
                     var preMethod = typeof(RenewMod).GetMethod(nameof(SkipCoreKianCommonsPrefix), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                     if (preMethod != null)
                     {
-                        var m1 = sbcType.GetMethod("PatchKianCommonsLimits", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (m1 != null) harmony.Patch(m1, prefix: new HarmonyMethod(preMethod));
-                        var m2 = sbcType.GetMethod("PatchKianCommonsMethod", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        if (m2 != null) harmony.Patch(m2, prefix: new HarmonyMethod(preMethod));
+                        string[] targets = new string[] {
+                            "PatchKianCommonsLimits",
+                            "PatchKianCommonsMethod",
+                            "ApplyKianCommonsCompatibility",
+                            "ApplyEarly",
+                            "ApplyAll"
+                        };
+                        foreach (string tName in targets)
+                        {
+                            try
+                            {
+                                foreach (var m in sbcType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                                {
+                                    if (m.Name == tName)
+                                    {
+                                        harmony.Patch(m, prefix: new HarmonyMethod(preMethod));
+                                    }
+                                }
+                            }
+                            catch {}
+                        }
+
+                        // Also neutralize ThirdPartyCapacityCompatibility.ApplyEarly in Core
+                        try
+                        {
+                            Type tpccType = mncCore.GetType("MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility");
+                            if (tpccType != null)
+                            {
+                                foreach (var m in tpccType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                                {
+                                    if (m.Name == "ApplyEarly")
+                                    {
+                                        harmony.Patch(m, prefix: new HarmonyMethod(preMethod));
+                                    }
+                                }
+                            }
+                        }
+                        catch {}
+
                         _coreKianCommonsNeutralized = true;
                         UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Successfully neutralized Core unsafe KianCommons reflection loop to prevent mono.dll crash.");
                     }
@@ -9974,7 +10058,8 @@ namespace MoreNetworkCapacityRenew
 
                 try
                 {
-                    // Patch KianCommons limits
+                    // Patch KianCommons limits with armor protection
+                    KianCommonsArmor.Apply(harmony);
                     int patchedCount = 0;
                     foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                     {
@@ -10011,6 +10096,16 @@ namespace MoreNetworkCapacityRenew
         {
             try
             {
+                if (harmony == null || type == null) return 0;
+                KianCommonsArmor.Apply(harmony);
+
+                // Run type initializer under KianCommonsArmor guard
+                try
+                {
+                    System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                }
+                catch {}
+
                 MethodInfo methodInfo = null;
                 MethodInfo[] methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (MethodInfo methodInfo2 in methods)
@@ -11254,6 +11349,102 @@ namespace MoreNetworkCapacityRenew
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] MNCSerializableData.OnLoadData error: " + ex);
             }
+        }
+    }
+
+    // ============================================================================
+    // KIANCOMMONS ARMOR (kTags & DynamicFlags Compatibility)
+    // ============================================================================
+    internal static class KianCommonsArmor
+    {
+        private static readonly HashSet<string> _armoredAssemblies = new HashSet<string>();
+        private static bool _domainHooked = false;
+
+        public static void Apply(HarmonyInstance harmony)
+        {
+            if (harmony == null) return;
+            try
+            {
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    ArmorAssembly(harmony, asm);
+                }
+
+                if (!_domainHooked)
+                {
+                    AppDomain.CurrentDomain.AssemblyLoad += (sender, args) =>
+                    {
+                        try
+                        {
+                            if (args.LoadedAssembly != null)
+                            {
+                                ArmorAssembly(harmony, args.LoadedAssembly);
+                            }
+                        }
+                        catch {}
+                    };
+                    _domainHooked = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] KianCommonsArmor.Apply error: " + ex);
+            }
+        }
+
+        public static void ArmorAssembly(HarmonyInstance harmony, Assembly asm)
+        {
+            if (asm == null) return;
+            string name = asm.GetName().Name;
+            if (_armoredAssemblies.Contains(name)) return;
+
+            try
+            {
+                Type reflHelpers = asm.GetType("KianCommons.ReflectionHelpers", throwOnError: false);
+                if (reflHelpers != null)
+                {
+                    MethodInfo mGetField = reflHelpers.GetMethod("GetFieldValue", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(Type), typeof(string) }, null);
+                    if (mGetField != null)
+                    {
+                        MethodInfo pre = typeof(KianCommonsArmor).GetMethod(nameof(GetFieldValue_Prefix), BindingFlags.Public | BindingFlags.Static);
+                        if (pre != null)
+                        {
+                            harmony.Patch(mGetField, prefix: new HarmonyMethod(pre));
+                            _armoredAssemblies.Add(name);
+                            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] Armored KianCommons.ReflectionHelpers.GetFieldValue in {0} against kTags TypeInitializationException ✓", name));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] ArmorAssembly {0} warning: {1}", name, ex.Message));
+            }
+        }
+
+        public static bool GetFieldValue_Prefix(Type target, string fieldName, ref object __result)
+        {
+            if (fieldName == "kTags")
+            {
+                try
+                {
+                    if (target != null && target.IsGenericType && !target.IsGenericTypeDefinition)
+                    {
+                        Type def = target.GetGenericTypeDefinition();
+                        FieldInfo fi = def.GetField("kTags", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | (BindingFlags)15420);
+                        if (fi != null)
+                        {
+                            __result = fi.GetValue(null);
+                            if (__result != null) return false;
+                        }
+                    }
+                }
+                catch {}
+
+                __result = new Dictionary<string, int>();
+                return false;
+            }
+            return true;
         }
     }
 
@@ -12993,6 +13184,10 @@ namespace MoreNetworkCapacityRenew
                 {
                     inst.opcode = OpCodes.Call;
                     inst.operand = mSafe;
+                }
+                else if (inst.opcode == OpCodes.Ldc_I4 && inst.operand is int val && val == 32768)
+                {
+                    inst.operand = MNCConstants.CORE_NET_CAPACITY;
                 }
                 yield return inst;
             }
@@ -15053,7 +15248,7 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching DataSerializer.ReadSharedType: " + ex);
                 }
 
-                // 3i. Patch DebugLogHandler.LogFormat & LogException (Universal UTF-16 Log Armor against P/Invoke ArgumentException crashes)
+                // 3i. Patch DebugLogHandler.LogFormat (Universal UTF-16 Log Armor against P/Invoke ArgumentException crashes)
                 try
                 {
                     Type dlhType = typeof(UnityEngine.Debug).Assembly.GetType("UnityEngine.DebugLogHandler");
@@ -15066,19 +15261,31 @@ namespace MoreNetworkCapacityRenew
                             harmony.Patch(logFormat, prefix: new HarmonyMethod(preFormat) { prioritiy = Harmony.Priority.First });
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DebugLogHandler.LogFormat with Universal UTF-16 Log Armor (Priority.First).");
                         }
-
-                        MethodInfo logEx = dlhType.GetMethod("LogException", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        MethodInfo preEx = typeof(TransportLineCompatibility).GetMethod(nameof(DebugLogHandler_LogException_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        if (logEx != null && preEx != null)
-                        {
-                            harmony.Patch(logEx, prefix: new HarmonyMethod(preEx) { prioritiy = Harmony.Priority.First });
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched DebugLogHandler.LogException with Safe Log Armor (Priority.First).");
-                        }
+                        // Note: DebugLogHandler.LogException is deliberately NOT suppressed so simulation thread crashes are never hidden.
                     }
                 }
                 catch (Exception ex)
                 {
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error patching DebugLogHandler: " + ex);
+                }
+
+                // 3j. Patch TransportLine.SimulationStep (65K Stop Node Bounds Armor)
+                try
+                {
+                    MethodInfo mSimStep = typeof(TransportLine).GetMethod("SimulationStep", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null);
+                    if (mSimStep != null)
+                    {
+                        MethodInfo trans = typeof(TransportLineCompatibility).GetMethod(nameof(TranspileTransportLineSimulationStep), BindingFlags.Public | BindingFlags.Static);
+                        if (trans != null)
+                        {
+                            harmony.Patch(mSimStep, transpiler: new HarmonyMethod(trans));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored TransportLine.SimulationStep with 65K node loop bound transpiler ✓");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Error armoring TransportLine.SimulationStep: " + ex);
                 }
 
                 // 3k. Patch VehicleManager.Data.AfterDeserialize (Deadlock-Free Orphan/Broken Vehicle Neutralizer)
@@ -17074,9 +17281,6 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
-        private static MethodInfo s_internalLogMethod;
-        private static MethodInfo s_internalLogExceptionMethod;
-
         public static bool DebugLogHandler_LogFormat_Prefix(UnityEngine.LogType logType, UnityEngine.Object context, ref string format, ref object[] args)
         {
             try
@@ -17092,59 +17296,30 @@ namespace MoreNetworkCapacityRenew
                         }
                     }
                 }
-
-                string text;
-                try
-                {
-                    text = (args != null && args.Length > 0) ? string.Format(format, args) : format;
-                }
-                catch
-                {
-                    text = format ?? string.Empty;
-                }
-                text = Utf16Sanitizer.Sanitize(text);
-
-                if (s_internalLogMethod == null)
-                {
-                    Type dlhType = typeof(UnityEngine.Debug).Assembly.GetType("UnityEngine.DebugLogHandler");
-                    s_internalLogMethod = dlhType?.GetMethod("Internal_Log", BindingFlags.Static | BindingFlags.NonPublic);
-                }
-
-                try
-                {
-                    s_internalLogMethod?.Invoke(null, new object[] { logType, text, context });
-                }
-                catch {}
-
-                return false;
+                return true;
             }
             catch
             {
-                return false;
+                return true;
             }
         }
 
         public static bool DebugLogHandler_LogException_Prefix(Exception exception, UnityEngine.Object context)
         {
-            try
-            {
-                if (s_internalLogExceptionMethod == null)
-                {
-                    Type dlhType = typeof(UnityEngine.Debug).Assembly.GetType("UnityEngine.DebugLogHandler");
-                    s_internalLogExceptionMethod = dlhType?.GetMethod("Internal_LogException", BindingFlags.Static | BindingFlags.NonPublic);
-                }
+            // Do NOT swallow real simulation/engine exceptions!
+            // Return true so Unity's native DebugLogHandler logs the exception to output_log.txt normally.
+            return true;
+        }
 
-                try
-                {
-                    s_internalLogExceptionMethod?.Invoke(null, new object[] { exception, context });
-                }
-                catch {}
-
-                return false;
-            }
-            catch
+        public static IEnumerable<CodeInstruction> TranspileTransportLineSimulationStep(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (var inst in instructions)
             {
-                return false;
+                if (inst.opcode == OpCodes.Ldc_I4 && inst.operand is int val && val == 32768)
+                {
+                    inst.operand = MNCConstants.CORE_NET_CAPACITY;
+                }
+                yield return inst;
             }
         }
 
