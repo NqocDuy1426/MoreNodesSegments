@@ -10,6 +10,10 @@
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
 [h2]Cập nhật Close Beta v5.1.8:[/h2]
+- [b]Mở rộng lát cắt mô phỏng NetManager 65K (Sửa lỗi treo đèn giao thông mặc định & lỗi màu traffic):[/b]
+  + Chuyển đổi dải phân mảnh mô phỏng 256 frame trong `NetManager.SimulationStepImpl`: đoạn đường (Segments: 144 -> 254) và nút giao (Nodes: 128 -> 254), bao phủ trọn vẹn 65.024 đối tượng.
+  + Sửa dứt điểm lỗi đèn giao thông mặc định (Vanilla Traffic Lights) bị kẹt cứng 1 trạng thái tại các ngã 4 có Node ID cao (>= 32.768), làm 2 hướng thông thoáng còn 2 hướng tê liệt hoàn toàn.
+  + Phục hồi tính toán mật độ giao thông (`m_trafficDensity`) và lớp màu hiển thị giao thông (`UpdateSegmentColors` / `UpdateNodeColors`) cho toàn bộ các đoạn đường và nút giao có ID >= 32.768 / 36.864.
 - [b]Khắc phục toàn diện lỗi ArrayGuardian thất bại khi mở rộng mảng TM:PE Flags (0 success, 3 failures):[/b]
   + Sửa lỗi ngoại lệ `ArgumentException` trong `Marshal.SizeOf` đối với các kiểu mảng có phần tử `Nullable<LaneArrows>` và `Nullable<ExtVehicleType>[]` (jagged array).
   + Bổ sung cơ chế tự động khởi tạo trước mảng (pre-allocation) nếu TM:PE chưa kịp cấp phát mảng tại thời điểm OnCreated/OnEnabled.
@@ -66,5 +70,5 @@
 - Tương thích toàn diện với More Props BETA & Grid Cycle Armor.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.8 Close Beta: Fix ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bounds, unmuted exception logging."
+	"changenote"		"v5.1.8 Close Beta: Fix NetManager 65K simulation slices (traffic lights freeze & traffic color overlay), ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bounds, unmuted exception logging."
 }

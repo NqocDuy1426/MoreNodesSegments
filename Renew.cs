@@ -1896,7 +1896,7 @@ namespace MoreNetworkCapacityRenew
     {
 #if CLOSE_BETA
         public string Name => "More Nodes/Segments [Close Beta] v5.1.8 by NgocDuy";
-        public string Description => "[Close Beta v5.1.8] Fixed ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bound, and unmuted exception logging.";
+        public string Description => "[Close Beta v5.1.8] Fixed NetManager 65K simulation slices (traffic lights & traffic color overlay), ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bound, and unmuted exception logging.";
 #else
         public string Name => "More Nodes/Segments v5.1.8 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
@@ -13210,6 +13210,22 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor vanilla WaterManager error: " + ex);
                 }
 
+                // 3. Vanilla NetManager.SimulationStepImpl (Expand segment & node slices from 144/128 to 254 to cover 65K elements across 256 frames)
+                try
+                {
+                    MethodInfo mNet = typeof(NetManager).GetMethod("SimulationStepImpl", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(int) }, null);
+                    if (mNet != null)
+                    {
+                        MethodInfo transNet = typeof(ThirdPartyCompatibility).GetMethod(nameof(TranspileNetManagerSimulationStep), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mNet, transpiler: new HarmonyMethod(transNet), finalizer: new HarmonyMethod(fin));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored vanilla NetManager.SimulationStepImpl with 65K slice transpiler (144->254, 128->254) + finalizer!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor vanilla NetManager error: " + ex);
+                }
+
                 _vanillaSimulationShieldPatched = true;
             }
             catch (Exception ex)
@@ -13241,11 +13257,44 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static IEnumerable<CodeInstruction> TranspileNetManagerSimulationStep(IEnumerable<CodeInstruction> instructions)
+        {
+            int sliceSize = (MNCConstants.CORE_NET_CAPACITY + 255) / 256; // 65024 / 256 = 254
+            int replaced144 = 0;
+            int replaced128 = 0;
+            foreach (var inst in instructions)
+            {
+                if (inst.opcode == OpCodes.Ldc_I4 || inst.opcode == OpCodes.Ldc_I4_S)
+                {
+                    int intVal = -1;
+                    if (inst.operand is int vInt) intVal = vInt;
+                    else if (inst.operand is sbyte vSbyte) intVal = vSbyte;
+                    else if (inst.operand is byte vByte) intVal = vByte;
+                    else if (inst.operand is short vShort) intVal = vShort;
+
+                    if (intVal == 144)
+                    {
+                        inst.opcode = OpCodes.Ldc_I4;
+                        inst.operand = sliceSize;
+                        replaced144++;
+                    }
+                    else if (intVal == 128)
+                    {
+                        inst.opcode = OpCodes.Ldc_I4;
+                        inst.operand = sliceSize;
+                        replaced128++;
+                    }
+                }
+                yield return inst;
+            }
+            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] NetManager.SimulationStepImpl transpiled: {0}x 144->{2}, {1}x 128->{2}", replaced144, replaced128, sliceSize));
+        }
+
         public static Exception SimulationStepImpl_Finalizer(Exception __exception)
         {
             if (__exception != null)
             {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled simulation step exception in Water/ElectricityManager to prevent simulation freeze: " + __exception.Message);
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled simulation step exception in Manager to prevent simulation freeze: " + __exception.ToString());
                 return null;
             }
             return null;
