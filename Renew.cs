@@ -2047,9 +2047,21 @@ namespace MoreNetworkCapacityRenew
             try
             {
                 string thisLocation = Assembly.GetExecutingAssembly().Location;
-                if (!string.IsNullOrEmpty(thisLocation))
+                string dir = !string.IsNullOrEmpty(thisLocation) ? Path.GetDirectoryName(thisLocation) : null;
+                if (string.IsNullOrEmpty(dir) && ColossalFramework.Plugins.PluginManager.instance != null)
                 {
-                    string dir = Path.GetDirectoryName(thisLocation);
+                    foreach (var plugin in ColossalFramework.Plugins.PluginManager.instance.GetPluginsInfo())
+                    {
+                        if (plugin.userModInstance is IUserMod mod && mod.Name.Contains("More Nodes/Segments"))
+                        {
+                            dir = plugin.modPath;
+                            break;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(dir))
+                {
                     string coreFile = Path.Combine(dir, "MoreNetworkCapacity.Core.dll");
                     if (File.Exists(coreFile))
                     {
@@ -2073,13 +2085,28 @@ namespace MoreNetworkCapacityRenew
                         try
                         {
                             string thisLocation = Assembly.GetExecutingAssembly().Location;
-                            if (!string.IsNullOrEmpty(thisLocation))
+                            string dir = !string.IsNullOrEmpty(thisLocation) ? Path.GetDirectoryName(thisLocation) : null;
+                            if (string.IsNullOrEmpty(dir) && ColossalFramework.Plugins.PluginManager.instance != null)
                             {
-                                string dir = Path.GetDirectoryName(thisLocation);
+                                foreach (var plugin in ColossalFramework.Plugins.PluginManager.instance.GetPluginsInfo())
+                                {
+                                    if (plugin.userModInstance is IUserMod mod && mod.Name.Contains("More Nodes/Segments"))
+                                    {
+                                        dir = plugin.modPath;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(dir))
+                            {
                                 string coreFile = Path.Combine(dir, "MoreNetworkCapacity.Core.dll");
                                 if (!File.Exists(coreFile))
                                 {
                                     File.WriteAllBytes(coreFile, data);
+                                }
+                                if (File.Exists(coreFile))
+                                {
                                     return Assembly.LoadFrom(coreFile);
                                 }
                             }
@@ -13111,6 +13138,27 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor EightyOne2 ExpandedWaterManager error: " + ex);
                 }
 
+                // 9. Armor EightyOne2.Patches.WaterManagerPatches.UpdateGrid (32768 loop bound expansion)
+                try
+                {
+                    Type wmPatches = eightyOneAsm.GetType("EightyOne2.Patches.WaterManagerPatches");
+                    if (wmPatches != null)
+                    {
+                        MethodInfo mUpdateGrid = wmPatches.GetMethod("UpdateGrid", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                        if (mUpdateGrid != null)
+                        {
+                            MethodInfo trans = typeof(ThirdPartyCompatibility).GetMethod(nameof(TranspileSafeDivision), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(mUpdateGrid, transpiler: new HarmonyMethod(trans));
+                            patchedCount++;
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored EightyOne2.Patches.WaterManagerPatches.UpdateGrid with 65K bounds!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armor EightyOne2 WaterManagerPatches.UpdateGrid error: " + ex);
+                }
+
                 if (patchedCount > 0)
                 {
                     _eightyOne2Patched = true;
@@ -13197,12 +13245,10 @@ namespace MoreNetworkCapacityRenew
         {
             if (__exception != null)
             {
-                if (__exception is DivideByZeroException || (__exception.InnerException != null && __exception.InnerException is DivideByZeroException))
-                {
-                    return null;
-                }
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled simulation step exception in Water/ElectricityManager to prevent simulation freeze: " + __exception.Message);
+                return null;
             }
-            return __exception;
+            return null;
         }
 
         public static void Harmonize81Tiles()
