@@ -15462,6 +15462,17 @@ namespace MoreNetworkCapacityRenew
                         MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_InitializeNode_Prefix), BindingFlags.Public | BindingFlags.Static);
                         harmony.Patch(initNode, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First });
                     }
+                    Type nmDataType = typeof(NetManager).GetNestedType("Data", BindingFlags.Public | BindingFlags.NonPublic);
+                    if (nmDataType != null)
+                    {
+                        MethodInfo desMethod = nmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (desMethod != null)
+                        {
+                            MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(desMethod, finalizer: new HarmonyMethod(fin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.Deserialize with Finalizer Shield.");
+                        }
+                    }
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager InitializeSegment & InitializeNode with Dynamic Buffer Armor (Priority.First).");
                 }
                 catch (Exception ex)
@@ -17922,100 +17933,122 @@ namespace MoreNetworkCapacityRenew
             {
                 if (__instance != null)
                 {
-                    int maxReq = Math.Max((int)data.m_startNode, (int)data.m_endNode);
-                    if (__instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    if (__instance.m_segments == null || __instance.m_segments.m_buffer == null ||
+                        __instance.m_nodes == null || __instance.m_nodes.m_buffer == null ||
+                        __instance.m_segmentGrid == null || segment == 0 || segment >= __instance.m_segments.m_buffer.Length)
                     {
-                        if (maxReq >= __instance.m_nodes.m_buffer.Length)
-                        {
-                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                            TMPECompatibility.EnsureExpandedSave();
-                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, maxReq + 1024);
-                            if (__instance.m_nodes.m_buffer.Length < targetSize)
-                            {
-                                Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_nodes buffer to {0} (prevented crash on segment {1} nodes {2}->{3})", targetSize, segment, data.m_startNode, data.m_endNode));
-                            }
-                        }
-                    }
-                    if (__instance.m_segments != null && __instance.m_segments.m_buffer != null)
-                    {
-                        if (segment >= __instance.m_segments.m_buffer.Length)
-                        {
-                            ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                            TMPECompatibility.EnsureExpandedSave();
-                            int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)segment + 1024);
-                            if (__instance.m_segments.m_buffer.Length < targetSize)
-                            {
-                                Array.Resize(ref __instance.m_segments.m_buffer, targetSize);
-                                UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Dynamically expanded m_segments buffer to {0} (prevented crash on segment {1})", targetSize, segment));
-                            }
-                        }
+                        data.m_flags = 0;
+                        data.m_nextGridSegment = 0;
+                        return false;
                     }
 
-                    // Cycle guard: If segment is already the head of the target grid cell, do NOT prepend it again!
-                    if (__instance.m_segmentGrid != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                    ushort sNode = data.m_startNode;
+                    ushort eNode = data.m_endNode;
+                    int nodeBufLen = __instance.m_nodes.m_buffer.Length;
+
+                    // If either startNode or endNode is invalid or out of bounds:
+                    if (sNode == 0 || sNode >= nodeBufLen || eNode == 0 || eNode >= nodeBufLen)
                     {
-                        ushort sNode = data.m_startNode;
-                        ushort eNode = data.m_endNode;
-                        if (sNode < __instance.m_nodes.m_buffer.Length && eNode < __instance.m_nodes.m_buffer.Length)
-                        {
-                            Vector3 v = (__instance.m_nodes.m_buffer[sNode].m_position + __instance.m_nodes.m_buffer[eNode].m_position) * 0.5f;
-                            int gx = UnityEngine.Mathf.Clamp((int)(v.x / 64f + 135f), 0, 269);
-                            int gz = UnityEngine.Mathf.Clamp((int)(v.z / 64f + 135f), 0, 269);
-                            int gIdx = gz * 270 + gx;
-                            if (__instance.m_segmentGrid[gIdx] == segment)
-                            {
-                                data.m_nextGridSegment = 0;
-                                return false; // Prevent circular self-loop
-                            }
-                        }
+                        UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeSegment: Suppressed corrupt segment {0} with invalid nodes {1}->{2} (node buffer length={3})", segment, sNode, eNode, nodeBufLen));
+                        data.m_flags = 0;
+                        data.m_nextGridSegment = 0;
+                        return false;
                     }
+
+                    // Safely compute grid coordinates
+                    Vector3 position = __instance.m_nodes.m_buffer[sNode].m_position;
+                    Vector3 position2 = __instance.m_nodes.m_buffer[eNode].m_position;
+                    Vector3 vector = (position + position2) * 0.5f;
+                    int num = UnityEngine.Mathf.Clamp((int)(vector.x / 64f + 135f), 0, 269);
+                    int num2 = UnityEngine.Mathf.Clamp((int)(vector.z / 64f + 135f), 0, 269);
+                    int num3 = num2 * 270 + num;
+
+                    if (num3 >= 0 && num3 < __instance.m_segmentGrid.Length)
+                    {
+                        // Cycle guard: If segment is already the head of the target grid cell, do NOT prepend it again!
+                        if (__instance.m_segmentGrid[num3] == segment)
+                        {
+                            data.m_nextGridSegment = 0;
+                            return false;
+                        }
+
+                        data.m_nextGridSegment = __instance.m_segmentGrid[num3];
+                        __instance.m_segmentGrid[num3] = segment;
+                    }
+                    else
+                    {
+                        data.m_nextGridSegment = 0;
+                    }
+
+                    return false; // Safely handled, skip vanilla InitializeSegment completely
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeSegment_Prefix armor error: " + ex);
+                data.m_flags = 0;
+                data.m_nextGridSegment = 0;
+                return false;
             }
-            return true;
+            return false;
         }
 
         public static bool NetManager_InitializeNode_Prefix(NetManager __instance, ushort node, ref NetNode data)
         {
             try
             {
-                if (__instance != null && __instance.m_nodes != null && __instance.m_nodes.m_buffer != null)
+                if (__instance != null)
                 {
-                    if (node >= __instance.m_nodes.m_buffer.Length)
+                    if (__instance.m_nodes == null || __instance.m_nodes.m_buffer == null ||
+                        __instance.m_nodeGrid == null || node == 0 || node >= __instance.m_nodes.m_buffer.Length)
                     {
-                        ThirdPartyCompatibility.s_CurrentSaveIsExpanded = true;
-                        TMPECompatibility.EnsureExpandedSave();
-                        int targetSize = Math.Max((int)MNCConstants.CORE_NET_CAPACITY, (int)node + 1024);
-                        if (__instance.m_nodes.m_buffer.Length < targetSize)
-                        {
-                            Array.Resize(ref __instance.m_nodes.m_buffer, targetSize);
-                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] NetManager.InitializeNode: Dynamically expanded m_nodes buffer to {0} (prevented crash on node {1})", targetSize, node));
-                        }
+                        data.m_flags = 0;
+                        data.m_nextGridNode = 0;
+                        return false;
                     }
 
-                    // Cycle guard: If node is already the head of the target grid cell, do NOT prepend it again!
-                    if (__instance.m_nodeGrid != null)
+                    int num = UnityEngine.Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
+                    int num2 = UnityEngine.Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
+                    int num3 = num2 * 270 + num;
+
+                    if (num3 >= 0 && num3 < __instance.m_nodeGrid.Length)
                     {
-                        int gx = UnityEngine.Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
-                        int gz = UnityEngine.Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
-                        int gIdx = gz * 270 + gx;
-                        if (__instance.m_nodeGrid[gIdx] == node)
+                        // Cycle guard: If node is already the head of the target grid cell, do NOT prepend it again!
+                        if (__instance.m_nodeGrid[num3] == node)
                         {
                             data.m_nextGridNode = 0;
-                            return false; // Prevent circular self-loop
+                            return false;
                         }
+
+                        data.m_nextGridNode = __instance.m_nodeGrid[num3];
+                        __instance.m_nodeGrid[num3] = node;
                     }
+                    else
+                    {
+                        data.m_nextGridNode = 0;
+                    }
+
+                    return false; // Safely handled, skip vanilla InitializeNode completely
                 }
             }
             catch (Exception ex)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_InitializeNode_Prefix armor error: " + ex);
+                data.m_flags = 0;
+                data.m_nextGridNode = 0;
+                return false;
             }
-            return true;
+            return false;
+        }
+
+        public static Exception NetManager_Data_Deserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Finalizer: Neutralized deserialization exception to protect simulation: " + __exception);
+                return null; // Suppress exception so simulation does not fail!
+            }
+            return null;
         }
 
          public static bool TransportLine_GetNextStop_Prefix(ushort stop, ref ushort __result)
