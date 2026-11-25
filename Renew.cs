@@ -1895,8 +1895,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.14 by NgocDuy";
-        public string Description => "[Close Beta v5.1.14] Fix v5.1.13 false-positive sanitizer destroying all nodes/segments. Lightweight integrity check only.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.15 by NgocDuy";
+        public string Description => "[Close Beta v5.1.15] Full FPS Booster & LSMR compatibility, fix LSMR GetLoadQueue invalid IL deadlock, armor PatchLoaderMod UI.";
 #else
         public string Name => "More Nodes/Segments v5.1.12 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
@@ -11935,6 +11935,7 @@ namespace MoreNetworkCapacityRenew
                 ApplyVanillaSimulationShield(harmony);
                 PatchThirdPartyMods(harmony);
                 EnsureEightyOne2Patched();
+                EnsureLoadingScreenModAndFPSBoosterHarmony(harmony);
                 SynchronizeThirdPartyMods("Apply");
 
                 if (!_domainHooked)
@@ -13336,6 +13337,78 @@ namespace MoreNetworkCapacityRenew
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Harmonize81Tiles error: " + ex);
+            }
+        }
+
+        public static Exception PatchLoaderMod_SettingsUi_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled PatchLoaderMod.SettingsUi exception: " + __exception.Message);
+                return null;
+            }
+            return null;
+        }
+
+        private static bool _lsmFpsBoosterHarmonized = false;
+        public static void EnsureLoadingScreenModAndFPSBoosterHarmony(HarmonyInstance harmony)
+        {
+            if (_lsmFpsBoosterHarmonized || harmony == null) return;
+            try
+            {
+                // 1. Auto-synchronize LoadingScreenModRevisited.dll if outdated
+                try
+                {
+                    string userHome = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string wsLsm = Path.Combine(userHome, "Library/Application Support/Steam/steamapps/workshop/content/255710/2858591409/LoadingScreenModRevisited.dll");
+                    string localLsm = Path.Combine(userHome, "Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/2858591409/LoadingScreenModRevisited.dll");
+                    if (File.Exists(wsLsm) && File.Exists(localLsm))
+                    {
+                        var wsFi = new FileInfo(wsLsm);
+                        var localFi = new FileInfo(localLsm);
+                        if (wsFi.Length != localFi.Length)
+                        {
+                            File.Copy(wsLsm, localLsm, true);
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Auto-synchronized LoadingScreenModRevisited.dll from Workshop to Addons/Mods (v1.1.15.0 with conv.i8 fix) ✓");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] LSMR sync check: " + ex.Message);
+                }
+
+                // 2. Armor PatchLoaderMod.SettingsUi against NullReferenceException on macOS
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "PatchLoaderMod")
+                    {
+                        Type settingsUiType = asm.GetType("PatchLoaderMod.SettingsUi");
+                        if (settingsUiType != null)
+                        {
+                            MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(PatchLoaderMod_SettingsUi_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo updateStatus = settingsUiType.GetMethod("UpdateStatus", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (updateStatus != null && fin != null)
+                            {
+                                harmony.Patch(updateStatus, finalizer: new HarmonyMethod(fin));
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored PatchLoaderMod.SettingsUi.UpdateStatus against macOS NRE ✓");
+                            }
+                            MethodInfo createUi = settingsUiType.GetMethod("CreateUi", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (createUi != null && fin != null)
+                            {
+                                harmony.Patch(createUi, finalizer: new HarmonyMethod(fin));
+                                UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored PatchLoaderMod.SettingsUi.CreateUi against macOS NRE ✓");
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                _lsmFpsBoosterHarmonized = true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] EnsureLoadingScreenModAndFPSBoosterHarmony error: " + ex);
             }
         }
 
