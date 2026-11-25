@@ -1895,10 +1895,10 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.11 by NgocDuy";
-        public string Description => "[Close Beta v5.1.11] NetManager.Data.Deserialize Transpiler (SafeInitializeSegment & SafeInitializeNode cross-assembly boundary guards, loop limit clamp), multi-manager AfterDeserialize Finalizer shields, and stream sync guarantee.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.12 by NgocDuy";
+        public string Description => "[Close Beta v5.1.12] NetManager.Data.Deserialize SafeTailDeserialize stream sync & initialization armor, multi-manager AfterDeserialize Finalizer shields.";
 #else
-        public string Name => "More Nodes/Segments v5.1.11 by NgocDuy";
+        public string Name => "More Nodes/Segments v5.1.12 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
@@ -18197,60 +18197,190 @@ namespace MoreNetworkCapacityRenew
             return limit;
         }
 
+        public static void SafeTailDeserialize(ColossalFramework.IO.DataSerializer s)
+        {
+            NetManager nm = Singleton<NetManager>.instance;
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeTailDeserialize: Initiating safe tail deserialization...");
+
+            // 1. Read adjusted segments from stream if version >= 321
+            try
+            {
+                if (s != null && s.version >= 321)
+                {
+                    uint count = s.ReadUInt24();
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Reading {0} adjusted segment entries from stream...", count));
+                    ColossalFramework.IO.EncodedArray.ULong encoded = ColossalFramework.IO.EncodedArray.ULong.BeginRead(s);
+                    try
+                    {
+                        if (nm != null)
+                        {
+                            int required = Math.Max((int)count, 8192);
+                            if (nm.m_adjustedSegments == null || nm.m_adjustedSegments.Length < required)
+                            {
+                                ulong[] newAdj = new ulong[Math.Max(required, 65536)];
+                                if (nm.m_adjustedSegments != null)
+                                {
+                                    Array.Copy(nm.m_adjustedSegments, newAdj, Math.Min(nm.m_adjustedSegments.Length, newAdj.Length));
+                                }
+                                nm.m_adjustedSegments = newAdj;
+                            }
+
+                            for (int i = 0; i < count; i++)
+                            {
+                                ulong val = encoded.Read();
+                                if (i < nm.m_adjustedSegments.Length)
+                                {
+                                    nm.m_adjustedSegments[i] = val;
+                                }
+                            }
+
+                            for (int i = (int)count; i < nm.m_adjustedSegments.Length; i++)
+                            {
+                                nm.m_adjustedSegments[i] = 0UL;
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < count; i++)
+                            {
+                                encoded.Read();
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        encoded.EndRead();
+                    }
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeTailDeserialize: Adjusted segments stream read complete ✓");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Error during adjusted segments read: " + ex);
+            }
+
+            // 2. Initialize all active nodes safely
+            try
+            {
+                if (nm != null && nm.m_nodes != null && nm.m_nodes.m_buffer != null)
+                {
+                    var nodes = nm.m_nodes.m_buffer;
+                    int nodeLimit = Math.Min(nodes.Length, (int)nm.m_nodes.m_size);
+                    int nodeInitCount = 0;
+                    for (ushort i = 1; i < nodeLimit; i++)
+                    {
+                        try
+                        {
+                            if (nodes[i].m_flags != 0)
+                            {
+                                NetManager_InitializeNode_Prefix(nm, i, ref nodes[i]);
+                                nodeInitCount++;
+                            }
+                        }
+                        catch (Exception exNode)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Error initializing node {0}: {1}", i, exNode.Message));
+                        }
+                    }
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Safely initialized {0} nodes (out of {1}) ✓", nodeInitCount, nodeLimit));
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Error during node initialization loop: " + ex);
+            }
+
+            // 3. Initialize all active segments safely
+            try
+            {
+                if (nm != null && nm.m_segments != null && nm.m_segments.m_buffer != null)
+                {
+                    var segs = nm.m_segments.m_buffer;
+                    int segLimit = Math.Min(segs.Length, (int)nm.m_segments.m_size);
+                    int segInitCount = 0;
+                    for (ushort i = 1; i < segLimit; i++)
+                    {
+                        try
+                        {
+                            if (segs[i].m_flags != 0)
+                            {
+                                NetManager_InitializeSegment_Prefix(nm, i, ref segs[i]);
+                                segInitCount++;
+                            }
+                        }
+                        catch (Exception exSeg)
+                        {
+                            UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Error initializing segment {0}: {1}", i, exSeg.Message));
+                        }
+                    }
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Safely initialized {0} segments (out of {1}) ✓", segInitCount, segLimit));
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Error during segment initialization loop: " + ex);
+            }
+
+            // 4. LoadingProfiler.EndDeserialize
+            try
+            {
+                if (s != null && Singleton<LoadingManager>.exists && Singleton<LoadingManager>.instance != null && Singleton<LoadingManager>.instance.m_loadingProfilerSimulation != null)
+                {
+                    Singleton<LoadingManager>.instance.m_loadingProfilerSimulation.EndDeserialize(s, "NetManager");
+                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeTailDeserialize: LoadingProfiler.EndDeserialize('NetManager') succeeded ✓");
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Handled EndDeserialize exception: " + ex.Message);
+            }
+
+            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeTailDeserialize: NetManager deserialization complete. Stream is cleanly aligned for subsequent managers ✓");
+        }
+
         public static IEnumerable<CodeInstruction> NetManager_Data_Deserialize_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            MethodInfo safeNodeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeInitializeNode), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo safeSegMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeInitializeSegment), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo clampNodeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(ClampNodeReadLimit), BindingFlags.Public | BindingFlags.Static);
-            MethodInfo clampSegMethod = typeof(TransportLineCompatibility).GetMethod(nameof(ClampSegmentReadLimit), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo safeTailMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeTailDeserialize), BindingFlags.Public | BindingFlags.Static);
 
             var list = new List<CodeInstruction>(instructions);
-            int nodeReplaced = 0;
-            int segReplaced = 0;
-            int nodeClamp = 0;
-            int segClamp = 0;
+            int origCount = list.Count;
+            int cutIdx = -1;
 
             for (int i = 0; i < list.Count; i++)
             {
                 var inst = list[i];
-                if ((inst.opcode == OpCodes.Callvirt || inst.opcode == OpCodes.Call) && inst.operand is MethodInfo mi)
+                if ((inst.opcode == OpCodes.Ldc_I4 || inst.opcode == OpCodes.Ldc_I4_S) && Convert.ToInt32(inst.operand) == 321)
                 {
-                    if (mi.Name == "InitializeNode")
+                    // IL_1F91: ldarg.1 (at index i - 2)
+                    // IL_1F92: callvirt get_version (at index i - 1)
+                    // IL_1F97: ldc.i4 321 (at index i)
+                    if (i >= 2 && (list[i - 2].opcode == OpCodes.Ldarg_1 || list[i - 2].opcode == OpCodes.Ldarg))
                     {
-                        inst.opcode = OpCodes.Call;
-                        inst.operand = safeNodeMethod;
-                        nodeReplaced++;
-
-                        for (int j = i + 1; j < Math.Min(list.Count, i + 25); j++)
-                        {
-                            if (list[j].opcode == OpCodes.Blt || list[j].opcode == OpCodes.Blt_S)
-                            {
-                                list.Insert(j, new CodeInstruction(OpCodes.Call, clampNodeMethod));
-                                nodeClamp++;
-                                break;
-                            }
-                        }
-                    }
-                    else if (mi.Name == "InitializeSegment")
-                    {
-                        inst.opcode = OpCodes.Call;
-                        inst.operand = safeSegMethod;
-                        segReplaced++;
-
-                        for (int j = i + 1; j < Math.Min(list.Count, i + 25); j++)
-                        {
-                            if (list[j].opcode == OpCodes.Blt || list[j].opcode == OpCodes.Blt_S)
-                            {
-                                list.Insert(j, new CodeInstruction(OpCodes.Call, clampSegMethod));
-                                segClamp++;
-                                break;
-                            }
-                        }
+                        cutIdx = i - 2;
+                        break;
                     }
                 }
             }
 
-            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Transpiler: Injected SafeInitializeNode ({0}), SafeInitializeSegment ({1}), Clamped Node limit ({2}), Clamped Seg limit ({3}).", nodeReplaced, segReplaced, nodeClamp, segClamp));
+            if (cutIdx != -1)
+            {
+                // list[cutIdx] is Ldarg_1 with incoming branch labels from IL_1F75 & IL_1F85. Keep it intact!
+                // Replace next instruction with call SafeTailDeserialize(DataSerializer s)
+                list[cutIdx + 1] = new CodeInstruction(OpCodes.Call, safeTailMethod);
+                // Replace next with ret
+                list[cutIdx + 2] = new CodeInstruction(OpCodes.Ret);
+                // Remove all subsequent instructions (old loops, old EndDeserialize)
+                if (list.Count > cutIdx + 3)
+                {
+                    list.RemoveRange(cutIdx + 3, list.Count - (cutIdx + 3));
+                }
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Transpiler: Successfully grafted SafeTailDeserialize at instruction {0}. Truncated {1} obsolete tail instructions (was {2}, now {3}).", cutIdx, origCount - list.Count, origCount, list.Count));
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Transpiler: Warning! Could not locate version 321 cut point.");
+            }
+
             return list;
         }
 

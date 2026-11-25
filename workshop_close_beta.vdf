@@ -9,25 +9,23 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.11:[/h2]
-- [b]Khắc phục triệt để lỗi 'Simulation failed' & Deadlock treo vô hạn màn hình loading (EventManager.InitRenderData):[/b]
-  + Thay thế lời gọi khởi tạo bằng Transpiler liên assembly: Cấy trực tiếp `SafeInitializeSegment` và `SafeInitializeNode` vào `NetManager.Data.Deserialize` qua Harmony Transpiler. Do là lời gọi liên assembly, Mono JIT runtime không thể tự động inline, đảm bảo toàn bộ cơ chế kiểm tra biên an toàn và hóa giải đoạn đường mồ côi (orphaned segments) luôn thực thi 100%.
-  + Kiểm soát trần vòng lặp nạp mảng mạng (Loop Limit Clamping): Tự động kẹp giới hạn duyệt node và segment không bao giờ vượt quá độ dài bộ đệm thực tế, ngăn ngừa tận gốc lỗi tràn chỉ số mảng `IndexOutOfRangeException` tại offset `<0x055c5>`.
-  + Phục hồi kích thước chuẩn MNC 65.024 đối tượng mạng, đảm bảo hàm `IsExpanded` luôn nhận diện chính xác dữ liệu mở rộng và nạp trọn vẹn 100% dung lượng savegame mà không bị lệch pha luồng byte (stream desynchronization).
-  + Bổ sung lá chắn Finalizer Shield cho `NetManager.Data.AfterDeserialize`, `ElectricityManager.Data.AfterDeserialize` và `WaterManager.Data.AfterDeserialize`, bảo vệ tuyệt đối luồng mô phỏng không bị dừng đột ngột, đưa luồng chính vào game suôn sẻ.
-
-[h2]Cập nhật Close Beta v5.1.10:[/h2]
-- [b]Khắc phục triệt để lỗi 'Simulation failed!' trong NetManager & ElectricityManager khi load map:[/b]
-  + Mở rộng cấp phát trước mảng `m_adjustedSegments` lên 8.192 phần tử (tương đương 524.288 đoạn đường): Loại bỏ tận gốc lỗi sập mảng khi giải mã savegame có adjusted segments vượt 1.016 entries.
-  + Thiết lập lá chắn kép PreGuard & Finalizer Shield cho `NetManager`, `ElectricityManager` (m_nodeGroups 65K), `WaterManager` và `BuildingManager`: Bảo đảm luồng dữ liệu tuần tự không bao giờ bị lệch vị trí (stream desync).
+[h2]Cập nhật Close Beta v5.1.12:[/h2]
+- [b]Khắc phục triệt để lỗi 'Simulation failed' (NetManager / BuildingManager / ElectricityManager) & Deadlock EventManager.InitRenderData:[/b]
+  + Thay thế toàn diện phần đuôi nạp NetManager bằng `SafeTailDeserialize` (Transpiler Grafting tại cut-point version 321):
+    - Đọc luồng adjusted segments trực tiếp từ DataSerializer với bộ đệm tự động co giãn lên đến 65.536 entries, loại trừ hoàn toàn nguy cơ tràn mảng hoặc đọc sót byte trong stream.
+    - Khởi tạo an toàn 100% các node và segment còn hoạt động trong bộ đệm bằng `SafeInitializeNode` / `SafeInitializeSegment` có bọc thép xử lý ngoại lệ từng phần tử độc lập.
+    - Đảm bảo gọi thành công `LoadingProfiler.EndDeserialize(s, \"NetManager\")`, tiêu thụ chính xác thẻ đóng luồng, giữ cho con trỏ stream byte luôn thẳng hàng 100% cho `BuildingManager`, `ElectricityManager` và toàn bộ các manager tiếp theo.
+  + Triệt tiêu vĩnh viễn deadlock tại `EventManager.InitRenderData` trên Main thread, đưa game vào màn chơi mượt mà.
 
 [h2]Tổng hợp tính năng nổi bật từ các bản Close Beta trước:[/h2]
+- [b]v5.1.11:[/b] Transpiler liên assembly `SafeInitializeSegment/Node`, kiểm soát trần duyệt mảng, phục hồi MNC chuẩn 65K đối tượng.
+- [b]v5.1.10:[/b] Cấp phát trước `m_adjustedSegments` 8K, lá chắn kép PreGuard & Finalizer Shield cho các simulation managers.
 - [b]v5.1.9:[/b] Boundary Guard cho `InitializeSegment/Node` & Finalizer Shield cho `NetManager.Data.Deserialize`.
-- [b]v5.1.8:[/b] Mở rộng lát cắt mô phỏng NetManager 65K (sửa lỗi đèn giao thông mặc định kẹt cứng và phục hồi màu traffic); fix ArrayGuardian TM:PE Flags (Nullable types); vá KianCommons kTags DynamicFlags & NetUtil; mở rộng 65K simulation slice cho Điện & Nước.
+- [b]v5.1.8:[/b] Mở rộng lát cắt mô phỏng NetManager 65K (sửa lỗi đèn giao thông mặc định kẹt cứng và phục hồi màu traffic); fix ArrayGuardian TM:PE Flags; vá KianCommons kTags DynamicFlags & NetUtil; mở rộng 65K simulation slice cho Điện & Nước.
 - [b]v5.1.7:[/b] Khắc phục triệt để kẹt vòng lặp ma NetGrid Cycle Immunity; phục hồi đặt trạm bus TransportTool & tuyến public transport.
 - [b]v5.1.4 - v5.1.6:[/b] Khắc phục DivideByZeroException EightyOne2, triệt tiêu xe cà giật, TLM 64K trạm dừng, tối ưu hiệu năng mô phỏng 100% Native Physics.
 - [b]Tương thích toàn diện với More Props BETA & Grid Cycle Armor.[/b]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.11 Close Beta: Khắc phục triệt để lỗi Simulation failed & Deadlock treo màn hình loading via NetManager.Data.Deserialize Transpiler, boundary guards & multi-manager AfterDeserialize finalizer shields."
+	"changenote"		"v5.1.12 Close Beta: Khắc phục triệt để lỗi Simulation failed (NetManager / BuildingManager / ElectricityManager) & Deadlock EventManager.InitRenderData via SafeTailDeserialize Transpiler grafting & stream byte synchronization guarantee."
 }
