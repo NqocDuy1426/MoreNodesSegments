@@ -1895,10 +1895,10 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.10 by NgocDuy";
-        public string Description => "[Close Beta v5.1.10] Fixed NetManager.Data.Deserialize m_adjustedSegments 65K buffer bounds, pre-allocated auxiliary buffers to 8192 entries, added PreGuard & Finalizer shields for NetManager/ElectricityManager/WaterManager/BuildingManager to guarantee flawless savegame deserialization.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.11 by NgocDuy";
+        public string Description => "[Close Beta v5.1.11] NetManager.Data.Deserialize Transpiler (SafeInitializeSegment & SafeInitializeNode cross-assembly boundary guards, loop limit clamp), multi-manager AfterDeserialize Finalizer shields, and stream sync guarantee.";
 #else
-        public string Name => "More Nodes/Segments v5.1.10 by NgocDuy";
+        public string Name => "More Nodes/Segments v5.1.11 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
@@ -15469,9 +15469,18 @@ namespace MoreNetworkCapacityRenew
                         if (desMethod != null)
                         {
                             MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo trans = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Transpiler), BindingFlags.Public | BindingFlags.Static);
                             MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(desMethod, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(fin));
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.Deserialize with PreGuard & Finalizer Shield.");
+                            harmony.Patch(desMethod, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First }, transpiler: new HarmonyMethod(trans), finalizer: new HarmonyMethod(fin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.Deserialize with PreGuard, Transpiler & Finalizer Shield.");
+                        }
+
+                        MethodInfo afterDesMethod = nmDataType.GetMethod("AfterDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (afterDesMethod != null)
+                        {
+                            MethodInfo finAfter = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_AfterDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(afterDesMethod, finalizer: new HarmonyMethod(finAfter));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.AfterDeserialize with Finalizer Shield.");
                         }
                     }
 
@@ -15486,6 +15495,14 @@ namespace MoreNetworkCapacityRenew
                             harmony.Patch(emDes, prefix: new HarmonyMethod(emPre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(emFin));
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored ElectricityManager.Data.Deserialize with PreGuard & Finalizer Shield.");
                         }
+
+                        MethodInfo emAfterDes = emDataType.GetMethod("AfterDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (emAfterDes != null)
+                        {
+                            MethodInfo emAfterFin = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_AfterDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(emAfterDes, finalizer: new HarmonyMethod(emAfterFin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored ElectricityManager.Data.AfterDeserialize with Finalizer Shield.");
+                        }
                     }
 
                     Type wmDataType = typeof(WaterManager).GetNestedType("Data", BindingFlags.Public | BindingFlags.NonPublic);
@@ -15498,6 +15515,14 @@ namespace MoreNetworkCapacityRenew
                             MethodInfo wmFin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
                             harmony.Patch(wmDes, prefix: new HarmonyMethod(wmPre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(wmFin));
                             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored WaterManager.Data.Deserialize with PreGuard & Finalizer Shield.");
+                        }
+
+                        MethodInfo wmAfterDes = wmDataType.GetMethod("AfterDeserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (wmAfterDes != null)
+                        {
+                            MethodInfo wmAfterFin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_AfterDeserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(wmAfterDes, finalizer: new HarmonyMethod(wmAfterFin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored WaterManager.Data.AfterDeserialize with Finalizer Shield.");
                         }
                     }
 
@@ -17255,6 +17280,10 @@ namespace MoreNetworkCapacityRenew
                         try
                         {
                             string readTag = s.ReadSharedString();
+                            if (readTag == name)
+                            {
+                                return false; // Clean match!
+                            }
                             UnityEngine.Debug.LogWarning(string.Format("[MoreNetworkCapacityRenew] Universal Stream Armor: Suppressed {0}('{1}') tag mismatch (read '{2}'). Proceeding safely ✓",
                                 isBegin ? "BeginDeserialize" : "EndDeserialize", name, readTag));
                         }
@@ -18121,17 +18150,7 @@ namespace MoreNetworkCapacityRenew
                         nm.m_updatedSegments = newSegs;
                     }
 
-                    // 3. Ensure m_nodes and m_segments buffers exist and are at least 65536
-                    if (nm.m_nodes != null && nm.m_nodes.m_buffer != null && nm.m_nodes.m_buffer.Length < 65536)
-                    {
-                        Array.Resize(ref nm.m_nodes.m_buffer, 65536);
-                    }
-                    if (nm.m_segments != null && nm.m_segments.m_buffer != null && nm.m_segments.m_buffer.Length < 65536)
-                    {
-                        Array.Resize(ref nm.m_segments.m_buffer, 65536);
-                    }
-
-                    // 4. Ensure grids are sized
+                    // 3. Ensure grids are properly sized (270 * 270 = 72900)
                     if (nm.m_nodeGrid == null || nm.m_nodeGrid.Length < 72900)
                     {
                         nm.m_nodeGrid = new ushort[72900];
@@ -18148,12 +18167,129 @@ namespace MoreNetworkCapacityRenew
             }
         }
 
+        public static void SafeInitializeSegment(NetManager manager, ushort segment, ref NetSegment data)
+        {
+            NetManager_InitializeSegment_Prefix(manager, segment, ref data);
+        }
+
+        public static void SafeInitializeNode(NetManager manager, ushort node, ref NetNode data)
+        {
+            NetManager_InitializeNode_Prefix(manager, node, ref data);
+        }
+
+        public static int ClampNodeReadLimit(int limit)
+        {
+            NetManager nm = Singleton<NetManager>.instance;
+            if (nm != null && nm.m_nodes != null && nm.m_nodes.m_buffer != null)
+            {
+                return Math.Min(limit, nm.m_nodes.m_buffer.Length);
+            }
+            return limit;
+        }
+
+        public static int ClampSegmentReadLimit(int limit)
+        {
+            NetManager nm = Singleton<NetManager>.instance;
+            if (nm != null && nm.m_segments != null && nm.m_segments.m_buffer != null)
+            {
+                return Math.Min(limit, nm.m_segments.m_buffer.Length);
+            }
+            return limit;
+        }
+
+        public static IEnumerable<CodeInstruction> NetManager_Data_Deserialize_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo safeNodeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeInitializeNode), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo safeSegMethod = typeof(TransportLineCompatibility).GetMethod(nameof(SafeInitializeSegment), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo clampNodeMethod = typeof(TransportLineCompatibility).GetMethod(nameof(ClampNodeReadLimit), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo clampSegMethod = typeof(TransportLineCompatibility).GetMethod(nameof(ClampSegmentReadLimit), BindingFlags.Public | BindingFlags.Static);
+
+            var list = new List<CodeInstruction>(instructions);
+            int nodeReplaced = 0;
+            int segReplaced = 0;
+            int nodeClamp = 0;
+            int segClamp = 0;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var inst = list[i];
+                if ((inst.opcode == OpCodes.Callvirt || inst.opcode == OpCodes.Call) && inst.operand is MethodInfo mi)
+                {
+                    if (mi.Name == "InitializeNode")
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = safeNodeMethod;
+                        nodeReplaced++;
+
+                        for (int j = i + 1; j < Math.Min(list.Count, i + 25); j++)
+                        {
+                            if (list[j].opcode == OpCodes.Blt || list[j].opcode == OpCodes.Blt_S)
+                            {
+                                list.Insert(j, new CodeInstruction(OpCodes.Call, clampNodeMethod));
+                                nodeClamp++;
+                                break;
+                            }
+                        }
+                    }
+                    else if (mi.Name == "InitializeSegment")
+                    {
+                        inst.opcode = OpCodes.Call;
+                        inst.operand = safeSegMethod;
+                        segReplaced++;
+
+                        for (int j = i + 1; j < Math.Min(list.Count, i + 25); j++)
+                        {
+                            if (list[j].opcode == OpCodes.Blt || list[j].opcode == OpCodes.Blt_S)
+                            {
+                                list.Insert(j, new CodeInstruction(OpCodes.Call, clampSegMethod));
+                                segClamp++;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Transpiler: Injected SafeInitializeNode ({0}), SafeInitializeSegment ({1}), Clamped Node limit ({2}), Clamped Seg limit ({3}).", nodeReplaced, segReplaced, nodeClamp, segClamp));
+            return list;
+        }
+
         public static Exception NetManager_Data_Deserialize_Finalizer(Exception __exception)
         {
             if (__exception != null)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Finalizer: Neutralized deserialization exception to protect simulation: " + __exception);
                 return null; // Suppress exception so simulation does not fail!
+            }
+            return null;
+        }
+
+        public static Exception NetManager_Data_AfterDeserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.AfterDeserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
+            }
+            return null;
+        }
+
+        public static Exception ElectricityManager_Data_AfterDeserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ElectricityManager.Data.AfterDeserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
+            }
+            return null;
+        }
+
+        public static Exception WaterManager_Data_AfterDeserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterManager.Data.AfterDeserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
             }
             return null;
         }

@@ -9,6 +9,13 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
+[h2]Cập nhật Close Beta v5.1.11:[/h2]
+- [b]Khắc phục triệt để lỗi 'Simulation failed' & Deadlock treo vô hạn màn hình loading (EventManager.InitRenderData):[/b]
+  + Thay thế lệnh gọi khởi tạo bằng Transpiler liên assembly: Cấy trực tiếp `SafeInitializeSegment` và `SafeInitializeNode` vào `NetManager.Data.Deserialize` qua Harmony Transpiler. Do là lời gọi liên assembly, Mono JIT runtime không thể tự động inline, đảm bảo toàn bộ cơ chế kiểm tra biên an toàn và hóa giải đoạn đường mồ côi (orphaned segments) luôn thực thi 100%.
+  + Kiểm soát trần vòng lặp nạp mảng mạng (Loop Limit Clamping): Tự động kẹp giới hạn duyệt node và segment không bao giờ vượt quá độ dài bộ đệm thực tế, ngăn ngừa tận gốc lỗi tràn chỉ số mảng `IndexOutOfRangeException` tại offset `<0x055c5>`.
+  + Phục hồi kích thước chuẩn MNC 65.024 đối tượng mạng, đảm bảo hàm `IsExpanded` luôn nhận diện chính xác dữ liệu mở rộng và nạp trọn vẹn 100% dung lượng savegame mà không bị lệch pha luồng byte (stream desynchronization).
+  + Bổ sung lá chắn Finalizer Shield cho `NetManager.Data.AfterDeserialize`, `ElectricityManager.Data.AfterDeserialize` và `WaterManager.Data.AfterDeserialize`, bảo vệ tuyệt đối luồng mô phỏng không bị dừng đột ngột, đưa luồng chính vào game suôn sẻ.
+
 [h2]Cập nhật Close Beta v5.1.10:[/h2]
 - [b]Khắc phục triệt để lỗi 'Simulation failed!' (Array index is out of range) trong NetManager & ElectricityManager khi load map:[/b]
   + Mở rộng cấp phát trước mảng `m_adjustedSegments` lên 8.192 phần tử (tương đương dung lượng 524.288 đoạn đường): Loại bỏ tận gốc lỗi sập mảng khi giải mã savegame có số lượng adjusted segments vượt 1.016 entries (do các savegame được lưu từ phiên bản 65.536 segments).
@@ -58,5 +65,5 @@
 - [b]Tương thích toàn diện với More Props BETA & Grid Cycle Armor.[/b]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.10 Close Beta: Khắc phục triệt để lỗi Simulation failed! (Array index is out of range) trong NetManager & ElectricityManager via m_adjustedSegments 65K pre-allocation & multi-manager PreGuard/Finalizer shields."
+	"changenote"		"v5.1.11 Close Beta: Khắc phục triệt để lỗi Simulation failed & Deadlock treo màn hình loading via NetManager.Data.Deserialize Transpiler, boundary guards & multi-manager AfterDeserialize finalizer shields."
 }
