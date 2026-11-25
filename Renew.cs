@@ -1895,8 +1895,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.12 by NgocDuy";
-        public string Description => "[Close Beta v5.1.12] NetManager.Data.Deserialize SafeTailDeserialize stream sync & initialization armor, multi-manager AfterDeserialize Finalizer shields.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.13 by NgocDuy";
+        public string Description => "[Close Beta v5.1.13] Post-deserialization sanitizer: clean corrupt nodes/segments/grids/lanes before simulation starts, prevent warm-up deadlock.";
 #else
         public string Name => "More Nodes/Segments v5.1.12 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
@@ -18335,6 +18335,203 @@ namespace MoreNetworkCapacityRenew
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Handled EndDeserialize exception: " + ex.Message);
             }
 
+            // 5. Post-deserialization sanitization: clean up corrupt nodes/segments BEFORE simulation starts
+            try
+            {
+                int sanitizedCount = 0;
+                int netPrefabCount = PrefabCollection<NetInfo>.PrefabCount();
+
+                // 5a. Sanitize segments: clear flags for entries with null Info, invalid nodes, or corrupt data
+                if (nm.m_segments != null && nm.m_segments.m_buffer != null)
+                {
+                    var segs = nm.m_segments.m_buffer;
+                    int segLimit = Math.Min(segs.Length, (int)nm.m_segments.m_size);
+                    int laneCount = (nm.m_lanes != null && nm.m_lanes.m_buffer != null) ? nm.m_lanes.m_buffer.Length : 0;
+                    var nodes = nm.m_nodes.m_buffer;
+
+                    for (int i = 1; i < segLimit; i++)
+                    {
+                        if (segs[i].m_flags == NetSegment.Flags.None) continue;
+
+                        // Check for null/invalid prefab
+                        ushort infoIdx = segs[i].m_infoIndex;
+                        if (infoIdx >= netPrefabCount || PrefabCollection<NetInfo>.GetPrefab(infoIdx) == null)
+                        {
+                            segs[i].m_flags = NetSegment.Flags.None;
+                            segs[i].m_infoIndex = 0;
+                            segs[i].m_startNode = 0;
+                            segs[i].m_endNode = 0;
+                            segs[i].m_lanes = 0;
+                            sanitizedCount++;
+                            continue;
+                        }
+
+                        // Check for invalid start/end nodes
+                        ushort sn = segs[i].m_startNode;
+                        ushort en = segs[i].m_endNode;
+                        if (sn == 0 || en == 0 || sn >= nodes.Length || en >= nodes.Length ||
+                            nodes[sn].m_flags == NetNode.Flags.None || nodes[en].m_flags == NetNode.Flags.None)
+                        {
+                            segs[i].m_flags = NetSegment.Flags.None;
+                            segs[i].m_infoIndex = 0;
+                            segs[i].m_startNode = 0;
+                            segs[i].m_endNode = 0;
+                            segs[i].m_lanes = 0;
+                            sanitizedCount++;
+                            continue;
+                        }
+
+                        // Truncate runaway lane chains
+                        NetInfo info = segs[i].Info;
+                        if (info != null && info.m_lanes != null && laneCount > 0)
+                        {
+                            int maxLanes = info.m_lanes.Length;
+                            uint currentLane = segs[i].m_lanes;
+                            int count = 0;
+                            uint prevLane = 0;
+
+                            while (currentLane != 0 && currentLane < (uint)laneCount && count < maxLanes)
+                            {
+                                prevLane = currentLane;
+                                currentLane = nm.m_lanes.m_buffer[currentLane].m_nextLane;
+                                count++;
+                            }
+
+                            if (currentLane != 0 && prevLane != 0 && prevLane < (uint)laneCount)
+                            {
+                                nm.m_lanes.m_buffer[prevLane].m_nextLane = 0;
+                                sanitizedCount++;
+                            }
+                        }
+
+                        // Fix stale traffic buffer (causes blocked roads)
+                        if (segs[i].m_trafficBuffer == 65535)
+                        {
+                            segs[i].m_trafficBuffer = 0;
+                            segs[i].m_flags &= ~NetSegment.Flags.Blocked;
+                        }
+                        if (segs[i].m_trafficDensity > 100)
+                        {
+                            segs[i].m_trafficDensity = 100;
+                        }
+                    }
+                }
+
+                // 5b. Sanitize nodes: clear flags for entries with null Info
+                if (nm.m_nodes != null && nm.m_nodes.m_buffer != null)
+                {
+                    var nodes = nm.m_nodes.m_buffer;
+                    int nodeLimit = Math.Min(nodes.Length, (int)nm.m_nodes.m_size);
+
+                    for (int i = 1; i < nodeLimit; i++)
+                    {
+                        if (nodes[i].m_flags == NetNode.Flags.None) continue;
+
+                        ushort infoIdx = nodes[i].m_infoIndex;
+                        if (infoIdx >= netPrefabCount || PrefabCollection<NetInfo>.GetPrefab(infoIdx) == null)
+                        {
+                            nodes[i].m_flags = NetNode.Flags.None;
+                            nodes[i].m_infoIndex = 0;
+                            sanitizedCount++;
+                        }
+                    }
+                }
+
+                // 5c. Break grid cycles (node grid)
+                if (nm.m_nodeGrid != null)
+                {
+                    int gridLen = nm.m_nodeGrid.Length;
+                    int nodeLen = nm.m_nodes.m_buffer.Length;
+                    int cyclesBroken = 0;
+
+                    for (int g = 0; g < gridLen; g++)
+                    {
+                        ushort cur = nm.m_nodeGrid[g];
+                        int steps = 0;
+                        ushort prev = 0;
+
+                        while (cur != 0 && cur < nodeLen && steps < nodeLen)
+                        {
+                            if (nm.m_nodes.m_buffer[cur].m_flags == NetNode.Flags.None)
+                            {
+                                // Dead node in grid chain, unlink it
+                                if (prev == 0)
+                                    nm.m_nodeGrid[g] = nm.m_nodes.m_buffer[cur].m_nextGridNode;
+                                else
+                                    nm.m_nodes.m_buffer[prev].m_nextGridNode = nm.m_nodes.m_buffer[cur].m_nextGridNode;
+                                nm.m_nodes.m_buffer[cur].m_nextGridNode = 0;
+                                cyclesBroken++;
+                                cur = (prev == 0) ? nm.m_nodeGrid[g] : nm.m_nodes.m_buffer[prev].m_nextGridNode;
+                                continue;
+                            }
+                            prev = cur;
+                            cur = nm.m_nodes.m_buffer[cur].m_nextGridNode;
+                            steps++;
+                        }
+
+                        if (steps >= nodeLen && cur != 0)
+                        {
+                            // Cycle detected, break it
+                            if (prev != 0 && prev < nodeLen)
+                                nm.m_nodes.m_buffer[prev].m_nextGridNode = 0;
+                            cyclesBroken++;
+                        }
+                    }
+
+                    if (cyclesBroken > 0)
+                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Broke {0} node grid anomalies", cyclesBroken));
+                }
+
+                // 5d. Break grid cycles (segment grid)
+                if (nm.m_segmentGrid != null)
+                {
+                    int gridLen = nm.m_segmentGrid.Length;
+                    int segLen = nm.m_segments.m_buffer.Length;
+                    int cyclesBroken = 0;
+
+                    for (int g = 0; g < gridLen; g++)
+                    {
+                        ushort cur = nm.m_segmentGrid[g];
+                        int steps = 0;
+                        ushort prev = 0;
+
+                        while (cur != 0 && cur < segLen && steps < segLen)
+                        {
+                            if (nm.m_segments.m_buffer[cur].m_flags == NetSegment.Flags.None)
+                            {
+                                if (prev == 0)
+                                    nm.m_segmentGrid[g] = nm.m_segments.m_buffer[cur].m_nextGridSegment;
+                                else
+                                    nm.m_segments.m_buffer[prev].m_nextGridSegment = nm.m_segments.m_buffer[cur].m_nextGridSegment;
+                                nm.m_segments.m_buffer[cur].m_nextGridSegment = 0;
+                                cyclesBroken++;
+                                cur = (prev == 0) ? nm.m_segmentGrid[g] : nm.m_segments.m_buffer[prev].m_nextGridSegment;
+                                continue;
+                            }
+                            prev = cur;
+                            cur = nm.m_segments.m_buffer[cur].m_nextGridSegment;
+                            steps++;
+                        }
+
+                        if (steps >= segLen && cur != 0)
+                        {
+                            if (prev != 0 && prev < segLen)
+                                nm.m_segments.m_buffer[prev].m_nextGridSegment = 0;
+                            cyclesBroken++;
+                        }
+                    }
+
+                    if (cyclesBroken > 0)
+                        UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Broke {0} segment grid anomalies", cyclesBroken));
+                }
+
+                UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] SafeTailDeserialize: Post-deserialization sanitization complete. Cleaned {0} corrupt entries ✓", sanitizedCount));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] SafeTailDeserialize: Post-deserialization sanitization error (non-fatal): " + ex.Message);
+            }
+
             UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] SafeTailDeserialize: NetManager deserialization complete. Stream is cleanly aligned for subsequent managers ✓");
         }
 
@@ -18399,8 +18596,20 @@ namespace MoreNetworkCapacityRenew
             if (__exception != null)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.AfterDeserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
-                return null;
             }
+
+            // Belt-and-suspenders: Run SanitizeNetElements after AfterDeserialize to catch any remaining corrupt entries
+            try
+            {
+                int cleaned = SanitizeNetElements();
+                if (cleaned > 0)
+                    UnityEngine.Debug.Log(string.Format("[MoreNetworkCapacityRenew] AfterDeserialize: SanitizeNetElements cleaned {0} additional corrupt entries ✓", cleaned));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] AfterDeserialize: SanitizeNetElements error (non-fatal): " + ex.Message);
+            }
+
             return null;
         }
 

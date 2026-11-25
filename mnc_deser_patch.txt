@@ -1,0 +1,552 @@
+METHOD: System.Void MoreNetworkCapacity.Patches.NetManagerDeserializePatch::Prefix()
+  call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  stloc.0 
+  call System.Boolean MoreNetworkCapacity.Metadata::IsExpandedSave()
+  stloc.1 
+  call System.Boolean MoreNetworkCapacity.NetManagerCustomizer::IsGameplayLoadMode()
+  stloc.2 
+  ldc.i4.0 
+  stloc.3 
+  call System.Boolean MoreNetworkCapacity.PatchState::get_ExpansionEnabled()
+  brfalse.s IL_003a: ldloc.3
+  ldloc.0 
+  ldnull 
+  call System.Boolean UnityEngine.Object::op_Inequality(UnityEngine.Object,UnityEngine.Object)
+  brfalse.s IL_003a: ldloc.3
+  ldloc.1 
+  brfalse.s IL_0030: ldloc.2
+  ldloc.0 
+  call System.Boolean MoreNetworkCapacity.NetManagerCustomizer::PrepareExpandedSaveForLoad(NetManager)
+  stloc.3 
+  br.s IL_003a: ldloc.3
+  ldloc.2 
+  brfalse.s IL_003a: ldloc.3
+  ldloc.0 
+  call System.Boolean MoreNetworkCapacity.NetManagerCustomizer::PrepareVanillaSaveForLoad(NetManager)
+  pop 
+  ldloc.3 
+  brfalse.s IL_0048: ldloc.1
+  call HarmonyLib.Harmony MoreNetworkCapacity.HarmonyBootstrap::get_HarmonyInstance()
+  ldc.i4.1 
+  call System.Void MoreNetworkCapacity.Compatibility.ThirdPartyCapacityCompatibility::PrepareForNetworkDeserialize(HarmonyLib.Harmony,System.Boolean)
+  ldloc.1 
+  brfalse.s IL_004e: ldc.i4.0
+  ldloc.3 
+  br.s IL_004f: call System.Void MoreNetworkCapacity.NetManagerDeserializeState::SetLoadingExpanded(System.Boolean)
+  ldc.i4.0 
+  call System.Void MoreNetworkCapacity.NetManagerDeserializeState::SetLoadingExpanded(System.Boolean)
+  ldc.i4.s 11
+  newarr System.Object
+  stloc.s V_4
+  ldloc.s V_4
+  ldc.i4.0 
+  ldstr Network load preparation: save expanded=
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.1 
+  ldloc.1 
+  box System.Boolean
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.2 
+  ldstr , update mode=
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.3 
+  call SimulationManager/UpdateMode MoreNetworkCapacity.Patches.NetManagerDeserializePatch::GetUpdateMode()
+  box SimulationManager/UpdateMode
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.4 
+  ldstr , gameplay=
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.5 
+  ldloc.2 
+  box System.Boolean
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.6 
+  ldstr , arrays expanded=
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.7 
+  ldloc.3 
+  box System.Boolean
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.8 
+  ldstr , loading expanded=
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.s 9
+  call System.Boolean MoreNetworkCapacity.NetManagerDeserializeState::get_LoadingExpanded()
+  box System.Boolean
+  stelem.ref 
+  ldloc.s V_4
+  ldc.i4.s 10
+  ldstr .
+  stelem.ref 
+  ldloc.s V_4
+  call System.String System.String::Concat(System.Object[])
+  call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  ret 
+METHOD: System.Void MoreNetworkCapacity.Patches.NetManagerDeserializePatch::Postfix()
+  call !0 ColossalFramework.Singleton`1<NetManager>::get_instance()
+  stloc.0 
+  ldloc.0 
+  ldnull 
+  call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+  brtrue.s IL_001d: ret
+  call System.Boolean MoreNetworkCapacity.PatchState::get_ExpansionEnabled()
+  brfalse.s IL_001d: ret
+  call System.Boolean MoreNetworkCapacity.NetManagerCustomizer::IsGameplayLoadMode()
+  brtrue.s IL_001e: call System.Boolean MoreNetworkCapacity.NetManagerDeserializeState::get_LoadingExpanded()
+  ret 
+  call System.Boolean MoreNetworkCapacity.NetManagerDeserializeState::get_LoadingExpanded()
+  brtrue.s IL_002e: ldloc.0
+  ldloc.0 
+  call System.Boolean MoreNetworkCapacity.NetManagerCustomizer::ExpandPreservingLoadedData(NetManager)
+  brtrue.s IL_002e: ldloc.0
+  ret 
+  ldloc.0 
+  call System.Void MoreNetworkCapacity.NetManagerCustomizer::RebuildFreeLists(NetManager)
+  ldloc.0 
+  call System.Void MoreNetworkCapacity.NetManagerCustomizer::UpdateLoopLimitsForLoadedData(NetManager)
+  ret 
+METHOD: System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction> MoreNetworkCapacity.Patches.NetManagerDeserializePatch::Transpiler(System.Collections.Generic.IEnumerable`1<HarmonyLib.CodeInstruction>)
+  ldarg.0 
+  newobj System.Void System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::.ctor(System.Collections.Generic.IEnumerable`1<!0>)
+  stloc.0 
+  ldtoken NetManager
+  call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  ldstr m_nodes
+  call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+  stloc.1 
+  ldtoken NetManager
+  call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  ldstr m_segments
+  call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+  stloc.2 
+  ldloc.1 
+  brfalse.s IL_0046: ldnull
+  ldloc.1 
+  callvirt System.Type System.Reflection.FieldInfo::get_FieldType()
+  ldstr m_buffer
+  call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+  br.s IL_0047: stloc.3
+  ldnull 
+  stloc.3 
+  ldloc.2 
+  brfalse.s IL_005d: ldnull
+  ldloc.2 
+  callvirt System.Type System.Reflection.FieldInfo::get_FieldType()
+  ldstr m_buffer
+  call System.Reflection.FieldInfo HarmonyLib.AccessTools::Field(System.Type,System.String)
+  br.s IL_005e: stloc.s V_4
+  ldnull 
+  stloc.s V_4
+  ldloc.3 
+  brfalse.s IL_0067: ldstr "Could not resolve NetManager buffer fields."
+  ldloc.s V_4
+  brtrue.s IL_0073: ldloc.0
+  ldstr Could not resolve NetManager buffer fields.
+  call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  ldloc.0 
+  ret 
+  ldloc.0 
+  ldloc.1 
+  ldloc.3 
+  ldtoken MoreNetworkCapacity.Capacity
+  call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  ldstr GetNodeReadSize
+  ldnull 
+  ldnull 
+  call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+  call System.Int32 MoreNetworkCapacity.Patches.NetManagerDeserializePatch::ReplaceBufferReadSize(System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>,System.Reflection.FieldInfo,System.Reflection.FieldInfo,System.Reflection.MethodInfo)
+  stloc.s V_5
+  ldloc.0 
+  ldloc.2 
+  ldloc.s V_4
+  ldtoken MoreNetworkCapacity.Capacity
+  call System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)
+  ldstr GetSegmentReadSize
+  ldnull 
+  ldnull 
+  call System.Reflection.MethodInfo HarmonyLib.AccessTools::Method(System.Type,System.String,System.Type[],System.Type[])
+  call System.Int32 MoreNetworkCapacity.Patches.NetManagerDeserializePatch::ReplaceBufferReadSize(System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>,System.Reflection.FieldInfo,System.Reflection.FieldInfo,System.Reflection.MethodInfo)
+  stloc.s V_6
+  ldc.i4.7 
+  newarr System.Object
+  stloc.s V_7
+  ldloc.s V_7
+  ldc.i4.0 
+  ldstr Network load sizes patched: nodes=
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.1 
+  ldloc.s V_5
+  box System.Int32
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.2 
+  ldstr , segments=
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.3 
+  ldloc.s V_6
+  box System.Int32
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.4 
+  ldstr , expanded=
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.5 
+  call System.Boolean MoreNetworkCapacity.NetManagerDeserializeState::get_LoadingExpanded()
+  box System.Boolean
+  stelem.ref 
+  ldloc.s V_7
+  ldc.i4.6 
+  ldstr .
+  stelem.ref 
+  ldloc.s V_7
+  call System.String System.String::Concat(System.Object[])
+  call System.Void MoreNetworkCapacity.Logging::Info(System.String)
+  ldloc.0 
+  ret 
+METHOD: System.Int32 MoreNetworkCapacity.Patches.NetManagerDeserializePatch::ReplaceBufferReadSize(System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>,System.Reflection.FieldInfo,System.Reflection.FieldInfo,System.Reflection.MethodInfo)
+  ldc.i4.0 
+  stloc.0 
+  br IL_00b4: ldloc.0
+  ldarg.0 
+  ldloc.0 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldarg.1 
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsFieldLoad(HarmonyLib.CodeInstruction,System.Reflection.FieldInfo)
+  brfalse IL_00b0: ldloc.0
+  ldarg.0 
+  ldloc.0 
+  ldc.i4.1 
+  add 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldarg.2 
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsFieldLoad(HarmonyLib.CodeInstruction,System.Reflection.FieldInfo)
+  brfalse IL_00b0: ldloc.0
+  ldarg.0 
+  ldloc.0 
+  ldc.i4.2 
+  add 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  stloc.1 
+  ldloc.1 
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsStoreLocal(HarmonyLib.CodeInstruction)
+  brfalse.s IL_00b0: ldloc.0
+  ldarg.0 
+  ldloc.0 
+  ldc.i4.3 
+  add 
+  ldloc.1 
+  ldc.i4.1 
+  call System.Int32 MoreNetworkCapacity.Patches.NetManagerDeserializePatch::FindLoadLocal(System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>,System.Int32,HarmonyLib.CodeInstruction,System.Boolean)
+  stloc.2 
+  ldloc.2 
+  ldc.i4.0 
+  blt.s IL_00b0: ldloc.0
+  ldloc.2 
+  ldc.i4.1 
+  add 
+  ldarg.0 
+  callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  bge.s IL_00b0: ldloc.0
+  ldarg.0 
+  ldloc.2 
+  ldc.i4.1 
+  add 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldlen
+  call System.Boolean System.Reflection.Emit.OpCode::op_Inequality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_00b0: ldloc.0
+  ldarg.0 
+  ldloc.2 
+  ldc.i4.1 
+  add 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  stloc.3 
+  ldloc.3 
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Call
+  stfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldloc.3 
+  ldarg.3 
+  stfld System.Object HarmonyLib.CodeInstruction::operand
+  ldarg.0 
+  ldloc.2 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Nop
+  stfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldarg.0 
+  ldloc.2 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldnull 
+  stfld System.Object HarmonyLib.CodeInstruction::operand
+  ldc.i4.1 
+  ret 
+  ldloc.0 
+  ldc.i4.1 
+  add 
+  stloc.0 
+  ldloc.0 
+  ldc.i4.2 
+  add 
+  ldarg.0 
+  callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  blt IL_0007: ldarg.0
+  ldstr Could not patch Data.Deserialize size for 
+  ldarg.1 
+  callvirt System.String System.Reflection.MemberInfo::get_Name()
+  call System.String System.String::Concat(System.String,System.String)
+  call System.Void MoreNetworkCapacity.Logging::Error(System.String)
+  ldc.i4.0 
+  ret 
+METHOD: System.Int32 MoreNetworkCapacity.Patches.NetManagerDeserializePatch::FindLoadLocal(System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>,System.Int32,HarmonyLib.CodeInstruction,System.Boolean)
+  ldarg.2 
+  ldloca.s V_0
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::TryGetStoreLocalIndex(HarmonyLib.CodeInstruction,System.Int32&)
+  brtrue.s IL_000c: ldarg.3
+  ldc.i4.m1 
+  ret 
+  ldarg.3 
+  brfalse.s IL_0033: ldarg.1
+  ldarg.1 
+  stloc.1 
+  br.s IL_0028: ldloc.1
+  ldarg.0 
+  ldloc.1 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldloc.0 
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsLoadLocal(HarmonyLib.CodeInstruction,System.Int32)
+  brfalse.s IL_0024: ldloc.1
+  ldloc.1 
+  ret 
+  ldloc.1 
+  ldc.i4.1 
+  add 
+  stloc.1 
+  ldloc.1 
+  ldarg.0 
+  callvirt System.Int32 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Count()
+  blt.s IL_0013: ldarg.0
+  br.s IL_0050: ldc.i4.m1
+  ldarg.1 
+  stloc.2 
+  br.s IL_004c: ldloc.2
+  ldarg.0 
+  ldloc.2 
+  callvirt !0 System.Collections.Generic.List`1<HarmonyLib.CodeInstruction>::get_Item(System.Int32)
+  ldloc.0 
+  call System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsLoadLocal(HarmonyLib.CodeInstruction,System.Int32)
+  brfalse.s IL_0048: ldloc.2
+  ldloc.2 
+  ret 
+  ldloc.2 
+  ldc.i4.1 
+  sub 
+  stloc.2 
+  ldloc.2 
+  ldc.i4.0 
+  bge.s IL_0037: ldarg.0
+  ldc.i4.m1 
+  ret 
+METHOD: System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsStoreLocal(HarmonyLib.CodeInstruction)
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_0
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_006b: ldc.i4.1
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_1
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_006b: ldc.i4.1
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_2
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_006b: ldc.i4.1
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_3
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_006b: ldc.i4.1
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brtrue.s IL_006b: ldc.i4.1
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_S
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  ret 
+  ldc.i4.1 
+  ret 
+METHOD: System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::TryGetStoreLocalIndex(HarmonyLib.CodeInstruction,System.Int32&)
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_0
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_0017: ldarg.0
+  ldarg.1 
+  ldc.i4.0 
+  stind.i4 
+  ldc.i4.1 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_1
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_002e: ldarg.0
+  ldarg.1 
+  ldc.i4.1 
+  stind.i4 
+  ldc.i4.1 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_2
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_0045: ldarg.0
+  ldarg.1 
+  ldc.i4.2 
+  stind.i4 
+  ldc.i4.1 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Stloc_3
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_005c: ldarg.0
+  ldarg.1 
+  ldc.i4.3 
+  stind.i4 
+  ldc.i4.1 
+  ret 
+  ldarg.0 
+  ldfld System.Object HarmonyLib.CodeInstruction::operand
+  isinst System.Reflection.Emit.LocalBuilder
+  stloc.0 
+  ldloc.0 
+  brfalse.s IL_0075: ldarg.1
+  ldarg.1 
+  ldloc.0 
+  callvirt System.Int32 System.Reflection.LocalVariableInfo::get_LocalIndex()
+  stind.i4 
+  ldc.i4.1 
+  ret 
+  ldarg.1 
+  ldc.i4.m1 
+  stind.i4 
+  ldc.i4.0 
+  ret 
+METHOD: System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsLoadLocal(HarmonyLib.CodeInstruction,System.Int32)
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldloc_0
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_0017: ldarg.0
+  ldarg.1 
+  ldc.i4.0 
+  ceq 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldloc_1
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_002e: ldarg.0
+  ldarg.1 
+  ldc.i4.1 
+  ceq 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldloc_2
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_0045: ldarg.0
+  ldarg.1 
+  ldc.i4.2 
+  ceq 
+  ret 
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldloc_3
+  call System.Boolean System.Reflection.Emit.OpCode::op_Equality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_005c: ldarg.0
+  ldarg.1 
+  ldc.i4.3 
+  ceq 
+  ret 
+  ldarg.0 
+  ldfld System.Object HarmonyLib.CodeInstruction::operand
+  isinst System.Reflection.Emit.LocalBuilder
+  stloc.0 
+  ldloc.0 
+  brfalse.s IL_0075: ldc.i4.0
+  ldloc.0 
+  callvirt System.Int32 System.Reflection.LocalVariableInfo::get_LocalIndex()
+  ldarg.1 
+  ceq 
+  ret 
+  ldc.i4.0 
+  ret 
+METHOD: System.Boolean MoreNetworkCapacity.Patches.NetManagerDeserializePatch::IsFieldLoad(HarmonyLib.CodeInstruction,System.Reflection.FieldInfo)
+  ldarg.0 
+  ldfld System.Reflection.Emit.OpCode HarmonyLib.CodeInstruction::opcode
+  ldsfld System.Reflection.Emit.OpCode System.Reflection.Emit.OpCodes::Ldfld
+  call System.Boolean System.Reflection.Emit.OpCode::op_Inequality(System.Reflection.Emit.OpCode,System.Reflection.Emit.OpCode)
+  brfalse.s IL_0014: ldarg.0
+  ldc.i4.0 
+  ret 
+  ldarg.0 
+  ldfld System.Object HarmonyLib.CodeInstruction::operand
+  isinst System.Reflection.FieldInfo
+  stloc.0 
+  ldloc.0 
+  brfalse.s IL_004d: ldc.i4.0
+  ldloc.0 
+  ldarg.1 
+  beq.s IL_004b: ldc.i4.1
+  ldloc.0 
+  callvirt System.String System.Reflection.MemberInfo::get_Name()
+  ldarg.1 
+  callvirt System.String System.Reflection.MemberInfo::get_Name()
+  call System.Boolean System.String::op_Equality(System.String,System.String)
+  brfalse.s IL_0049: ldc.i4.0
+  ldloc.0 
+  callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  ldarg.1 
+  callvirt System.Type System.Reflection.MemberInfo::get_DeclaringType()
+  ceq 
+  ret 
+  ldc.i4.0 
+  ret 
+  ldc.i4.1 
+  ret 
+  ldc.i4.0 
+  ret 
+METHOD: SimulationManager/UpdateMode MoreNetworkCapacity.Patches.NetManagerDeserializePatch::GetUpdateMode()
+  call !0 ColossalFramework.Singleton`1<SimulationManager>::get_instance()
+  stloc.0 
+  ldloc.0 
+  ldnull 
+  call System.Boolean UnityEngine.Object::op_Equality(UnityEngine.Object,UnityEngine.Object)
+  brtrue.s IL_0017: ldc.i4.m1
+  ldloc.0 
+  ldfld SimulationMetaData SimulationManager::m_metaData
+  brtrue.s IL_0019: ldloc.0
+  ldc.i4.m1 
+  ret 
+  ldloc.0 
+  ldfld SimulationMetaData SimulationManager::m_metaData
+  ldfld SimulationManager/UpdateMode SimulationMetaData::m_updateMode
+  ret 

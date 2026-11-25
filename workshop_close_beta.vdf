@@ -9,23 +9,26 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.12:[/h2]
-- [b]Khắc phục triệt để lỗi 'Simulation failed' (NetManager / BuildingManager / ElectricityManager) & Deadlock EventManager.InitRenderData:[/b]
-  + Thay thế toàn diện phần đuôi nạp NetManager bằng `SafeTailDeserialize` (Transpiler Grafting tại cut-point version 321):
-    - Đọc luồng adjusted segments trực tiếp từ DataSerializer với bộ đệm tự động co giãn lên đến 65.536 entries, loại trừ hoàn toàn nguy cơ tràn mảng hoặc đọc sót byte trong stream.
-    - Khởi tạo an toàn 100% các node và segment còn hoạt động trong bộ đệm bằng `SafeInitializeNode` / `SafeInitializeSegment` có bọc thép xử lý ngoại lệ từng phần tử độc lập.
-    - Đảm bảo gọi thành công `LoadingProfiler.EndDeserialize(s, \"NetManager\")`, tiêu thụ chính xác thẻ đóng luồng, giữ cho con trỏ stream byte luôn thẳng hàng 100% cho `BuildingManager`, `ElectricityManager` và toàn bộ các manager tiếp theo.
-  + Triệt tiêu vĩnh viễn deadlock tại `EventManager.InitRenderData` trên Main thread, đưa game vào màn chơi mượt mà.
+[h2]Cập nhật Close Beta v5.1.13:[/h2]
+- [b]Khắc phục game treo vô hạn sau deserialization (simulation warm-up deadlock):[/b]
+  + Thêm bộ lọc hậu-nạp dữ liệu (Post-Deserialization Sanitizer) chạy ngay sau `SafeTailDeserialize`:
+    - Dọn sạch tất cả segment/node có prefab NULL hoặc thiếu (m_flags = None).
+    - Dọn sạch segment có `startNode`/`endNode` trỏ đến node đã chết (m_flags = None) hoặc bằng 0.
+    - Cắt đứt chuỗi lane tràn vượt quá `info.m_lanes.Length` (ngăn vòng lặp vô hạn lane traversal).
+    - Phá vỡ mọi vòng lặp ma trong `m_nodeGrid` và `m_segmentGrid` (cycle-breaking).
+    - Sửa `m_trafficBuffer` / `m_trafficDensity` bất thường gây kẹt blocked roads.
+  + Chạy `SanitizeNetElements` lần hai trong `NetManager.Data.AfterDeserialize` (belt-and-suspenders).
+  + Kết quả: Game vượt qua giai đoạn simulation warm-up, không còn treo vô hạn.
 
-[h2]Tổng hợp tính năng nổi bật từ các bản Close Beta trước:[/h2]
-- [b]v5.1.11:[/b] Transpiler liên assembly `SafeInitializeSegment/Node`, kiểm soát trần duyệt mảng, phục hồi MNC chuẩn 65K đối tượng.
-- [b]v5.1.10:[/b] Cấp phát trước `m_adjustedSegments` 8K, lá chắn kép PreGuard & Finalizer Shield cho các simulation managers.
-- [b]v5.1.9:[/b] Boundary Guard cho `InitializeSegment/Node` & Finalizer Shield cho `NetManager.Data.Deserialize`.
-- [b]v5.1.8:[/b] Mở rộng lát cắt mô phỏng NetManager 65K (sửa lỗi đèn giao thông mặc định kẹt cứng và phục hồi màu traffic); fix ArrayGuardian TM:PE Flags; vá KianCommons kTags DynamicFlags & NetUtil; mở rộng 65K simulation slice cho Điện & Nước.
-- [b]v5.1.7:[/b] Khắc phục triệt để kẹt vòng lặp ma NetGrid Cycle Immunity; phục hồi đặt trạm bus TransportTool & tuyến public transport.
-- [b]v5.1.4 - v5.1.6:[/b] Khắc phục DivideByZeroException EightyOne2, triệt tiêu xe cà giật, TLM 64K trạm dừng, tối ưu hiệu năng mô phỏng 100% Native Physics.
-- [b]Tương thích toàn diện với More Props BETA & Grid Cycle Armor.[/b]
+[h2]Tổng hợp các bản Close Beta trước:[/h2]
+- [b]v5.1.12:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync, EndDeserialize tag alignment.
+- [b]v5.1.11:[/b] Transpiler liên assembly SafeInitializeSegment/Node, trần duyệt mảng.
+- [b]v5.1.10:[/b] Cấp phát trước m_adjustedSegments 8K, PreGuard & Finalizer Shield.
+- [b]v5.1.9:[/b] Boundary Guard InitializeSegment/Node & Finalizer Shield.
+- [b]v5.1.8:[/b] 65K simulation slice, fix đèn giao thông, fix traffic color, ArrayGuardian, KianCommons.
+- [b]v5.1.7:[/b] NetGrid Cycle Immunity, phục hồi TransportTool & tuyến public transport.
+- [b]v5.1.4-v5.1.6:[/b] DivideByZeroException EightyOne2, TLM 64K, xe cà giật, Native Physics.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.12 Close Beta: Khắc phục triệt để lỗi Simulation failed (NetManager / BuildingManager / ElectricityManager) & Deadlock EventManager.InitRenderData via SafeTailDeserialize Transpiler grafting & stream byte synchronization guarantee."
+	"changenote"		"v5.1.13 Close Beta: Post-Deserialization Sanitizer - dọn sạch corrupt nodes/segments/grids/lanes trước simulation warm-up, chống deadlock hoàn toàn."
 }
