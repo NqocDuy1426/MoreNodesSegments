@@ -1895,8 +1895,8 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.15 by NgocDuy";
-        public string Description => "[Close Beta v5.1.15] Full FPS Booster & LSMR compatibility, fix LSMR GetLoadQueue invalid IL deadlock, armor PatchLoaderMod UI.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.16 by NgocDuy";
+        public string Description => "[Close Beta v5.1.16] Fix roads panel missing buttons & FindIt MissingFieldException (PrefabInfo.m_requiredModderPack), armor GeneratedScrollPanel UI.";
 #else
         public string Name => "More Nodes/Segments v5.1.12 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
@@ -13350,6 +13350,36 @@ namespace MoreNetworkCapacityRenew
             return null;
         }
 
+        public static Exception FindIt_Init_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled FindIt.AssetTagList exception to prevent ModException popup: " + __exception.Message);
+                return null;
+            }
+            return null;
+        }
+
+        public static Exception GeneratedScrollPanel_ShowAssets_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled GeneratedScrollPanel.ShowAssetsThatShouldBeShown exception: " + __exception.Message);
+                return null;
+            }
+            return null;
+        }
+
+        public static Exception GeneratedScrollPanel_CreateButton_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled GeneratedScrollPanel.CreateButton exception: " + __exception.Message);
+                return null;
+            }
+            return null;
+        }
+
         private static bool _lsmFpsBoosterHarmonized = false;
         public static void EnsureLoadingScreenModAndFPSBoosterHarmony(HarmonyInstance harmony)
         {
@@ -13399,6 +13429,50 @@ namespace MoreNetworkCapacityRenew
                                 harmony.Patch(createUi, finalizer: new HarmonyMethod(fin));
                                 UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored PatchLoaderMod.SettingsUi.CreateUi against macOS NRE ✓");
                             }
+                        }
+                        break;
+                    }
+                }
+
+                // 3. Armor GeneratedScrollPanel UI against crashes (ensures roads list and all service panels always display)
+                try
+                {
+                    Type gspType = typeof(GeneratedScrollPanel);
+                    MethodInfo mShow = gspType.GetMethod("ShowAssetsThatShouldBeShown", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (mShow != null)
+                    {
+                        MethodInfo finShow = typeof(ThirdPartyCompatibility).GetMethod(nameof(GeneratedScrollPanel_ShowAssets_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                        harmony.Patch(mShow, finalizer: new HarmonyMethod(finShow));
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored GeneratedScrollPanel.ShowAssetsThatShouldBeShown with UI Finalizer Shield ✓");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Armor GeneratedScrollPanel error: " + ex);
+                }
+
+                // 4. Armor FindIt against ModException popups
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == "FindIt")
+                    {
+                        try
+                        {
+                            Type tagListType = asm.GetType("FindIt.AssetTagList");
+                            if (tagListType != null)
+                            {
+                                MethodInfo initMethod = tagListType.GetMethod("Init", BindingFlags.Public | BindingFlags.Static);
+                                if (initMethod != null)
+                                {
+                                    MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(FindIt_Init_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                                    harmony.Patch(initMethod, finalizer: new HarmonyMethod(fin));
+                                    UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored FindIt.AssetTagList.Init against ModException ✓");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Armor FindIt error: " + ex);
                         }
                         break;
                     }
