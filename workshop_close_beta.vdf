@@ -9,26 +9,19 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.13:[/h2]
-- [b]Khắc phục game treo vô hạn sau deserialization (simulation warm-up deadlock):[/b]
-  + Thêm bộ lọc hậu-nạp dữ liệu (Post-Deserialization Sanitizer) chạy ngay sau `SafeTailDeserialize`:
-    - Dọn sạch tất cả segment/node có prefab NULL hoặc thiếu (m_flags = None).
-    - Dọn sạch segment có `startNode`/`endNode` trỏ đến node đã chết (m_flags = None) hoặc bằng 0.
-    - Cắt đứt chuỗi lane tràn vượt quá `info.m_lanes.Length` (ngăn vòng lặp vô hạn lane traversal).
-    - Phá vỡ mọi vòng lặp ma trong `m_nodeGrid` và `m_segmentGrid` (cycle-breaking).
-    - Sửa `m_trafficBuffer` / `m_trafficDensity` bất thường gây kẹt blocked roads.
-  + Chạy `SanitizeNetElements` lần hai trong `NetManager.Data.AfterDeserialize` (belt-and-suspenders).
-  + Kết quả: Game vượt qua giai đoạn simulation warm-up, không còn treo vô hạn.
+[h2]Cập nhật Close Beta v5.1.14:[/h2]
+- [b]Khắc phục v5.1.13 sanitizer xóa nhầm toàn bộ nodes/segments:[/b]
+  + Loại bỏ hoàn toàn kiểm tra `PrefabCollection.GetPrefab()` trong SafeTailDeserialize (prefabs chưa resolve ở giai đoạn Deserialize → GetPrefab() luôn trả null → xóa sạch dữ liệu hợp lệ).
+  + Chỉ giữ kiểm tra cấu trúc: clear segment khi CẢ HAI startNode VÀ endNode == 0 (thực sự corrupt).
+  + Grid cycle-breaking dùng thuật toán Floyd (tortoise-and-hare) chính xác, chỉ phá vòng lặp thực sự, không unlink dead nodes.
+  + Fix stale traffic buffer/density gây blocked roads.
 
 [h2]Tổng hợp các bản Close Beta trước:[/h2]
-- [b]v5.1.12:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync, EndDeserialize tag alignment.
-- [b]v5.1.11:[/b] Transpiler liên assembly SafeInitializeSegment/Node, trần duyệt mảng.
-- [b]v5.1.10:[/b] Cấp phát trước m_adjustedSegments 8K, PreGuard & Finalizer Shield.
-- [b]v5.1.9:[/b] Boundary Guard InitializeSegment/Node & Finalizer Shield.
-- [b]v5.1.8:[/b] 65K simulation slice, fix đèn giao thông, fix traffic color, ArrayGuardian, KianCommons.
-- [b]v5.1.7:[/b] NetGrid Cycle Immunity, phục hồi TransportTool & tuyến public transport.
-- [b]v5.1.4-v5.1.6:[/b] DivideByZeroException EightyOne2, TLM 64K, xe cà giật, Native Physics.
+- [b]v5.1.13:[/b] Post-deserialization sanitizer (bị lỗi false-positive).
+- [b]v5.1.12:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync.
+- [b]v5.1.8-v5.1.11:[/b] 65K simulation slice, boundary guards, finalizer shields, ArrayGuardian.
+- [b]v5.1.4-v5.1.7:[/b] NetGrid Cycle Immunity, TransportTool, DivideByZeroException, TLM 64K.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.13 Close Beta: Post-Deserialization Sanitizer - dọn sạch corrupt nodes/segments/grids/lanes trước simulation warm-up, chống deadlock hoàn toàn."
+	"changenote"		"v5.1.14 Close Beta: Fix sanitizer false-positive xóa nhầm data. Lightweight integrity check + Floyd cycle detection."
 }
