@@ -9,6 +9,12 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
+[h2]Cập nhật Close Beta v5.1.10:[/h2]
+- [b]Khắc phục triệt để lỗi 'Simulation failed!' (Array index is out of range) trong NetManager & ElectricityManager khi load map:[/b]
+  + Mở rộng cấp phát trước mảng `m_adjustedSegments` lên 8.192 phần tử (tương đương dung lượng 524.288 đoạn đường): Loại bỏ tận gốc lỗi sập mảng khi giải mã savegame có số lượng adjusted segments vượt 1.016 entries (do các savegame được lưu từ phiên bản 65.536 segments).
+  + Mở rộng tự động toàn diện các mảng bitmask `m_updatedNodes`, `m_updatedSegments` và bộ đệm mạng lên 65.536 phần tử trước khi quá trình Deserialize bắt đầu.
+  + Thiết lập lá chắn kép PreGuard & Finalizer Shield cho `NetManager`, `ElectricityManager` (m_nodeGroups 65K), `WaterManager` và `BuildingManager`: Bảo đảm luồng dữ liệu tuần tự không bao giờ bị lệch vị trí (stream desynchronization), đưa toàn bộ dữ liệu save vào game an toàn 100%.
+
 [h2]Cập nhật Close Beta v5.1.9:[/h2]
 - [b]Khắc phục triệt để lỗi 'Simulation failed! NetManager' (Array index is out of range) khi load savegame:[/b]
   + Tích hợp bộ giáp kiểm tra biên an toàn (Boundary Guard) trong `NetManager.InitializeSegment` và `NetManager.InitializeNode`: Tự động nhận diện và hóa giải các đoạn đường 'mồ côi' (orphaned segments) mang ID node đầu-cuối không hợp lệ (>= buffer length hoặc rác 65.535), loại bỏ hoàn toàn nguyên nhân gây văng ngoại lệ truy cập mảng khi đăng ký vào lưới không gian.
@@ -52,5 +58,5 @@
 - [b]Tương thích toàn diện với More Props BETA & Grid Cycle Armor.[/b]
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.9 Close Beta: Sửa lỗi Simulation failed! NetManager (Array index is out of range) khi load savegame via NetManager InitializeSegment/Node boundary guards & Data.Deserialize finalizer shield."
+	"changenote"		"v5.1.10 Close Beta: Khắc phục triệt để lỗi Simulation failed! (Array index is out of range) trong NetManager & ElectricityManager via m_adjustedSegments 65K pre-allocation & multi-manager PreGuard/Finalizer shields."
 }

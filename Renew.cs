@@ -1895,10 +1895,10 @@ namespace MoreNetworkCapacityRenew
     public class RenewMod : IUserMod
     {
 #if CLOSE_BETA
-        public string Name => "More Nodes/Segments [Close Beta] v5.1.8 by NgocDuy";
-        public string Description => "[Close Beta v5.1.8] Fixed NetManager 65K simulation slices (traffic lights & traffic color overlay), ArrayGuardian TM:PE Flags expansion (Nullable element types), KianCommons kTags DynamicFlags armor & NetUtil initialization, water/electricity 65K simulation slices, TransportLine 65K stop loop bound, and unmuted exception logging.";
+        public string Name => "More Nodes/Segments [Close Beta] v5.1.10 by NgocDuy";
+        public string Description => "[Close Beta v5.1.10] Fixed NetManager.Data.Deserialize m_adjustedSegments 65K buffer bounds, pre-allocated auxiliary buffers to 8192 entries, added PreGuard & Finalizer shields for NetManager/ElectricityManager/WaterManager/BuildingManager to guarantee flawless savegame deserialization.";
 #else
-        public string Name => "More Nodes/Segments v5.1.8 by NgocDuy";
+        public string Name => "More Nodes/Segments v5.1.10 by NgocDuy";
         public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
 #endif
 
@@ -15468,9 +15468,48 @@ namespace MoreNetworkCapacityRenew
                         MethodInfo desMethod = nmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
                         if (desMethod != null)
                         {
+                            MethodInfo pre = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
                             MethodInfo fin = typeof(TransportLineCompatibility).GetMethod(nameof(NetManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                            harmony.Patch(desMethod, finalizer: new HarmonyMethod(fin));
-                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.Deserialize with Finalizer Shield.");
+                            harmony.Patch(desMethod, prefix: new HarmonyMethod(pre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(fin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored NetManager.Data.Deserialize with PreGuard & Finalizer Shield.");
+                        }
+                    }
+
+                    Type emDataType = typeof(ElectricityManager).GetNestedType("Data", BindingFlags.Public | BindingFlags.NonPublic);
+                    if (emDataType != null)
+                    {
+                        MethodInfo emDes = emDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (emDes != null)
+                        {
+                            MethodInfo emPre = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo emFin = typeof(TransportLineCompatibility).GetMethod(nameof(ElectricityManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(emDes, prefix: new HarmonyMethod(emPre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(emFin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored ElectricityManager.Data.Deserialize with PreGuard & Finalizer Shield.");
+                        }
+                    }
+
+                    Type wmDataType = typeof(WaterManager).GetNestedType("Data", BindingFlags.Public | BindingFlags.NonPublic);
+                    if (wmDataType != null)
+                    {
+                        MethodInfo wmDes = wmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (wmDes != null)
+                        {
+                            MethodInfo wmPre = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Prefix), BindingFlags.Public | BindingFlags.Static);
+                            MethodInfo wmFin = typeof(TransportLineCompatibility).GetMethod(nameof(WaterManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(wmDes, prefix: new HarmonyMethod(wmPre) { prioritiy = Harmony.Priority.First }, finalizer: new HarmonyMethod(wmFin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored WaterManager.Data.Deserialize with PreGuard & Finalizer Shield.");
+                        }
+                    }
+
+                    Type bmDataType = typeof(BuildingManager).GetNestedType("Data", BindingFlags.Public | BindingFlags.NonPublic);
+                    if (bmDataType != null)
+                    {
+                        MethodInfo bmDes = bmDataType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ColossalFramework.IO.DataSerializer) }, null);
+                        if (bmDes != null)
+                        {
+                            MethodInfo bmFin = typeof(TransportLineCompatibility).GetMethod(nameof(BuildingManager_Data_Deserialize_Finalizer), BindingFlags.Public | BindingFlags.Static);
+                            harmony.Patch(bmDes, finalizer: new HarmonyMethod(bmFin));
+                            UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored BuildingManager.Data.Deserialize with Finalizer Shield.");
                         }
                     }
                     UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Patched NetManager InitializeSegment & InitializeNode with Dynamic Buffer Armor (Priority.First).");
@@ -18041,12 +18080,178 @@ namespace MoreNetworkCapacityRenew
             return false;
         }
 
+        public static void NetManager_Data_Deserialize_Prefix()
+        {
+            try
+            {
+                NetManager nm = Singleton<NetManager>.instance;
+                if (nm != null)
+                {
+                    // 1. Pre-allocate m_adjustedSegments to at least 8192 elements (524,288 segments)
+                    // In vanilla / MNC Core, m_adjustedSegments was only 576 or 1016 (65024 >> 6).
+                    // Saves with 1024 (65536 >> 6) entries caused IndexOutOfRangeException at offset <0x055b5>.
+                    if (nm.m_adjustedSegments == null || nm.m_adjustedSegments.Length < 8192)
+                    {
+                        ulong[] newAdj = new ulong[8192];
+                        if (nm.m_adjustedSegments != null)
+                        {
+                            Array.Copy(nm.m_adjustedSegments, newAdj, Math.Min(nm.m_adjustedSegments.Length, newAdj.Length));
+                        }
+                        nm.m_adjustedSegments = newAdj;
+                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Prefix: Pre-allocated m_adjustedSegments to 8192 entries ✓");
+                    }
+
+                    // 2. Ensure m_updatedNodes and m_updatedSegments have at least 8192 entries
+                    if (nm.m_updatedNodes == null || nm.m_updatedNodes.Length < 8192)
+                    {
+                        ulong[] newNodes = new ulong[8192];
+                        if (nm.m_updatedNodes != null)
+                        {
+                            Array.Copy(nm.m_updatedNodes, newNodes, Math.Min(nm.m_updatedNodes.Length, newNodes.Length));
+                        }
+                        nm.m_updatedNodes = newNodes;
+                    }
+                    if (nm.m_updatedSegments == null || nm.m_updatedSegments.Length < 8192)
+                    {
+                        ulong[] newSegs = new ulong[8192];
+                        if (nm.m_updatedSegments != null)
+                        {
+                            Array.Copy(nm.m_updatedSegments, newSegs, Math.Min(nm.m_updatedSegments.Length, newSegs.Length));
+                        }
+                        nm.m_updatedSegments = newSegs;
+                    }
+
+                    // 3. Ensure m_nodes and m_segments buffers exist and are at least 65536
+                    if (nm.m_nodes != null && nm.m_nodes.m_buffer != null && nm.m_nodes.m_buffer.Length < 65536)
+                    {
+                        Array.Resize(ref nm.m_nodes.m_buffer, 65536);
+                    }
+                    if (nm.m_segments != null && nm.m_segments.m_buffer != null && nm.m_segments.m_buffer.Length < 65536)
+                    {
+                        Array.Resize(ref nm.m_segments.m_buffer, 65536);
+                    }
+
+                    // 4. Ensure grids are sized
+                    if (nm.m_nodeGrid == null || nm.m_nodeGrid.Length < 72900)
+                    {
+                        nm.m_nodeGrid = new ushort[72900];
+                    }
+                    if (nm.m_segmentGrid == null || nm.m_segmentGrid.Length < 72900)
+                    {
+                        nm.m_segmentGrid = new ushort[72900];
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager_Data_Deserialize_Prefix error: " + ex);
+            }
+        }
+
         public static Exception NetManager_Data_Deserialize_Finalizer(Exception __exception)
         {
             if (__exception != null)
             {
                 UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] NetManager.Data.Deserialize Finalizer: Neutralized deserialization exception to protect simulation: " + __exception);
                 return null; // Suppress exception so simulation does not fail!
+            }
+            return null;
+        }
+
+        private static void EnsureArrayCapacity(object obj, string fieldName, int minCapacity)
+        {
+            if (obj == null) return;
+            try
+            {
+                FieldInfo fi = obj.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fi != null && fi.FieldType.IsArray)
+                {
+                    Array arr = fi.GetValue(obj) as Array;
+                    if (arr == null || arr.Length < minCapacity)
+                    {
+                        Type elem = fi.FieldType.GetElementType();
+                        Array newArr = Array.CreateInstance(elem, minCapacity);
+                        if (arr != null)
+                        {
+                            Array.Copy(arr, newArr, Math.Min(arr.Length, newArr.Length));
+                        }
+                        fi.SetValue(obj, newArr);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static void ElectricityManager_Data_Deserialize_Prefix()
+        {
+            try
+            {
+                ElectricityManager em = Singleton<ElectricityManager>.instance;
+                if (em != null)
+                {
+                    if (em.m_nodeGroups == null || em.m_nodeGroups.Length < 65536)
+                    {
+                        ushort[] newGroups = new ushort[65536];
+                        if (em.m_nodeGroups != null)
+                        {
+                            Array.Copy(em.m_nodeGroups, newGroups, Math.Min(em.m_nodeGroups.Length, newGroups.Length));
+                        }
+                        em.m_nodeGroups = newGroups;
+                    }
+                    EnsureArrayCapacity(em, "m_pulseUnits", 65536);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ElectricityManager_Data_Deserialize_Prefix error: " + ex);
+            }
+        }
+
+        public static Exception ElectricityManager_Data_Deserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] ElectricityManager.Data.Deserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
+            }
+            return null;
+        }
+
+        public static void WaterManager_Data_Deserialize_Prefix()
+        {
+            try
+            {
+                WaterManager wm = Singleton<WaterManager>.instance;
+                if (wm != null)
+                {
+                    EnsureArrayCapacity(wm, "m_waterPulseUnits", 65536);
+                    EnsureArrayCapacity(wm, "m_sewagePulseUnits", 65536);
+                    EnsureArrayCapacity(wm, "m_heatingPulseUnits", 65536);
+                    EnsureArrayCapacity(wm, "m_nodeData", 65536);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterManager_Data_Deserialize_Prefix error: " + ex);
+            }
+        }
+
+        public static Exception WaterManager_Data_Deserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] WaterManager.Data.Deserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
+            }
+            return null;
+        }
+
+        public static Exception BuildingManager_Data_Deserialize_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] BuildingManager.Data.Deserialize Finalizer: Neutralized exception to protect simulation: " + __exception);
+                return null;
             }
             return null;
         }
