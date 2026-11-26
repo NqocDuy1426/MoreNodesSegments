@@ -1896,10 +1896,10 @@ namespace MoreNetworkCapacityRenew
     {
 #if CLOSE_BETA
         public string Name => "More Nodes/Segments [Close Beta] v5.1.17 by NgocDuy";
-        public string Description => "[Close Beta v5.1.17] Restore roads panel and all service scroll panels, fix FindIt CCP modderpack incompatibility, armor GeneratedScrollPanel UI.";
+        public string Description => "[Close Beta v5.1.17] Cities: Skylines 1.21.2-f5 full compatibility. Restore roads panel and all service scroll panels, armor GeneratedScrollPanel UI.";
 #else
-        public string Name => "More Nodes/Segments v5.1.12 by NgocDuy";
-        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS, NetGrid Cycle Immunity (fixes TM:PE node raycast & bus stop placement), EightyOne2 Electricity Shield, Universal Public Transport Armor, 100% native vehicle physics, More Props BETA compatibility, pure vanilla save pipeline & Mac stability. Renewed by NgocDuy.";
+        public string Name => "More Nodes/Segments v5.1.17 by NgocDuy";
+        public string Description => "Expands network node and segment capacity to 64K with extreme simulation FPS. Fully compatible with Cities: Skylines 1.21.2-f5 and FPS Booster. SafeTailDeserialize stream sync, NetGrid cycle immunity, EightyOne2 electricity shield, universal public transport armor, GeneratedScrollPanel UI armor & Mac/Windows stability. Renewed by NgocDuy.";
 #endif
 
         static RenewMod()

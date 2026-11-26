@@ -5,34 +5,36 @@
 	"contentfolder"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/content"
 	"previewfile"		"/Users/nqocduy/CS_MoreNetworkCapacity_Renew/preview-image.png"
 	"visibility"		"0"
-	"title"		"More Nodes/Segments v5.1.7"
-	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.7 (MAJOR STABILITY UPDATE) 🚀[/h1]
+	"title"		"More Nodes/Segments v5.1.17"
+	"description"		"[h1]🚀 WHAT'S NEW IN v5.1.17 (PATCH 1.21.2-f5 COMPATIBILITY UPDATE) 🚀[/h1]
 [list]
-[*] [b]NetGrid Cycle Immunity (NetGridSanitizer):[/b]
-    Completely eliminates infinite circular linked-list loops inside [i]NetManager.m_nodeGrid[/i] and [i]m_segmentGrid[/i] (72,900 spatial cells). Resolves over 600+ recurring [code]Invalid list detected![/code] errors per play session across [i]NetManager.RayCast[/i], [i]EndRenderingImpl[/i], and [i]CalculateGroupData[/i].
-[*] [b]Full Restoration of TM:PE Node & Lane Selection Tool:[/b]
-    With the spatial grid cycles sanitized, mouse raycasting for TM:PE junction selection, lane connector tools, and speed limit markers works flawlessly and instantly without stutter or lag.
-[*] [b]Bus Stop & Transport Line Placement Fix:[/b]
-    Fixes the issue where bus stops and transit lines could not be placed or connected properly on certain road segments due to broken spatial grid references.
-[*] [b]Duplicate Insertion Self-Loop Shield:[/b]
-    Defensive guards in [i]NetManager.InitializeNode[/i] and [i]InitializeSegment[/i] preventing self-referential linked list loops during dynamic road construction and network upgrades.
-[*] [b]TransportLine Stop Loop Sanitizer:[/b]
-    Auto-detects and repairs infinite stop reference loops in public transport lines on save load.
+[*] [b]Full Official Compatibility with Cities: Skylines 1.21.2-f5:[/b]
+    Fully verified and optimized for the latest official game release (v1.21.2-f5). Adapts seamlessly to engine-level data structure updates and 64-bit enum bitmasks while maintaining 100% backward savegame compatibility.
+[*] [b]GeneratedScrollPanel UI Rendering Armor:[/b]
+    Armors the game's native toolbar and scroll panels (Roads, Electricity, Water, Public Transport, and all service categories) against third-party UI exceptions, guaranteeing that all network assets, road variations, and tool buttons always render reliably and completely without disappearing.
+[*] [b]SafeTailDeserialize Stream Alignment (v5.1.12-v5.1.14):[/b]
+    Advanced CIL transpiler grafting for [i]NetManager.Data.Deserialize[/i], eliminating savegame load hangs, stream byte alignment shifts, and desync when loading 65,536-capacity cities.
+[*] [b]FPS Booster & Loading Screen Mod Revisited Full Synergy:[/b]
+    Full compatibility with PatchLoader, BehaviourUpdater, and modern 64-bit modding frameworks. Eliminates JIT instruction mismatches and protects macOS and Windows environments.
+[*] [b]NetGrid Cycle Immunity & Spatial Sanitizer:[/b]
+    Safeguards the 72,900 spatial grid cells against circular linked-list references, ensuring instant mouse raycasting for TM:PE junction selection, lane connectors, and transit line placement.
+[*] [b]EightyOne2 Electricity Shield & Universal Public Transport Armor:[/b]
+    Eliminates power distribution edge cases in 81-tile regional metropolises and transit terminal vehicle pathfinding despawns.
 [/list]
 
 [hr][/hr]
 
-[h1]🚀 PREVIOUS UPDATES (v5.1.4 - v5.1.5) 🚀[/h1]
+[h1]🚀 PREVIOUS KEY MILESTONES (v5.1.4 - v5.1.16) 🚀[/h1]
 [list]
-[*] [b]Simulation Thread Immunity (EightyOne2 Electricity Shield):[/b] Permanently eliminates [i]DivideByZeroException[/i] during power distribution in large 81-tile cities via CIL transpiler [b]SafeDivUn[/b] & Harmony exception barrier.
-[*] [b]Universal Public Transport Armor:[/b] Multi-tier search radius (64m -> 128m -> 256m) and normalized [b]data[/b] parameter across all transit vehicle types, preventing despawn at underground terminals.
-[*] [b]Road Vehicle Smooth Physics:[/b] Removed TM:PE's recurring 585K-cell grid scan, eliminating micro-stutters and periodic CPU spikes.
-[*] [b]64K Stop Node Armor for TLM:[/b] Eliminates [i]IndexOutOfRangeException[/i] when citizens board vehicles at transit stops with Node IDs >= 32,768.
+[*] [b]NetGrid Cycle Immunity & TM:PE RayCast Armor:[/b] Sanitizes all 72,900 spatial cells, eliminating [code]Invalid list detected![/code] loops and restoring instant mouse raycasting for junction tools, bus stop placement, and transport lines.
+[*] [b]Simulation Thread Immunity (EightyOne2 Shield):[/b] Transpiler [b]SafeDivUn[/b] & Harmony barrier permanently eliminating [i]DivideByZeroException[/i] during power/water distribution in 81-tile cities.
+[*] [b]Universal Transit Armor & Smooth Physics:[/b] Dynamic multi-tier terminal radius and optimized simulation loops preventing vehicle despawns and stuttering.
+[*] [b]64K Stop Node Armor for TLM:[/b] Eliminates array boundary exceptions when citizens board transit at extended nodes.
 [/list]
 
 [hr][/hr]
 
-[h1]MORE NODES/SEGMENTS v5.1.7[/h1]
+[h1]MORE NODES/SEGMENTS v5.1.17[/h1]
 [b]The Definitive 64K Network Limit Breaker for Cities: Skylines[/b]
 [i]Fully rewritten, optimized, and stabilized by NgocDuy[/i]
 
@@ -42,7 +44,7 @@
 Have you ever hit the infamous [b]'Cannot create more objects of this type'[/b] limit while building your dream metropolis?
 Vanilla Cities: Skylines caps your road and transit networks at ~32,000 nodes and segments.
 
-[b]More Nodes/Segments v5.1.5[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
+[b]More Nodes/Segments v5.1.17[/b] safely expands your game internal network limits to [b]65,536 (64K) Nodes and Segments[/b] - giving you double the building freedom!
 
 Unlike unstable legacy experimental versions that caused fatal crashes and corrupted traffic, [b]More Nodes/Segments[/b] is engineered from the ground up for [b]maximum stability, accurate traffic simulation, and zero data loss.[/b]
 
@@ -61,7 +63,7 @@ Unlike unstable legacy experimental versions that caused fatal crashes and corru
 [/list]
 [*] [b]Accurate Traffic Flow & Real-Time Heatmaps:[/b] Full traffic flow color refresh across all extended segments without frozen vehicles or phantom deadlocks.
 [*] [b]Safe Persistence Guarantee:[/b] Implements clean savegame serialization to ensure custom traffic setups and extended networks reload perfectly.
-[*] [b]Deep Mod Ecosystem Compatibility:[/b] Seamless integration with Adaptive Roads, Network Skins, Node Controller Renewal, Move It, IMT, Network Multitool, Network Anarchy, Picker, Find It, Impatient Commuters, etc.
+[*] [b]Deep Mod Ecosystem Compatibility:[/b] Seamless integration with Adaptive Roads, Network Skins, Node Controller Renewal, Move It, IMT, Network Multitool, Network Anarchy, Picker, Impatient Commuters, etc.
 [/list]
 
 [hr][/hr]
@@ -79,7 +81,6 @@ Tested and fully compatible with the standard modern modding ecosystem:
 [*] [b]Network Multitool[/b]
 [*] [b]Move It[/b]
 [*] [b]Picker[/b]
-[*] [b]Find It 2[/b]
 [*] [b]81 Tiles 2[/b]
 [*] [b]Advanced Road Tools[/b]
 [*] [b]Improved Public Transport 2 & 3[/b]
@@ -113,5 +114,5 @@ Source code is fully open-source and actively maintained on GitHub:
 
 [hr][/hr]
 [i]Developed with precision and care for the Cities: Skylines community by NgocDuy.[/i]"
-	"changenote"		"v5.1.5 Hotfix: Simulation Thread DivideByZeroException Shield (EightyOne2 & Vanilla Electricity/Water), Transit AI Parameter Alignment (Zero TargetInvocationException), MoreProps & IPT parameter fixes."
+	"changenote"		"v5.1.17: Full official compatibility with Cities: Skylines 1.21.2-f5. GeneratedScrollPanel UI rendering armor (guarantees roads and service panels always display), SafeTailDeserialize 65K stream alignment, FPS Booster synergy, NetGrid cycle immunity."
 }
