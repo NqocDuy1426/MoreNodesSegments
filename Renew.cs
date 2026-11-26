@@ -11954,10 +11954,6 @@ namespace MoreNetworkCapacityRenew
                                     {
                                         PatchThirdPartyMods(_harmonyInstance);
                                         DynamicPatcher.PatchAssembly(_harmonyInstance, args.LoadedAssembly);
-                                        if (name == "FindIt")
-                                        {
-                                            ArmorFindItAssembly(_harmonyInstance, args.LoadedAssembly);
-                                        }
                                         if (name == "AdaptiveRoads")
                                         {
                                             Type netUtilType = args.LoadedAssembly.GetType("KianCommons.NetUtil");
@@ -12016,7 +12012,6 @@ namespace MoreNetworkCapacityRenew
                    name == "TransferManagerExtended" ||
                    name == "RebalancedIndustriesRevisited" ||
                    name == "MorePathUnits" ||
-                   name == "FindIt" ||
                    name == "ImpatientCommuters";
         }
 
@@ -13355,74 +13350,6 @@ namespace MoreNetworkCapacityRenew
             return null;
         }
 
-        public static bool FindIt_CreateButton_Init_Prefix()
-        {
-            // Suppress FindIt.CreateButtonPatch.Init to protect GeneratedScrollPanel road/service item lists
-            return false;
-        }
-
-        public static bool FindIt_CheckCCP_Prefix(ref bool __result)
-        {
-            __result = false;
-            return false;
-        }
-
-        public static Exception FindIt_Init_Finalizer(Exception __exception)
-        {
-            if (__exception != null)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Handled FindIt.AssetTagList exception to prevent ModException popup: " + __exception.Message);
-                return null;
-            }
-            return null;
-        }
-
-        public static void ArmorFindItAssembly(HarmonyInstance harmony, Assembly asm)
-        {
-            if (harmony == null || asm == null) return;
-            try
-            {
-                Type tagListType = asm.GetType("FindIt.AssetTagList");
-                if (tagListType != null)
-                {
-                    MethodInfo initMethod = tagListType.GetMethod("Init", BindingFlags.Public | BindingFlags.Static);
-                    if (initMethod != null)
-                    {
-                        MethodInfo fin = typeof(ThirdPartyCompatibility).GetMethod(nameof(FindIt_Init_Finalizer), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(initMethod, finalizer: new HarmonyMethod(fin));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored FindIt.AssetTagList.Init against ModException ✓");
-                    }
-                }
-
-                Type cbType = asm.GetType("FindIt.CreateButtonPatch");
-                if (cbType != null)
-                {
-                    MethodInfo initMethod = cbType.GetMethod("Init", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                    if (initMethod != null)
-                    {
-                        MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(FindIt_CreateButton_Init_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(initMethod, prefix: new HarmonyMethod(pre));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored FindIt.CreateButtonPatch.Init with Harmony Prefix Shield ✓");
-                    }
-                }
-
-                Type assetType = asm.GetType("FindIt.Asset");
-                if (assetType != null)
-                {
-                    MethodInfo checkCcp = assetType.GetMethod("CheckCCP", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
-                    if (checkCcp != null)
-                    {
-                        MethodInfo pre = typeof(ThirdPartyCompatibility).GetMethod(nameof(FindIt_CheckCCP_Prefix), BindingFlags.Public | BindingFlags.Static);
-                        harmony.Patch(checkCcp, prefix: new HarmonyMethod(pre));
-                        UnityEngine.Debug.Log("[MoreNetworkCapacityRenew] Armored FindIt.Asset.CheckCCP with Harmony Prefix Shield ✓");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Armor FindIt error: " + ex);
-            }
-        }
 
         public static Exception GeneratedScrollPanel_ShowAssets_Finalizer(Exception __exception)
         {
@@ -13515,15 +13442,6 @@ namespace MoreNetworkCapacityRenew
                     UnityEngine.Debug.LogWarning("[MoreNetworkCapacityRenew] Armor GeneratedScrollPanel error: " + ex);
                 }
 
-                // 4. Armor FindIt against ModException popups and UI crashes
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == "FindIt")
-                    {
-                        ArmorFindItAssembly(harmony, asm);
-                        break;
-                    }
-                }
 
                 _lsmFpsBoosterHarmonized = true;
             }
