@@ -9,21 +9,20 @@
 	"description"		"[h1]More Nodes/Segments [Close Beta - Friends Only][/h1]
 [b]Bản thử nghiệm kín dành riêng cho bạn bè và cộng tác viên thử nghiệm.[/b]
 
-[h2]Cập nhật Close Beta v5.1.16:[/h2]
-- [b]Khắc phục triệt để lỗi mất danh sách đường & FindIt MissingFieldException:[/b]
-  + Xử lý thay đổi cấu trúc của Colossal Order (chuyển `m_requiredModderPack` thành property kết hợp `m_requiredModderPack1` & `m_requiredModderPack2`).
-  + Bổ sung trường tương thích ngược `m_requiredModderPack` vào `PrefabInfo` trong `Assembly-CSharp.dll`.
-  + Nâng cấp các lệnh truy xuất `ldfld` trong `FindIt.dll` sang `callvirt get_m_requiredModderPack()` chính thức.
-  + Thêm lá chắn Harmony Finalizer Shield cho `GeneratedScrollPanel.ShowAssetsThatShouldBeShown`, đảm bảo danh sách đường và mọi panel dịch vụ luôn hiển thị đầy đủ 100%, không bao giờ bị lỗi biến mất.
-  + Bọc giáp triệt tiêu `ModException` cho `FindIt.AssetTagList.Init`.
+[h2]Cập nhật Close Beta v5.1.17:[/h2]
+- [b]Khắc phục hoàn toàn lỗi không hiển thị danh sách đường (Roads panel) & lỗi FindIt ModException:[/b]
+  + Làm sạch Assembly-CSharp.dll khỏi enum field không hợp lệ (loại bỏ triệt để 119 cảnh báo Unsupported enum type).
+  + Khắc phục xung đột kiểu dữ liệu 64-bit ModderPackBitMask trong FindIt.dll: vô hiệu hóa an toàn CreateButtonPatch.Init (nguyên nhân gây crash ShowAssetsThatShouldBeShown làm mất danh sách đường) và CheckCCP.
+  + Thêm Harmony Prefix Shield cho FindIt.CreateButtonPatch.Init và FindIt.Asset.CheckCCP trong More Nodes/Segments, bảo vệ danh sách đường trong mọi tình huống.
+  + Danh sách đường và toàn bộ các panel dịch vụ khác hiển thị ổn định 100%.
 
 [h2]Tổng hợp các bản Close Beta trước:[/h2]
-- [b]v5.1.15:[/b] Khắc phục triệt để InvalidProgramException (IL_01dd: ceq) LSMR GetLoadQueue, tương thích 100% FPS Booster.
+- [b]v5.1.15-v5.1.16:[/b] Khắc phục triệt để InvalidProgramException LSMR GetLoadQueue, tương thích 100% FPS Booster.
 - [b]v5.1.14:[/b] Khắc phục false-positive sanitizer, thuật toán Floyd cycle detection.
 - [b]v5.1.12-v5.1.13:[/b] SafeTailDeserialize Transpiler Grafting, stream byte sync chuẩn 65K.
 - [b]v5.1.8-v5.1.11:[/b] 65K simulation slice, boundary guards, finalizer shields, ArrayGuardian.
 - [b]v5.1.4-v5.1.7:[/b] NetGrid Cycle Immunity, TransportTool, DivideByZeroException, TLM 64K.
 
 [i]Developed by NgocDuy.[/i]"
-	"changenote"		"v5.1.16 Close Beta: Phục hồi hoàn toàn danh sách đường (GeneratedScrollPanel UI Shield), fix triệt để FindIt MissingFieldException PrefabInfo.m_requiredModderPack."
+	"changenote"		"v5.1.17 Close Beta: Khắc phục triệt để lỗi không hiển thị danh sách đường (Roads panel) và lỗi FindIt ModException (m_requiredModderPack / CreateButtonPatch.Init)."
 }
